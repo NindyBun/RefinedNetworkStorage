@@ -19,7 +19,7 @@ driveR.result = Constants.DriveHolder.name
 driveR.result_count = 1
 data:extend{driveR}
 
---[[local driveE = {}
+local driveE = {}
 driveE.type = "car"
 driveE.name = Constants.DriveHolder.name
 driveE.icon = Constants.DriveHolder.itemIcon
@@ -73,32 +73,4 @@ driveE.animation =
       }
     }
 
-data:extend{driveE}]]
-
-local driveE = {}
-driveE.type = "assembling-machine"
-driveE.name = Constants.DriveHolder.name
-driveE.icon = Constants.DriveHolder.itemIcon
-driveE.icon_size = 64
-driveE.flags = {"placeable-neutral", "player-creation"}
-driveE.minable = {mining_time = 0.2, result = Constants.DriveHolder.name}
-driveE.max_health = 100
-driveE.corpse = "small-remnants"
-driveE.collision_box = {{-0.8, -0.5}, {0.8, 0.9}}
-driveE.selection_box = {{-0.8, -0.5}, {0.8, 1}}
-driveE.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
-driveE.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
-driveE.energy_source = {
-    type="electric",
-    buffer_capacity="1MW",
-    usage_priority="secondary-input",
-    drain="1MW"
-}
-driveE.energy_usage="1MW"
-driveE.crafting_speed=1
-driveE.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
-driveE.module_specification = {
-    module_slots = 6
-}
-driveE.crafting_categories = {"blank"}
 data:extend{driveE}
