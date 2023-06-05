@@ -1,0 +1,12 @@
+{
+	"name": "RefinedNetworkStorage",
+	"version": "1.0.0",
+	"title": "Refined Network Storage",
+	"author": "NindyBun",
+	"homepage":"",
+	"description": "Store and access items/fluids digitally.",
+	"factorio_version": "1.1",
+	"dependencies": [
+		"base >= 1.0"
+	]
+}
