@@ -72,7 +72,7 @@ createDriveItem(
 	256,
 	10,
 	Constants.ItemGroup.Category.subgroup,
-	"i"
+	"i-i[1]"
 )
 createDriveItem(
 	Constants.Drives.ItemDrive4k.name,
@@ -80,7 +80,7 @@ createDriveItem(
 	256,
 	10,
 	Constants.ItemGroup.Category.subgroup,
-	"i"
+	"i-i[2]"
 )
 createDriveItem(
 	Constants.Drives.ItemDrive16k.name,
@@ -88,7 +88,7 @@ createDriveItem(
 	256,
 	10,
 	Constants.ItemGroup.Category.subgroup,
-	"i"
+	"i-i[3]"
 )
 createDriveItem(
 	Constants.Drives.ItemDrive64k.name,
@@ -96,7 +96,7 @@ createDriveItem(
 	256,
 	10,
 	Constants.ItemGroup.Category.subgroup,
-	"i"
+	"i-i[4]"
 )
 --------------------------------------------------------------------------------
 createDriveRecipe(
