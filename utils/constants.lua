@@ -6,7 +6,8 @@ Constants.Settings = {
 Constants.ItemGroup = {
     Category = {
         group = "RefinedNetworkStorage",
-        subgroup = "RNS-Drives"
+        ItemDrive_subgroup = "RNS-ItemDrives",
+        FluidDrive_subgroup = "RNS-FluidDrives"
     }
 }
 Constants.Drives = {
@@ -37,6 +38,34 @@ Constants.Drives = {
         entityE = "__RefinedNetworkStorage__/graphics/ItemDrive64kE.png",
         entityS = "__RefinedNetworkStorage__/graphics/DriveS.png",
         max_size = 64000
+    },
+    FluidDrive4k = {
+        name = "FluidDrive1k",
+        itemIcon = "__RefinedNetworkStorage__/graphics/FluidDrive4kI.png",
+        entityE = "__RefinedNetworkStorage__/graphics/FluidDrive4kE.png",
+        entityS = "__RefinedNetworkStorage__/graphics/DriveS.png",
+        max_size = 4000
+    },
+    FluidDrive16k = {
+        name = "FluidDrive16k",
+        itemIcon = "__RefinedNetworkStorage__/graphics/FluidDrive16kI.png",
+        entityE = "__RefinedNetworkStorage__/graphics/FluidDrive16kE.png",
+        entityS = "__RefinedNetworkStorage__/graphics/DriveS.png",
+        max_size = 16000
+    },
+    FluidDrive64k = {
+        name = "FluidDrive64k",
+        itemIcon = "__RefinedNetworkStorage__/graphics/FluidDrive64kI.png",
+        entityE = "__RefinedNetworkStorage__/graphics/FluidDrive64kE.png",
+        entityS = "__RefinedNetworkStorage__/graphics/DriveS.png",
+        max_size = 64000
+    },
+    FluidDrive256k = {
+        name = "FluidDrive256k",
+        itemIcon = "__RefinedNetworkStorage__/graphics/FluidDrive256kI.png",
+        entityE = "__RefinedNetworkStorage__/graphics/FluidDrive256kE.png",
+        entityS = "__RefinedNetworkStorage__/graphics/DriveS.png",
+        max_size = 256000
     }
     
 }

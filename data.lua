@@ -14,8 +14,17 @@ data:extend{
 data:extend{
 	{
 		type="item-subgroup",
-		name=Constants.ItemGroup.Category.subgroup,
+		name=Constants.ItemGroup.Category.ItemDrive_subgroup,
 		group=Constants.ItemGroup.Category.group,
-		order="a"
+		order="i"
+	}
+}
+
+data:extend{
+	{
+		type="item-subgroup",
+		name=Constants.ItemGroup.Category.FluidDrive_subgroup,
+		group=Constants.ItemGroup.Category.group,
+		order="f"
 	}
 }
