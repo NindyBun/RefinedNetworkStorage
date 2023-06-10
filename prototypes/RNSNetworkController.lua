@@ -36,7 +36,7 @@ controllerE.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact
 controllerE.energy_source = {
     type = "electric",
     usage_priority = "secondary-input",
-    buffer_capacity = "1W"
+    buffer_capacity = "1J" --1 Joule is 50 Watts
 }
 controllerE.energy_usage = "0W"
 controllerE.picture =
