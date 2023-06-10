@@ -54,7 +54,7 @@ function createDriveEntity(name, icon, icon_size, entity, shadow)
 				},
 				{
 					filename = shadow,
-					priority = "high",FluidDrive256,
+					priority = "high",
 					width = icon_size,
 					height = icon_size,
 					shift = {1,-0.5},

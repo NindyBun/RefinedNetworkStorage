@@ -6,11 +6,19 @@ Constants.Settings = {
 Constants.ItemGroup = {
     Category = {
         group = "RefinedNetworkStorage",
+        subgroup = "RNS",
         ItemDrive_subgroup = "RNS-ItemDrives",
         FluidDrive_subgroup = "RNS-FluidDrives"
     }
 }
+Constants.NetworkController = {
+    name = "RNSNetworkController",
+    itemIcon = "__RefinedNetworkStorage__/graphics/NetworkControllerI.png",
+    entityE = "__RefinedNetworkStorage__/graphics/NetworkControllerE.png",
+    entityS = "__RefinedNetworkStorage__/graphics/DriveS.png"
+}
 Constants.Drives = {
+    
     ItemDrive1k = {
         name = "ItemDrive1k",
         itemIcon = "__RefinedNetworkStorage__/graphics/ItemDrive1kI.png",
