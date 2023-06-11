@@ -28,8 +28,8 @@ controllerE.flags = {"placeable-neutral", "player-creation"}
 controllerE.minable = {mining_time = 0.2, result = Constants.NetworkController.name}
 controllerE.max_health = 350
 controllerE.corpse = "medium-remnants"
-controllerE.collision_box = {{-2.5, -2.5}, {2.5, 2.5}}
-controllerE.selection_box = {{-2.5, -2.5}, {2.5, 2.5}}
+controllerE.collision_box = {{-1.5, -1.5}, {1.5, 1.5}}
+controllerE.selection_box = {{-1.5, -1.5}, {1.5, 1.5}}
 controllerE.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
 controllerE.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
 controllerE.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
@@ -48,17 +48,17 @@ controllerE.picture =
                 priority = "extra-high",
                 width = 256,
                 height = 256,
-                shift = {0,-5/4},
-                scale = 5/4
+                shift = {0,-3/4},
+                scale = 3/4
             },
             {
                 filename = Constants.NetworkController.entityS,
                 priority = "high",
                 width = 256,
                 height = 256,
-                shift = {5/2,-5/4},
+                shift = {3/2,-3/4},
                 draw_as_shadow = true,
-                scale = 5/4
+                scale = 3/4
             }
         }
     }
