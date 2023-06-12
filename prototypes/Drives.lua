@@ -32,7 +32,8 @@ function createDriveEntity(name, icon, icon_size, entity, shadow)
 	driveE.flags = {"placeable-neutral", "player-creation"}
 	driveE.minable = {mining_time = 0.2, result = name}
 	driveE.max_health = 100
-	driveE.corpse = "small-remnants"
+	driveE.dying_explosion = "medium-explosion"
+	driveE.corpse = "medium-remnants"
 	driveE.render_not_in_network_icon = false
 	driveE.collision_box = {{-1.0, -1.0}, {1.0, 1.0}}
 	driveE.selection_box = {{-1.0, -1.0}, {1.0, 1.0}}

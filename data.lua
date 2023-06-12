@@ -1,6 +1,7 @@
 Constants = require("utils.constants")
 require("prototypes.Drives")
 require("prototypes.RNSNetworkController")
+require("prototypes.NetworkLasers")
 -------------------------------------------------------------------------------------
 data:extend{
 	{
@@ -36,5 +37,14 @@ data:extend{
 		name=Constants.ItemGroup.Category.FluidDrive_subgroup,
 		group=Constants.ItemGroup.Category.group,
 		order="f"
+	}
+}
+
+data:extend{
+	{
+		type="item-subgroup",
+		name=Constants.ItemGroup.Category.Laser_subgroup,
+		group=Constants.ItemGroup.Category.group,
+		order="l"
 	}
 }

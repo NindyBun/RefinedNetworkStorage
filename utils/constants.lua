@@ -8,8 +8,17 @@ Constants.ItemGroup = {
         group = "RefinedNetworkStorage",
         subgroup = "RNS",
         ItemDrive_subgroup = "RNS-ItemDrives",
-        FluidDrive_subgroup = "RNS-FluidDrives"
+        FluidDrive_subgroup = "RNS-FluidDrives",
+        Laser_subgroup = "RNS-Lasers"
     }
+}
+Constants.NetworkLasers = {
+    NL1 = {
+        name = "NetworkLaser1",
+        itemIcon = "__RefinedNetworkStorage__/graphics/NetworkLaser1I.png",
+        entityE = "__RefinedNetworkStorage__/graphics/NetworkLaser1E.png",
+        entityS = "__RefinedNetworkStorage__/graphics/NetworkLaser1S.png"
+    },
 }
 Constants.NetworkController = {
     name = "RNSNetworkController",
@@ -18,7 +27,6 @@ Constants.NetworkController = {
     entityS = "__RefinedNetworkStorage__/graphics/DriveS.png"
 }
 Constants.Drives = {
-    
     ItemDrive1k = {
         name = "ItemDrive1k",
         itemIcon = "__RefinedNetworkStorage__/graphics/ItemDrive1kI.png",
