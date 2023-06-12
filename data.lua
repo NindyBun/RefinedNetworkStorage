@@ -5,6 +5,14 @@ require("prototypes.NetworkLasers")
 -------------------------------------------------------------------------------------
 data:extend{
 	{
+		type="recipe-category",
+		name="RNS-Nothing",
+		order="z"
+	}
+}
+
+data:extend{
+	{
 		type="item-group",
 		name=Constants.ItemGroup.Category.group,
 		icon=Constants.Drives.ItemDrive1k.itemIcon,

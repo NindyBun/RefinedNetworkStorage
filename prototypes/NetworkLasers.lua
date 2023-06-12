@@ -29,10 +29,10 @@ function createNetworkLaserEntity(name, icon, icon_size, entity, shadow)
 	networklaserE.name = name
 	networklaserE.icon = icon
 	networklaserE.icon_size = icon_size
-	networklaserE.flags = {"placeable-neutral", "player-creation"}
+	networklaserE.flags = {"placeable-neutral", "placeable-player", "player-creation"}
 	networklaserE.minable = {mining_time = 0.2, result = name}
 	networklaserE.max_health = 350
-    networklaserE.dying_explosion = "small-explosion"
+    networklaserE.dying_explosion = "medium-explosion"
 	networklaserE.corpse = "small-remnants"
 	networklaserE.render_not_in_network_icon = false
 	networklaserE.collision_box = {{-0.5, -0.5}, {0.5, 0.5}}
@@ -49,25 +49,27 @@ function createNetworkLaserEntity(name, icon, icon_size, entity, shadow)
         north =
         {
             layers =
-            {
-                {
-                    filename = entity,
-                    priority = "high",
-                    width = icon_size,
-                    height = icon_size,
+			{
+				{
+					filename = entity,
+					priority = "extra-high",
+					width = icon_size,
+					height = icon_size,
                     frame_count = 1,
-                    scale = 0.5,
-                },
-                {
-                    filename = shadow,
-                    priority = "high",
-                    width = icon_size,
-                    height = icon_size,
+					shift = {0,-1/10},
+					scale = 1/10
+				},
+				{
+					filename = shadow,
+					priority = "high",
+					width = icon_size,
+					height = icon_size,
                     frame_count = 1,
-                    draw_as_shadow = true,
-                    scale = 0.5
-                }
-            }
+					shift = {1/20,-1/10},
+					draw_as_shadow = true,
+					scale = 1/10
+				}
+			}
         }
     }
     networklaserE.animation.east = table.deepcopy(networklaserE.animation.north)
@@ -79,7 +81,7 @@ function createNetworkLaserEntity(name, icon, icon_size, entity, shadow)
     networklaserE.animation.west = table.deepcopy(networklaserE.animation.north)
     networklaserE.animation.west.layers[1].x = icon_size*3
     networklaserE.animation.west.layers[2].x = icon_size*3
-    networklaserE.crafting_categories = {"Nothing"}
+    networklaserE.crafting_categories = {"RNS-Nothing"}
     networklaserE.crafting_speed = 1
     networklaserE.energy_source =
     {
@@ -96,12 +98,13 @@ function createNetworkLaserEntity(name, icon, icon_size, entity, shadow)
     networklaserE.fluid_boxes = {
         {
             base_level = 1,
-            pipe_connections = {
-                {
-                    position = {0, -1}
-                }
-            },
+            pipe_connections = {{type = "output", position = {0, -1}}},
             production_type = "output",
+        },
+        {
+            base_level = 1,
+            pipe_connections = {{type = "input", position = {0, 1}}},
+            production_type = "input",
         }
     }
 	data:extend{networklaserE}
