@@ -23,7 +23,7 @@ function createNetworkLaserRecipe(name, craft_time, enabled, ingredients, count)
 	data:extend{networklaserR}
 end
 
-function createNetworkLaserEntity(name, icon, icon_size, entity, shadow)
+function createNetworkLaserEntity(name, icon, icon_size, entity, shadow, fluidbox)
 	local networklaserE = {}
 	networklaserE.type = "assembling-machine"
 	networklaserE.name = name
@@ -95,18 +95,7 @@ function createNetworkLaserEntity(name, icon, icon_size, entity, shadow)
         render_no_network_icon = false
     }
     networklaserE.energy_usage = "1J"
-    networklaserE.fluid_boxes = {
-        {
-            base_level = 1,
-            pipe_connections = {{type = "output", position = {0, -1}}},
-            production_type = "output",
-        },
-        {
-            base_level = 1,
-            pipe_connections = {{type = "input", position = {0, 1}}},
-            production_type = "input",
-        }
-    }
+    networklaserE.fluid_boxes = fluidbox
 	data:extend{networklaserE}
 end
 ------------------------------------------------------------------------------------------------
@@ -132,5 +121,12 @@ createNetworkLaserEntity(
     Constants.NetworkLasers.NL1.itemIcon,
     512,
     Constants.NetworkLasers.NL1.entityE,
-    Constants.NetworkLasers.NL1.entityS
+    Constants.NetworkLasers.NL1.entityS,
+    {
+        {
+            base_level = 1,
+            pipe_connections = {{type = "output", position = {0, -1}}},
+            production_type = "output",
+        }
+    }
 )
