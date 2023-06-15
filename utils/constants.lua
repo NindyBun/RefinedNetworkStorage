@@ -122,8 +122,8 @@ Constants.NetworkController = {
     entityE =  "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerE.png",
     entityS =  "__RefinedNetworkStorage__/graphics/Drives/DriveS.png"
 }
-Constants.NetworkInventoryBlock = {
-    name = "RNS_NetworkInventoryBlock",
+Constants.NetworkInventoryInterface = {
+    name = "RNS_NetworkInventoryInterface",
     itemIcon = "__RefinedNetworkStorage__/graphics/Networks/NetworkInventoryBlockI.png",
     entityE =  "__RefinedNetworkStorage__/graphics/Networks/NetworkInventoryBlockE.png",
     entityS =  "__RefinedNetworkStorage__/graphics/Networks/NetworkInventoryBlockS.png"
