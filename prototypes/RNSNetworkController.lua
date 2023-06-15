@@ -59,7 +59,7 @@ controllerE.picture =
                 height = 256,
                 shift = {3/2,-3/4},
                 draw_as_shadow = true,
-                scale = 3/8
+                scale = 3/4
             }
         }
     }
