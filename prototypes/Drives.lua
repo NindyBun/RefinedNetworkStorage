@@ -1,9 +1,9 @@
-function createDriveItem(name, icon, icon_size, stack_size, subgroup, order)
+function createDriveItem(name, icon, stack_size, subgroup, order)
 	local driveI = {}
 	driveI.type = "item-with-tags"
 	driveI.name = name
 	driveI.icon = icon
-	driveI.icon_size = icon_size
+	driveI.icon_size = 256
 	driveI.subgroup = subgroup
 	driveI.order = order
 	driveI.place_result = name
@@ -11,7 +11,7 @@ function createDriveItem(name, icon, icon_size, stack_size, subgroup, order)
 	data:extend{driveI}
 end
 
-function createDriveRecipe(name, craft_time, enabled, ingredients, count)
+function createDriveRecipe(name, craft_time, enabled, ingredients)
 	local driveR = {}
 	driveR.type = "recipe"
 	driveR.name = name
@@ -19,22 +19,21 @@ function createDriveRecipe(name, craft_time, enabled, ingredients, count)
 	driveR.enabled = enabled
 	driveR.ingredients = ingredients
 	driveR.result = name
-	driveR.result_count = count
+	driveR.result_count = 1
 	data:extend{driveR}
 end
 
-function createDriveEntity(name, icon, icon_size, entity, shadow)
+function createDriveEntity(name, icon, entity, shadow)
 	local driveE = {}
 	driveE.type = "container"
 	driveE.name = name
 	driveE.icon = icon
-	driveE.icon_size = icon_size
+	driveE.icon_size = 256
 	driveE.flags = {"placeable-neutral", "player-creation"}
 	driveE.minable = {mining_time = 0.2, result = name}
-	driveE.max_health = 100
+	driveE.max_health = 350
 	driveE.dying_explosion = "medium-explosion"
 	driveE.corpse = "medium-remnants"
-	driveE.render_not_in_network_icon = false
 	driveE.collision_box = {{-1.0, -1.0}, {1.0, 1.0}}
 	driveE.selection_box = {{-1.0, -1.0}, {1.0, 1.0}}
 	driveE.inventory_size = 0
@@ -48,16 +47,16 @@ function createDriveEntity(name, icon, icon_size, entity, shadow)
 				{
 					filename = entity,
 					priority = "extra-high",
-					width = icon_size,
-					height = icon_size,
+					width = 256,
+					height = 256,
 					shift = {0,-0.5},
 					scale = 0.5
 				},
 				{
 					filename = shadow,
 					priority = "high",
-					width = icon_size,
-					height = icon_size,
+					width = 256,
+					height = 256,
 					shift = {1,-0.5},
 					draw_as_shadow = true,
 					scale = 0.5
@@ -67,187 +66,8 @@ function createDriveEntity(name, icon, icon_size, entity, shadow)
 	data:extend{driveE}
 end
 --------------------------------------------------------------------------------
-createDriveItem(
-	Constants.Drives.ItemDrive1k.name,
-	Constants.Drives.ItemDrive1k.itemIcon,
-	256,
-	10,
-	Constants.ItemGroup.Category.ItemDrive_subgroup,
-	"i-i[1]"
-)
-createDriveItem(
-	Constants.Drives.ItemDrive4k.name,
-	Constants.Drives.ItemDrive4k.itemIcon,
-	256,
-	10,
-	Constants.ItemGroup.Category.ItemDrive_subgroup,
-	"i-i[2]"
-)
-createDriveItem(
-	Constants.Drives.ItemDrive16k.name,
-	Constants.Drives.ItemDrive16k.itemIcon,
-	256,
-	10,
-	Constants.ItemGroup.Category.ItemDrive_subgroup,
-	"i-i[3]"
-)
-createDriveItem(
-	Constants.Drives.ItemDrive64k.name,
-	Constants.Drives.ItemDrive64k.itemIcon,
-	256,
-	10,
-	Constants.ItemGroup.Category.ItemDrive_subgroup,
-	"i-i[4]"
-)
---------------------------------------------------------------------------------
-createDriveRecipe(
-	Constants.Drives.ItemDrive1k.name,
-	1,
-	true,
-	{},
-	1
-)
-createDriveRecipe(
-	Constants.Drives.ItemDrive4k.name,
-	1,
-	true,
-	{},
-	1
-)
-createDriveRecipe(
-	Constants.Drives.ItemDrive16k.name,
-	1,
-	true,
-	{},
-	1
-)
-createDriveRecipe(
-	Constants.Drives.ItemDrive64k.name,
-	1,
-	true,
-	{},
-	1
-)
---------------------------------------------------------------------------------
-createDriveEntity(
-	Constants.Drives.ItemDrive1k.name,
-	Constants.Drives.ItemDrive1k.itemIcon,
-	256,
-	Constants.Drives.ItemDrive1k.entityE,
-	Constants.Drives.ItemDrive1k.entityS
-)
-createDriveEntity(
-	Constants.Drives.ItemDrive4k.name,
-	Constants.Drives.ItemDrive4k.itemIcon,
-	256,
-	Constants.Drives.ItemDrive4k.entityE,
-	Constants.Drives.ItemDrive4k.entityS
-)
-createDriveEntity(
-	Constants.Drives.ItemDrive16k.name,
-	Constants.Drives.ItemDrive16k.itemIcon,
-	256,
-	Constants.Drives.ItemDrive16k.entityE,
-	Constants.Drives.ItemDrive16k.entityS
-)
-createDriveEntity(
-	Constants.Drives.ItemDrive64k.name,
-	Constants.Drives.ItemDrive64k.itemIcon,
-	256,
-	Constants.Drives.ItemDrive64k.entityE,
-	Constants.Drives.ItemDrive64k.entityS
-)
---------------------------------------------------------------------------------
-
---------------------------------------------------------------------------------
-createDriveItem(
-	Constants.Drives.FluidDrive4k.name,
-	Constants.Drives.FluidDrive4k.itemIcon,
-	256,
-	10,
-	Constants.ItemGroup.Category.FluidDrive_subgroup,
-	"f-f[1]"
-)
-createDriveItem(
-	Constants.Drives.FluidDrive16k.name,
-	Constants.Drives.FluidDrive16k.itemIcon,
-	256,
-	10,
-	Constants.ItemGroup.Category.FluidDrive_subgroup,
-	"f-f[2]"
-)
-createDriveItem(
-	Constants.Drives.FluidDrive64k.name,
-	Constants.Drives.FluidDrive64k.itemIcon,
-	256,
-	10,
-	Constants.ItemGroup.Category.FluidDrive_subgroup,
-	"f-f[3]"
-)
-createDriveItem(
-	Constants.Drives.FluidDrive256k.name,
-	Constants.Drives.FluidDrive256k.itemIcon,
-	256,
-	10,
-	Constants.ItemGroup.Category.FluidDrive_subgroup,
-	"f-f[4]"
-)
---------------------------------------------------------------------------------
-createDriveRecipe(
-	Constants.Drives.FluidDrive4k.name,
-	1,
-	true,
-	{},
-	1
-)
-createDriveRecipe(
-	Constants.Drives.FluidDrive16k.name,
-	1,
-	true,
-	{},
-	1
-)
-createDriveRecipe(
-	Constants.Drives.FluidDrive64k.name,
-	1,
-	true,
-	{},
-	1
-)
-createDriveRecipe(
-	Constants.Drives.FluidDrive256k.name,
-	1,
-	true,
-	{},
-	1
-)
---------------------------------------------------------------------------------
-createDriveEntity(
-	Constants.Drives.FluidDrive4k.name,
-	Constants.Drives.FluidDrive4k.itemIcon,
-	256,
-	Constants.Drives.FluidDrive4k.entityE,
-	Constants.Drives.FluidDrive4k.entityS
-)
-createDriveEntity(
-	Constants.Drives.FluidDrive16k.name,
-	Constants.Drives.FluidDrive16k.itemIcon,
-	256,
-	Constants.Drives.FluidDrive16k.entityE,
-	Constants.Drives.FluidDrive16k.entityS
-)
-createDriveEntity(
-	Constants.Drives.FluidDrive64k.name,
-	Constants.Drives.FluidDrive64k.itemIcon,
-	256,
-	Constants.Drives.FluidDrive64k.entityE,
-	Constants.Drives.FluidDrive64k.entityS
-)
-createDriveEntity(
-	Constants.Drives.FluidDrive256k.name,
-	Constants.Drives.FluidDrive256k.itemIcon,
-	256,
-	Constants.Drives.FluidDrive256k.entityE,
-	Constants.Drives.FluidDrive256k.entityS
-)
---------------------------------------------------------------------------------
+for _, drive in pairs(Constants.Drives) do
+	createDriveItem(drive.name, drive.itemIcon, drive.stack_size, drive.subgroup, drive.order)
+	createDriveRecipe(drive.name, drive.craft_time, drive.enabled, drive.ingredients)
+	createDriveEntity(drive.name, drive.itemIcon, drive.entityE, drive.entityS)
+end

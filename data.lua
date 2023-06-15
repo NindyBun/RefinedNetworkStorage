@@ -1,6 +1,7 @@
 Constants = require("utils.constants")
 require("prototypes.Drives")
 require("prototypes.RNSNetworkController")
+require("prototypes.RNSNetworkInventoryBlock")
 require("prototypes.NetworkLasers")
 -------------------------------------------------------------------------------------
 data:extend{

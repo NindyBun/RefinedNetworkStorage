@@ -29,7 +29,7 @@ controllerE.minable = {mining_time = 0.2, result = Constants.NetworkController.n
 controllerE.max_health = 350
 controllerE.dying_explosion = "medium-explosion"
 controllerE.corpse = "medium-remnants"
-controllerE.collision_box = {{-1.5, -1.5}, {1.5, 1.5}}
+controllerE.collision_box = {{-1.49, -1.49}, {1.49, 1.49}}
 controllerE.selection_box = {{-1.5, -1.5}, {1.5, 1.5}}
 controllerE.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
 controllerE.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
@@ -47,10 +47,10 @@ controllerE.picture =
             {
                 filename = Constants.NetworkController.entityE,
                 priority = "extra-high",
-                width = 256,
-                height = 256,
+                width = 512,
+                height = 512,
                 shift = {0,-3/4},
-                scale = 3/4
+                scale = 3/8
             },
             {
                 filename = Constants.NetworkController.entityS,
@@ -59,7 +59,7 @@ controllerE.picture =
                 height = 256,
                 shift = {3/2,-3/4},
                 draw_as_shadow = true,
-                scale = 3/4
+                scale = 3/8
             }
         }
     }
