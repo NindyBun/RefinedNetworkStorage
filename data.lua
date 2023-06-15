@@ -3,6 +3,7 @@ require("prototypes.Drives")
 require("prototypes.RNSNetworkController")
 require("prototypes.RNSNetworkInventoryBlock")
 require("prototypes.NetworkLasers")
+require("prototypes.Beams")
 -------------------------------------------------------------------------------------
 data:extend{
 	{

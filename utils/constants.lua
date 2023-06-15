@@ -12,6 +12,18 @@ Constants.ItemGroup = {
         Laser_subgroup = "RNS-Lasers"
     }
 }
+Constants.Beams = {
+    ConnectedBeam = {
+        name = "RNS_ConnectedBeam",
+        entityE = "__RefinedNetworkStorage__/graphics/Beams/ConnectedBeam.png",
+        entityL = "__RefinedNetworkStorage__/graphics/Beams/ConnectedBeamLight.png"
+    },
+    IddleBeam = {
+        name = "RNS_IddleBeam",
+        entityE = "__RefinedNetworkStorage__/graphics/Beams/IddleBeam.png",
+        entityL = "__RefinedNetworkStorage__/graphics/Beams/IddleBeamLight.png"
+    }
+}
 Constants.NetworkLasers = {
     NLI = {
         name = "RNS_NetworkLaserInjector",
@@ -170,7 +182,7 @@ Constants.Drives = {
         order = "i-i[4]"
     },
     FluidDrive4k = {
-        name = "RNS_FluidDrive1k",
+        name = "RNS_FluidDrive4k",
         itemIcon = "__RefinedNetworkStorage__/graphics/Drives/FluidDrive4kI.png",
         entityE =  "__RefinedNetworkStorage__/graphics/Drives/FluidDrive4kE.png",
         entityS =  "__RefinedNetworkStorage__/graphics/Drives/DriveS.png",
