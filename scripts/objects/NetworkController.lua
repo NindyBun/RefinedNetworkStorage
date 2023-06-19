@@ -4,9 +4,6 @@ NC = {
     entID = nil,
     updateTick = 300,
     lastUpdate = 0,
-    network = nil,
-    ItemDriveTable = nil,
-    FluidDriveTable = nil,
     varTable = nil
 }
 
@@ -19,11 +16,9 @@ function NC:new(object)
     mt._index = NC
     t.thisEntity = object
     t.entID = object.unit_number
-    t.ItemDriveTable = {}
-    t.FluidDriveTable = {}
-    t.network = getNextAvailableNetworkID()
+    t.network = t.network or BaseNet:new()
     t.varTable = {}
-    UpdateSys.addObject(t)
+    t.network.networkController = t
     return t
 end
 
@@ -33,20 +28,24 @@ function NC:rebuild(object)
     local mt = {}
     mt._index = NC
     setmetatable(object, mt)
+    BaseNet:rebuild(object.network)
 end
 
 --Deconstructor
 function NC:remove()
     global.networkID[self.network+1].used = false
-    UpdateSys.removeObj(self)
 end
 --Is valid
 function NC:isValid()
     return self.thisEntity ~= nil and self.thisEntity.valid
 end
 
-function NC:update()
+function NC:update(event)
     self.lastUpdate = game.tick
+    local powerDraw = self.network:getTotalObjects()
+    local maxPowerDraw = powerDraw*2
+    self.thisEntity.energy_usage = powerDraw.."KW"
+    self.thisEntity.energy_source.buffer_capacity = maxPowerDraw.."KW"
 end
 
 --Tooltips

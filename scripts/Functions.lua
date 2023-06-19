@@ -3,20 +3,20 @@ function createObjectTables()
     global.objectTables = {}
     addOrCreateObjectTable{tableName="PlayerTable", tag="RNSP", objName="RNSPlayer"}
     addOrCreateObjectTable{tableName="NetworkControllerTable", tag="NC", objName=Constants.NetworkController.name}
-    addOrCreateObjectTable{tableName="NetworkInventoryInterfaceTable", tag="NII", objName=Constants.NetworkInventoryInterface.name}
-    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive1k}
-    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive4k}
-    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive16k}
-    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive64k}
-    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive4k}
-    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive16k}
-    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive64k}
-    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive256k}
-    addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLI}
-    addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLS}
-    addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLT}
-    addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLC}
-    addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLE}
+--    addOrCreateObjectTable{tableName="NetworkInventoryInterfaceTable", tag="NII", objName=Constants.NetworkInventoryInterface.name}
+--    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive1k}
+--    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive4k}
+--    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive16k}
+--    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive64k}
+--    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive4k}
+--    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive16k}
+--    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive64k}
+--    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive256k}
+--    addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLI}
+--    addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLS}
+--    addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLT}
+--    addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLC}
+--    addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLE}
 end
 
 --Adds or Create a table to store the object
@@ -43,4 +43,33 @@ function getNextAvailableNetworkID()
     local id = #global.networkID
     table.insert(global.networkID, {id=id, used=true})
     return id
+end
+
+function valid(obj)
+    if obj == nil then return false end
+	if type(obj) ~= "table" then return false end
+	if getmetatable(obj) == nil then
+		if _G[obj.meta] ~= nil and _G[obj.meta].valid ~= nil then
+			if _G[obj.meta].valid(obj) == true then
+				return true
+			end
+		else
+			return false
+		end
+	end
+	if obj.valid == nil then return false end
+	if type(obj.valid) == "boolean" then return obj.valid end
+	if obj:valid() ~= true then return false end
+	return true
+end
+
+function getRNSPlayer(player)
+	if player == nil then return nil
+	elseif type(player) == "number" then return global.playerTable[game.players[player].name]
+	elseif type(player) == "string" then return global.playerTable[player]
+	else error("bad argument to getRNSPlayer()") end
+end
+
+function getPlayer(id)
+    return game.players[id]
 end

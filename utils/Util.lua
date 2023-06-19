@@ -13,6 +13,6 @@ function safeCall(fName, ...)
 	if result == false then
 		-- Display the Error to all Player --
 		game.print(error)
-		return true
+		return false
 	end
 end
