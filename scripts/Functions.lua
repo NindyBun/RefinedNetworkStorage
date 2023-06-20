@@ -52,7 +52,7 @@ function valid(obj)
 	--if obj.valid == nil then return false end --Returns false
     game.print("2")
 	if type(obj.valid) == "boolean" then return obj.valid end
-    game.print("3")
+    game.print(obj.thisEntity.name)
 	if obj:valid() ~= true then return false end --valid() doesn't exist
     game.print("4")
 	return true
