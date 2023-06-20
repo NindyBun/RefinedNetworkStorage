@@ -19,6 +19,7 @@ function NC:new(object)
     t.network = t.network or BaseNet:new()
     t.varTable = {}
     t.network.networkController = t
+    UpdateSys.addEntity(t)
     return t
 end
 
@@ -34,18 +35,21 @@ end
 --Deconstructor
 function NC:remove()
     global.networkID[self.network+1].used = false
+    UpdateSys.remove(self)
 end
 --Is valid
-function NC:isValid()
-    return self.thisEntity ~= nil and self.thisEntity.valid
+function NC:valid()
+    if self.thisEntity ~= nil and self.thisEntity.valid then return true end
+	return false
 end
 
-function NC:update(event)
+function NC:update()
     self.lastUpdate = game.tick
-    local powerDraw = self.network:getTotalObjects()
+    local powerDraw = self.network:getTotalObjects()+1
     local maxPowerDraw = powerDraw*2
+    game.print(self.thisEntity.energy_usage)
     self.thisEntity.energy_usage = powerDraw.."KW"
-    self.thisEntity.energy_source.buffer_capacity = maxPowerDraw.."KW"
+    self.thisEntity.energy_source.buffer_capacity = (maxPowerDraw+1).."KW"
 end
 
 --Tooltips

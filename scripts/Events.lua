@@ -43,16 +43,16 @@ function Event.removed(event)
     local entity = event.entity
     if entity == nil or entity.valid == false then return end
     
-    local objInfo = global.objectTables[entity.name]
-    if objInfo == nil or objInfo.tableName == nil then return end
-
-    local obj = global[objInfo.tableName][entity.unit_number]
+    local obj = global.entityTable[entity.unit_number]
     if obj == nil then return end
 
     if obj.contentToTag ~= nil and event.buffer ~= nil and event.buffer[1] ~= nil then
         obj:contentToTag(event.buffer[1])
     end
     obj:remove()
+    
+    local objInfo = global.objectTables[entity.name]
+    if objInfo == nil or objInfo.tableName == nil then return end
     global[objInfo.tableName][entity.unit_number] = nil
 
 end

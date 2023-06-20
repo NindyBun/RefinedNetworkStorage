@@ -7,6 +7,7 @@ require("utils.Util")
 require("scripts.Events")
 require("scripts.Functions")
 require("scripts.updates")
+
 require("scripts.objects.NetworkBase")
 require("scripts.objects.NetworkController")
 require("scripts.objects.RNSPlayer")
@@ -19,6 +20,7 @@ function onInit()
         if freeplay["set_disable_crashsite"] then remote.call("freeplay", "set_disable_crashsite", true) end
     end
 
+	global.entityTable = global.entityTable or {}
     global.networkID = global.networkID or {{id=0, used=false}}
     createObjectTables()
 

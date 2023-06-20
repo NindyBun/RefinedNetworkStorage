@@ -1,7 +1,7 @@
 --RNSPlayer object
 RNSP = {
     thisEntity = nil,
-    index = nil,
+    entID = nil,
     name = nil,
     networkID = nil,
     GUI = nil,
@@ -20,6 +20,7 @@ function RNSP:new(player)
     t.name = player.name
     t.GUI = {}
     t.varTable = {}
+    UpdateSys.addEntity(t)
     return t
 end
 
@@ -36,7 +37,7 @@ function RNSP:remove()
     
 end
 --Is valid
-function RNSP:isValid()
+function RNSP:valid()
     return true
 end
 

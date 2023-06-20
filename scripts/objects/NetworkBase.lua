@@ -18,6 +18,7 @@ function BaseNet:new()
     t.FluidDriveTable = {}
     t.NetworkInventoryInterfaceTable = {}
     t.ID = getNextAvailableNetworkID()
+    UpdateSys.addEntity(t)
     return t
 end
 
@@ -30,7 +31,7 @@ end
 
 function BaseNet:remove() end
 
-function BaseNet:isValid()
+function BaseNet:valid()
     return true
 end
 

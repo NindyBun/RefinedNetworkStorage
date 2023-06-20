@@ -48,17 +48,8 @@ end
 function valid(obj)
     if obj == nil then return false end
 	if type(obj) ~= "table" then return false end
-	if getmetatable(obj) == nil then
-		if _G[obj.meta] ~= nil and _G[obj.meta].valid ~= nil then
-			if _G[obj.meta].valid(obj) == true then
-				return true
-			end
-		else
-			return false
-		end
-	end
 	if obj.valid == nil then return false end
-	if type(obj.valid) == "boolean" then return obj.valid end
+	if type(obj.valid) == "boolean" then return obj.valid end --Returns false
 	if obj:valid() ~= true then return false end
 	return true
 end
