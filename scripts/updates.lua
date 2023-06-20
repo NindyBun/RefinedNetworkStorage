@@ -1,3 +1,4 @@
+require("scripts.Functions")
 --Adds object to the update system
 function UpdateSys.addEntity(obj)
     if valid(obj) == false then return end

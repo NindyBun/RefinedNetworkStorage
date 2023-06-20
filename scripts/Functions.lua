@@ -48,7 +48,9 @@ end
 function valid(obj)
     if obj == nil then return false end
 	if type(obj) ~= "table" then return false end
+    game.print("1")
 	if obj.valid == nil then return false end --Returns false
+    game.print("2")
 	if type(obj.valid) == "boolean" then return obj.valid end
 	if obj:valid() ~= true then return false end
 	return true
