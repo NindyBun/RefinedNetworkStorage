@@ -1,8 +1,6 @@
 --Adds object to the update system
 function UpdateSys.addEntity(obj)
-    game.print("adding")
     if valid(obj) == false then return end
-    game.print("added")
     if global.entityTable == nil then global.entityTable = {} end
     
     if obj ~= nil and getmetatable(obj) ~= nil then
