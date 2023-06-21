@@ -5,7 +5,8 @@ RNSP = {
     name = nil,
     networkID = nil,
     GUI = nil,
-    varTable = nil
+    varTable = nil,
+    lastTick = 0
 }
 
 --Constructor
@@ -14,9 +15,9 @@ function RNSP:new(player)
     local t = {}
     local mt = {}
     setmetatable(t, mt) --this is necessary for all objects so the objects can be reloaded when the save loads up
-    mt._index = RNSP
+    mt.__index = RNSP
     t.thisEntity = player
-    t.index = player.index
+    t.entID = player.index
     t.name = player.name
     t.GUI = {}
     t.varTable = {}
@@ -28,14 +29,19 @@ end
 function RNSP:rebuild(object)
     if object == nil then return end
     local mt = {}
-    mt._index = RNSP
+    mt.__index = RNSP
     setmetatable(object, mt)
+end
+
+function RNSP:update()
+    self.lastTick = game.tick
 end
 
 --Deconstructor
 function RNSP:remove()
     
 end
+
 --Is valid
 function RNSP:valid()
     return true

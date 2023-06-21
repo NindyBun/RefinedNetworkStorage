@@ -8,11 +8,12 @@ function UpdateSys.addEntity(obj)
         if obj:valid() ~= true then
             obj:remove()
         elseif obj.thisEntity ~= nil and obj.thisEntity.valid == true then
-            if obj.thisEntity.unit_number ~= nil then --for normal entities
+            --[[if obj.thisEntity.unit_number ~= nil then --for normal entities
                 global.entityTable[obj.thisEntity.unit_number] = obj
             elseif obj.thisEntity.index ~= nil then  --for players
                 global.entityTable[obj.thisEntity.index] = obj
-            end
+            end]]
+            global.entityTable[obj.entID] = obj
         end
     end
 end
@@ -26,8 +27,8 @@ end
 function UpdateSys.update(event)
     for _, obj in pairs(global.entityTable) do
         if valid(obj) == true and obj.update ~= nil then
-            if safeCall(obj.update, obj, event) ~= true then
-                game.print("gui-description.UpdateSysEntity_Failed", obj.thisEntity.name)
+            if safeCall(obj.update, obj, event) == false then
+                game.print({"gui-description.UpdateSysEntity_Failed", obj.thisEntity.name})
             end
         end
     end

@@ -13,7 +13,7 @@ function BaseNet:new()
     local t = {}
     local mt = {}
     setmetatable(t, mt)
-    mt._index = BN
+    mt.__index = BaseNet
     t.ItemDriveTable = {}
     t.FluidDriveTable = {}
     t.NetworkInventoryInterfaceTable = {}
@@ -25,7 +25,7 @@ end
 function BaseNet:rebuild(object)
     if object == nil then return end
     local mt = {}
-    mt._index = BaseNet
+    mt.__index = BaseNet
     setmetatable(object, mt)
 end
 

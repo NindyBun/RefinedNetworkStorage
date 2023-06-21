@@ -13,7 +13,7 @@ function NC:new(object)
     local t = {}
     local mt = {}
     setmetatable(t, mt)
-    mt._index = NC
+    mt.__index = NC
     t.thisEntity = object
     t.entID = object.unit_number
     t.network = t.network or BaseNet:new()
@@ -27,14 +27,14 @@ end
 function NC:rebuild(object)
     if object == nil then return end
     local mt = {}
-    mt._index = NC
+    mt.__index = NC
     setmetatable(object, mt)
     BaseNet:rebuild(object.network)
 end
 
 --Deconstructor
 function NC:remove()
-    global.networkID[self.network+1].used = false
+    global.networkID[self.network.ID+1].used = false
     UpdateSys.remove(self)
 end
 --Is valid
@@ -45,11 +45,10 @@ end
 
 function NC:update()
     self.lastUpdate = game.tick
-    local powerDraw = self.network:getTotalObjects()+1
-    local maxPowerDraw = powerDraw*2
-    game.print(self.thisEntity.energy_usage)
-    self.thisEntity.energy_usage = powerDraw.."KW"
-    self.thisEntity.energy_source.buffer_capacity = (maxPowerDraw+1).."KW"
+    local powerDraw = self.network:getTotalObjects()
+    local buffer = powerDraw*2
+    --self.thisEntity.power_usage = math.max(1/60*120, powerDraw) --1 = 60W
+    --self.thisEntity.electric_buffer_size = math.max(180, buffer)--100 = 100J
 end
 
 --Tooltips
