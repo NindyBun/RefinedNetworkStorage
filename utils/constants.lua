@@ -12,18 +12,6 @@ Constants.ItemGroup = {
         Laser_subgroup = "RNS-Lasers"
     }
 }
-Constants.Beams = {
-    ConnectedBeam = {
-        name = "RNS_ConnectedBeam",
-        entityE = "__RefinedNetworkStorage__/graphics/Beams/ConnectedBeam.png",
-        entityL = "__RefinedNetworkStorage__/graphics/Beams/ConnectedBeamLight.png"
-    },
-    IddleBeam = {
-        name = "RNS_IddleBeam",
-        entityE = "__RefinedNetworkStorage__/graphics/Beams/IddleBeam.png",
-        entityL = "__RefinedNetworkStorage__/graphics/Beams/IddleBeamLight.png"
-    }
-}
 Constants.NetworkLasers = {
     NLI = {
         name = "RNS_NetworkLaserInjector",
@@ -32,7 +20,10 @@ Constants.NetworkLasers = {
         entityS =  "__RefinedNetworkStorage__/graphics/Lasers/NetworkLaserInjectorS.png",
         connections = {
                 base_level = 1,
-                pipe_connections = {{type = "output", position = {0, -1}}},
+                pipe_connections = {
+                    {type = "input", position = {0, 1}},
+                    {type = "output", position = {0, -1}}
+                },
                 production_type = "output",
         },
         craft_time = 1,
@@ -114,6 +105,18 @@ Constants.NetworkLasers = {
         enabled = true,
         ingredients = {},
         stack_size = 25
+    },
+}
+Constants.Beams = {
+    ConnectedBeam = {
+        name = "RNS_ConnectedBeam",
+        entityE = "__RefinedNetworkStorage__/graphics/Beams/ConnectedBeam.png",
+        entityL = "__RefinedNetworkStorage__/graphics/Beams/ConnectedBeamLight.png"
+    },
+    IddleBeam = {
+        name = "RNS_IddleBeam",
+        entityE = "__RefinedNetworkStorage__/graphics/Beams/IddleBeam.png",
+        entityL = "__RefinedNetworkStorage__/graphics/Beams/IddleBeamLight.png"
     },
 }
 Constants.NetworkController = {

@@ -4,7 +4,9 @@ NC = {
     entID = nil,
     updateTick = 300,
     lastUpdate = 0,
-    varTable = nil
+    stable = false,
+    stateSprite = nil,
+    network = nil
 }
 
 --Constructor
@@ -17,8 +19,8 @@ function NC:new(object)
     t.thisEntity = object
     t.entID = object.unit_number
     t.network = t.network or BaseNet:new()
-    t.varTable = {}
     t.network.networkController = t
+    t.stateSprite = rendering.draw_sprite{sprite=Constants.NetworkController.name.."_unstable", target=t.thisEntity, surface=t.thisEntity.surface, render_layer=131}
     UpdateSys.addEntity(t)
     return t
 end
@@ -39,16 +41,43 @@ function NC:remove()
 end
 --Is valid
 function NC:valid()
-    if self.thisEntity ~= nil and self.thisEntity.valid then return true end
-	return false
+    return self.thisEntity ~= nil and self.thisEntity.valid
+end
+
+function NC:setActive(set)
+    self.stable = set
+    if set == true then
+        rendering.destroy(self.stateSprite)
+        self.stateSprite = rendering.draw_sprite{sprite=Constants.NetworkController.name.."_stable", target=self.thisEntity, surface=self.thisEntity.surface, render_layer=131}
+    elseif set == false then
+        rendering.destroy(self.stateSprite)
+        self.stateSprite = rendering.draw_sprite{sprite=Constants.NetworkController.name.."_unstable", target=self.thisEntity, surface=self.thisEntity.surface, render_layer=131}
+    end
 end
 
 function NC:update()
     self.lastUpdate = game.tick
-    local powerDraw = self.network:getTotalObjects()
-    local buffer = powerDraw*2
-    --self.thisEntity.power_usage = math.max(1/60*120, powerDraw) --1 = 60W
-    --self.thisEntity.electric_buffer_size = math.max(180, buffer)--100 = 100J
+    if valid(self) == false then
+        self:remove()
+        return
+    end
+
+    local powerDraw = math.max(self.network:getTotalObjects(), 1)
+    --1.8MW buffer but 15KW energy at 900KMW- input
+    --1.8MW buffer but 30KW energy at 1.8MW- input
+    --1.8MW buffer but 1.8MW energy at 1.8MW+ input
+    --Can check if energy*60 >= buffer then NC is stable
+    --1 Joule converts to 60 Watts? How strange
+    self.thisEntity.power_usage = powerDraw --Takes Joules as a param
+    self.thisEntity.electric_buffer_size = powerDraw--Takes Joules as a param
+    
+    if self.thisEntity.energy >= powerDraw then
+        self:setActive(true)
+    else
+        self:setActive(false)
+    end
+
+
 end
 
 --Tooltips

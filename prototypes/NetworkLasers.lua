@@ -35,7 +35,7 @@ function createNetworkLaserEntity(name, icon, entity, shadow, fluidbox)
     networklaserE.dying_explosion = "medium-explosion"
 	networklaserE.corpse = "small-remnants"
 	networklaserE.render_not_in_network_icon = false
-	networklaserE.collision_box = {{-0.5, -0.5}, {0.5, 0.5}}
+	networklaserE.collision_box = {{-0.49, -0.49}, {0.49, 0.49}}
 	networklaserE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
     networklaserE.resistances =
     {

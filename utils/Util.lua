@@ -16,3 +16,11 @@ function safeCall(fName, ...)
 		return false
 	end
 end
+
+function Util.distance(startP, endP)
+	local xS = startP[1] or startP.x
+	local yS = startP[2] or startP.y
+	local xE = endP[1] or endP.x
+	local yE = endP[2] or endP.y
+	return math.sqrt( (xS-xE)^2 + (yS-yE)^2 )
+end

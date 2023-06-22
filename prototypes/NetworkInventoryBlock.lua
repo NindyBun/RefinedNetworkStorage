@@ -30,7 +30,7 @@ inventoryBlockE.minable = {mining_time = 0.2, result = Constants.NetworkInventor
 inventoryBlockE.max_health = 250
 inventoryBlockE.dying_explosion = "medium-explosion"
 inventoryBlockE.corpse = "medium-remnants"
-inventoryBlockE.collision_box = {{-0.5, -0.5}, {0.5, 0.5}}
+inventoryBlockE.collision_box = {{-0.49, -0.49}, {0.49, 0.49}}
 inventoryBlockE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
 inventoryBlockE.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
 inventoryBlockE.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }

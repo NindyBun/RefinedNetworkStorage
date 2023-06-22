@@ -64,3 +64,21 @@ controllerE.picture =
         }
     }
 data:extend{controllerE}
+
+local controllerE_unstable_sprite = {}
+controllerE_unstable_sprite.type = "sprite"
+controllerE_unstable_sprite.name = Constants.NetworkController.name.."_unstable"
+controllerE_unstable_sprite.filename = "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerE_unstable.png"
+controllerE_unstable_sprite.size = 512
+controllerE_unstable_sprite.shift = {0, -3/4}
+controllerE_unstable_sprite.scale = 3/8
+data:extend{controllerE_unstable_sprite}
+
+local controllerE_stable_sprite = {}
+controllerE_stable_sprite.type = "sprite"
+controllerE_stable_sprite.name = Constants.NetworkController.name.."_stable"
+controllerE_stable_sprite.filename = "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerE.png"
+controllerE_stable_sprite.size = 512
+controllerE_stable_sprite.shift = {0, -3/4}
+controllerE_stable_sprite.scale = 3/8
+data:extend{controllerE_stable_sprite}
