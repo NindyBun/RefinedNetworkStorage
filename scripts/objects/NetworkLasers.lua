@@ -117,16 +117,16 @@ function NL:getBeamPosition(ent, selfD)
     end
 
     if selfD == 1 then
-        self.beamsPos[1].startP = {x = selfP.x, y = selfP.y - 0.5 + 0.2}
+        self.beamsPos[1].startP = {x = selfP.x, y = selfP.y - 0.5 + 0.3}
         self.beamsPos[1].endP = {x = selfP.x, y = (entY or (selfP.y-64)) - 0.5 + entH/2 + 0.2 }
     elseif selfD == 2 then
-        self.beamsPos[2].startP = {x = selfP.x + 0.5 - 0.2, y = selfP.y}
+        self.beamsPos[2].startP = {x = selfP.x + 0.5 - 0.3, y = selfP.y}
         self.beamsPos[2].endP = {x = (entX or (selfP.x+64)) + 0.5 - entW/2 - 0.2, y = selfP.y}
     elseif selfD == 3 then
-        self.beamsPos[3].startP = {x = selfP.x, y = selfP.y + 0.5 - 0.2}
+        self.beamsPos[3].startP = {x = selfP.x, y = selfP.y + 0.5 - 0.3}
         self.beamsPos[3].endP = {x = selfP.x, y = (entY or (selfP.y+64)) + 0.5 - entH/2 - 0.2}
     elseif selfD == 4 or selfD == 0 then
-        self.beamsPos[4].startP = {x = selfP.x - 0.5 + 0.2, y = selfP.y}
+        self.beamsPos[4].startP = {x = selfP.x - 0.5 + 0.3, y = selfP.y}
         self.beamsPos[4].endP = {x = (entX or (selfP.x-64)) - 0.5 + entW/2 + 0.2, y = selfP.y }
     else
         local direction = self:directionAsCardinal()
@@ -225,7 +225,7 @@ function NL:connectLasers()
                 end
             end
         end
-        if nearest ~= nil and global.entityTable[nearest.unit_number] ~= nil and nearest.name ~= Constants.NetworkLasers.NLI.name and nearest.name ~= Constants.NetworkController.name  then
+        if nearest ~= nil and global.entityTable[nearest.unit_number] ~= nil then
             local obj = global.entityTable[nearest.unit_number]
             --Prevent itself
             if self.focusedObjs[area.direction] ~= nil and self.focusedObjs[area.direction].entID == obj.entID then return end
@@ -234,8 +234,8 @@ function NL:connectLasers()
             --Prevent overriding other networks
             --if self.networkController ~= nil and obj.networkController.network.ID ~= self.networkController.network.ID then return end
 
-            obj.sourceObj = global.entityTable[self.entID]
-            obj.networkController = self.networkController
+            --obj.sourceObj = global.entityTable[self.entID]
+            --obj.networkController = self.networkController
 
             self.focusedObjs[area.direction] = obj
             self:getBeamPosition(obj.thisEntity, area.direction)
@@ -249,7 +249,6 @@ function NL:connectLasers()
             self:getBeamPosition(nearest, area.direction)
             self.beams[area.direction] = self.thisEntity.surface.create_entity{name=Constants.Beams.IddleBeam.name, position=self.beamsPos[area.direction].startP, target_position=self.beamsPos[area.direction].endP, source=self.beamsPos[area.direction].startP}
         end
-        
     end
 end
 
@@ -264,8 +263,8 @@ function NL:getNetworkController()
 
     if selfD == 1 then
         bb = {
-            startP = {selfX-0.5, selfY-0.5},
-            endP = {selfX+0.5, selfY-1.5}
+            startP = {selfX-0.5, selfY-1.5},
+            endP = {selfX+0.5, selfY-0.5}
         }
     elseif selfD == 2 then
         bb = {
@@ -279,8 +278,8 @@ function NL:getNetworkController()
         }
     elseif selfD == 4 or selfD == 0 then
         bb = {
-            startP = {selfX-0.5, selfY-0.5},
-            endP = {selfX-1.5, selfY+0.5}
+            startP = {selfX-1.5, selfY-0.5},
+            endP = {selfX-0.5, selfY+0.5}
         }
     end
     
