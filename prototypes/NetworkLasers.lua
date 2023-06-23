@@ -37,6 +37,7 @@ function createNetworkLaserEntity(name, icon, entity, shadow, fluidbox)
 	networklaserE.render_not_in_network_icon = false
 	networklaserE.collision_box = {{-0.49, -0.49}, {0.49, 0.49}}
 	networklaserE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+    networklaserE.fast_replaceable_group = Constants.Settings.RNS_FR_Laser
     networklaserE.resistances =
     {
         {

@@ -1,7 +1,7 @@
 local Constants = {}
 
 Constants.Settings = {
-
+    RNS_FR_Laser = "RNS_NetworkLaser"
 }
 Constants.ItemGroup = {
     Category = {
