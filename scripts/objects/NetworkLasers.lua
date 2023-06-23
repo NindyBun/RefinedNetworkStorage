@@ -117,16 +117,16 @@ function NL:getBeamPosition(ent, selfD)
     end
 
     if selfD == 1 then
-        self.beamsPos[1].startP = {x = selfP.x, y = selfP.y - 0.5 + 0.3}
+        self.beamsPos[1].startP = {x = selfP.x, y = selfP.y - 0.2}
         self.beamsPos[1].endP = {x = selfP.x, y = (entY or (selfP.y-64)) - 0.5 + entH/2 + 0.2 }
     elseif selfD == 2 then
-        self.beamsPos[2].startP = {x = selfP.x + 0.5 - 0.3, y = selfP.y}
+        self.beamsPos[2].startP = {x = selfP.x + 0.2, y = selfP.y}
         self.beamsPos[2].endP = {x = (entX or (selfP.x+64)) + 0.5 - entW/2 - 0.2, y = selfP.y}
     elseif selfD == 3 then
-        self.beamsPos[3].startP = {x = selfP.x, y = selfP.y + 0.5 - 0.3}
+        self.beamsPos[3].startP = {x = selfP.x, y = selfP.y + 0.2}
         self.beamsPos[3].endP = {x = selfP.x, y = (entY or (selfP.y+64)) + 0.5 - entH/2 - 0.2}
     elseif selfD == 4 or selfD == 0 then
-        self.beamsPos[4].startP = {x = selfP.x - 0.5 + 0.3, y = selfP.y}
+        self.beamsPos[4].startP = {x = selfP.x - 0.2, y = selfP.y}
         self.beamsPos[4].endP = {x = (entX or (selfP.x-64)) - 0.5 + entW/2 + 0.2, y = selfP.y }
     else
         local direction = self:directionAsCardinal()
@@ -162,6 +162,16 @@ function NL:directionAsCardinal()
         return 4
     end
     return 1
+end
+
+function NL:cardinalsAfterDirection()
+    local cardinal = {}
+    local direction = self:directionAsCardinal()
+    local cardinals = self:getCardinals()
+    for _, c in pairs(cardinals) do
+        table.insert(cardinal, (direction + c) % 4)
+    end
+    return cardinal
 end
 
 function NL:getCardinals()
@@ -237,6 +247,26 @@ function NL:connectLasers()
             --obj.sourceObj = global.entityTable[self.entID]
             --obj.networkController = self.networkController
 
+            if string.match(obj.thisEntity.name, "RNS_NetworkLaser") ~= nil then
+                local thisD = (area.direction+2)%4
+                local objC = obj:cardinalsAfterDirection()
+
+                local empty = true
+                for _, c in pairs(objC) do
+                    if thisD == c then
+                        empty = false
+                        goto continue
+                    end
+                    ::continue::
+                end
+                if empty == true then 
+                    self.focusedObjs[area.direction] = nil
+                    self:getBeamPosition(nearest, area.direction)
+                    self.beams[area.direction] = self.thisEntity.surface.create_entity{name=Constants.Beams.IddleBeam.name, position=self.beamsPos[area.direction].startP, target_position=self.beamsPos[area.direction].endP, source=self.beamsPos[area.direction].startP}
+                    goto continue
+                end
+            end
+
             self.focusedObjs[area.direction] = obj
             self:getBeamPosition(obj.thisEntity, area.direction)
             self.beams[area.direction] = self.thisEntity.surface.create_entity{name=Constants.Beams.ConnectedBeam.name, position=self.beamsPos[area.direction].startP, target_position=self.beamsPos[area.direction].endP, source=self.beamsPos[area.direction].startP}
@@ -246,9 +276,10 @@ function NL:connectLasers()
             self.beams[area.direction] = self.thisEntity.surface.create_entity{name=Constants.Beams.IddleBeam.name, position=self.beamsPos[area.direction].startP, target_position=self.beamsPos[area.direction].endP, source=self.beamsPos[area.direction].startP}
         elseif nearest == nil then
             self.focusedObjs[area.direction] = nil
-            self:getBeamPosition(nearest, area.direction)
+            self:getBeamPosition(nil, area.direction)
             self.beams[area.direction] = self.thisEntity.surface.create_entity{name=Constants.Beams.IddleBeam.name, position=self.beamsPos[area.direction].startP, target_position=self.beamsPos[area.direction].endP, source=self.beamsPos[area.direction].startP}
         end
+        ::continue::
     end
 end
 
