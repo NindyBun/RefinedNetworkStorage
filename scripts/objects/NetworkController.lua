@@ -44,6 +44,10 @@ function NC:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid
 end
 
+function NC:canAcceptLaser()
+    return false
+end
+
 function NC:setActive(set)
     self.stable = set
     if set == true then

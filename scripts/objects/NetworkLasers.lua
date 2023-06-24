@@ -3,12 +3,12 @@ NL = {
     entID = nil,
     networkController = nil,
     type = "",
-    sourceObj = nil,
     focusedObjs = nil,
     beams = nil,
     beamsPos = nil,
     updateTick = 60,
     lastUpdate = 0,
+    NLI_tmpStorage = nil
 }
 
 function NL:new(object)
@@ -38,6 +38,9 @@ function NL:new(object)
         [3] = nil,
         [4] = nil
     }
+    if t.type == Constants.NetworkLasers.NLI.name then
+        t.NLI_tmpStorage = {source = t, lasers = {}}
+    end
     t:getNetworkController()
     t:getBeamPosition(nil, nil)
     UpdateSys.addEntity(t)
@@ -71,13 +74,11 @@ function NL:update()
             self:remove()
             return
         end
-        if valid(self.sourceObj) == false then
-            self.sourceObj = nil
-        end
+        self:connectLasers()
         if self.type == Constants.NetworkLasers.NLI.name then
             self:getNetworkController()
+            self:sendLasers()
         end
-        self:connectLasers()
     --end
 end
 
@@ -264,6 +265,13 @@ function NL:connectLasers()
                     self:getBeamPosition(nearest, area.direction)
                     self.beams[area.direction] = self.thisEntity.surface.create_entity{name=Constants.Beams.IddleBeam.name, position=self.beamsPos[area.direction].startP, target_position=self.beamsPos[area.direction].endP, source=self.beamsPos[area.direction].startP}
                     goto continue
+                elseif empty == false and obj.thisEntity.name == Constants.NetworkLasers.NLI.name then
+                    self.focusedObjs[area.direction] = nil
+                    if self.thisEntity.name == obj.thisEntity.name then
+                        self:getBeamPosition(nearest, area.direction)
+                        self.beams[area.direction] = self.thisEntity.surface.create_entity{name=Constants.Beams.IddleBeam.name, position=self.beamsPos[area.direction].startP, target_position=self.beamsPos[area.direction].endP, source=self.beamsPos[area.direction].startP}
+                    end
+                    goto continue
                 end
             end
 
@@ -280,6 +288,31 @@ function NL:connectLasers()
             self.beams[area.direction] = self.thisEntity.surface.create_entity{name=Constants.Beams.IddleBeam.name, position=self.beamsPos[area.direction].startP, target_position=self.beamsPos[area.direction].endP, source=self.beamsPos[area.direction].startP}
         end
         ::continue::
+    end
+end
+
+function NL:canAcceptLaser()
+    if self.type == Constants.NetworkLasers.NLI.name then
+        return false
+    else
+        return true
+    end
+end
+
+function NL:sendLasers(originalSource)
+    if originalSource == nil then
+        originalSource = self.NLI_tmpStorage.source
+        local reciver = self.focusedObjs[self:directionAsCardinal()]
+        if reciver == nil or reciver.thisEntity == nil or reciver.thisEntity.valid == false then return end
+        if reciver:canAcceptLaser() then 
+        
+        else
+            return
+        end
+    end
+
+    if originalSource ~= nil then
+        
     end
 end
 
@@ -318,10 +351,11 @@ function NL:getNetworkController()
     if networkController == nil or networkController.valid == false then return end
 
     networkController = global.entityTable[networkController.unit_number]
-    if valid(networkController) == false then return end
-
-    self.networkController = networkController
-    self.sourceObj = networkController
+    if valid(networkController) == false then 
+        self.networkController = nil 
+    else
+        self.networkController = networkController
+    end
 end
 
 function NL:getTooltips()
