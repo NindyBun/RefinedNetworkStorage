@@ -8,7 +8,7 @@ NL = {
     beamsPos = nil,
     updateTick = 60,
     lastUpdate = 0,
-    NLI_tmpStorage = nil
+    --NLI_tmpStorage = nil
 }
 
 function NL:new(object)
@@ -38,10 +38,7 @@ function NL:new(object)
         [3] = nil,
         [4] = nil
     }
-    if t.type == Constants.NetworkLasers.NLI.name then
-        t.NLI_tmpStorage = {source = t, lasers = {}}
-    end
-    t:getNetworkController()
+    --t:getNetworkController()
     t:getBeamPosition(nil, nil)
     UpdateSys.addEntity(t)
     return t
@@ -75,10 +72,10 @@ function NL:update()
             return
         end
         self:connectLasers()
-        if self.type == Constants.NetworkLasers.NLI.name then
+        --[[if self.type == Constants.NetworkLasers.NLI.name then
             self:getNetworkController()
             self:sendLasers()
-        end
+        end]]
     --end
 end
 
@@ -291,31 +288,7 @@ function NL:connectLasers()
     end
 end
 
-function NL:canAcceptLaser()
-    if self.type == Constants.NetworkLasers.NLI.name then
-        return false
-    else
-        return true
-    end
-end
-
-function NL:sendLasers(originalSource)
-    if originalSource == nil then
-        originalSource = self.NLI_tmpStorage.source
-        local reciver = self.focusedObjs[self:directionAsCardinal()]
-        if reciver == nil or reciver.thisEntity == nil or reciver.thisEntity.valid == false then return end
-        if reciver:canAcceptLaser() then 
-        
-        else
-            return
-        end
-    end
-
-    if originalSource ~= nil then
-        
-    end
-end
-
+--[[
 function NL:getNetworkController()
     local selfX = self.thisEntity.position.x
     local selfY = self.thisEntity.position.y
@@ -356,7 +329,7 @@ function NL:getNetworkController()
     else
         self.networkController = networkController
     end
-end
+end]]
 
 function NL:getTooltips()
 

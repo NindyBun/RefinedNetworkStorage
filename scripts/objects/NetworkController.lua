@@ -60,6 +60,9 @@ function NC:setActive(set)
 end
 
 function NC:update()
+    if game.tick % 300 == 0 then 
+        self.network:doRefresh(self)
+    end
     self.lastUpdate = game.tick
     if valid(self) == false then
         self:remove()

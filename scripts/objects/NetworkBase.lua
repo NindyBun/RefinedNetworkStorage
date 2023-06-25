@@ -39,6 +39,11 @@ function BaseNet:update()
     self.lastUpdate = game.tick
 end
 
+--Refreshes laser connections
+function BaseNet:doRefresh(controller)
+    
+end
+
 function BaseNet:getTooltips()
     
 end
