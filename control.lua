@@ -12,6 +12,7 @@ require("scripts.objects.NetworkBase")
 require("scripts.objects.NetworkController")
 require("scripts.objects.RNSPlayer")
 require("scripts.objects.NetworkLasers")
+require("scripts.objects.NetworkCables")
 
 --When the mod is added in a save
 function onInit()
@@ -65,6 +66,16 @@ end
 
 function onTick(event)
     safeCall(Event.tick, event)
+end
+
+function pipette(event)
+	if safeCall(Event.pipette, event) == false then
+        game.print({"gui-description.pipette_failed"})
+        local entity = event.created_entity or event.entity or event.destination
+        if entity ~= nil and entity.valid == true then
+            entity.destroy()
+        end
+    end
 end
 
 function placed(event)

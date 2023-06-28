@@ -52,10 +52,10 @@ function NC:setActive(set)
     self.stable = set
     if set == true then
         rendering.destroy(self.stateSprite)
-        self.stateSprite = rendering.draw_sprite{sprite=Constants.NetworkController.name.."_stable", target=self.thisEntity, surface=self.thisEntity.surface, render_layer=131}
+        self.stateSprite = rendering.draw_sprite{sprite=Constants.NetworkController.name.."_stable", target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
     elseif set == false then
         rendering.destroy(self.stateSprite)
-        self.stateSprite = rendering.draw_sprite{sprite=Constants.NetworkController.name.."_unstable", target=self.thisEntity, surface=self.thisEntity.surface, render_layer=131}
+        self.stateSprite = rendering.draw_sprite{sprite=Constants.NetworkController.name.."_unstable", target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
     end
 end
 

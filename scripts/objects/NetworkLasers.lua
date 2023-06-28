@@ -1,7 +1,7 @@
 NL = {
     thisEntity = nil,
     entID = nil,
-    networkController = nil,
+    --networkController = nil,
     type = "",
     focusedObjs = nil,
     beams = nil,
@@ -65,7 +65,7 @@ function NL:valid()
 end
 
 function NL:update()
-    --if self.lastUpdate == 0 or game.tick - self.lastUpdate > self.updateTick*2 then
+    --if game.tick % 60 then
         self.lastUpdate = game.tick
         if valid(self) == false then
             self:remove()
@@ -233,7 +233,7 @@ function NL:connectLasers()
                 end
             end
         end
-        if nearest ~= nil and global.entityTable[nearest.unit_number] ~= nil then
+        if nearest ~= nil and global.entityTable[nearest.unit_number] ~= nil and nearest.name ~= Constants.NetworkController.name then
             local obj = global.entityTable[nearest.unit_number]
             --Prevent itself
             if self.focusedObjs[area.direction] ~= nil and self.focusedObjs[area.direction].entID == obj.entID then return end
@@ -257,17 +257,21 @@ function NL:connectLasers()
                     end
                     ::continue::
                 end
-                if empty == true then 
+                --[[if empty == true then --Stop laser from hitting the sides of a laser relay
                     self.focusedObjs[area.direction] = nil
                     self:getBeamPosition(nearest, area.direction)
                     self.beams[area.direction] = self.thisEntity.surface.create_entity{name=Constants.Beams.IddleBeam.name, position=self.beamsPos[area.direction].startP, target_position=self.beamsPos[area.direction].endP, source=self.beamsPos[area.direction].startP}
                     goto continue
-                elseif empty == false and obj.thisEntity.name == Constants.NetworkLasers.NLI.name then
+                elseif empty == false and self.thisEntity.name == obj.thisEntity.name and obj.thisEntity.name == Constants.NetworkLasers.NLI.name then --Stop two Injectors from connecting to eachother
                     self.focusedObjs[area.direction] = nil
-                    if self.thisEntity.name == obj.thisEntity.name then
-                        self:getBeamPosition(nearest, area.direction)
-                        self.beams[area.direction] = self.thisEntity.surface.create_entity{name=Constants.Beams.IddleBeam.name, position=self.beamsPos[area.direction].startP, target_position=self.beamsPos[area.direction].endP, source=self.beamsPos[area.direction].startP}
-                    end
+                    self:getBeamPosition(nearest, area.direction)
+                    self.beams[area.direction] = self.thisEntity.surface.create_entity{name=Constants.Beams.IddleBeam.name, position=self.beamsPos[area.direction].startP, target_position=self.beamsPos[area.direction].endP, source=self.beamsPos[area.direction].startP}
+                    goto continue
+                end]]
+                if empty == true or self.thisEntity.name == obj.thisEntity.name and obj.thisEntity.name == Constants.NetworkLasers.NLI.name then --Stop two Injectors from connecting to eachother or from hitting an empty side
+                    self.focusedObjs[area.direction] = nil
+                    self:getBeamPosition(nearest, area.direction)
+                    self.beams[area.direction] = self.thisEntity.surface.create_entity{name=Constants.Beams.IddleBeam.name, position=self.beamsPos[area.direction].startP, target_position=self.beamsPos[area.direction].endP, source=self.beamsPos[area.direction].startP}
                     goto continue
                 end
             end

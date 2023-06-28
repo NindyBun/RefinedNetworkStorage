@@ -12,6 +12,45 @@ Constants.ItemGroup = {
         Laser_subgroup = "RNS-Lasers"
     }
 }
+Constants.NetworkCables = {
+    Cable = {
+        item = {
+            name = "RNS_NetworkCable_I",
+            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/NetworkCable.png",
+            entityE =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableCross.png",
+            entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableCross_S.png",
+        },
+        entity = {
+            name = "RNS_NetworkCable",
+            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank.png",
+            entityE =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank.png",
+            entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank_S.png",
+        }
+    },
+    Sprites = {
+        [1] = {
+            name = "RNS_NetworkCableNorth",
+            sprite_E =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableN.png",
+            sprite_S =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableN_S.png",
+        },
+        [2] = {
+            name = "RNS_NetworkCableEast",
+            sprite_E =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableE.png",
+            sprite_S =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableE_S.png",
+        },
+        [4] = {
+            name = "RNS_NetworkCableSouth",
+            sprite_E =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableS.png",
+            sprite_S =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableS_S.png",
+        },
+        [3] = {
+            name = "RNS_NetworkCableWest",
+            sprite_E =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableW.png",
+            sprite_S =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableW_S.png",
+        }
+       
+    }
+}
 Constants.NetworkLasers = {
     NLI = {
         name = "RNS_NetworkLaserInjector",

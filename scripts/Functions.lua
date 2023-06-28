@@ -17,6 +17,7 @@ function createObjectTables()
     addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLT.name}
     addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLC.name}
     addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLE.name}
+    addOrCreateObjectTable{tableName="NetworkCableTable", tag="NCbl", objName=Constants.NetworkCables.Cable.entity.name}
 end
 
 --Adds or Create a table to store the object
