@@ -24,3 +24,13 @@ function Util.distance(startP, endP)
 	local yE = endP[2] or endP.y
 	return math.sqrt( (xS-xE)^2 + (yS-yE)^2 )
 end
+
+function Util.getTableLength(array)
+	local count = 0
+	for _, c in pairs(array) do
+		if valid(c) then
+			count = count + 1
+		end
+	end
+	return count
+end

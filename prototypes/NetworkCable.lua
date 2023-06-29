@@ -63,7 +63,7 @@ data:extend{networkCableE}
 local networkCable_E = {}
 networkCable_E.type = "container"
 networkCable_E.name = Constants.NetworkCables.Cable.entity.name
-networkCable_E.icon = Constants.NetworkCables.Cable.entity.itemIcon
+networkCable_E.icon = Constants.NetworkCables.Cable.item.itemIcon
 networkCable_E.icon_size = 32
 networkCable_E.inventory_size = 0
 networkCable_E.flags = {"placeable-neutral", "player-creation"}

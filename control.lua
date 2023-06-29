@@ -11,8 +11,9 @@ require("scripts.updates")
 require("scripts.objects.NetworkBase")
 require("scripts.objects.NetworkController")
 require("scripts.objects.RNSPlayer")
-require("scripts.objects.NetworkLasers")
+--require("scripts.objects.NetworkLasers")
 require("scripts.objects.NetworkCables")
+require("scripts.objects.ItemDrives")
 
 --When the mod is added in a save
 function onInit()

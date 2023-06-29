@@ -5,6 +5,7 @@ BaseNet = {
     ItemDriveTable = nil,
     FluidDriveTable = nil,
     NetworkInventoryInterfaceTable = nil,
+    shouldRefresh = false,
     updateTick = 200,
     lastUpdate = 0
 }
@@ -14,9 +15,7 @@ function BaseNet:new()
     local mt = {}
     setmetatable(t, mt)
     mt.__index = BaseNet
-    t.ItemDriveTable = {}
-    t.FluidDriveTable = {}
-    t.NetworkInventoryInterfaceTable = {}
+    t:resetTables()
     t.ID = getNextAvailableNetworkID()
     UpdateSys.addEntity(t)
     return t
@@ -39,9 +38,46 @@ function BaseNet:update()
     self.lastUpdate = game.tick
 end
 
+function BaseNet:resetTables()
+    self.ItemDriveTable = {}
+    self.FluidDriveTable = {}
+    self.NetworkInventoryInterfaceTable = {}
+end
+
 --Refreshes laser connections
 function BaseNet:doRefresh(controller)
-    
+    self:resetTables()
+    addConnectables(controller, {}, controller)
+    self.shouldRefresh = false
+end
+
+function addConnectables(source, connections, master)
+    if valid(source) == false then return end
+    if source.thisEntity == nil and source.thisEntity.valid == false then return end
+    if source.connectedObjs == nil and source.connectedObjs.valid == false then return end
+    for _, connected in pairs(source.connectedObjs) do
+        for _, con in pairs(connected) do
+            if valid(con) == false then goto continue end
+            if con.thisEntity.to_be_deconstructed() == true then goto continue end
+            if con.thisEntity == nil and con.thisEntity.valid == false then goto continue end
+            if connections[con.entID] ~= nil then goto continue end
+
+            if con.thisEntity.name == Constants.NetworkController.entity.name and con.entID ~= master.entID then
+                con.thisEntity.order_deconstruction("player")
+                goto continue
+            end
+
+            con.networkController = master
+            connections[con.entID] = con
+
+            if string.match(con.thisEntity.name, "RNS_ItemDrive") ~= nil then
+                master.network.ItemDriveTable[con.entID] = con
+                goto continue
+            end
+            addConnectables(con, connections, master)
+            ::continue::
+        end
+    end
 end
 
 function BaseNet:getTooltips()
@@ -50,5 +86,5 @@ end
 
 --Get connected objects
 function BaseNet:getTotalObjects()
-    return #self.ItemDriveTable + #self.FluidDriveTable + #self.NetworkInventoryInterfaceTable
+    return Util.getTableLength(self.ItemDriveTable)
 end

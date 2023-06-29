@@ -2,7 +2,7 @@ Constants = require("utils.constants")
 require("prototypes.Drives")
 require("prototypes.NetworkController")
 require("prototypes.NetworkInventoryBlock")
-require("prototypes.NetworkLasers")
+--require("prototypes.NetworkLasers")
 require("prototypes.NetworkCable")
 require("prototypes.Beams")
 -------------------------------------------------------------------------------------

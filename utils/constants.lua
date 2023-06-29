@@ -1,7 +1,8 @@
 local Constants = {}
 
 Constants.Settings = {
-    RNS_FR_Laser = "RNS_NetworkLaser"
+    RNS_FR_Laser = "RNS_NetworkLaser",
+    RNS_Tag = "RNS_StorageTag"
 }
 Constants.ItemGroup = {
     Category = {
@@ -159,10 +160,19 @@ Constants.Beams = {
     },
 }
 Constants.NetworkController = {
-    name = "RNS_NetworkController",
-    itemIcon = "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerI.png",
-    entityE =  "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerE.png",
-    entityS =  "__RefinedNetworkStorage__/graphics/Drives/DriveS.png"
+    item = {
+        name = "RNS_NetworkController_I",
+        itemIcon = "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerI.png",
+        entityE =  "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerE.png",
+        entityS =  "__RefinedNetworkStorage__/graphics/Drives/DriveS.png"
+    },
+    entity = {
+        name = "RNS_NetworkController",
+        itemIcon = "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerBlank.png",
+        entityE =  "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerBlank.png",
+        entityS =  "__RefinedNetworkStorage__/graphics/Drives/DriveS.png"
+    }
+    
 }
 Constants.NetworkInventoryInterface = {
     name = "RNS_NetworkInventoryInterface",

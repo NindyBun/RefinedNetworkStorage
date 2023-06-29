@@ -2,6 +2,8 @@ NCbl = {
     thisEntity = nil,
     entID = nil,
     arms = nil,
+    connectedObjs = nil,
+    networkController = nil,
     updateTick = 60,
     lastUpdate = 0,
 }
@@ -21,7 +23,28 @@ function NCbl:new(object)
         [3] = nil, --S
         [4] = nil, --W
     }
-    --t:createArm()
+    t.connectedObjs = {
+        [1] = {}, --N
+        [2] = {}, --E
+        [4] = {}, --S
+        [3] = {}, --W
+    }
+    t:createArms()
+    --[[if #t.arms > 0 then
+        for _, c in pairs(t.connectedObjs) do
+            for _, cc in pairs(c) do
+                if cc.thisEntity.name == Constants.NetworkCables.Cable.entity.name then
+                    if cc.networkController ~= nil and cc.networkController.thisEntity ~= nil and cc.networkController.thisEntity.valid == true then
+                        cc.networkController.network.shouldRefresh = true
+                    end
+                elseif cc.thisEntity.name == Constants.NetworkController.entity.name then
+                    if cc.thisEntity ~= nil and cc.thisEntity.valid == true then
+                        cc.network.shouldRefresh = true
+                    end
+                end
+            end
+        end
+    end]]
     UpdateSys.addEntity(t)
     return t
 end
@@ -29,7 +52,7 @@ end
 function NCbl:rebuild(object)
     if object == nil then return end
     local mt = {}
-    mt.__index = NCblL
+    mt.__index = NCbl
     setmetatable(object, mt)
 end
 
@@ -40,16 +63,19 @@ function NCbl:remove()
         end
     end
     UpdateSys.remove(self)
+    if self.networkController ~= nil then
+        self.networkController.network.shouldRefresh = true
+    end
 end
 
 function NCbl:valid()
-    return self.thisEntity ~= nil and self.thisEntity.valid
+    return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
 function NCbl:update()
     --if game.tick % 60 then
         self.lastUpdate = game.tick
-        if valid(self) == false then
+        if valid(self) == false or self.thisEntity.to_be_deconstructed() == true then
             self:remove()
             return
         end
@@ -58,11 +84,17 @@ function NCbl:update()
 end
 
 function NCbl:resetArms()
-    for _, arm in pairs(self.arms) do
+    self.connectedObjs = {
+        [1] = {}, --N
+        [2] = {}, --E
+        [3] = {}, --S
+        [4] = {}, --W
+    }
+    --[[for _, arm in pairs(self.arms) do
         if arm ~= nil then
             rendering.destroy(arm)
         end
-    end
+    end]]
 end
 
 function NCbl:getCheckArea()
@@ -85,13 +117,29 @@ function NCbl:createArms()
         local nearest = nil
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true then
-                if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) and string.match(ent.name, "RNS") ~= nil then
+                if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) and string.match(ent.name, "RNS_") ~= nil then
                     nearest = ent
                 end
             end
         end
-        if nearest ~= nil and global.entityTable[nearest.unit_number] ~= nil and nearest.name ~= Constants.NetworkController.name then
-            self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+        if nearest ~= nil and global.entityTable[nearest.unit_number] ~= nil then
+            local obj = global.entityTable[nearest.unit_number]
+            self.connectedObjs[area.direction] = {obj}
+            if self.arms[area.direction] == nil then
+                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
+                    self.networkController.network.shouldRefresh = true
+                elseif obj.thisEntity.name == Constants.NetworkController.entity.name then
+                    obj.network.shouldRefresh = true
+                end
+            end
+        elseif nearest == nil then
+            if self.arms[area.direction] ~= nil then
+                self.arms[area.direction] = rendering.destroy(self.arms[area.direction])
+                if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
+                    self.networkController.network.shouldRefresh = true
+                end
+            end
         end
     end
 end

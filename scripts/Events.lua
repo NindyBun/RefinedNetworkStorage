@@ -26,8 +26,15 @@ function Event.placed(event)
         local fr = entity.force
         entity.destroy()
         entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply}
+    elseif entName == Constants.NetworkController.item.name and type ~= "entity-ghost" then
+        entName = Constants.NetworkController.entity.name
+        local surf = entity.surface
+        local ply = entity.last_user
+        local pos = entity.position
+        local fr = entity.force
+        entity.destroy()
+        entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply}
     end
-
 
     local objInfo = global.objectTables[entName]
 
@@ -39,9 +46,9 @@ function Event.placed(event)
             global[objInfo.tableName][entity.unit_number] = obj
         end
         if event.stack ~= nil and event.stack.valid_for_read == true and event.stack.type == "item-with-tags" then
-			local tags = event.stack.get_tag("StoredData")
+			local tags = event.stack.get_tag(Constants.Settings.RNS_Tag)
 			if tags ~= nil then
-				obj:itemTagsToContent(tags)
+				obj:DataConvert_ItemToEntity(tags)
 			end
 		end
 		-- Validate properties taken from Blueprint or Item Tags
@@ -59,9 +66,10 @@ function Event.removed(event)
     local obj = global.entityTable[entity.unit_number]
     if obj == nil then return end
 
-    if obj.contentToTag ~= nil and event.buffer ~= nil and event.buffer[1] ~= nil then
-        obj:contentToTag(event.buffer[1])
+    if obj.DataConvert_EntityToItem ~= nil and event.buffer ~= nil and event.buffer[1] ~= nil then
+        obj:DataConvert_EntityToItem(event.buffer[1])
     end
+    
     obj:remove()
     
     local objInfo = global.objectTables[entity.name]
