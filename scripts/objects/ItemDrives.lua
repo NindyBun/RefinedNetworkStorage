@@ -26,7 +26,6 @@ function ID:new(object)
         t.maxStorage = Constants.Drives.ItemDrive64k.max_size
     end
     t.storage = {}
-    t.storage["iron-plate"] = 100
     UpdateSys.addEntity(t)
     return t
 end
