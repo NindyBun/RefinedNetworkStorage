@@ -69,7 +69,7 @@ local controller_E = {}
 controller_E.type = "electric-energy-interface"
 controller_E.name = Constants.NetworkController.entity.name
 controller_E.icon = Constants.NetworkController.item.itemIcon
-controller_E.icon_size = 32
+controller_E.icon_size = 256
 controller_E.flags = {"placeable-neutral", "player-creation"}
 controller_E.minable = {mining_time = 0.2, result = Constants.NetworkController.item.name}
 controller_E.max_health = 350

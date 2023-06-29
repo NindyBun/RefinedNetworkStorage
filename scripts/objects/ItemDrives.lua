@@ -4,6 +4,8 @@ ID = {
     networkController = nil,
     maxStorage = 0,
     storage = nil,
+    connectedObjs = nil,
+    cardinals = nil,
     updateTick = 60,
     lastUpdate = 0,
 }
@@ -26,6 +28,19 @@ function ID:new(object)
         t.maxStorage = Constants.Drives.ItemDrive64k.max_size
     end
     t.storage = {}
+    t.cardinals = {
+        [1] = false, --N
+        [2] = false, --E
+        [3] = false, --S
+        [4] = false, --W
+    }
+    t.connectedObjs = {
+        [1] = {}, --N
+        [2] = {}, --E
+        [3] = {}, --S
+        [4] = {}, --W
+    }
+    t:collect()
     UpdateSys.addEntity(t)
     return t
 end
@@ -51,9 +66,61 @@ end
 
 function ID:update()
     self.lastUpdate = game.tick
-    if self:valid() == false then
+    if valid(self) == false  or self.thisEntity.to_be_deconstructed() == true then
         self:remove()
         return
+    end
+    self:collect()
+end
+
+function ID:resetCollection()
+    self.connectedObjs = {
+        [1] = {}, --N
+        [2] = {}, --E
+        [3] = {}, --S
+        [4] = {}, --W
+    }
+end
+
+function ID:getCheckArea()
+    local x = self.thisEntity.position.x
+    local y = self.thisEntity.position.y
+    return {
+        [1] = {direction = 1, startP = {x-1.0, y-2.0}, endP = {x+1.0, y-1.0}}, --North
+        [2] = {direction = 2, startP = {x+1.0, y-1.0}, endP = {x+2.0, y+1.0}}, --East
+        [3] = {direction = 3, startP = {x-1.0, y+1.0}, endP = {x+1.0, y+2.0}}, --South
+        [4] = {direction = 4, startP = {x-2.0, y-1.0}, endP = {x-1.0, y+1.0}}, --West
+    }
+end
+
+function ID:collect()
+    local areas = self:getCheckArea()
+    self:resetCollection()
+    for _, area in pairs(areas) do
+        local enti = 0
+        local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
+        for _, ent in pairs(ents) do
+            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and global.entityTable[ent.unit_number] ~= nil then
+                local obj = global.entityTable[ent.unit_number]
+                table.insert(self.connectedObjs[area.direction], obj)
+                enti = enti + 1
+
+                if self.cardinals[area.direction] == false then
+                    self.cardinals[area.direction] = true
+                    if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
+                        self.networkController.network.shouldRefresh = true
+                    elseif obj.thisEntity.name == Constants.NetworkController.entity.name then
+                        obj.network.shouldRefresh = true
+                    end
+                end
+            end
+        end
+        if self.cardinals[area.direction] == true and enti == 0 then
+            self.cardinals[area.direction] = false
+            if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
+                self.networkController.network.shouldRefresh = true
+            end
+        end
     end
 end
 

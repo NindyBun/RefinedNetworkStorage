@@ -28,7 +28,7 @@ function onInit()
     global.networkID = global.networkID or {{id=0, used=false}}
     createObjectTables()
 
-    --[[for _, obj in pairs(global.objectTables) do
+    for _, obj in pairs(global.objectTables) do
 		if obj.tableName and obj.tag then
 			if _G[obj.tag].validate then
 				for _, entry in pairs(global[obj.tableName]) do
@@ -36,7 +36,7 @@ function onInit()
 				end
 			end
 		end
-	end]]
+	end
 
     if global.playerTable == nil then global.playerTable = {} end
 	for _, player in pairs(game.players) do

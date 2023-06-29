@@ -30,21 +30,6 @@ function NCbl:new(object)
         [3] = {}, --W
     }
     t:createArms()
-    --[[if #t.arms > 0 then
-        for _, c in pairs(t.connectedObjs) do
-            for _, cc in pairs(c) do
-                if cc.thisEntity.name == Constants.NetworkCables.Cable.entity.name then
-                    if cc.networkController ~= nil and cc.networkController.thisEntity ~= nil and cc.networkController.thisEntity.valid == true then
-                        cc.networkController.network.shouldRefresh = true
-                    end
-                elseif cc.thisEntity.name == Constants.NetworkController.entity.name then
-                    if cc.thisEntity ~= nil and cc.thisEntity.valid == true then
-                        cc.network.shouldRefresh = true
-                    end
-                end
-            end
-        end
-    end]]
     UpdateSys.addEntity(t)
     return t
 end
@@ -83,18 +68,13 @@ function NCbl:update()
     --end
 end
 
-function NCbl:resetArms()
+function NCbl:resetConnection()
     self.connectedObjs = {
         [1] = {}, --N
         [2] = {}, --E
         [3] = {}, --S
         [4] = {}, --W
     }
-    --[[for _, arm in pairs(self.arms) do
-        if arm ~= nil then
-            rendering.destroy(arm)
-        end
-    end]]
 end
 
 function NCbl:getCheckArea()
@@ -111,8 +91,8 @@ end
 function NCbl:createArms()
     local areas = self:getCheckArea()
     local selfP = self.thisEntity.position
-    self:resetArms()
-    for _, area in pairs(areas) do --for some reason it can't detect entities North and West
+    self:resetConnection()
+    for _, area in pairs(areas) do
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         local nearest = nil
         for _, ent in pairs(ents) do

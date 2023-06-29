@@ -25,8 +25,8 @@ function NC:new(object)
     t.connectedObjs = {
         [1] = {}, --N
         [2] = {}, --E
-        [4] = {}, --S
-        [3] = {}, --W
+        [3] = {}, --S
+        [4] = {}, --W
     }
     t:collect()
     t.network.shouldRefresh = true
@@ -98,8 +98,8 @@ function NC:resetCollection()
     self.connectedObjs = {
         [1] = {}, --N
         [2] = {}, --E
-        [4] = {}, --S
-        [3] = {}, --W
+        [3] = {}, --S
+        [4] = {}, --W
     }
 end
 
@@ -109,15 +109,15 @@ function NC:getCheckArea()
     return {
         [1] = {direction = 1, startP = {x-1.5, y-2.5}, endP = {x+1.5, y-1.5}}, --North
         [2] = {direction = 2, startP = {x+1.5, y-1.5}, endP = {x+2.5, y+1.5}}, --East
-        [4] = {direction = 4, startP = {x-1.5, y+1.5}, endP = {x+1.5, y+2.5}}, --South
-        [3] = {direction = 3, startP = {x-2.5, y-1.5}, endP = {x-1.5, y+1.5}}, --West
+        [3] = {direction = 3, startP = {x-1.5, y+1.5}, endP = {x+1.5, y+2.5}}, --South
+        [4] = {direction = 4, startP = {x-2.5, y-1.5}, endP = {x-1.5, y+1.5}}, --West
     }
 end
 
 function NC:collect()
     local areas = self:getCheckArea()
     self:resetCollection()
-    for _, area in pairs(areas) do --for some reason it can't detect entities North and West
+    for _, area in pairs(areas) do
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil then
