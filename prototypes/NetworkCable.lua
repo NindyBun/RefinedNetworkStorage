@@ -44,17 +44,17 @@ networkCableE.picture =
                 priority = "extra-high",
                 width = 512,
                 height = 512,
-                shift = {0,-3/8},
-                scale = 1/8
+                shift = {0,0},
+                scale = 1/16
             },
             {
                 filename = Constants.NetworkCables.Cable.item.entityS,
                 priority = "high",
                 width = 512,
                 height = 512,
-                shift = {0,-3/8},
+                shift = {0,0},
                 draw_as_shadow = true,
-                scale = 1/8
+                scale = 1/16
             }
         }
     }
@@ -102,16 +102,16 @@ sprite.layers = {
         filename = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableDot.png",
         priority = "extra-high",
         size = 512,
-        shift = {0,-3/8},
-        scale = 1/8
+        shift = {0,0},
+        scale = 1/16
     },
     {
         filename = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableDot_S.png",
         priority = "high",
         size = 512,
-        shift = {0,-3/8},
+        shift = {0,0},
         draw_as_shadow = true,
-        scale = 1/8
+        scale = 1/16
     }
 }
 data:extend{sprite}
@@ -125,17 +125,79 @@ for _, s in pairs(Constants.NetworkCables.Sprites) do
             filename = s.sprite_E,
             priority = "extra-high",
             size = 512,
-            shift = {0,-3/8},
-            scale = 1/8
+            shift = {0,0},
+            scale = 1/16
         },
         {
             filename = s.sprite_S,
             priority = "high",
             size = 512,
-            shift = {0,-3/8},
+            shift = {0,0},
             draw_as_shadow = true,
-            scale = 1/8
+            scale = 1/16
         }
     }
     data:extend{sprite}
 end
+
+--[[local ncblI = {}
+ncblI.type = "item"
+ncblI.name = "RNS_Cable"
+ncblI.icon = "__RefinedNetworkStorage__/graphics/Cables/NetworkCable2.png"
+ncblI.icon_size = 512
+ncblI.subgroup = Constants.ItemGroup.Category.subgroup
+ncblI.order = "i"
+ncblI.stack_size = 10
+ncblI.place_result = "RNS_Cable"
+data:extend{ncblI}
+
+local ncblR = {}
+ncblR.type = "recipe"
+ncblR.name = "RNS_Cable"
+ncblR.energy_required = 1
+ncblR.enabled = true
+ncblR.ingredients = {}
+ncblR.result = "RNS_Cable"
+ncblR.result_count = 1
+data:extend{ncblR}
+
+local ncblE = {}
+ncblE.type = "container"
+ncblE.name = "RNS_Cable"
+ncblE.icon = "__RefinedNetworkStorage__/graphics/Cables/NetworkCable2.png"
+ncblE.icon_size = 512
+ncblE.inventory_size = 0
+ncblE.flags = {"placeable-neutral", "player-creation"}
+ncblE.minable = {mining_time = 0.2, result = "RNS_Cable"}
+ncblE.max_health = 250
+ncblE.dying_explosion = "medium-explosion"
+ncblE.corpse = "medium-remnants"
+ncblE.collision_box = {{-0.49, -0.49}, {0.49, 0.49}}
+ncblE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+ncblE.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
+ncblE.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
+ncblE.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
+ncblE.picture =
+    {
+        layers =
+        {
+            {
+                filename = "__RefinedNetworkStorage__/graphics/Cables/NetworkCable2.png",
+                priority = "extra-high",
+                width = 512,
+                height = 512,
+                shift = {0,0},
+                scale = 1/16
+            },
+            {
+                filename = "__RefinedNetworkStorage__/graphics/Cables/NetworkCable2_S.png",
+                priority = "high",
+                width = 512,
+                height = 512,
+                shift = {0,0},
+                draw_as_shadow = true,
+                scale = 1/16
+            }
+        }
+    }
+data:extend{ncblE}]]

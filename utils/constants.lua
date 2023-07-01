@@ -18,8 +18,8 @@ Constants.NetworkCables = {
         item = {
             name = "RNS_NetworkCable_I",
             itemIcon = "__RefinedNetworkStorage__/graphics/Cables/NetworkCable.png",
-            entityE =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableCross.png",
-            entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableCross_S.png",
+            entityE =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCable.png",
+            entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCable_S.png",
         },
         entity = {
             name = "RNS_NetworkCable",

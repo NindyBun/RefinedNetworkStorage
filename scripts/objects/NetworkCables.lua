@@ -4,6 +4,7 @@ NCbl = {
     arms = nil,
     connectedObjs = nil,
     networkController = nil,
+    cardinals = nil,
     updateTick = 60,
     lastUpdate = 0,
 }
@@ -29,6 +30,12 @@ function NCbl:new(object)
         [4] = {}, --S
         [3] = {}, --W
     }
+    t.cardinals = {
+        [1] = false, --N
+        [2] = false, --E
+        [3] = false, --S
+        [4] = false, --W
+    }
     t:createArms()
     UpdateSys.addEntity(t)
     return t
@@ -42,11 +49,11 @@ function NCbl:rebuild(object)
 end
 
 function NCbl:remove()
-    for _, arm in pairs(self.arms) do
+    --[[for _, arm in pairs(self.arms) do
         if arm ~= nil then
             rendering.destroy(arm)
         end
-    end
+    end]]
     UpdateSys.remove(self)
     if self.networkController ~= nil then
         self.networkController.network.shouldRefresh = true
@@ -75,6 +82,11 @@ function NCbl:resetConnection()
         [3] = {}, --S
         [4] = {}, --W
     }
+    for _, arm in pairs(self.arms) do
+        if arm ~= nil then
+            rendering.destroy(arm)
+        end
+    end
 end
 
 function NCbl:getCheckArea()
@@ -105,8 +117,9 @@ function NCbl:createArms()
         if nearest ~= nil and global.entityTable[nearest.unit_number] ~= nil then
             local obj = global.entityTable[nearest.unit_number]
             self.connectedObjs[area.direction] = {obj}
-            if self.arms[area.direction] == nil then
-                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+            self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+            if self.cardinals[area.direction] == false then
+                self.cardinals[area.direction] = true
                 if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
                     self.networkController.network.shouldRefresh = true
                 elseif obj.thisEntity.name == Constants.NetworkController.entity.name then
@@ -114,8 +127,8 @@ function NCbl:createArms()
                 end
             end
         elseif nearest == nil then
-            if self.arms[area.direction] ~= nil then
-                self.arms[area.direction] = rendering.destroy(self.arms[area.direction])
+            if self.cardinals[area.direction] == true then
+                self.cardinals[area.direction] = false
                 if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
                     self.networkController.network.shouldRefresh = true
                 end
