@@ -201,3 +201,136 @@ ncblE.picture =
         }
     }
 data:extend{ncblE}]]
+
+function createNetworkIOBusItem(name, icon, stack_size)
+	local networkItemioI = {}
+	networkItemioI.type = "item"
+	networkItemioI.name = name
+	networkItemioI.icon = icon
+	networkItemioI.icon_size = 512
+	networkItemioI.subgroup = Constants.ItemGroup.Category.subgroup
+	networkItemioI.order = "i"
+	networkItemioI.place_result = name
+	networkItemioI.stack_size = stack_size
+	data:extend{networkItemioI}
+end
+
+function createNetworkIOBusRecipe(name, craft_time, enabled, ingredients)
+	local networkItemioR = {}
+	networkItemioR.type = "recipe"
+	networkItemioR.name = name
+	networkItemioR.energy_required = craft_time
+	networkItemioR.enabled = enabled
+	networkItemioR.ingredients = ingredients
+	networkItemioR.result = name
+	networkItemioR.result_count = 1
+	data:extend{networkItemioR}
+end
+
+function createNetworkIOBusEntityGhost(eName, iName, icon, entity, fluidbox)
+	local networkItemioE = {}
+	networkItemioE.type = "assembling-machine"
+	networkItemioE.name = eName
+	networkItemioE.icon = icon
+	networkItemioE.icon_size = 512
+	networkItemioE.flags = {"placeable-neutral", "placeable-player", "player-creation"}
+	networkItemioE.minable = {mining_time = 0.2, result = iName}
+	networkItemioE.max_health = 250
+    networkItemioE.dying_explosion = "medium-explosion"
+	networkItemioE.corpse = "small-remnants"
+    networkItemioE.placeable_by = {item = iName, count = 1}
+	networkItemioE.render_not_in_network_icon = false
+	networkItemioE.collision_box = {{-0.49, -0.49}, {0.49, 0.49}}
+	networkItemioE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+    networkItemioE.resistances =
+    {
+        {
+        type = "fire",
+        percent = 70
+        }
+    }
+    networkItemioE.animation.north = entity.north
+    networkItemioE.animation.east = entity.east
+    networkItemioE.animation.south = entity.south
+    networkItemioE.animation.west = entity.west
+    networkItemioE.crafting_categories = {"RNS-Nothing"}
+    networkItemioE.crafting_speed = 1
+    networkItemioE.energy_source =
+    {
+        type = "electric",
+        usage_priority = "secondary-input",
+        buffer_capacity = "1J",
+        output_flow_limit = "0W",
+        input_flow_limit = "0W",
+        drain = "0W",
+        render_no_power_icon = false,
+        render_no_network_icon = false
+    }
+    networkItemioE.energy_usage = "1J"
+    networkItemioE.fluid_boxes = { fluidbox }
+	data:extend{networkItemioE}
+end
+
+function createNetworkIOBusEntity(name, icon, blank, fluidbox)
+    local networkItemioE = {}
+	networkItemioE.type = "assembling-machine"
+	networkItemioE.name = name
+	networkItemioE.icon = icon
+	networkItemioE.icon_size = 512
+	networkItemioE.flags = {"placeable-neutral", "placeable-player", "player-creation"}
+	networkItemioE.minable = {mining_time = 0.2, result = name}
+	networkItemioE.max_health = 250
+    networkItemioE.dying_explosion = "medium-explosion"
+	networkItemioE.corpse = "small-remnants"
+	networkItemioE.render_not_in_network_icon = false
+	networkItemioE.collision_box = {{-0.49, -0.49}, {0.49, 0.49}}
+	networkItemioE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+    networkItemioE.resistances =
+    {
+        {
+        type = "fire",
+        percent = 70
+        }
+    }
+    networkItemioE.animation =
+    {
+        north =
+        {
+            layers =
+			{
+                {
+                    filename = blank,
+                    priority = "extra-high",
+                    width = 32,
+                    height = 32,
+                    draw_as_shadow = true,
+                    shift = {0,0},
+                    scale = 1
+                }
+            }
+        }
+    }
+    networkItemioE.animation.east = table.deepcopy(networkItemioE.animation.north)
+    networkItemioE.animation.south = table.deepcopy(networkItemioE.animation.north)
+    networkItemioE.animation.west = table.deepcopy(networkItemioE.animation.north)
+    networkItemioE.crafting_categories = {"RNS-Nothing"}
+    networkItemioE.crafting_speed = 1
+    networkItemioE.energy_source =
+    {
+        type = "electric",
+        usage_priority = "secondary-input",
+        buffer_capacity = "1J",
+        output_flow_limit = "0W",
+        input_flow_limit = "0W",
+        drain = "0W",
+        render_no_power_icon = false,
+        render_no_network_icon = false
+    }
+    networkItemioE.energy_usage = "1J"
+    networkItemioE.fluid_boxes = { fluidbox }
+	data:extend{networkItemioE}
+end
+
+for _, io in pairs(Constants.NetworkCables.IO.Item) do
+
+end

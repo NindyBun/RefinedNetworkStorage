@@ -14,6 +14,46 @@ Constants.ItemGroup = {
     }
 }
 Constants.NetworkCables = {
+    IO = {
+        Item = {
+            Export = {
+                iName = "RNS_NetworkItemExport",
+                eName = "RNS_NetworkItemExport",
+                itemIcon = "__RefinedNetworkStorage__/graphics/Lasers/NetworkNetworkItemExport.png",
+                north = {
+                    layers ={
+                        {
+                        filename = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableDot.png",
+                        priority = "extra-high",
+                        size = 512,
+                        shift = {0,0},
+                        scale = 1/16
+                        },
+                        {
+                            filename = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableDot_S.png",
+                            priority = "high",
+                            size = 512,
+                            shift = {0,0},
+                            draw_as_shadow = true,
+                            scale = 1/16
+                        }
+                    }
+                },
+                connections = {
+                        base_level = 1,
+                        pipe_connections = {
+                            {type = "input", position = {0, 1}},
+                            {type = "output", position = {0, -1}}
+                        },
+                        production_type = "output",
+                },
+                craft_time = 1,
+                enabled = true,
+                ingredients = {},
+                stack_size = 25
+            }
+        }
+    },
     Cable = {
         item = {
             name = "RNS_NetworkCable_I",
