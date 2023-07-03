@@ -329,8 +329,31 @@ function createNetworkIOBusEntity(eName, iName, icon, fluidbox)
 end
 
 for _, io in pairs(Constants.NetworkCables.IO) do
-    createNetworkIOBusItem()
-    createNetworkIOBusRecipe()
-    createNetworkIOBusEntityGhost()
-    createNetworkIOBusEntity()
+    createNetworkIOBusItem(io.iName, io.itemIcon, io.stack_size)
+    createNetworkIOBusRecipe(io.iName, io.craft_time, io.enabled, io.ingredients)
+    createNetworkIOBusEntityGhost(io.iName, io.itemIcon, io.animations, io.connections)
+    createNetworkIOBusEntity(io.eName, io.iName, io.itemIcon, io.connections)
+    for _, s in pairs(io.sprites) do
+        local sprite = {}
+        sprite.type = "sprite"
+        sprite.name = s.name
+        sprite.layers = {
+            {
+                filename = s.sprite_E,
+                priority = "extra-high",
+                size = 512,
+                shift = {0,0},
+                scale = 1/8
+            },
+            {
+                filename = s.sprite_S,
+                priority = "high",
+                size = 512,
+                shift = {0,0},
+                draw_as_shadow = true,
+                scale = 1/8
+            }
+        }
+        data:extend{sprite}
+    end
 end
