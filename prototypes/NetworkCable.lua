@@ -227,10 +227,10 @@ function createNetworkIOBusRecipe(name, craft_time, enabled, ingredients)
 	data:extend{networkItemioR}
 end
 
-function createNetworkIOBusEntityGhost(eName, iName, icon, entity, fluidbox)
+function createNetworkIOBusEntityGhost(iName, icon, animations, fluidbox)
 	local networkItemioE = {}
 	networkItemioE.type = "assembling-machine"
-	networkItemioE.name = eName
+	networkItemioE.name = iName
 	networkItemioE.icon = icon
 	networkItemioE.icon_size = 512
 	networkItemioE.flags = {"placeable-neutral", "placeable-player", "player-creation"}
@@ -238,7 +238,6 @@ function createNetworkIOBusEntityGhost(eName, iName, icon, entity, fluidbox)
 	networkItemioE.max_health = 250
     networkItemioE.dying_explosion = "medium-explosion"
 	networkItemioE.corpse = "small-remnants"
-    networkItemioE.placeable_by = {item = iName, count = 1}
 	networkItemioE.render_not_in_network_icon = false
 	networkItemioE.collision_box = {{-0.49, -0.49}, {0.49, 0.49}}
 	networkItemioE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
@@ -249,10 +248,7 @@ function createNetworkIOBusEntityGhost(eName, iName, icon, entity, fluidbox)
         percent = 70
         }
     }
-    networkItemioE.animation.north = entity.north
-    networkItemioE.animation.east = entity.east
-    networkItemioE.animation.south = entity.south
-    networkItemioE.animation.west = entity.west
+    networkItemioE.animation = animations
     networkItemioE.crafting_categories = {"RNS-Nothing"}
     networkItemioE.crafting_speed = 1
     networkItemioE.energy_source =
@@ -271,14 +267,15 @@ function createNetworkIOBusEntityGhost(eName, iName, icon, entity, fluidbox)
 	data:extend{networkItemioE}
 end
 
-function createNetworkIOBusEntity(name, icon, blank, fluidbox)
+function createNetworkIOBusEntity(eName, iName, icon, fluidbox)
     local networkItemioE = {}
 	networkItemioE.type = "assembling-machine"
-	networkItemioE.name = name
+	networkItemioE.name = eName
 	networkItemioE.icon = icon
 	networkItemioE.icon_size = 512
 	networkItemioE.flags = {"placeable-neutral", "placeable-player", "player-creation"}
-	networkItemioE.minable = {mining_time = 0.2, result = name}
+	networkItemioE.minable = {mining_time = 0.2, result = iName}
+    networkItemioE.placeable_by = {item = iName, count = 1}
 	networkItemioE.max_health = 250
     networkItemioE.dying_explosion = "medium-explosion"
 	networkItemioE.corpse = "small-remnants"
@@ -299,7 +296,7 @@ function createNetworkIOBusEntity(name, icon, blank, fluidbox)
             layers =
 			{
                 {
-                    filename = blank,
+                    filename = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank.png",
                     priority = "extra-high",
                     width = 32,
                     height = 32,
@@ -331,6 +328,9 @@ function createNetworkIOBusEntity(name, icon, blank, fluidbox)
 	data:extend{networkItemioE}
 end
 
-for _, io in pairs(Constants.NetworkCables.IO.Item) do
-
+for _, io in pairs(Constants.NetworkCables.IO) do
+    createNetworkIOBusItem()
+    createNetworkIOBusRecipe()
+    createNetworkIOBusEntityGhost()
+    createNetworkIOBusEntity()
 end
