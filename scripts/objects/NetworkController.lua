@@ -66,10 +66,11 @@ end
 
 function NC:update()
     self.lastUpdate = game.tick
-    if valid(self) == false or self.thisEntity.to_be_deconstructed() == true then
+    if valid(self) == false then
         self:remove()
         return
     end
+    if self.thisEntity.to_be_deconstructed() == true then return end
     self:collect()
     if game.tick % 600 == 0 or self.network.shouldRefresh == true then --Refreshes connections every 10 seconds
         self.network:doRefresh(self)
@@ -89,9 +90,15 @@ function NC:update()
         self:setActive(false)
     end
 
-    --self:updateImports()
-    --self:updateExports()
+    if not self.stable then return end
+    local tickItemIO = game.tick % (120/Constants.Settings.RNS_BaseItemIO_Speed) --based on belt speed
+    if tickItemIO >= 0.0 and tickItemIO < 1.0 then self:updateItemIO() end
+end
 
+function NC:updateItemIO()
+    for _, item in pairs(self.network.ItemIOTable) do
+        item:IO()
+    end
 end
 
 function NC:resetCollection()
@@ -109,8 +116,8 @@ function NC:getCheckArea()
     return {
         [1] = {direction = 1, startP = {x-1.5, y-2.5}, endP = {x+1.5, y-1.5}}, --North
         [2] = {direction = 2, startP = {x+1.5, y-1.5}, endP = {x+2.5, y+1.5}}, --East
-        [3] = {direction = 3, startP = {x-1.5, y+1.5}, endP = {x+1.5, y+2.5}}, --South
-        [4] = {direction = 4, startP = {x-2.5, y-1.5}, endP = {x-1.5, y+1.5}}, --West
+        [4] = {direction = 4, startP = {x-1.5, y+1.5}, endP = {x+1.5, y+2.5}}, --South
+        [3] = {direction = 3, startP = {x-2.5, y-1.5}, endP = {x-1.5, y+1.5}}, --West
     }
 end
 
@@ -122,7 +129,12 @@ function NC:collect()
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil then
                 if global.entityTable[ent.unit_number] ~= nil then
-                    table.insert(self.connectedObjs[area.direction], global.entityTable[ent.unit_number])
+                    local obj = global.entityTable[ent.unit_number]
+                    if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj.connectionDirection == area.direction then
+                        --Do nothing
+                    else
+                        table.insert(self.connectedObjs[area.direction], obj)
+                    end
                 end
             end
         end

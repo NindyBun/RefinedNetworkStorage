@@ -25,12 +25,30 @@ function Util.distance(startP, endP)
 	return math.sqrt( (xS-xE)^2 + (yS-yE)^2 )
 end
 
+function Util.direction(object)
+	if object.direction == defines.direction.north then
+		return 1
+	elseif object.direction == defines.direction.east then
+		return 2
+	elseif object.direction == defines.direction.south then
+		return 3
+	elseif object.direction == defines.direction.west then
+		return 4
+	end
+end
+
+function Util.next(array)
+	array.values = array.values or array
+	array.index = array.index or 1
+	local value = array.values[array.index]
+	array.index = (array.index%Util.getTableLength(array.values))+1
+	return value
+end
+
 function Util.getTableLength(array)
 	local count = 0
-	for _, c in pairs(array) do
-		if valid(c) then
-			count = count + 1
-		end
+	for _, _ in pairs(array) do
+		count = count + 1
 	end
 	return count
 end

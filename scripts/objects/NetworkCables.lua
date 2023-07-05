@@ -67,10 +67,11 @@ end
 function NCbl:update()
     --if game.tick % 60 then
         self.lastUpdate = game.tick
-        if valid(self) == false or self.thisEntity.to_be_deconstructed() == true then
+        if valid(self) == false then
             self:remove()
             return
         end
+        if self.thisEntity.to_be_deconstructed() == true then return end
         self:createArms()
     --end
 end
@@ -116,8 +117,12 @@ function NCbl:createArms()
         end
         if nearest ~= nil and global.entityTable[nearest.unit_number] ~= nil then
             local obj = global.entityTable[nearest.unit_number]
-            self.connectedObjs[area.direction] = {obj}
-            self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+            if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj.connectionDirection == area.direction then
+                --Do nothing
+            else
+                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                self.connectedObjs[area.direction] = {obj}
+            end
             if self.cardinals[area.direction] == false then
                 self.cardinals[area.direction] = true
                 if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then

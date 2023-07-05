@@ -324,7 +324,6 @@ function createNetworkIOBusEntity(eName, iName, icon, fluidbox)
         render_no_network_icon = false
     }
     networkItemioE.energy_usage = "1J"
-    networkItemioE.fluid_boxes = { fluidbox }
 	data:extend{networkItemioE}
 end
 

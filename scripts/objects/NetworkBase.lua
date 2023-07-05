@@ -4,6 +4,8 @@ BaseNet = {
     networkController = nil,
     ItemDriveTable = nil,
     FluidDriveTable = nil,
+    ItemIOTable = nil,
+    FluidIOTable = nil,
     shouldRefresh = false,
     updateTick = 200,
     lastUpdate = 0
@@ -40,6 +42,8 @@ end
 function BaseNet:resetTables()
     self.ItemDriveTable = {}
     self.FluidDriveTable = {}
+    self.ItemIOTable = {}
+    self.FluidIOTable = {}
 end
 
 --Refreshes laser connections
@@ -72,6 +76,8 @@ function addConnectables(source, connections, master)
                 master.network.ItemDriveTable[con.entID] = con
             elseif string.match(con.thisEntity.name, "RNS_FluidDrive") ~= nil then
                 master.network.FluidDriveTable[con.entID] = con
+            elseif con.thisEntity.name == Constants.NetworkCables.IO.item.eName then
+                master.network.ItemIOTable[con.entID] = con
             end
             addConnectables(con, connections, master)
             ::continue::
@@ -85,5 +91,5 @@ end
 
 --Get connected objects
 function BaseNet:getTotalObjects()
-    return Util.getTableLength(self.ItemDriveTable) + Util.getTableLength(self.FluidDriveTable)
+    return Util.getTableLength(self.ItemDriveTable) + Util.getTableLength(self.FluidDriveTable) + Util.getTableLength(self.ItemIOTable) + Util.getTableLength(self.FluidIOTable)
 end

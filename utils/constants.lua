@@ -2,7 +2,48 @@ local Constants = {}
 
 Constants.Settings = {
     RNS_FR_Laser = "RNS_NetworkLaser",
-    RNS_Tag = "RNS_StorageTag"
+    RNS_Tag = "RNS_StorageTag",
+    RNS_BeltSides = {
+        ["Right"] = 2,
+        ["Left"] = 1,
+    },
+    RNS_BaseItemIO_Speed = 15,
+    RNS_BaseFluidIO_Speed = 1200,
+    RNS_TypesWithContainer = {
+        ["ammo-turret"] = true,
+        ["artillery-turret"] = true,
+        ["artillery-wagon"] = true,
+        ["assembling-machine"] = true,
+        ["boiler"] = true,
+        ["burner-generator"] = true,
+        ["car"] = true,
+        ["cargo-wagon"] = true,
+        ["container"] = true,
+        ["furnace"] = true,
+        ["infinity-container"] = true,
+        ["inserter"] = true,
+        ["lab"] = true,
+        ["linked-container"] = true,
+        ["locomotive"] = true,
+        ["logistic-container"] = true,
+        ["mining-drill"] = true,
+        ["reactor"] = true,
+        ["roboport"] = true,
+        ["rocket-silo"] = true,
+        ["spider-vehicle"] = true,
+        ["fluid-turret"] = true,
+        ["fluid-wagon"] = true,
+        ["generator"] = true,
+        ["infinity-pipe"] = true,
+        ["offshore-pump"] = true,
+        ["pipe"] = true,
+        ["pipe-to-ground"] = true,
+        ["pump"] = true,
+        ["storage-tank"] = true,
+        ["transport-belt"] = true,
+        ["underground-belt"] = true,
+        ["splitter"] = true,
+    },
 }
 Constants.ItemGroup = {
     Category = {
@@ -13,11 +54,15 @@ Constants.ItemGroup = {
         Laser_subgroup = "RNS-Lasers"
     }
 }
+Constants.Icons = {
+    item = "__data__/core/graphics/arrows/indication-arrow.png",
+    fluid = "__data__/core/graphics/arrows/fluid-indication-arrow.png"
+}
 Constants.NetworkCables = {
     IO = {
-        ItemExport = {
-            iName = "RNS_NetworkItemExport_I",
-            eName = "RNS_NetworkItemExport",
+        item = {
+            iName = "RNS_NetworkCableIOItem_I",
+            eName = "RNS_NetworkCableIOItem",
             itemIcon = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableItemExport.png",
             animations = {
                     north = {
@@ -110,22 +155,22 @@ Constants.NetworkCables = {
             stack_size = 25,
             sprites = {
                 [1] = {
-                    name = "RNS_NetworkCableItemExportNorth",
+                    name = "RNS_NetworkCableItemIONorth",
                     sprite_E =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableItemExportN.png",
                     sprite_S =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableExportN_S.png",
                 },
                 [2] = {
-                    name = "RNS_NetworkCableItemExportEast",
+                    name = "RNS_NetworkCableItemIOEast",
                     sprite_E =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableItemExportE.png",
                     sprite_S =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableExportE_S.png",
                 },
                 [4] = {
-                    name = "RNS_NetworkCableItemExportSouth",
+                    name = "RNS_NetworkCableItemIOSouth",
                     sprite_E =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableItemExportS.png",
                     sprite_S =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableExportS_S.png",
                 },
                 [3] = {
-                    name = "RNS_NetworkCableItemExportWest",
+                    name = "RNS_NetworkCableItemIOWest",
                     sprite_E =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableItemExportW.png",
                     sprite_S =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableExportW_S.png",
                 }
