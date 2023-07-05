@@ -43,7 +43,10 @@ function IIO:new(object)
     }
     t.filters = {
         index = 1,
-        values = {}
+        values = {
+            {name="iron-plate", count=1},
+            {name="copper-plate", count=1}
+        }
     }
     UpdateSys.addEntity(t)
     return t
@@ -75,14 +78,14 @@ function IIO:update()
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
     self:createArms()
-    local tick = game.tick % (120/Constants.Settings.RNS_BaseItemIO_Speed) --based on belt speed
-    if tick >= 0.0 and tick < 1.0 then self:IO() end
+    --local tick = game.tick % (120/Constants.Settings.RNS_BaseItemIO_Speed) --based on belt speed
+    --if tick >= 0.0 and tick < 1.0 then self:IO() end
 end
 
 function IIO:IO()
     if self.focusedEntity ~= nil and self.focusedEntity.valid == true then
         local foc = self.focusedEntity
-        if foc.type == "transport-belt" or foc.type == "underground-belt" or foc.type == "splitter" then
+        if foc.type == "transport-belt" or foc.type == "underground-belt" or foc.type == "splitter" or foc.type == "loader" or foc.type == "loader-1x1" then
             local beltDir = Util.direction(foc)
             local ioDir = self.realDirection
             local transportLine = nil
@@ -96,19 +99,31 @@ function IIO:IO()
                 transportLine = "Left"
             end
 
-            if foc.type == "transport-belt" then
-                if Constants.Settings.RNS_BeltSides[transportLine] ~= nil then
-                    local line = foc.get_transport_line(Constants.Settings.RNS_BeltSides[transportLine])
-                    if self.io == "input" then
-                        
-                    elseif self.io == "output" then
-                        if line.can_insert_at_back() then
-                            line.insert_at_back(Util.next(self.filters))
-                        end
+            if Constants.Settings.RNS_BeltSides[transportLine] ~= nil and foc.type ~= "splitter" and foc.type ~= "loader" and foc.type ~= "loader-1x1" then
+                local line = foc.get_transport_line(Constants.Settings.RNS_BeltSides[transportLine])
+                if self.io == "input" then
+                    line.remove_item(Util.next(self.filters))
+                elseif self.io == "output" then
+                    if line.can_insert_at_back() then
+                        line.insert_at_back(Util.next(self.filters))
                     end
-                else
-                    if self.io == "input" then
-                    elseif self.io == "output" then
+                end
+            else
+                local lineL = foc.get_transport_line(1)
+                local lineR = foc.get_transport_line(2)
+                if self.io == "input" then
+                    local item = Util.next(self.filters)
+                    lineL.remove_item(item)
+                    lineR.remove_item(item)
+                elseif self.io == "output" then
+                    local item = Util.next(self.filters)
+                    local position = 0
+                    if transportLine == "Back" then position = 0 elseif transportLine == "Front" then position = 1 end
+                    if lineL.can_insert_at(position) then
+                        lineL.insert_at(position, item)
+                    end
+                    if lineR.can_insert_at(position) then
+                        lineR.insert_at(position, item)
                     end
                 end
             end
@@ -155,9 +170,13 @@ function IIO:createArms()
                 if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil then
                     if area.direction ~= self.direction then --Prevent cable connection on the IO port
                         local obj = global.entityTable[ent.unit_number]
-                        self.connectedObjs[area.direction] = {obj}
-                        enti = enti + 1
-                        self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                        if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj.connectionDirection == area.direction then
+                            --Do nothing
+                        else
+                            self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                            self.connectedObjs[area.direction] = {obj}
+                            enti = enti + 1
+                        end
                         --Update network connections if necessary
                         if self.cardinals[area.direction] == false then
                             self.cardinals[area.direction] = true
@@ -170,14 +189,10 @@ function IIO:createArms()
                         break
                     end
                 elseif ent ~= nil and self.direction == area.direction then --Get entity with inventory
-                    if ent.type == "transport-belt" or ent.type == "underground-belt"  then
+                    if Constants.Settings.RNS_TypesWithContainer[ent.type] == true then
                         self.focusedEntity = ent
                         break
                     end
-                    --if Constants.Settings.TypesWithContainer[ent.type] == true then
-                    --    self.focusedEntity = ent
-                    --    break
-                    --end
                 end
             end
         end

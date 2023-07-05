@@ -14,7 +14,7 @@ end
 function Event.placed(event)
     local entity = event.created_entity or event.entity or event.destination
     if entity == nil or entity.last_user == nil then return end
-
+    
     local type = entity.type
     local entName = type == "entity-ghost" and entity.ghost_name or entity.name
     local destroyedEntDir = nil

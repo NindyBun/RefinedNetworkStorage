@@ -43,6 +43,8 @@ Constants.Settings = {
         ["transport-belt"] = true,
         ["underground-belt"] = true,
         ["splitter"] = true,
+        ["loader"] = true,
+        ["loader-1x1"] = true
     },
 }
 Constants.ItemGroup = {
