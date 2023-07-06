@@ -4,6 +4,7 @@ require("prototypes.NetworkController")
 require("prototypes.NetworkInventoryBlock")
 --require("prototypes.NetworkLasers")
 require("prototypes.NetworkCable")
+require("prototypes.NetworkCableIOItem")
 require("prototypes.Beams")
 -------------------------------------------------------------------------------------
 data:extend{
