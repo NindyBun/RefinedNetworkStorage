@@ -11,7 +11,7 @@ FIO = {
     cardinals = nil,
     filters = nil,
     whitelist = false,
-    io = "output"
+    io = "input"
 }
 
 function FIO:new(object)

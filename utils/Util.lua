@@ -37,6 +37,14 @@ function Util.direction(object)
 	end
 end
 
+function Util.axis(object)
+	if object.direction == defines.direction.north or object.direction == defines.direction.south then
+		return "y"
+	elseif object.direction == defines.direction.east or object.direction == defines.direction.west then
+		return "x"
+	end
+end
+
 function Util.next(array)
 	array.values = array.values or array
 	array.index = array.index or 1

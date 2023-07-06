@@ -8,7 +8,7 @@ Constants.Settings = {
         ["Left"] = 1,
     },
     RNS_BaseItemIO_Speed = 15,
-    RNS_BaseFluidIO_Speed = 1200,
+    RNS_BaseFluidIO_Speed = 1200/60,
     RNS_TypesWithContainer = {
         ["ammo-turret"] = true,
         ["artillery-turret"] = true,

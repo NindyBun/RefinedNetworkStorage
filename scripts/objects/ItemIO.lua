@@ -43,7 +43,10 @@ function IIO:new(object)
     }
     t.filters = {
         index = 1,
-        values = {}
+        values = {
+            {name="iron-plate", count=1},
+            {name="copper-plate", count=1}
+        }
     }
     UpdateSys.addEntity(t)
     return t
@@ -75,8 +78,8 @@ function IIO:update()
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
     self:createArms()
-    --local tick = game.tick % (120/Constants.Settings.RNS_BaseItemIO_Speed) --based on belt speed
-    --if tick >= 0.0 and tick < 1.0 then self:IO() end
+    local tick = game.tick % (120/Constants.Settings.RNS_BaseItemIO_Speed) --based on belt speed
+    if tick >= 0.0 and tick < 1.0 then self:IO() end
 end
 
 function IIO:IO()
@@ -124,7 +127,47 @@ function IIO:IO()
                 if foc.type == "underground-belt" then
                     lineL = foc.get_transport_line(3)
                     lineR = foc.get_transport_line(4)
+                elseif foc.type == "splitter" then
+                    local axis = Util.axis(foc)
+                    if axis == "y" then
+                        if foc.position.x > self.thisEntity.position.x then
+                            if transportLine == "Back" then
+                                lineL = foc.get_transport_line(1)
+                                lineR = foc.get_transport_line(2)
+                            elseif transportLine == "Front" then
+                                lineL = foc.get_transport_line(5)
+                                lineR = foc.get_transport_line(6)
+                            end
+                        elseif foc.position.x < self.thisEntity.position.x then
+                            if transportLine == "Back" then
+                                lineL = foc.get_transport_line(3)
+                                lineR = foc.get_transport_line(4)
+                            elseif transportLine == "Front" then
+                                lineL = foc.get_transport_line(7)
+                                lineR = foc.get_transport_line(8)
+                            end
+                        end
+                    elseif axis == "x" then
+                        if foc.position.y > self.thisEntity.position.y then
+                            if transportLine == "Back" then
+                                lineL = foc.get_transport_line(1)
+                                lineR = foc.get_transport_line(2)
+                            elseif transportLine == "Front" then
+                                lineL = foc.get_transport_line(5)
+                                lineR = foc.get_transport_line(6)
+                            end
+                        elseif foc.position.y < self.thisEntity.position.y then
+                            if transportLine == "Back" then
+                                lineL = foc.get_transport_line(3)
+                                lineR = foc.get_transport_line(4)
+                            elseif transportLine == "Front" then
+                                lineL = foc.get_transport_line(7)
+                                lineR = foc.get_transport_line(8)
+                            end
+                        end
+                    end
                 end
+                
                 if self.io == "input" then
                     if transportLine == "Back" then
                         --Do nothing
@@ -145,11 +188,14 @@ function IIO:IO()
                     repeat
                         local a = lineR.remove_item(Util.next(self.filters))
                     until a ~= 0 or ind == self.filters.index
+
                     return
                 elseif self.io == "output" then
                     local pos = 0.75
                     if transportLine == "Back" then
                         if foc.type == "loader" and foc.loader_type == "input" then
+                            pos = 0.125
+                        elseif foc.type == "splitter" then
                             pos = 0.125
                         end
                     elseif transportLine == "Front" and foc.type ~= "underground-belt" then
@@ -157,6 +203,8 @@ function IIO:IO()
                         if foc.type == "loader-1x1" and foc.loader_type == "input" then return end
                         if foc.type == "loader" and foc.loader_type == "input" then return end
                         if foc.type == "loader" and foc.loader_type == "output" then
+                            pos = 0.125
+                        elseif foc.type == "splitter" then
                             pos = 0.125
                         end
                     end
@@ -173,6 +221,7 @@ function IIO:IO()
                             local a = lineR.insert_at(pos, Util.next(self.filters))
                         until a == true or ind == self.filters.index
                     end
+
                     return
                 end
             end
