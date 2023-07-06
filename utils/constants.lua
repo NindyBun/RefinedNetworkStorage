@@ -65,38 +65,24 @@ Constants.NetworkCables = {
     itemIO = {
         itemEntity = {
             name = "RNS_NetworkCableIOItem_Item",
-            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableItemExport.png",
-            entityE =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableItemIO_E.png",
-            entityS =  "__RefinedNetworkStorage__/graphics/blank.png"
-        },
-        slateEntity = {
-            name = "RNS_NetworkCableIOItem",
-            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableItemExport.png",
-            entityE =  "__RefinedNetworkStorage__/graphics/blank.png",
-            entityS =  "__RefinedNetworkStorage__/graphics/blank.png"
-        },
-        statesEntity = {
-            itemIcon = "__RefinedNetworkStorage__/graphics/blank.png",
-            shadow =  "__RefinedNetworkStorage__/graphics/blank.png",
+            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/ItemIO.png",
             states = {
                 [1] = {
                     name = "RNS_NetworkCableIOItem_North",
                     picture = {
                         layers = {
                             {
-                                filename = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableItemIO.png",
+                                filename = "__RefinedNetworkStorage__/graphics/Cables/ItemION.png",
                                 priority = "extra-high",
                                 size = 512,
-                                x=0,
-                                scale = 1/8
+                                scale = 96/512
                             },
                             {
-                                filename = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableItemIO.png",
+                                filename = "__RefinedNetworkStorage__/graphics/Cables/ItemION_S.png",
                                 priority = "high",
                                 size = 512,
-                                x=0,
                                 draw_as_shadow = true,
-                                scale = 1/8
+                                scale = 96/512
                             }
                         }
                     }
@@ -106,19 +92,17 @@ Constants.NetworkCables = {
                     picture = {
                         layers = {
                             {
-                                filename = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableItemIO.png",
+                                filename = "__RefinedNetworkStorage__/graphics/Cables/ItemIOE.png",
                                 priority = "extra-high",
                                 size = 512,
-                                x=512,
-                                scale = 1/8
+                                scale = 96/512
                             },
                             {
-                                filename = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableItemIO.png",
+                                filename = "__RefinedNetworkStorage__/graphics/Cables/ItemIOE_S.png",
                                 priority = "high",
                                 size = 512,
-                                x=512,
                                 draw_as_shadow = true,
-                                scale = 1/8
+                                scale = 96/512
                             }
                         }
                     }
@@ -128,19 +112,17 @@ Constants.NetworkCables = {
                     picture = {
                         layers = {
                             {
-                                filename = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableItemIO.png",
+                                filename = "__RefinedNetworkStorage__/graphics/Cables/ItemIOS.png",
                                 priority = "extra-high",
                                 size = 512,
-                                x=1024,
-                                scale = 1/8
+                                scale = 96/512
                             },
                             {
-                                filename = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableItemIO.png",
+                                filename = "__RefinedNetworkStorage__/graphics/Cables/ItemIOS_S.png",
                                 priority = "high",
                                 size = 512,
-                                x=1024,
                                 draw_as_shadow = true,
-                                scale = 1/8
+                                scale = 96/512
                             }
                         }
                     }
@@ -150,19 +132,108 @@ Constants.NetworkCables = {
                     picture = {
                         layers = {
                             {
-                                filename = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableItemIO.png",
+                                filename = "__RefinedNetworkStorage__/graphics/Cables/ItemIOW.png",
                                 priority = "extra-high",
                                 size = 512,
-                                x=1536,
-                                scale = 1/8
+                                scale = 96/512
                             },
                             {
-                                filename = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableItemIO.png",
+                                filename = "__RefinedNetworkStorage__/graphics/Cables/ItemIOW_S.png",
                                 priority = "high",
                                 size = 512,
-                                x=1536,
                                 draw_as_shadow = true,
-                                scale = 1/8
+                                scale = 96/512
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        slateEntity = {
+            name = "RNS_NetworkCableIOItem",
+            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/ItemIO.png",
+            entityE =  "__RefinedNetworkStorage__/graphics/blank.png",
+            entityS =  "__RefinedNetworkStorage__/graphics/blank.png"
+        },
+        statesEntity = {
+            itemIcon = "__RefinedNetworkStorage__/graphics/blank.png",
+            states = {
+                [1] = {
+                    name = "RNS_NetworkCableIOItem_North",
+                    picture = {
+                        layers = {
+                            {
+                                filename = "__RefinedNetworkStorage__/graphics/Cables/ItemION_E.png",
+                                priority = "extra-high",
+                                size = 512,
+                                scale = 96/512
+                            },
+                            {
+                                filename = "__RefinedNetworkStorage__/graphics/Cables/ItemION_S.png",
+                                priority = "high",
+                                size = 512,
+                                draw_as_shadow = true,
+                                scale = 96/512
+                            }
+                        }
+                    }
+                },
+                [2] = {
+                    name = "RNS_NetworkCableIOItem_East",
+                    picture = {
+                        layers = {
+                            {
+                                filename = "__RefinedNetworkStorage__/graphics/Cables/ItemIOE_E.png",
+                                priority = "extra-high",
+                                size = 512,
+                                scale = 96/512
+                            },
+                            {
+                                filename = "__RefinedNetworkStorage__/graphics/Cables/ItemIOE_S.png",
+                                priority = "high",
+                                size = 512,
+                                draw_as_shadow = true,
+                                scale = 96/512
+                            }
+                        }
+                    }
+                },
+                [3] = {
+                    name = "RNS_NetworkCableIOItem_South",
+                    picture = {
+                        layers = {
+                            {
+                                filename = "__RefinedNetworkStorage__/graphics/Cables/ItemIOS_E.png",
+                                priority = "extra-high",
+                                size = 512,
+                                scale = 96/512
+                            },
+                            {
+                                filename = "__RefinedNetworkStorage__/graphics/Cables/ItemIOS_S.png",
+                                priority = "high",
+                                size = 512,
+                                draw_as_shadow = true,
+                                scale = 96/512
+                            }
+                        }
+                    }
+                },
+                [4] = {
+                    name = "RNS_NetworkCableIOItem_West",
+                    picture = {
+                        layers = {
+                            {
+                                filename = "__RefinedNetworkStorage__/graphics/Cables/ItemIOW_E.png",
+                                priority = "extra-high",
+                                size = 512,
+                                scale = 96/512
+                            },
+                            {
+                                filename = "__RefinedNetworkStorage__/graphics/Cables/ItemIOW_S.png",
+                                priority = "high",
+                                size = 512,
+                                draw_as_shadow = true,
+                                scale = 96/512
                             }
                         }
                     }

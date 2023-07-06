@@ -27,6 +27,7 @@ networkItemioE.icon_size = 512
 networkItemioE.flags = {"placeable-neutral", "placeable-player"}
 networkItemioE.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 networkItemioE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+networkItemioE.minable = {mining_time = 0.2, result = Constants.NetworkCables.itemIO.itemEntity.name}
 networkItemioE.animation =
     {
         north = Constants.NetworkCables.itemIO.statesEntity.states[1].picture,
