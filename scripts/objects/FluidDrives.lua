@@ -101,7 +101,7 @@ function FD:collect()
         local enti = 0
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
-            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and global.entityTable[ent.unit_number] ~= nil then
+            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and global.entityTable[ent.unit_number] ~= nil and ent.operable then
                 local obj = global.entityTable[ent.unit_number]
                 if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj.connectionDirection == area.direction then
                     --Do nothing
@@ -113,7 +113,7 @@ function FD:collect()
                         self.cardinals[area.direction] = true
                         if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
                             self.networkController.network.shouldRefresh = true
-                        elseif obj.thisEntity.name == Constants.NetworkController.entity.name then
+                        elseif obj.thisEntity.name == Constants.NetworkController.name then
                             obj.network.shouldRefresh = true
                         end
                     end

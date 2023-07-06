@@ -34,7 +34,7 @@ function createDriveEntity(name, icon, entity, shadow)
 	driveE.max_health = 350
 	driveE.dying_explosion = "medium-explosion"
 	driveE.corpse = "medium-remnants"
-	driveE.collision_box = {{-0.99, -0.99}, {0.99, 0.99}}
+	driveE.collision_box = {{-0.90, -0.90}, {0.90, 0.90}}
 	driveE.selection_box = {{-1.0, -1.0}, {1.0, 1.0}}
 	driveE.inventory_size = 0
 	driveE.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }

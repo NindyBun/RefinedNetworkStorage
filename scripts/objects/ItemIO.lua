@@ -11,7 +11,7 @@ IIO = {
     cardinals = nil,
     filters = nil,
     whitelist = false,
-    io = "output"
+    io = "input"
 }
 
 function IIO:new(object)
@@ -129,41 +129,21 @@ function IIO:IO()
                     lineR = foc.get_transport_line(4)
                 elseif foc.type == "splitter" then
                     local axis = Util.axis(foc)
-                    if axis == "y" then
-                        if foc.position.x > self.thisEntity.position.x then
-                            if transportLine == "Back" then
-                                lineL = foc.get_transport_line(1)
-                                lineR = foc.get_transport_line(2)
-                            elseif transportLine == "Front" then
-                                lineL = foc.get_transport_line(5)
-                                lineR = foc.get_transport_line(6)
-                            end
-                        elseif foc.position.x < self.thisEntity.position.x then
-                            if transportLine == "Back" then
-                                lineL = foc.get_transport_line(3)
-                                lineR = foc.get_transport_line(4)
-                            elseif transportLine == "Front" then
-                                lineL = foc.get_transport_line(7)
-                                lineR = foc.get_transport_line(8)
-                            end
+                    if (foc.position.x > self.thisEntity.position.x and axis == "y") or (foc.position.y > self.thisEntity.position.y and axis == "x") then
+                        if transportLine == "Back" then
+                            lineL = foc.get_transport_line(1)
+                            lineR = foc.get_transport_line(2)
+                        elseif transportLine == "Front" then
+                            lineL = foc.get_transport_line(5)
+                            lineR = foc.get_transport_line(6)
                         end
-                    elseif axis == "x" then
-                        if foc.position.y > self.thisEntity.position.y then
-                            if transportLine == "Back" then
-                                lineL = foc.get_transport_line(1)
-                                lineR = foc.get_transport_line(2)
-                            elseif transportLine == "Front" then
-                                lineL = foc.get_transport_line(5)
-                                lineR = foc.get_transport_line(6)
-                            end
-                        elseif foc.position.y < self.thisEntity.position.y then
-                            if transportLine == "Back" then
-                                lineL = foc.get_transport_line(3)
-                                lineR = foc.get_transport_line(4)
-                            elseif transportLine == "Front" then
-                                lineL = foc.get_transport_line(7)
-                                lineR = foc.get_transport_line(8)
-                            end
+                    elseif (foc.position.x < self.thisEntity.position.x and axis == "y") or (foc.position.y < self.thisEntity.position.y and axis == "x") then
+                        if transportLine == "Back" then
+                            lineL = foc.get_transport_line(3)
+                            lineR = foc.get_transport_line(4)
+                        elseif transportLine == "Front" then
+                            lineL = foc.get_transport_line(7)
+                            lineR = foc.get_transport_line(8)
                         end
                     end
                 end
@@ -276,7 +256,7 @@ function IIO:createArms()
         end
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true then
-                if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil then
+                if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil and ent.operable then
                     if area.direction ~= self.direction then --Prevent cable connection on the IO port
                         local obj = global.entityTable[ent.unit_number]
                         if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj.connectionDirection == area.direction then
@@ -291,7 +271,7 @@ function IIO:createArms()
                             self.cardinals[area.direction] = true
                             if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
                                 self.networkController.network.shouldRefresh = true
-                            elseif obj.thisEntity.name == Constants.NetworkController.entity.name then
+                            elseif obj.thisEntity.name == Constants.NetworkController.name then
                                 obj.network.shouldRefresh = true
                             end
                         end

@@ -9,7 +9,7 @@ NC = {
     network = nil,
     connectedObjs = nil
 }
-
+local renderLayer = 129
 --Constructor
 function NC:new(object)
     if object == nil then return end
@@ -21,7 +21,11 @@ function NC:new(object)
     t.entID = object.unit_number
     t.network = t.network or BaseNet:new()
     t.network.networkController = t
-    t.stateSprite = rendering.draw_sprite{sprite=Constants.NetworkController.entity.name.."_unstable", target=t.thisEntity, surface=t.thisEntity.surface, render_layer=131}
+    t.stateSprite = t.thisEntity.surface.create_entity{name=Constants.NetworkController.name.."_unstable", position=t.thisEntity.position, force="neutral"}
+    t.stateSprite.destructible = false
+    t.stateSprite.operable = false
+    t.stateSprite.minable = false
+    --t.stateSprite = rendering.draw_sprite{sprite=Constants.NetworkController.entity.name.."_unstable", target=t.thisEntity, surface=t.thisEntity.surface, render_layer=renderLayer}
     t.connectedObjs = {
         [1] = {}, --N
         [2] = {}, --E
@@ -46,6 +50,7 @@ end
 --Deconstructor
 function NC:remove()
     global.networkID[self.network.ID+1].used = false
+    if self.stateSprite ~= nil then self.stateSprite.destroy() end
     UpdateSys.remove(self)
 end
 --Is valid
@@ -56,11 +61,21 @@ end
 function NC:setActive(set)
     self.stable = set
     if set == true then
-        rendering.destroy(self.stateSprite)
-        self.stateSprite = rendering.draw_sprite{sprite=Constants.NetworkController.entity.name.."_stable", target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+        if self.stateSprite ~= nil then self.stateSprite.destroy() end
+        self.stateSprite = self.thisEntity.surface.create_entity{name=Constants.NetworkController.name.."_stable", position=self.thisEntity.position, force="neutral"}
+        self.stateSprite.destructible = false
+        self.stateSprite.operable = false
+        self.stateSprite.minable = false
+        --rendering.destroy(self.stateSprite)
+        --self.stateSprite = rendering.draw_sprite{sprite=Constants.NetworkController.entity.name.."_stable", target=self.thisEntity, surface=self.thisEntity.surface, render_layer=renderLayer}
     elseif set == false then
-        rendering.destroy(self.stateSprite)
-        self.stateSprite = rendering.draw_sprite{sprite=Constants.NetworkController.entity.name.."_unstable", target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+        if self.stateSprite ~= nil then self.stateSprite.destroy() end
+        self.stateSprite = self.thisEntity.surface.create_entity{name=Constants.NetworkController.name.."_unstable", position=self.thisEntity.position, force="neutral"}
+        self.stateSprite.destructible = false
+        self.stateSprite.operable = false
+        self.stateSprite.minable = false
+        --rendering.destroy(self.stateSprite)
+        --self.stateSprite = rendering.draw_sprite{sprite=Constants.NetworkController.entity.name.."_unstable", target=self.thisEntity, surface=self.thisEntity.surface, render_layer=renderLayer}
     end
 end
 
@@ -135,7 +150,7 @@ function NC:collect()
     for _, area in pairs(areas) do
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
-            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil then
+            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and ent.operable then
                 if global.entityTable[ent.unit_number] ~= nil then
                     local obj = global.entityTable[ent.unit_number]
                     if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj.connectionDirection == area.direction then

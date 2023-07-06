@@ -122,7 +122,7 @@ function FIO:createArms()
         end
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true then
-                if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil then
+                if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil and ent.operable then
                     if area.direction ~= self.direction then --Prevent cable connection on the IO port
                         local obj = global.entityTable[ent.unit_number]
                         if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj.connectionDirection == area.direction then
@@ -137,7 +137,7 @@ function FIO:createArms()
                             self.cardinals[area.direction] = true
                             if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
                                 self.networkController.network.shouldRefresh = true
-                            elseif obj.thisEntity.name == Constants.NetworkController.entity.name then
+                            elseif obj.thisEntity.name == Constants.NetworkController.name then
                                 obj.network.shouldRefresh = true
                             end
                         end

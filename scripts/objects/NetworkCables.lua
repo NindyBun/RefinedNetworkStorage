@@ -110,7 +110,7 @@ function NCbl:createArms()
         local nearest = nil
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true then
-                if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) and string.match(ent.name, "RNS_") ~= nil then
+                if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) and string.match(ent.name, "RNS_") ~= nil and ent.operable then
                     nearest = ent
                 end
             end
@@ -127,7 +127,7 @@ function NCbl:createArms()
                 self.cardinals[area.direction] = true
                 if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
                     self.networkController.network.shouldRefresh = true
-                elseif obj.thisEntity.name == Constants.NetworkController.entity.name then
+                elseif obj.thisEntity.name == Constants.NetworkController.name then
                     obj.network.shouldRefresh = true
                 end
             end

@@ -2,7 +2,7 @@
 function createObjectTables()
     global.objectTables = {}
     addOrCreateObjectTable{tableName="PlayerTable", tag="RNSP", objName="RNSPlayer"}
-    addOrCreateObjectTable{tableName="NetworkControllerTable", tag="NC", objName=Constants.NetworkController.entity.name}
+    addOrCreateObjectTable{tableName="NetworkControllerTable", tag="NC", objName=Constants.NetworkController.name}
 --    addOrCreateObjectTable{tableName="NetworkInventoryInterfaceTable", tag="NII", objName=Constants.NetworkInventoryInterface.name}
     addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive1k.name}
     addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive4k.name}

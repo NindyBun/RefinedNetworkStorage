@@ -30,7 +30,7 @@ networkCableE.minable = {mining_time = 0.2, result = Constants.NetworkCables.Cab
 networkCableE.max_health = 250
 networkCableE.dying_explosion = "medium-explosion"
 networkCableE.corpse = "medium-remnants"
-networkCableE.collision_box = {{-0.49, -0.49}, {0.49, 0.49}}
+networkCableE.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 networkCableE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
 networkCableE.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
 networkCableE.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
@@ -72,7 +72,7 @@ networkCable_E.max_health = 250
 networkCable_E.dying_explosion = "medium-explosion"
 networkCable_E.placeable_by = {item = Constants.NetworkCables.Cable.item.name, count = 1}
 networkCable_E.corpse = "medium-remnants"
-networkCable_E.collision_box = {{-0.49, -0.49}, {0.49, 0.49}}
+networkCable_E.collision_box = {{-0.40, -0.40}, {0.49, 0.40}}
 networkCable_E.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
 networkCable_E.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
 networkCable_E.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
@@ -239,7 +239,7 @@ function createNetworkIOBusEntityGhost(iName, icon, animations, fluidbox)
     networkItemioE.dying_explosion = "medium-explosion"
 	networkItemioE.corpse = "small-remnants"
 	networkItemioE.render_not_in_network_icon = false
-	networkItemioE.collision_box = {{-0.49, -0.49}, {0.49, 0.49}}
+	networkItemioE.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 	networkItemioE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
     networkItemioE.resistances =
     {
@@ -280,7 +280,7 @@ function createNetworkIOBusEntity(eName, iName, icon, fluidbox)
     networkItemioE.dying_explosion = "medium-explosion"
 	networkItemioE.corpse = "small-remnants"
 	networkItemioE.render_not_in_network_icon = false
-	networkItemioE.collision_box = {{-0.49, -0.49}, {0.49, 0.49}}
+	networkItemioE.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 	networkItemioE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
     networkItemioE.resistances =
     {
