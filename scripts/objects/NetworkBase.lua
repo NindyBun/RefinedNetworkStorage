@@ -78,6 +78,8 @@ function addConnectables(source, connections, master)
                 master.network.FluidDriveTable[con.entID] = con
             elseif con.thisEntity.name == Constants.NetworkCables.IO.item.eName then
                 master.network.ItemIOTable[con.entID] = con
+            elseif con.thisEntity.name == Constants.NetworkCables.IO.fluid.eName then
+                master.network.FluidIOTable[con.entID] = con
             end
             addConnectables(con, connections, master)
             ::continue::

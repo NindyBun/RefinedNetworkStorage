@@ -93,11 +93,20 @@ function NC:update()
     if not self.stable then return end
     local tickItemIO = game.tick % (120/Constants.Settings.RNS_BaseItemIO_Speed) --based on belt speed
     if tickItemIO >= 0.0 and tickItemIO < 1.0 then self:updateItemIO() end
+
+    local tickFluidIO = game.tick % (120/Constants.Settings.RNS_BaseFluidIO_Speed) --based on belt speed
+    if tickFluidIO >= 0.0 and tickFluidIO < 1.0 then self:updateFluidIO() end
 end
 
 function NC:updateItemIO()
     for _, item in pairs(self.network.ItemIOTable) do
         item:IO()
+    end
+end
+
+function NC:updateFluidIO()
+    for _, fluid in pairs(self.network.FluidIOTable) do
+        fluid:IO()
     end
 end
 

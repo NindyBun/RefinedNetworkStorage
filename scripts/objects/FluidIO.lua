@@ -1,4 +1,4 @@
-IIO = {
+FIO = {
     thisEntity = nil,
     entID = nil,
     direction = 1,
@@ -14,12 +14,12 @@ IIO = {
     io = "output"
 }
 
-function IIO:new(object)
+function FIO:new(object)
     if object == nil then return end
     local t = {}
     local mt = {}
     setmetatable(t, mt)
-    mt.__index = IIO
+    mt.__index = FIO
     t.thisEntity = object
     t.entID = object.unit_number
     rendering.draw_sprite{sprite="NetworkCableDot", target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
@@ -49,26 +49,26 @@ function IIO:new(object)
     return t
 end
 
-function IIO:rebuild(object)
+function FIO:rebuild(object)
     if object == nil then return end
     local mt = {}
-    mt.__index = IIO
+    mt.__index = FIO
     setmetatable(object, mt)
 end
 
-function IIO:remove()
+function FIO:remove()
     UpdateSys.remove(self)
     if self.networkController ~= nil then
-        self.networkController.network.ItemIOTable[self.entID] = nil
+        self.networkController.network.FluidIOTable[self.entID] = nil
         self.networkController.network.shouldRefresh = true
     end
 end
 
-function IIO:valid()
+function FIO:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
-function IIO:update()
+function FIO:update()
     if valid(self) == false then
         self:remove()
         return
@@ -79,119 +79,14 @@ function IIO:update()
     --if tick >= 0.0 and tick < 1.0 then self:IO() end
 end
 
-function IIO:IO()
+function FIO:IO()
     if self.focusedEntity ~= nil and self.focusedEntity.valid == true then
         local foc = self.focusedEntity
-        if foc.type == "transport-belt" or foc.type == "underground-belt" or foc.type == "splitter" or foc.type == "loader" or foc.type == "loader-1x1" then
-            local beltDir = Util.direction(foc)
-            local ioDir = self.realDirection
-            local transportLine = nil
-            if ioDir == beltDir then
-                transportLine = "Back"
-            elseif math.abs(ioDir-beltDir) == 2 then
-                transportLine = "Front"
-            elseif beltDir-1 == ioDir%4 then
-                transportLine = "Right"
-            elseif ioDir-1 == beltDir%4 then
-                transportLine = "Left"
-            end
-
-            if Constants.Settings.RNS_BeltSides[transportLine] ~= nil and foc.type ~= "splitter" and foc.type ~= "loader" and foc.type ~= "loader-1x1" then
-                local line = foc.get_transport_line(Constants.Settings.RNS_BeltSides[transportLine])
-                if self.io == "input" then
-                    local ind = self.filters.index
-                    repeat
-                        local a = line.remove_item(Util.next(self.filters))
-                    until a ~= 0 or ind == self.filters.index
-                    return
-                elseif self.io == "output" then
-                    local pos = 0.75
-                    if foc.type == "underground-belt" then
-                        pos = 0.25
-                    end
-                    if line.can_insert_at(pos) then
-                        local ind = self.filters.index
-                        repeat
-                            local a = line.insert_at(pos, Util.next(self.filters))
-                        until a == true or ind == self.filters.index
-                    end
-                    return
-                end
-            else
-                local lineL = foc.get_transport_line(1)
-                local lineR = foc.get_transport_line(2)
-                
-                if foc.type == "underground-belt" then
-                    lineL = foc.get_transport_line(3)
-                    lineR = foc.get_transport_line(4)
-                end
-                if self.io == "input" then
-                    if transportLine == "Back" then
-                        --Do nothing
-                    elseif transportLine == "Front" then
-                        if foc.type == "underground-belt" and foc.belt_to_ground_type == "input" then return end
-                        if foc.type == "underground-belt" and foc.belt_to_ground_type == "output" then
-                            lineL = foc.get_transport_line(1)
-                            lineR = foc.get_transport_line(2)
-                        end
-                    end
-
-                    local ind = self.filters.index
-                    repeat
-                        local a = lineL.remove_item(Util.next(self.filters))
-                    until a ~= 0 or ind == self.filters.index
-
-                    ind = self.filters.index
-                    repeat
-                        local a = lineR.remove_item(Util.next(self.filters))
-                    until a ~= 0 or ind == self.filters.index
-                    return
-                elseif self.io == "output" then
-                    local pos = 0.75
-                    if transportLine == "Back" then
-                        if foc.type == "loader" and foc.loader_type == "input" then
-                            pos = 0.125
-                        end
-                    elseif transportLine == "Front" and foc.type ~= "underground-belt" then
-                        pos = 0.25
-                        if foc.type == "loader-1x1" and foc.loader_type == "input" then return end
-                        if foc.type == "loader" and foc.loader_type == "input" then return end
-                        if foc.type == "loader" and foc.loader_type == "output" then
-                            pos = 0.125
-                        end
-                    end
-                    
-                    if lineL.can_insert_at(pos) then
-                        local ind = self.filters.index
-                        repeat
-                            local a = lineL.insert_at(pos, Util.next(self.filters))
-                        until a == true or ind == self.filters.index
-                    end
-                    if lineR.can_insert_at(pos) then
-                        local ind = self.filters.index
-                        repeat
-                            local a = lineR.insert_at(pos, Util.next(self.filters))
-                        until a == true or ind == self.filters.index
-                    end
-                    return
-                end
-            end
-        else
-            local ind = self.filters.index
-            repeat
-                local a = 0
-                if self.io == "input" then
-                    foc.remove_item(Util.next(self.filters))
-                elseif self.io == "output" then
-                    foc.insert(Util.next(self.filters))
-                end
-            until a ~= 0 or ind == self.filters.index
-            return
-        end
+        
     end
 end
 
-function IIO:resetConnection()
+function FIO:resetConnection()
     self.connectedObjs = {
         [1] = {}, --N
         [2] = {}, --E
@@ -205,7 +100,7 @@ function IIO:resetConnection()
     end
 end
 
-function IIO:getCheckArea()
+function FIO:getCheckArea()
     local x = self.thisEntity.position.x
     local y = self.thisEntity.position.y
     return {
@@ -216,14 +111,14 @@ function IIO:getCheckArea()
     }
 end
 
-function IIO:createArms()
+function FIO:createArms()
     local areas = self:getCheckArea()
     self:resetConnection()
     for _, area in pairs(areas) do
         local enti = 0
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         if area.direction == self.direction then --Draw the IO port in the right direction
-            self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.IO.item.sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+            self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.IO.fluid.sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
         end
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true then
@@ -268,7 +163,7 @@ function IIO:createArms()
     end
 end
 
-function IIO:initializeDataOnCreated(dir)
+function FIO:initializeDataOnCreated(dir)
     if dir == nil then return end
     if dir == defines.direction.north then
         self.direction = 1
@@ -290,6 +185,6 @@ function IIO:initializeDataOnCreated(dir)
     self:createArms()
 end
 
-function IIO:getTooltips()
+function FIO:getTooltips()
 
 end
