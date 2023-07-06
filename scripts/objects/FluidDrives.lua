@@ -113,7 +113,7 @@ function FD:collect()
                         self.cardinals[area.direction] = true
                         if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
                             self.networkController.network.shouldRefresh = true
-                        elseif obj.thisEntity.name == Constants.NetworkController.name then
+                        elseif obj.thisEntity.name == Constants.NetworkController.slateEntity.name then
                             obj.network.shouldRefresh = true
                         end
                     end

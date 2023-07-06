@@ -78,8 +78,8 @@ function IIO:update()
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
     self:createArms()
-    local tick = game.tick % (120/Constants.Settings.RNS_BaseItemIO_Speed) --based on belt speed
-    if tick >= 0.0 and tick < 1.0 then self:IO() end
+    --local tick = game.tick % (120/Constants.Settings.RNS_BaseItemIO_Speed) --based on belt speed
+    --if tick >= 0.0 and tick < 1.0 then self:IO() end
 end
 
 function IIO:IO()
@@ -271,7 +271,7 @@ function IIO:createArms()
                             self.cardinals[area.direction] = true
                             if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
                                 self.networkController.network.shouldRefresh = true
-                            elseif obj.thisEntity.name == Constants.NetworkController.name then
+                            elseif obj.thisEntity.name == Constants.NetworkController.slateEntity.name then
                                 obj.network.shouldRefresh = true
                             end
                         end

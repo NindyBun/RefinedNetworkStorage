@@ -64,7 +64,7 @@ function addConnectables(source, connections, master)
             if con.thisEntity == nil and con.thisEntity.valid == false then goto continue end
             if connections[con.entID] ~= nil then goto continue end
 
-            if con.thisEntity.name == Constants.NetworkController.name and con.entID ~= master.entID then
+            if con.thisEntity.name == Constants.NetworkController.slateEntity.name and con.entID ~= master.entID then
                 con.thisEntity.order_deconstruction("player")
                 goto continue
             end

@@ -26,6 +26,14 @@ function Event.placed(event)
         local fr = entity.force
         entity.destroy()
         entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply}
+    elseif entName == Constants.NetworkController.itemEntity.name and type ~= "entity-ghost" then
+        entName =  Constants.NetworkController.slateEntity.name
+        local surf = entity.surface
+        local ply = entity.last_user
+        local pos = entity.position
+        local fr = entity.force
+        entity.destroy()
+        entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply}
     elseif entName == Constants.NetworkCables.IO.item.iName and type ~= "entity-ghost" then
         entName = Constants.NetworkCables.IO.item.eName
         local surf = entity.surface

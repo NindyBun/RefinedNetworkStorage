@@ -9,7 +9,6 @@ NC = {
     network = nil,
     connectedObjs = nil
 }
-local renderLayer = 129
 --Constructor
 function NC:new(object)
     if object == nil then return end
@@ -21,11 +20,7 @@ function NC:new(object)
     t.entID = object.unit_number
     t.network = t.network or BaseNet:new()
     t.network.networkController = t
-    t.stateSprite = t.thisEntity.surface.create_entity{name=Constants.NetworkController.name.."_unstable", position=t.thisEntity.position, force="neutral"}
-    t.stateSprite.destructible = false
-    t.stateSprite.operable = false
-    t.stateSprite.minable = false
-    --t.stateSprite = rendering.draw_sprite{sprite=Constants.NetworkController.entity.name.."_unstable", target=t.thisEntity, surface=t.thisEntity.surface, render_layer=renderLayer}
+    t:setState(Constants.NetworkController.statesEntity.unstable)
     t.connectedObjs = {
         [1] = {}, --N
         [2] = {}, --E
@@ -58,24 +53,20 @@ function NC:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
+function NC:setState(state)
+    if self.stateSprite ~= nil then self.stateSprite.destroy() end
+    self.stateSprite = self.thisEntity.surface.create_entity{name=state, position=self.thisEntity.position, force="neutral"}
+    self.stateSprite.destructible = false
+    self.stateSprite.operable = false
+    self.stateSprite.minable = false
+end
+
 function NC:setActive(set)
     self.stable = set
     if set == true then
-        if self.stateSprite ~= nil then self.stateSprite.destroy() end
-        self.stateSprite = self.thisEntity.surface.create_entity{name=Constants.NetworkController.name.."_stable", position=self.thisEntity.position, force="neutral"}
-        self.stateSprite.destructible = false
-        self.stateSprite.operable = false
-        self.stateSprite.minable = false
-        --rendering.destroy(self.stateSprite)
-        --self.stateSprite = rendering.draw_sprite{sprite=Constants.NetworkController.entity.name.."_stable", target=self.thisEntity, surface=self.thisEntity.surface, render_layer=renderLayer}
+        self:setState(Constants.NetworkController.statesEntity.stable)
     elseif set == false then
-        if self.stateSprite ~= nil then self.stateSprite.destroy() end
-        self.stateSprite = self.thisEntity.surface.create_entity{name=Constants.NetworkController.name.."_unstable", position=self.thisEntity.position, force="neutral"}
-        self.stateSprite.destructible = false
-        self.stateSprite.operable = false
-        self.stateSprite.minable = false
-        --rendering.destroy(self.stateSprite)
-        --self.stateSprite = rendering.draw_sprite{sprite=Constants.NetworkController.entity.name.."_unstable", target=self.thisEntity, surface=self.thisEntity.surface, render_layer=renderLayer}
+        self:setState(Constants.NetworkController.statesEntity.unstable)
     end
 end
 

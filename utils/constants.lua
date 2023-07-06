@@ -325,11 +325,28 @@ Constants.Beams = {
     },
 }
 Constants.NetworkController = {
-    name = "RNS_NetworkController",
-    itemIcon = "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerI.png",
-    entityE =  "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerE.png",
-    entityS =  "__RefinedNetworkStorage__/graphics/Drives/DriveS.png"
+    itemEntity = {
+        name = "RNS_NetworkController_Item",
+        itemIcon = "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerI.png",
+        entityE =  "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerE_stable2.png",
+        entityS =  "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerE_S2.png"
+    },
+    slateEntity = {
+        name = "RNS_NetworkController",
+        itemIcon = "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerI.png",
+        entityE =  "__RefinedNetworkStorage__/graphics/blank.png",
+        entityS =  "__RefinedNetworkStorage__/graphics/blank.png"
+    },
+    statesEntity = {
+        stable = "RNS_NetworkController_Stable",
+        unstable = "RNS_NetworkController_Unstable",
+        itemIcon = "__RefinedNetworkStorage__/graphics/blank.png",
+        stableE =  "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerE_stable2.png",
+        unstableE =  "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerE_unstable2.png",
+        shadow =  "__RefinedNetworkStorage__/graphics/Networks/NetworkControllerE_S2.png"
+    }
 }
+    
 Constants.NetworkInventoryInterface = {
     name = "RNS_NetworkInventoryInterface",
     itemIcon = "__RefinedNetworkStorage__/graphics/Networks/NetworkInventoryBlockI.png",
