@@ -26,7 +26,6 @@ function onInit()
     end
 
 	global.entityTable = global.entityTable or {}
-    global.networkID = global.networkID or {{id=0, used=false}}
     createObjectTables()
 
     for _, obj in pairs(global.objectTables) do
@@ -109,9 +108,6 @@ script.on_event(defines.events.script_raised_built, placed)
 script.on_event(defines.events.script_raised_revive, placed)
 script.on_event(defines.events.on_robot_built_entity, placed)
 script.on_event(defines.events.on_robot_built_tile, placed)
-script.on_event(defines.events.on_player_rotated_entity, function(event)
-    --game.print(event.entity.name)
-end)
 
 script.on_event(defines.events.on_player_mined_entity, removed)
 script.on_event(defines.events.on_player_mined_tile, removed)

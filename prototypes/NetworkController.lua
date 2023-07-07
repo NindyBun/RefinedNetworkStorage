@@ -104,7 +104,69 @@ cE0.picture =
     }
 data:extend{cE0}
 
-local cE1 = {}
+local ce1 = {}
+ce1.type = "container"
+ce1.name = Constants.NetworkController.statesEntity.stable
+ce1.icon = Constants.NetworkController.statesEntity.itemIcon
+ce1.icon_size = 32
+ce1.flags = {"placeable-neutral"}
+ce1.collision_box = {{-1.40, -1.40}, {1.40, 1.40}}
+ce1.inventory_size = 0
+ce1.selectable_in_game = false
+ce1.alert_when_damaged = false
+ce1.picture =
+{
+    layers =
+    {
+        {
+            filename = Constants.NetworkController.statesEntity.stableE,
+            priority = "extra-high",
+            size = 512,
+            scale = (96 * 3)/512
+        },
+        {
+            filename = Constants.NetworkController.statesEntity.shadow,
+            priority = "high",
+            draw_as_shadow = true,
+            size = 512,
+            scale = (96 * 3)/512
+        }
+    }
+}
+data:extend{ce1}
+
+local ce2 = {}
+ce2.type = "container"
+ce2.name = Constants.NetworkController.statesEntity.unstable
+ce2.icon = Constants.NetworkController.statesEntity.itemIcon
+ce2.icon_size = 32
+ce2.flags = {"placeable-neutral"}
+ce2.collision_box = {{-1.40, -1.40}, {1.40, 1.40}}
+ce2.inventory_size = 0
+ce2.selectable_in_game = false
+ce2.alert_when_damaged = false
+ce2.picture =
+{
+    layers =
+    {
+        {
+            filename = Constants.NetworkController.statesEntity.unstableE,
+            priority = "extra-high",
+            size = 512,
+            scale = (96 * 3)/512
+        },
+        {
+            filename = Constants.NetworkController.statesEntity.shadow,
+            priority = "high",
+            draw_as_shadow = true,
+            size = 512,
+            scale = (96 * 3)/512
+        }
+    }
+}
+data:extend{ce2}
+
+--[[local cE1 = {}
 cE1.type = "electric-energy-interface"
 cE1.name = Constants.NetworkController.statesEntity.stable
 cE1.icon = Constants.NetworkController.statesEntity.itemIcon
@@ -176,4 +238,4 @@ cE2.picture =
             }
         }
     }
-data:extend{cE2}
+data:extend{cE2}]]

@@ -27,7 +27,6 @@ networkItemioE.icon_size = 512
 networkItemioE.flags = {"placeable-neutral", "placeable-player"}
 networkItemioE.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 networkItemioE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
-networkItemioE.minable = {mining_time = 0.2, result = Constants.NetworkCables.itemIO.itemEntity.name}
 networkItemioE.animation =
     {
         north = Constants.NetworkCables.itemIO.statesEntity.states[1].picture,
@@ -42,9 +41,6 @@ networkItemioE.energy_source =
     type = "electric",
     usage_priority = "secondary-input",
     buffer_capacity = "1J",
-    output_flow_limit = "0W",
-    input_flow_limit = "0W",
-    drain = "0W",
     render_no_power_icon = false,
     render_no_network_icon = false
 }
@@ -60,64 +56,62 @@ networkItemioE.fluid_boxes = {
  }
 data:extend{networkItemioE}
 
-function createNetworkIOBusEntity(eName, iName, icon, fluidbox)
-    local networkItemioE = {}
-	networkItemioE.type = "assembling-machine"
-	networkItemioE.name = eName
-	networkItemioE.icon = icon
-	networkItemioE.icon_size = 512
-	networkItemioE.flags = {"placeable-neutral", "placeable-player", "player-creation"}
-	networkItemioE.minable = {mining_time = 0.2, result = iName}
-    networkItemioE.placeable_by = {item = iName, count = 1}
-	networkItemioE.max_health = 250
-    networkItemioE.dying_explosion = "medium-explosion"
-	networkItemioE.corpse = "small-remnants"
-	networkItemioE.render_not_in_network_icon = false
-	networkItemioE.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
-	networkItemioE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
-    networkItemioE.resistances =
+local io = {}
+io.type = "assembling-machine"
+io.name = Constants.NetworkCables.itemIO.slateEntity.name
+io.icon = Constants.NetworkCables.itemIO.slateEntity.itemIcon
+io.icon_size = 32
+io.flags = {"placeable-neutral", "placeable-player"}
+io.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
+io.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+io.placeable_by = {item=Constants.NetworkCables.itemIO.itemEntity.name, count=1}
+io.minable = {mining_time = 0.2, result = Constants.NetworkCables.itemIO.itemEntity.name}
+io.animation =
     {
-        {
-        type = "fire",
-        percent = 70
-        }
-    }
-    networkItemioE.animation =
-    {
-        north =
-        {
-            layers =
-			{
+        north = {
+            layers = {
                 {
-                    filename = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank.png",
+                    filename = Constants.NetworkCables.itemIO.slateEntity.entityE,
                     priority = "extra-high",
-                    width = 32,
-                    height = 32,
-                    draw_as_shadow = true,
-                    shift = {0,0},
+                    size = 32,
                     scale = 1
                 }
             }
         }
     }
-    networkItemioE.animation.east = table.deepcopy(networkItemioE.animation.north)
-    networkItemioE.animation.south = table.deepcopy(networkItemioE.animation.north)
-    networkItemioE.animation.west = table.deepcopy(networkItemioE.animation.north)
-    networkItemioE.crafting_categories = {"RNS-Nothing"}
-    networkItemioE.crafting_speed = 1
-    networkItemioE.energy_source =
-    {
-        type = "electric",
-        usage_priority = "secondary-input",
-        buffer_capacity = "1J",
-        output_flow_limit = "0W",
-        input_flow_limit = "0W",
-        drain = "0W",
-        render_no_power_icon = false,
-        render_no_network_icon = false
-    }
-    networkItemioE.energy_usage = "1J"
-	data:extend{networkItemioE}
+io.animation.east = table.deepcopy(io.animation.north)
+io.animation.south = table.deepcopy(io.animation.north)
+io.animation.west = table.deepcopy(io.animation.north)
+io.crafting_categories = {"RNS-Nothing"}
+io.crafting_speed = 1
+io.energy_source =
+{
+    type = "electric",
+    usage_priority = "secondary-input",
+    buffer_capacity = "1J",
+    render_no_power_icon = false,
+    render_no_network_icon = false
+}
+io.energy_usage = "1J"
+data:extend{io}
+
+function createItemIO(id)
+    local io1 = {}
+	io1.type = "container"
+	io1.name = Constants.NetworkCables.itemIO.statesEntity.states[id].name
+	io1.icon = Constants.NetworkCables.itemIO.statesEntity.itemIcon
+	io1.icon_size = 32
+    io1.flags = {"placeable-neutral"}
+    io1.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
+	io1.inventory_size = 0
+    io1.selectable_in_game = false
+    io1.alert_when_damaged = false
+	io1.picture = Constants.NetworkCables.itemIO.statesEntity.states[id].picture
+	data:extend{io1}
+end
+
+for i = 1, 4  do
+    createItemIO(i)
 end
 
 function createTestItem(name, icon, stack_size, subgroup, order)

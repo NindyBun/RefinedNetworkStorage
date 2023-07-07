@@ -5,7 +5,7 @@ NC = {
     updateTick = 300,
     lastUpdate = 0,
     stable = false,
-    stateSprite = nil,
+    state = nil,
     network = nil,
     connectedObjs = nil
 }
@@ -44,8 +44,7 @@ end
 
 --Deconstructor
 function NC:remove()
-    global.networkID[self.network.ID+1].used = false
-    if self.stateSprite ~= nil then self.stateSprite.destroy() end
+    if self.state ~= nil then self.state.destroy() end
     UpdateSys.remove(self)
 end
 --Is valid
@@ -54,11 +53,11 @@ function NC:valid()
 end
 
 function NC:setState(state)
-    if self.stateSprite ~= nil then self.stateSprite.destroy() end
-    self.stateSprite = self.thisEntity.surface.create_entity{name=state, position=self.thisEntity.position, force="neutral"}
-    self.stateSprite.destructible = false
-    self.stateSprite.operable = false
-    self.stateSprite.minable = false
+    if self.state ~= nil then self.state.destroy() end
+    self.state = self.thisEntity.surface.create_entity{name=state, position=self.thisEntity.position, force="neutral"}
+    self.state.destructible = false
+    self.state.operable = false
+    self.state.minable = false
 end
 
 function NC:setActive(set)

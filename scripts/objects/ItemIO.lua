@@ -10,7 +10,7 @@ IIO = {
     focusedEntity = nil,
     cardinals = nil,
     filters = nil,
-    whitelist = false,
+    state = nil,
     io = "input"
 }
 
@@ -43,10 +43,7 @@ function IIO:new(object)
     }
     t.filters = {
         index = 1,
-        values = {
-            {name="iron-plate", count=1},
-            {name="copper-plate", count=1}
-        }
+        values = {}
     }
     UpdateSys.addEntity(t)
     return t
@@ -60,6 +57,7 @@ function IIO:rebuild(object)
 end
 
 function IIO:remove()
+    if self.state ~= nil then self.state.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
         self.networkController.network.ItemIOTable[self.entID] = nil
@@ -251,9 +249,6 @@ function IIO:createArms()
     for _, area in pairs(areas) do
         local enti = 0
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
-        if area.direction == self.direction then --Draw the IO port in the right direction
-            self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.IO.item.sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
-        end
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true then
                 if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil and ent.operable then
@@ -297,22 +292,31 @@ function IIO:createArms()
     end
 end
 
+function IIO:setState(state)
+    if self.state ~= nil then self.state.destroy() end
+    self.state = self.thisEntity.surface.create_entity{name=state, position=self.thisEntity.position, force="neutral"}
+    self.state.destructible = false
+    self.state.operable = false
+    self.state.minable = false
+end
+
 function IIO:initializeDataOnCreated(dir)
     if dir == nil then return end
     if dir == defines.direction.north then
+        self:setState(Constants.NetworkCables.itemIO.statesEntity.states[1].name)
         self.direction = 1
         self.connectionDirection = 4
         self.realDirection = 1
     elseif dir == defines.direction.east then
-        self.direction = 2
+        self:setState(Constants.NetworkCables.itemIO.statesEntity.states[2].name)self.direction = 2
         self.connectionDirection = 3
         self.realDirection = 2
     elseif dir == defines.direction.south then
-        self.direction = 4
+        self:setState(Constants.NetworkCables.itemIO.statesEntity.states[3].name)self.direction = 4
         self.connectionDirection = 1
         self.realDirection = 3
     elseif dir == defines.direction.west then
-        self.direction = 3
+        self:setState(Constants.NetworkCables.itemIO.statesEntity.states[4].name)self.direction = 3
         self.connectionDirection = 2
         self.realDirection = 4
     end
