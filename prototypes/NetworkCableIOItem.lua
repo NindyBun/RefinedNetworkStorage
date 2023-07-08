@@ -178,6 +178,6 @@ function createTestEntity(name, icon, entity, shadow)
 	data:extend{driveE}
 end
 
---createTestItem("test", "__RefinedNetworkStorage__/graphics/Cables/untitled.png", 25, Constants.ItemGroup.Category.subgroup, "t")
---createTestRecipe("test", 1, true, {})
---createTestEntity("test", "__RefinedNetworkStorage__/graphics/Cables/untitled.png", "__RefinedNetworkStorage__/graphics/Cables/untitled.png", "__RefinedNetworkStorage__/graphics/Cables/untitled.png")
+createTestItem("test", "__RefinedNetworkStorage__/graphics/Cables/untitled.png", 25, Constants.ItemGroup.Category.subgroup, "t")
+createTestRecipe("test", 1, true, {})
+createTestEntity("test", "__RefinedNetworkStorage__/graphics/Cables/untitled.png", "__RefinedNetworkStorage__/graphics/Cables/untitled.png", "__RefinedNetworkStorage__/graphics/Cables/untitled.png")
