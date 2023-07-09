@@ -1,4 +1,4 @@
-local networkItemioI = {}
+--[[local networkItemioI = {}
 networkItemioI.type = "item"
 networkItemioI.name = Constants.NetworkCables.itemIO.itemEntity.name
 networkItemioI.icon = Constants.NetworkCables.itemIO.itemEntity.itemIcon
@@ -53,7 +53,7 @@ networkItemioE.fluid_boxes = {
         },
         production_type = "output"
     }
- }
+}
 data:extend{networkItemioE}
 
 local io = {}
@@ -65,6 +65,12 @@ io.flags = {"placeable-neutral", "placeable-player"}
 io.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 io.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
 io.placeable_by = {item=Constants.NetworkCables.itemIO.itemEntity.name, count=1}
+io.max_health = 350
+io.dying_explosion = "medium-explosion"
+io.corpse = "small-remnants"
+io.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
+io.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
+io.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
 io.minable = {mining_time = 0.2, result = Constants.NetworkCables.itemIO.itemEntity.name}
 io.animation =
     {
@@ -112,7 +118,7 @@ end
 
 for i = 1, 4  do
     createItemIO(i)
-end
+end]]
 
 function createTestItem(name, icon, stack_size, subgroup, order)
 	local driveI = {}
@@ -178,6 +184,95 @@ function createTestEntity(name, icon, entity, shadow)
 	data:extend{driveE}
 end
 
-createTestItem("test", "__RefinedNetworkStorage__/graphics/Cables/untitled.png", 25, Constants.ItemGroup.Category.subgroup, "t")
+function createTestEntity2(name, icon)
+	local io = {}
+	io.type = "assembling-machine"
+	io.name = name
+	io.icon = icon
+	io.icon_size = 32
+	io.flags = {"placeable-neutral", "placeable-player"}
+	io.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
+	io.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+	io.max_health = 350
+	io.dying_explosion = "medium-explosion"
+	io.corpse = "small-remnants"
+	io.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
+	io.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
+	io.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
+	io.minable = {mining_time = 0.2, result = name}
+	io.animation =
+		{
+			north = {
+				layers = {
+					{
+						filename = "__RefinedNetworkStorage__/graphics/Cables/IO/ItemIOSheet.png",
+						priority = "extra-high",
+						size = 512,
+						scale = 1/8,
+						x=0
+					}
+				}
+			},
+			east = {
+				layers = {
+					{
+						filename = "__RefinedNetworkStorage__/graphics/Cables/IO/ItemIOSheet.png",
+						priority = "extra-high",
+						size = 512,
+						scale = 1/8,
+						x=512
+					}
+				}
+			},
+			south = {
+				layers = {
+					{
+						filename = "__RefinedNetworkStorage__/graphics/Cables/IO/ItemIOSheet.png",
+						priority = "extra-high",
+						size = 512,
+						scale = 1/8,
+						x=512*2
+					}
+				}
+			},
+			west = {
+				layers = {
+					{
+						filename = "__RefinedNetworkStorage__/graphics/Cables/IO/ItemIOSheet.png",
+						priority = "extra-high",
+						size = 512,
+						scale = 1/8,
+						x=512*3
+					}
+				}
+			}
+		}
+	io.crafting_categories = {"RNS-Nothing"}
+	io.crafting_speed = 1
+	io.energy_source =
+	{
+		type = "electric",
+		usage_priority = "secondary-input",
+		buffer_capacity = "1J",
+		render_no_power_icon = false,
+		render_no_network_icon = false
+	}
+	io.energy_usage = "1J"
+	io.fluid_boxes = {
+		{
+			base_area = 1,
+			hide_connection_info = true,
+			--pipe_covers = pipecoverspictures(),
+			pipe_connections = {
+				{position = {0, -0.5}}
+			},
+			production_type = "output"
+		}
+	 }
+	data:extend{io}
+end
+
+createTestItem("test", "__RefinedNetworkStorage__/graphics/Cables/IO/ItemIO.png", 25, Constants.ItemGroup.Category.subgroup, "t")
 createTestRecipe("test", 1, true, {})
-createTestEntity("test", "__RefinedNetworkStorage__/graphics/Cables/untitled.png", "__RefinedNetworkStorage__/graphics/Cables/untitled.png", "__RefinedNetworkStorage__/graphics/Cables/untitled.png")
+createTestEntity2("test", "__RefinedNetworkStorage__/graphics/Cables/IO/ItemIO.png")
+--createTestEntity("test", "__RefinedNetworkStorage__/graphics/Cables/untitled.png", "__RefinedNetworkStorage__/graphics/Cables/untitled.png", "__RefinedNetworkStorage__/graphics/Cables/untitled.png")
