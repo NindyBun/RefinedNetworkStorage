@@ -68,6 +68,7 @@ networkCable_E.icon_size = 512
 networkCable_E.inventory_size = 0
 networkCable_E.flags = {"placeable-neutral", "player-creation"}
 networkCable_E.minable = {mining_time = 0.2, result = Constants.NetworkCables.Cable.item.name}
+networkCable_E.fast_replaceable_group = Constants.Settings.RNS_FR_Cable
 networkCable_E.max_health = 250
 networkCable_E.dying_explosion = "medium-explosion"
 networkCable_E.placeable_by = {item = Constants.NetworkCables.Cable.item.name, count = 1}
