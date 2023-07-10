@@ -1,9 +1,6 @@
 IIO = {
     thisEntity = nil,
     entID = nil,
-    direction = 1,
-    connectionDirection = 1,
-    realDirection = 1,
     networkController = nil,
     arms = nil,
     connectedObjs = nil,
@@ -11,7 +8,8 @@ IIO = {
     cardinals = nil,
     filters = nil,
     state = nil,
-    io = "input"
+    io = "input",
+    ioIcon = nil
 }
 
 function IIO:new(object)
@@ -23,6 +21,7 @@ function IIO:new(object)
     t.thisEntity = object
     t.entID = object.unit_number
     rendering.draw_sprite{sprite="NetworkCableDot", target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
+    t:generateModeIcon()
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -85,7 +84,7 @@ function IIO:IO()
         local foc = self.focusedEntity
         if foc.type == "transport-belt" or foc.type == "underground-belt" or foc.type == "splitter" or foc.type == "loader" or foc.type == "loader-1x1" then
             local beltDir = Util.direction(foc)
-            local ioDir = self.realDirection
+            local ioDir = self:getRealDirection()
             local transportLine = nil
             if ioDir == beltDir then
                 transportLine = "Back"
@@ -232,6 +231,31 @@ function IIO:resetConnection()
     end
 end
 
+function IIO:generateModeIcon()
+    if self.ioIcon ~= nil then rendering.destroy(self.ioIcon) end
+    if self.io == "input" then
+        if self:getRealDirection() == 1 then
+            self.ioIcon = rendering.draw_sprite{sprite=Constants.Icons.item.name, target=self.thisEntity, surface=self.thisEntity.surface, only_in_alt_mode=true, orientation=0}
+        elseif self:getRealDirection() == 2 then
+            self.ioIcon = rendering.draw_sprite{sprite=Constants.Icons.item.name, target=self.thisEntity, surface=self.thisEntity.surface, only_in_alt_mode=true, orientation=0.25}
+        elseif self:getRealDirection() == 3 then
+            self.ioIcon = rendering.draw_sprite{sprite=Constants.Icons.item.name, target=self.thisEntity, surface=self.thisEntity.surface, only_in_alt_mode=true, orientation=0.50}
+        elseif self:getRealDirection() == 4 then
+            self.ioIcon = rendering.draw_sprite{sprite=Constants.Icons.item.name, target=self.thisEntity, surface=self.thisEntity.surface, only_in_alt_mode=true, orientation=0.75}
+        end
+    elseif self.io == "output" then
+        if self:getRealDirection() == 1 then
+            self.ioIcon = rendering.draw_sprite{sprite=Constants.Icons.item.name, target=self.thisEntity, surface=self.thisEntity.surface, only_in_alt_mode=true, orientation=0.50}
+        elseif self:getRealDirection() == 2 then
+            self.ioIcon = rendering.draw_sprite{sprite=Constants.Icons.item.name, target=self.thisEntity, surface=self.thisEntity.surface, only_in_alt_mode=true, orientation=0.75}
+        elseif self:getRealDirection() == 3 then
+            self.ioIcon = rendering.draw_sprite{sprite=Constants.Icons.item.name, target=self.thisEntity, surface=self.thisEntity.surface, only_in_alt_mode=true, orientation=0}
+        elseif self:getRealDirection() == 4 then
+            self.ioIcon = rendering.draw_sprite{sprite=Constants.Icons.item.name, target=self.thisEntity, surface=self.thisEntity.surface, only_in_alt_mode=true, orientation=0.25}
+        end
+    end
+end
+
 function IIO:getCheckArea()
     local x = self.thisEntity.position.x
     local y = self.thisEntity.position.y
@@ -252,9 +276,9 @@ function IIO:createArms()
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true then
                 if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil and ent.operable then
-                    if area.direction ~= self.direction then --Prevent cable connection on the IO port
+                    if area.direction ~= self:getDirection() then --Prevent cable connection on the IO port
                         local obj = global.entityTable[ent.unit_number]
-                        if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj.connectionDirection == area.direction then
+                        if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction then
                             --Do nothing
                         else
                             self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
@@ -272,7 +296,7 @@ function IIO:createArms()
                         end
                         break
                     end
-                elseif ent ~= nil and self.direction == area.direction then --Get entity with inventory
+                elseif ent ~= nil and self:getDirection() == area.direction then --Get entity with inventory
                     if Constants.Settings.RNS_TypesWithContainer[ent.type] == true then
                         self.focusedEntity = ent
                         break
@@ -280,7 +304,7 @@ function IIO:createArms()
                 end
             end
         end
-        if self.direction ~= area.direction then
+        if self:getDirection() ~= area.direction then
             --Update network connections if necessary
             if self.cardinals[area.direction] == true and enti ~= 0 then
                 self.cardinals[area.direction] = false
@@ -292,35 +316,43 @@ function IIO:createArms()
     end
 end
 
-function IIO:setState(state)
-    if self.state ~= nil then self.state.destroy() end
-    self.state = self.thisEntity.surface.create_entity{name=state, position=self.thisEntity.position, force="neutral"}
-    self.state.destructible = false
-    self.state.operable = false
-    self.state.minable = false
+function IIO:getDirection()
+    local dir = self.thisEntity.direction
+    if dir == defines.direction.north then
+        return 1
+    elseif dir == defines.direction.east then
+        return 2
+    elseif dir == defines.direction.south then
+        return 4
+    elseif dir == defines.direction.west then
+        return 3
+    end
 end
 
-function IIO:initializeDataOnCreated(dir)
-    if dir == nil then return end
+function IIO:getConnectionDirection()
+    local dir = self.thisEntity.direction
     if dir == defines.direction.north then
-        self:setState(Constants.NetworkCables.itemIO.statesEntity.states[1].name)
-        self.direction = 1
-        self.connectionDirection = 4
-        self.realDirection = 1
+        return 4
     elseif dir == defines.direction.east then
-        self:setState(Constants.NetworkCables.itemIO.statesEntity.states[2].name)self.direction = 2
-        self.connectionDirection = 3
-        self.realDirection = 2
+        return 3
     elseif dir == defines.direction.south then
-        self:setState(Constants.NetworkCables.itemIO.statesEntity.states[3].name)self.direction = 4
-        self.connectionDirection = 1
-        self.realDirection = 3
+        return 1
     elseif dir == defines.direction.west then
-        self:setState(Constants.NetworkCables.itemIO.statesEntity.states[4].name)self.direction = 3
-        self.connectionDirection = 2
-        self.realDirection = 4
+        return 2
     end
-    self:createArms()
+end
+
+function IIO:getRealDirection()
+    local dir = self.thisEntity.direction
+    if dir == defines.direction.north then
+        return 1
+    elseif dir == defines.direction.east then
+        return 2
+    elseif dir == defines.direction.south then
+        return 3
+    elseif dir == defines.direction.west then
+        return 4
+    end
 end
 
 function IIO:getTooltips()

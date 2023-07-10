@@ -58,20 +58,26 @@ Constants.ItemGroup = {
     }
 }
 Constants.Icons = {
-    item = "__data__/core/graphics/arrows/indication-arrow.png",
-    fluid = "__data__/core/graphics/arrows/fluid-indication-arrow.png"
+    item = {
+        name = "RNS_ItemIcon",
+        icon = "__RefinedNetworkStorage__/graphics/Cables/IO/indication-arrow.png",
+    },
+    fluid = {
+        name = "RNS_FluidIcon",
+        icon = "__RefinedNetworkStorage__/graphics/Cables/IO/fluid-indication-arrow.png",
+    }
 }
 Constants.NetworkCables = {
     itemIO = {
         itemEntity = {
             name = "RNS_NetworkCableIOItem_Item",
-            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/ItemIO.png",
+            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/IO/ItemIO.png",
             entityE =  "__RefinedNetworkStorage__/graphics/Cables/IO/ItemIOSheet.png",
             entityS =  "__RefinedNetworkStorage__/graphics/Cables/IO/IOSheet_S.png"
         },
         slateEntity = {
             name = "RNS_NetworkCableIOItem",
-            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/ItemIO.png",
+            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/IO/ItemIO.png",
             entityE =  "__RefinedNetworkStorage__/graphics/Cables/IO/ItemIOSheet_E.png",
             entityS =  "__RefinedNetworkStorage__/graphics/Cables/IO/IOSheet_S.png"
         }
@@ -79,13 +85,13 @@ Constants.NetworkCables = {
     fluidIO = {
         itemEntity = {
             name = "RNS_NetworkCableIOFluid_Item",
-            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/FluidIO.png",
+            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/IO/FluidIO.png",
             entityE =  "__RefinedNetworkStorage__/graphics/Cables/IO/FluidIOSheet.png",
             entityS =  "__RefinedNetworkStorage__/graphics/Cables/IO/IOSheet_S.png"
         },
         slateEntity = {
             name = "RNS_NetworkCableIOFluid",
-            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/FluidIO.png",
+            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/IO/FluidIO.png",
             entityE =  "__RefinedNetworkStorage__/graphics/Cables/IO/FluidIOSheet_E.png",
             entityS =  "__RefinedNetworkStorage__/graphics/Cables/IO/IOSheet_S.png"
         }

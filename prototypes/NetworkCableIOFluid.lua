@@ -90,13 +90,10 @@ io.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 io.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
 io.window_bounding_box = {{0, 0}, {0, 0}}
 io.fluid_box = {
-    {
-        base_area = 1200,
-		hide_connection_info = true,
-        --pipe_covers = pipecoverspictures(),
-        pipe_connections = {
-            {position = {0, -1}}
-        },
+    base_area = 1200,
+    hide_connection_info = true,
+    pipe_connections = {
+        {position = {0, -1}}
     }
 }
 io.placeable_by = {item=Constants.NetworkCables.fluidIO.itemEntity.name, count=1}
@@ -163,3 +160,17 @@ io.pictures.picture.west = table.deepcopy(io.pictures.picture.north)
 io.pictures.picture.west.layers[1].x = 512*3
 io.pictures.picture.west.layers[2].x = 512*3
 data:extend{io}
+
+local sprite = {}
+sprite.type = "sprite"
+sprite.name = Constants.Icons.fluid.name
+sprite.layers = {
+    {
+        filename = Constants.Icons.fluid.icon,
+        priority = "high",
+        size = 48,
+        shift = {0,0},
+        scale = 1
+    },
+}
+data:extend{sprite}

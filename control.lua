@@ -14,6 +14,7 @@ require("scripts.objects.RNSPlayer")
 --require("scripts.objects.NetworkLasers")
 require("scripts.objects.NetworkCables")
 require("scripts.objects.ItemIO")
+require("scripts.objects.FluidIO")
 require("scripts.objects.ItemDrives")
 require("scripts.objects.FluidDrives")
 
@@ -30,11 +31,11 @@ function onInit()
 
     for _, obj in pairs(global.objectTables) do
 		if obj.tableName and obj.tag then
-			if _G[obj.tag].validate then
+			--[[if _G[obj.tag].validate then
 				for _, entry in pairs(global[obj.tableName]) do
 					entry:validate()
 				end
-			end
+			end]]
 		end
 	end
 
@@ -90,6 +91,16 @@ function placed(event)
     end
 end
 
+function rotated(event)
+    if safeCall(Event.rotated, event) == false then
+        game.print({"gui-description.rotated_failed"})
+        local entity = event.created_entity or event.entity or event.destination
+        if entity ~= nil and entity.valid == true then
+            entity.destroy()
+        end
+    end
+end
+
 function removed(event)
     safeCall(Event.removed, event)
 end
@@ -108,6 +119,8 @@ script.on_event(defines.events.script_raised_built, placed)
 script.on_event(defines.events.script_raised_revive, placed)
 script.on_event(defines.events.on_robot_built_entity, placed)
 script.on_event(defines.events.on_robot_built_tile, placed)
+
+script.on_event(defines.events.on_player_rotated_entity , rotated)
 
 script.on_event(defines.events.on_player_mined_entity, removed)
 script.on_event(defines.events.on_player_mined_tile, removed)

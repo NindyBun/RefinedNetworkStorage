@@ -151,6 +151,20 @@ io.fluid_boxes = {
 }
 data:extend{io}
 
+local sprite = {}
+sprite.type = "sprite"
+sprite.name = Constants.Icons.item.name
+sprite.layers = {
+    {
+        filename = Constants.Icons.item.icon,
+        priority = "high",
+        size = 48,
+        shift = {0,0},
+        scale = 32/48
+    },
+}
+data:extend{sprite}
+
 --[[function createItemIO(id)
     local io1 = {}
 	io1.type = "container"
@@ -168,7 +182,7 @@ end
 
 for i = 1, 4  do
     createItemIO(i)
-end]]
+end
 
 function createTestItem(name, icon, stack_size, subgroup, order)
 	local driveI = {}
@@ -320,7 +334,7 @@ function createTestEntity2(name, icon)
 		}
 	 }
 	data:extend{io}
-end
+end]]
 
 --createTestItem("test", "__RefinedNetworkStorage__/graphics/Cables/IO/ItemIO.png", 25, Constants.ItemGroup.Category.subgroup, "t")
 --createTestRecipe("test", 1, true, {})

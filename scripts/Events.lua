@@ -17,7 +17,7 @@ function Event.placed(event)
     
     local type = entity.type
     local entName = type == "entity-ghost" and entity.ghost_name or entity.name
-    local destroyedEntDir = nil
+    
     if entName == Constants.NetworkCables.Cable.item.name and type ~= "entity-ghost" then
         entName = Constants.NetworkCables.Cable.entity.name
         local surf = entity.surface
@@ -40,9 +40,18 @@ function Event.placed(event)
         local ply = entity.last_user
         local pos = entity.position
         local fr = entity.force
-        destroyedEntDir = entity.direction
+        local dir = entity.direction
         entity.destroy()
-        entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply}
+        entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply, direction=dir}
+    elseif entName == Constants.NetworkCables.fluidIO.itemEntity.name and type ~= "entity-ghost" then
+        entName = Constants.NetworkCables.fluidIO.slateEntity.name
+        local surf = entity.surface
+        local ply = entity.last_user
+        local pos = entity.position
+        local fr = entity.force
+        local dir = entity.direction
+        entity.destroy()
+        entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply, direction=dir}
     end
 
     local objInfo = global.objectTables[entName]
@@ -64,10 +73,6 @@ function Event.placed(event)
 		if obj.validate then
 			obj:validate()
 		end
-
-        if obj.initializeDataOnCreated and destroyedEntDir ~= nil then
-            obj:initializeDataOnCreated(destroyedEntDir)
-        end
         
     end
 end
@@ -89,6 +94,10 @@ function Event.removed(event)
     if objInfo == nil or objInfo.tableName == nil then return end
     global[objInfo.tableName][entity.unit_number] = nil
 
+end
+
+function Event.rotated(event)
+    gane.print(event.name)
 end
 
 function Event.ghost(event)

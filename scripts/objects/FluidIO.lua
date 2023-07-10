@@ -1,9 +1,6 @@
 FIO = {
     thisEntity = nil,
     entID = nil,
-    direction = 1,
-    connectionDirection = 1,
-    realDirection = 1,
     networkController = nil,
     arms = nil,
     connectedObjs = nil,
@@ -117,15 +114,15 @@ function FIO:createArms()
     for _, area in pairs(areas) do
         local enti = 0
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
-        if area.direction == self.direction then --Draw the IO port in the right direction
+        if area.direction == self:getDirection() then --Draw the IO port in the right direction
             self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.IO.fluid.sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
         end
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true then
                 if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil and ent.operable then
-                    if area.direction ~= self.direction then --Prevent cable connection on the IO port
+                    if area.direction ~= self:getDirection() then --Prevent cable connection on the IO port
                         local obj = global.entityTable[ent.unit_number]
-                        if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj.connectionDirection == area.direction then
+                        if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction then
                             --Do nothing
                         else
                             self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
@@ -143,7 +140,7 @@ function FIO:createArms()
                         end
                         break
                     end
-                elseif ent ~= nil and self.direction == area.direction then --Get entity with inventory
+                elseif ent ~= nil and self:getDirection() == area.direction then --Get entity with inventory
                     if Constants.Settings.RNS_TypesWithContainer[ent.type] == true then
                         self.focusedEntity = ent
                         break
@@ -151,7 +148,7 @@ function FIO:createArms()
                 end
             end
         end
-        if self.direction ~= area.direction then
+        if self:getDirection() ~= area.direction then
             --Update network connections if necessary
             if self.cardinals[area.direction] == true and enti ~= 0 then
                 self.cardinals[area.direction] = false
@@ -163,26 +160,43 @@ function FIO:createArms()
     end
 end
 
-function FIO:initializeDataOnCreated(dir)
-    if dir == nil then return end
+function FIO:getDirection()
+    local dir = self.thisEntity.direction
     if dir == defines.direction.north then
         self.direction = 1
-        self.connectionDirection = 4
-        self.realDirection = 1
     elseif dir == defines.direction.east then
         self.direction = 2
-        self.connectionDirection = 3
-        self.realDirection = 2
     elseif dir == defines.direction.south then
         self.direction = 4
-        self.connectionDirection = 1
-        self.realDirection = 3
     elseif dir == defines.direction.west then
         self.direction = 3
+    end
+end
+
+function FIO:getConnectionDirection()
+    local dir = self.thisEntity.direction
+    if dir == defines.direction.north then
+        self.connectionDirection = 4
+    elseif dir == defines.direction.east then
+        self.connectionDirection = 3
+    elseif dir == defines.direction.south then
+        self.connectionDirection = 1
+    elseif dir == defines.direction.west then
         self.connectionDirection = 2
+    end
+end
+
+function FIO:getRealDirection()
+    local dir = self.thisEntity.direction
+    if dir == defines.direction.north then
+        self.realDirection = 1
+    elseif dir == defines.direction.east then
+        self.realDirection = 2
+    elseif dir == defines.direction.south then
+        self.realDirection = 3
+    elseif dir == defines.direction.west then
         self.realDirection = 4
     end
-    self:createArms()
 end
 
 function FIO:getTooltips()
