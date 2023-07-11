@@ -24,7 +24,7 @@ ioE.type = "assembling-machine"
 ioE.name = Constants.NetworkCables.fluidIO.itemEntity.name
 ioE.icon = Constants.NetworkCables.fluidIO.itemEntity.itemIcon
 ioE.icon_size = 512
-ioE.flags = {"placeable-neutral", "placeable-player"}
+ioE.flags = {"placeable-neutral", "player-creation"}
 ioE.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 ioE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
 ioE.animation =
@@ -84,13 +84,13 @@ local io = {}
 io.type = "storage-tank"
 io.name = Constants.NetworkCables.fluidIO.slateEntity.name
 io.icon = Constants.NetworkCables.fluidIO.slateEntity.itemIcon
-io.icon_size = 32
-io.flags = {"placeable-neutral", "placeable-player"}
+io.icon_size = 512
+io.flags = {"placeable-neutral", "player-creation"}
 io.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 io.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
 io.window_bounding_box = {{0, 0}, {0, 0}}
 io.fluid_box = {
-    base_area = 1200,
+    base_area = 12,
     hide_connection_info = true,
     pipe_connections = {
         {position = {0, -1}}
@@ -160,17 +160,3 @@ io.pictures.picture.west = table.deepcopy(io.pictures.picture.north)
 io.pictures.picture.west.layers[1].x = 512*3
 io.pictures.picture.west.layers[2].x = 512*3
 data:extend{io}
-
-local sprite = {}
-sprite.type = "sprite"
-sprite.name = Constants.Icons.fluid.name
-sprite.layers = {
-    {
-        filename = Constants.Icons.fluid.icon,
-        priority = "high",
-        size = 48,
-        shift = {0,0},
-        scale = 1
-    },
-}
-data:extend{sprite}

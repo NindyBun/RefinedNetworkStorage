@@ -92,13 +92,10 @@ function placed(event)
 end
 
 function rotated(event)
-    if safeCall(Event.rotated, event) == false then
-        game.print({"gui-description.rotated_failed"})
-        local entity = event.created_entity or event.entity or event.destination
-        if entity ~= nil and entity.valid == true then
-            entity.destroy()
-        end
-    end
+    safeCall(Event.rotated, event)
+end
+function changed_selection(event)
+    safeCall(Event.changed_selection, event)
 end
 
 function removed(event)
@@ -121,6 +118,7 @@ script.on_event(defines.events.on_robot_built_entity, placed)
 script.on_event(defines.events.on_robot_built_tile, placed)
 
 script.on_event(defines.events.on_player_rotated_entity , rotated)
+script.on_event(defines.events.on_selected_entity_changed, changed_selection)
 
 script.on_event(defines.events.on_player_mined_entity, removed)
 script.on_event(defines.events.on_player_mined_tile, removed)

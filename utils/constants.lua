@@ -58,14 +58,8 @@ Constants.ItemGroup = {
     }
 }
 Constants.Icons = {
-    item = {
-        name = "RNS_ItemIcon",
-        icon = "__RefinedNetworkStorage__/graphics/Cables/IO/indication-arrow.png",
-    },
-    fluid = {
-        name = "RNS_FluidIcon",
-        icon = "__RefinedNetworkStorage__/graphics/Cables/IO/fluid-indication-arrow.png",
-    }
+    item = 'utility.indication_arrow',
+    fluid = 'utility.fluid_indication_arrow'
 }
 Constants.NetworkCables = {
     itemIO = {

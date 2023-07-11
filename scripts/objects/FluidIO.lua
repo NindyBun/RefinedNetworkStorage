@@ -4,11 +4,11 @@ FIO = {
     networkController = nil,
     arms = nil,
     connectedObjs = nil,
-    focusedEntity = nil,
     cardinals = nil,
-    filters = nil,
+    filter = nil,
     whitelist = false,
-    io = "input"
+    ioIcon = nil,
+    io = "output"
 }
 
 function FIO:new(object)
@@ -20,6 +20,7 @@ function FIO:new(object)
     t.thisEntity = object
     t.entID = object.unit_number
     rendering.draw_sprite{sprite="NetworkCableDot", target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
+    t:generateModeIcon()
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -37,10 +38,6 @@ function FIO:new(object)
         [2] = {}, --E
         [3] = {}, --S
         [4] = {}, --W
-    }
-    t.filters = {
-        index = 1,
-        values = {}
     }
     UpdateSys.addEntity(t)
     return t
@@ -72,14 +69,55 @@ function FIO:update()
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
     self:createArms()
-    --local tick = game.tick % (120/Constants.Settings.RNS_BaseItemIO_Speed) --based on belt speed
-    --if tick >= 0.0 and tick < 1.0 then self:IO() end
+    if game.tick % 1 == 0 then self:IO() end
+end
+
+function FIO:toggleHoverIcon(hovering)
+    if self.ioIcon == nil then return end
+    if hovering and rendering.get_only_in_alt_mode(self.ioIcon) then
+        rendering.set_only_in_alt_mode(self.ioIcon, false)
+    elseif not hovering and not rendering.get_only_in_alt_mode(self.ioIcon) then
+        rendering.set_only_in_alt_mode(self.ioIcon, true)
+    end
+end
+
+function FIO:generateModeIcon()
+    if self.ioIcon ~= nil then rendering.destroy(self.ioIcon) end
+    local offset = {0, 0}
+    if self:getRealDirection() == 1 then
+        offset = {0,-0.5}
+    elseif self:getRealDirection() == 2 then
+        offset = {0.5, 0}
+    elseif self:getRealDirection() == 3 then
+        offset = {0,0.5}
+    elseif self:getRealDirection() == 4 then
+        offset = {-0.5,0}
+    end
+    self.ioIcon = rendering.draw_sprite{
+        sprite=Constants.Icons.fluid, 
+        target=self.thisEntity, 
+        target_offset=offset,
+        surface=self.thisEntity.surface,
+        only_in_alt_mode=true,
+        orientation=self.io == "input" and (self:getRealDirection()*0.25)-0.25 or ((self:getRealDirection()*0.25)+0.25)%1.00
+    }
 end
 
 function FIO:IO()
-    if self.focusedEntity ~= nil and self.focusedEntity.valid == true then
-        local foc = self.focusedEntity
-        
+    local tank = self.thisEntity
+    local fluid = nil
+
+    for i=1, #tank.fluidbox do
+        if tank.fluidbox[i] then
+            fluid = tank.fluidbox[i]
+            break
+        end
+    end
+
+    if self.io == "input" and fluid == nil then
+        tank.remove_fluid{name=fluid.name, amount=Constants.Settings.RNS_BaseFluidIO_Speed}
+    elseif self.io == "output" then
+        tank.insert_fluid({name=self.filter.name, amount=Constants.Settings.RNS_BaseFluidIO_Speed, tempurature=15})
     end
 end
 
@@ -114,9 +152,6 @@ function FIO:createArms()
     for _, area in pairs(areas) do
         local enti = 0
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
-        if area.direction == self:getDirection() then --Draw the IO port in the right direction
-            self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.IO.fluid.sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
-        end
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true then
                 if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil and ent.operable then
@@ -140,11 +175,6 @@ function FIO:createArms()
                         end
                         break
                     end
-                elseif ent ~= nil and self:getDirection() == area.direction then --Get entity with inventory
-                    if Constants.Settings.RNS_TypesWithContainer[ent.type] == true then
-                        self.focusedEntity = ent
-                        break
-                    end
                 end
             end
         end
@@ -163,39 +193,39 @@ end
 function FIO:getDirection()
     local dir = self.thisEntity.direction
     if dir == defines.direction.north then
-        self.direction = 1
+        return 1
     elseif dir == defines.direction.east then
-        self.direction = 2
+        return 2
     elseif dir == defines.direction.south then
-        self.direction = 4
+        return 4
     elseif dir == defines.direction.west then
-        self.direction = 3
+        return 3
     end
 end
 
 function FIO:getConnectionDirection()
     local dir = self.thisEntity.direction
     if dir == defines.direction.north then
-        self.connectionDirection = 4
+        return 4
     elseif dir == defines.direction.east then
-        self.connectionDirection = 3
+        return 3
     elseif dir == defines.direction.south then
-        self.connectionDirection = 1
+        return 1
     elseif dir == defines.direction.west then
-        self.connectionDirection = 2
+        return 2
     end
 end
 
 function FIO:getRealDirection()
     local dir = self.thisEntity.direction
     if dir == defines.direction.north then
-        self.realDirection = 1
+        return 1
     elseif dir == defines.direction.east then
-        self.realDirection = 2
+        return 2
     elseif dir == defines.direction.south then
-        self.realDirection = 3
+        return 3
     elseif dir == defines.direction.west then
-        self.realDirection = 4
+        return 4
     end
 end
 

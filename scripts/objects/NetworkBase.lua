@@ -58,7 +58,7 @@ function addConnectables(source, connections, master)
     for _, connected in pairs(source.connectedObjs) do
         for _, con in pairs(connected) do
             if valid(con) == false then goto continue end
-            if con.thisEntity.to_be_deconstructed() == true then goto continue end
+            --if con.thisEntity.to_be_deconstructed() == true then goto continue end
             if con.thisEntity == nil and con.thisEntity.valid == false then goto continue end
             if connections[con.entID] ~= nil then goto continue end
 
@@ -76,8 +76,8 @@ function addConnectables(source, connections, master)
                 master.network.FluidDriveTable[con.entID] = con
             elseif con.thisEntity.name == Constants.NetworkCables.itemIO.slateEntity.name then
                 master.network.ItemIOTable[con.entID] = con
-            --elseif con.thisEntity.name == Constants.NetworkCables.IO.fluid.eName then
-            --    master.network.FluidIOTable[con.entID] = con
+            elseif con.thisEntity.name == Constants.NetworkCables.fluidIO.slateEntity.name then
+                master.network.FluidIOTable[con.entID] = con
             end
             addConnectables(con, connections, master)
             ::continue::
@@ -89,7 +89,17 @@ function BaseNet:getTooltips()
     
 end
 
+function BaseNet.getOperableObjects(array)
+    local objs = {}
+    for _, o in pairs(array) do
+        if o.thisEntity.to_be_deconstructed() == false then
+            objs[o.entID] = o
+        end
+    end
+    return objs
+end
+
 --Get connected objects
 function BaseNet:getTotalObjects()
-    return Util.getTableLength(self.ItemDriveTable) + Util.getTableLength(self.FluidDriveTable) + Util.getTableLength(self.ItemIOTable) + Util.getTableLength(self.FluidIOTable)
+    return Util.getTableLength(BaseNet.getOperableObjects(self.ItemDriveTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.FluidDriveTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.ItemIOTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.FluidIOTable))
 end

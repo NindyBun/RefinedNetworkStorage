@@ -8,7 +8,7 @@ IIO = {
     cardinals = nil,
     filters = nil,
     state = nil,
-    io = "input",
+    io = "output",
     ioIcon = nil
 }
 
@@ -77,6 +77,37 @@ function IIO:update()
     self:createArms()
     --local tick = game.tick % (120/Constants.Settings.RNS_BaseItemIO_Speed) --based on belt speed
     --if tick >= 0.0 and tick < 1.0 then self:IO() end
+end
+
+function IIO:toggleHoverIcon(hovering)
+    if self.ioIcon == nil then return end
+    if hovering and rendering.get_only_in_alt_mode(self.ioIcon) then
+        rendering.set_only_in_alt_mode(self.ioIcon, false)
+    elseif not hovering and not rendering.get_only_in_alt_mode(self.ioIcon) then
+        rendering.set_only_in_alt_mode(self.ioIcon, true)
+    end
+end
+
+function IIO:generateModeIcon()
+    if self.ioIcon ~= nil then rendering.destroy(self.ioIcon) end
+    local offset = {0, 0}
+    if self:getRealDirection() == 1 then
+        offset = {0,-0.5}
+    elseif self:getRealDirection() == 2 then
+        offset = {0.5, 0}
+    elseif self:getRealDirection() == 3 then
+        offset = {0,0.5}
+    elseif self:getRealDirection() == 4 then
+        offset = {-0.5,0}
+    end
+    self.ioIcon = rendering.draw_sprite{
+        sprite=Constants.Icons.item, 
+        target=self.thisEntity, 
+        target_offset=offset,
+        surface=self.thisEntity.surface,
+        only_in_alt_mode=true,
+        orientation=self.io == "input" and (self:getRealDirection()*0.25)-0.25 or ((self:getRealDirection()*0.25)+0.25)%1.00
+    }
 end
 
 function IIO:IO()
@@ -227,31 +258,6 @@ function IIO:resetConnection()
     for _, arm in pairs(self.arms) do
         if arm ~= nil then
             rendering.destroy(arm)
-        end
-    end
-end
-
-function IIO:generateModeIcon()
-    if self.ioIcon ~= nil then rendering.destroy(self.ioIcon) end
-    if self.io == "input" then
-        if self:getRealDirection() == 1 then
-            self.ioIcon = rendering.draw_sprite{sprite=Constants.Icons.item.name, target=self.thisEntity, surface=self.thisEntity.surface, only_in_alt_mode=true, orientation=0}
-        elseif self:getRealDirection() == 2 then
-            self.ioIcon = rendering.draw_sprite{sprite=Constants.Icons.item.name, target=self.thisEntity, surface=self.thisEntity.surface, only_in_alt_mode=true, orientation=0.25}
-        elseif self:getRealDirection() == 3 then
-            self.ioIcon = rendering.draw_sprite{sprite=Constants.Icons.item.name, target=self.thisEntity, surface=self.thisEntity.surface, only_in_alt_mode=true, orientation=0.50}
-        elseif self:getRealDirection() == 4 then
-            self.ioIcon = rendering.draw_sprite{sprite=Constants.Icons.item.name, target=self.thisEntity, surface=self.thisEntity.surface, only_in_alt_mode=true, orientation=0.75}
-        end
-    elseif self.io == "output" then
-        if self:getRealDirection() == 1 then
-            self.ioIcon = rendering.draw_sprite{sprite=Constants.Icons.item.name, target=self.thisEntity, surface=self.thisEntity.surface, only_in_alt_mode=true, orientation=0.50}
-        elseif self:getRealDirection() == 2 then
-            self.ioIcon = rendering.draw_sprite{sprite=Constants.Icons.item.name, target=self.thisEntity, surface=self.thisEntity.surface, only_in_alt_mode=true, orientation=0.75}
-        elseif self:getRealDirection() == 3 then
-            self.ioIcon = rendering.draw_sprite{sprite=Constants.Icons.item.name, target=self.thisEntity, surface=self.thisEntity.surface, only_in_alt_mode=true, orientation=0}
-        elseif self:getRealDirection() == 4 then
-            self.ioIcon = rendering.draw_sprite{sprite=Constants.Icons.item.name, target=self.thisEntity, surface=self.thisEntity.surface, only_in_alt_mode=true, orientation=0.25}
         end
     end
 end

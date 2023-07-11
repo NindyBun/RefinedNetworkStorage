@@ -24,7 +24,7 @@ ioE.type = "assembling-machine"
 ioE.name = Constants.NetworkCables.itemIO.itemEntity.name
 ioE.icon = Constants.NetworkCables.itemIO.itemEntity.itemIcon
 ioE.icon_size = 512
-ioE.flags = {"placeable-neutral", "placeable-player"}
+ioE.flags = {"placeable-neutral", "player-creation"}
 ioE.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 ioE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
 ioE.animation =
@@ -84,8 +84,8 @@ local io = {}
 io.type = "assembling-machine"
 io.name = Constants.NetworkCables.itemIO.slateEntity.name
 io.icon = Constants.NetworkCables.itemIO.slateEntity.itemIcon
-io.icon_size = 32
-io.flags = {"placeable-neutral", "placeable-player"}
+io.icon_size = 512
+io.flags = {"placeable-neutral", "player-creation"}
 io.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 io.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
 io.placeable_by = {item=Constants.NetworkCables.itemIO.itemEntity.name, count=1}
@@ -150,20 +150,6 @@ io.fluid_boxes = {
     }
 }
 data:extend{io}
-
-local sprite = {}
-sprite.type = "sprite"
-sprite.name = Constants.Icons.item.name
-sprite.layers = {
-    {
-        filename = Constants.Icons.item.icon,
-        priority = "high",
-        size = 48,
-        shift = {0,0},
-        scale = 32/48
-    },
-}
-data:extend{sprite}
 
 --[[function createItemIO(id)
     local io1 = {}

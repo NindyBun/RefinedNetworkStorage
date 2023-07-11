@@ -97,7 +97,20 @@ function Event.removed(event)
 end
 
 function Event.rotated(event)
-    gane.print(event.name)
+    if global.entityTable[event.entity.unit_number] == nil then return end
+    local obj = global.entityTable[event.entity.unit_number]
+    if obj.generateModeIcon then
+        obj:generateModeIcon()
+    end
+end
+
+function Event.changed_selection(event)
+    if event.last_entity == nil then return end
+    if global.entityTable[event.last_entity.unit_number] == nil then return end
+    local obj = global.entityTable[event.last_entity.unit_number]
+    if obj.toggleHoverIcon then
+        obj:toggleHoverIcon(false)
+    end
 end
 
 function Event.ghost(event)
