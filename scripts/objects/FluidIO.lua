@@ -116,7 +116,7 @@ function FIO:IO()
 
     if self.io == "input" and fluid == nil then
         tank.remove_fluid{name=fluid.name, amount=Constants.Settings.RNS_BaseFluidIO_Speed}
-    elseif self.io == "output" then
+    elseif self.io == "output" and self.filter ~= nil then
         tank.insert_fluid({name=self.filter.name, amount=Constants.Settings.RNS_BaseFluidIO_Speed, tempurature=15})
     end
 end
