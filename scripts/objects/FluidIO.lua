@@ -229,6 +229,6 @@ function FIO:getRealDirection()
     end
 end
 
-function FIO:getTooltips()
+function FIO:getTooltips(guiTable, mainFrame, justCreated)
 
 end

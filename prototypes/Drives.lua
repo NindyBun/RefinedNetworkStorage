@@ -66,7 +66,13 @@ function createDriveEntity(name, icon, entity, shadow)
 	data:extend{driveE}
 end
 --------------------------------------------------------------------------------
-for _, drive in pairs(Constants.Drives) do
+for _, drive in pairs(Constants.Drives.ItemDrive) do
+	createDriveItem(drive.name, drive.itemIcon, drive.stack_size, drive.subgroup, drive.order)
+	createDriveRecipe(drive.name, drive.craft_time, drive.enabled, drive.ingredients)
+	createDriveEntity(drive.name, drive.itemIcon, drive.entityE, drive.entityS)
+end
+
+for _, drive in pairs(Constants.Drives.FluidDrive) do
 	createDriveItem(drive.name, drive.itemIcon, drive.stack_size, drive.subgroup, drive.order)
 	createDriveRecipe(drive.name, drive.craft_time, drive.enabled, drive.ingredients)
 	createDriveEntity(drive.name, drive.itemIcon, drive.entityE, drive.entityS)

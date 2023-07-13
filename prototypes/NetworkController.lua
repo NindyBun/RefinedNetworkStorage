@@ -26,7 +26,7 @@ controllerE.icon = Constants.NetworkController.itemEntity.itemIcon
 controllerE.icon_size = 256
 controllerE.flags = {"placeable-neutral", "player-creation"}
 --controllerE.minable = {mining_time = 0.2, result = Constants.NetworkController.name}
---controllerE.max_health = 350
+controllerE.max_health = 350
 --controllerE.dying_explosion = "medium-explosion"
 --controllerE.corpse = "medium-remnants"
 controllerE.collision_box = {{-1.40, -1.40}, {1.40, 1.40}}

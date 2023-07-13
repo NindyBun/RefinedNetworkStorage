@@ -18,14 +18,14 @@ function FD:new(object)
     mt.__index = FD
     t.thisEntity = object
     t.entID = object.unit_number
-    if object.name == Constants.Drives.FluidDrive4k.name then
-        t.maxStorage = Constants.Drives.FluidDrive4k.max_size
-    elseif object.name == Constants.Drives.FluidDrive16k.name then
-        t.maxStorage = Constants.Drives.FluidDrive16k.max_size
-    elseif object.name == Constants.Drives.FluidDrive64k.name then
-        t.maxStorage = Constants.Drives.FluidDrive64k.max_size
-    elseif object.name == Constants.Drives.FluidDrive256k.name then
-        t.maxStorage = Constants.Drives.FluidDrive256k.max_size
+    if object.name == Constants.Drives.FluidDrive.FluidDrive4k.name then
+        t.maxStorage = Constants.Drives.FluidDrive.FluidDrive4k.max_size
+    elseif object.name == Constants.Drives.FluidDrive.FluidDrive16k.name then
+        t.maxStorage = Constants.Drives.FluidDrive.FluidDrive16k.max_size
+    elseif object.name == Constants.Drives.FluidDrive.FluidDrive64k.name then
+        t.maxStorage = Constants.Drives.FluidDrive.FluidDrive64k.max_size
+    elseif object.name == Constants.Drives.FluidDrive.FluidDrive256k.name then
+        t.maxStorage = Constants.Drives.FluidDrive.FluidDrive256k.max_size
     end
     t.storage = {}
     t.cardinals = {
@@ -103,7 +103,7 @@ function FD:collect()
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and global.entityTable[ent.unit_number] ~= nil and ent.operable then
                 local obj = global.entityTable[ent.unit_number]
-                if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj.connectionDirection == area.direction then
+                if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction then
                     --Do nothing
                 else
                     table.insert(self.connectedObjs[area.direction], obj)
@@ -162,5 +162,20 @@ function FD:DataConvert_EntityToItem(tag)
     end
 end
 
-function FD:getTooltips()
+function FD:getTooltips(guiTable, mainFrame, justCreated)
+    if justCreated == true then
+        guiTable.vars.Gui_Title.caption = {"gui-description.RNS_FluidDrive_Title"}
+        local infoFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
+        infoFrame.style = Constants.Settings.RNS_Gui.frame_1
+        infoFrame.style.vertically_stretchable = true
+        infoFrame.style.minimal_width = 200
+        infoFrame.style.left_margin = 3
+        infoFrame.style.left_padding = 3
+        infoFrame.style.right_padding = 3
+        GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
+        --GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_FluidDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
+    end
+
+    local infoFrame = guiTable.vars.InformationFrame
+    GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_ItemDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
 end

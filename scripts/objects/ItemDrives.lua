@@ -18,14 +18,14 @@ function ID:new(object)
     mt.__index = ID
     t.thisEntity = object
     t.entID = object.unit_number
-    if object.name == Constants.Drives.ItemDrive1k.name then
-        t.maxStorage = Constants.Drives.ItemDrive1k.max_size
-    elseif object.name == Constants.Drives.ItemDrive4k.name then
-        t.maxStorage = Constants.Drives.ItemDrive4k.max_size
-    elseif object.name == Constants.Drives.ItemDrive16k.name then
-        t.maxStorage = Constants.Drives.ItemDrive16k.max_size
-    elseif object.name == Constants.Drives.ItemDrive64k.name then
-        t.maxStorage = Constants.Drives.ItemDrive64k.max_size
+    if object.name == Constants.Drives.ItemDrive.ItemDrive1k.name then
+        t.maxStorage = Constants.Drives.ItemDrive.ItemDrive1k.max_size
+    elseif object.name == Constants.Drives.ItemDrive.ItemDrive4k.name then
+        t.maxStorage = Constants.Drives.ItemDrive.ItemDrive4k.max_size
+    elseif object.name == Constants.Drives.ItemDrive.ItemDrive16k.name then
+        t.maxStorage = Constants.Drives.ItemDrive.ItemDrive16k.max_size
+    elseif object.name == Constants.Drives.ItemDrive.ItemDrive64k.name then
+        t.maxStorage = Constants.Drives.ItemDrive.ItemDrive64k.max_size
     end
     t.storage = {}
     t.cardinals = {
@@ -103,7 +103,7 @@ function ID:collect()
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and global.entityTable[ent.unit_number] ~= nil and ent.operable then
                 local obj = global.entityTable[ent.unit_number]
-                if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj.connectionDirection == area.direction then
+                if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction then
                     --Do nothing
                 else
                     table.insert(self.connectedObjs[area.direction], obj)
@@ -130,12 +130,55 @@ function ID:collect()
 end
 
 function ID:validate()
-    for n, c in pairs(self.storage) do
-        if n ~= nil and game.item_prototypes[n] == nil then
-            n = nil
-            c = 0
+    for n, _ in pairs(self.storage) do
+        if game.item_prototypes[n] == nil then
+            self.storage[n] = nil
         end
     end
+end
+
+function ID:has_item(name)
+    return self.storage[name] or 0
+end
+
+function ID:has_room(count)
+    if count ~= nil then
+        if self:getRemainingStorageSize() >= count then return true end
+    end
+    if self:getRemainingStorageSize() > 0 then return true end
+    return false
+end
+
+function ID:insert_item(name, count)
+    if not self:has_room() then return 0 end
+
+    local capable_amount = math.min(count, self:getRemainingStorageSize())
+
+    if capable_amount > 0 then
+        if self.storage[name] ~= nil then
+            self.storage[name] = self.storage[name] + capable_amount
+        else
+            self.storage[name] = capable_amount
+        end
+    end
+
+    return capable_amount
+end
+
+function ID:remove_item(name, count)
+    if self.storage[name] ~= nil then
+        local avalible_amount = math.min(count, self.storage[name])
+
+        self.storage[name] = self.storage[name] - avalible_amount
+
+        if self.storage[name] <= 0 then
+            self.storage[name] = nil
+        end
+
+        return avalible_amount
+    end
+
+    return 0
 end
 
 function ID:getStorageSize()
@@ -162,5 +205,19 @@ function ID:DataConvert_EntityToItem(tag)
     end
 end
 
-function ID:getTooltips()
+function ID:getTooltips(guiTable, mainFrame, justCreated)
+    if justCreated == true then
+        guiTable.vars.Gui_Title.caption = {"gui-description.RNS_ItemDrive_Title"}
+        local infoFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
+		infoFrame.style = Constants.Settings.RNS_Gui.frame_1
+		infoFrame.style.vertically_stretchable = true
+		infoFrame.style.minimal_width = 200
+		infoFrame.style.left_margin = 3
+		infoFrame.style.left_padding = 3
+		infoFrame.style.right_padding = 3
+		GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
+        --GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_ItemDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
+    end
+    local infoFrame = guiTable.vars.InformationFrame
+    GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_ItemDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
 end

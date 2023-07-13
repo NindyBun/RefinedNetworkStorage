@@ -99,6 +99,16 @@ function BaseNet.getOperableObjects(array)
     return objs
 end
 
+function BaseNet.filter(name, array)
+    local filtered = {}
+    for _, t in pairs(array) do
+        if t.thisEntity.name == name then
+            filtered[t.entID] = t
+        end
+    end
+    return filtered
+end
+
 --Get connected objects
 function BaseNet:getTotalObjects()
     return Util.getTableLength(BaseNet.getOperableObjects(self.ItemDriveTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.FluidDriveTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.ItemIOTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.FluidIOTable))

@@ -7,11 +7,11 @@ require("utils.Util")
 require("scripts.Events")
 require("scripts.Functions")
 require("scripts.updates")
-
+require("scripts.gui.Gui")
+require("scripts.gui.GuiApi")
 require("scripts.objects.NetworkBase")
 require("scripts.objects.NetworkController")
 require("scripts.objects.RNSPlayer")
---require("scripts.objects.NetworkLasers")
 require("scripts.objects.NetworkCables")
 require("scripts.objects.ItemIO")
 require("scripts.objects.FluidIO")
@@ -31,11 +31,11 @@ function onInit()
 
     for _, obj in pairs(global.objectTables) do
 		if obj.tableName and obj.tag then
-			--[[if _G[obj.tag].validate then
+			if _G[obj.tag].validate then
 				for _, entry in pairs(global[obj.tableName]) do
 					entry:validate()
 				end
-			end]]
+			end
 		end
 	end
 
@@ -58,22 +58,22 @@ end
 
 --When a player is created
 function initPlayer(event)
-    if safeCall(Event.initPlayer, event) == true then
+    if Util.safeCall(Event.initPlayer, event) == true then
 		if event.player_index ~= nil and game.players[event.player_index] ~= nil and game.players[event.player_index].name ~= nil then
-			game.print({"gui-description.initAPlayer_PlayerInitFailed", game.players[event.player_index].name})
+			game.print({"gui-description.RNS_initAPlayer_PlayerInitFailed", game.players[event.player_index].name})
 		else
-			game.print({"gui-description.initAPlayer_PlayerInitFailed", {"gui-description.Unknown"}})
+			game.print({"gui-description.RNS_initAPlayer_PlayerInitFailed", {"gui-description.RNS_Unknown"}})
 		end
 	end
 end
 
 function onTick(event)
-    safeCall(Event.tick, event)
+    Util.safeCall(Event.tick, event)
 end
 
 function pipette(event)
-	if safeCall(Event.pipette, event) == false then
-        game.print({"gui-description.pipette_failed"})
+	if Util.safeCall(Event.pipette, event) == false then
+        game.print({"gui-description.RNS_pipette_failed"})
         local entity = event.created_entity or event.entity or event.destination
         if entity ~= nil and entity.valid == true then
             entity.destroy()
@@ -82,8 +82,8 @@ function pipette(event)
 end
 
 function placed(event)
-    if safeCall(Event.placed, event) == false then
-        game.print({"gui-description.placed_failed"})
+    if Util.safeCall(Event.placed, event) == false then
+        game.print({"gui-description.RNS_placed_failed"})
         local entity = event.created_entity or event.entity or event.destination
         if entity ~= nil and entity.valid == true then
             entity.destroy()
@@ -92,19 +92,32 @@ function placed(event)
 end
 
 function rotated(event)
-    safeCall(Event.rotated, event)
+    Util.safeCall(Event.rotated, event)
 end
 function changed_selection(event)
-    safeCall(Event.changed_selection, event)
+    Util.safeCall(Event.changed_selection, event)
 end
 
 function removed(event)
-    safeCall(Event.removed, event)
+    Util.safeCall(Event.removed, event)
+end
+
+function onGuiOpened(event)
+    Util.safeCall(GUI.on_gui_opened, event)
+end
+
+function onGuiClosed(event)
+    Util.safeCall(GUI.on_gui_closed, event)
+end
+
+function onGuiClicked(event)
+    Util.safeCall(GUI.on_gui_clicked, event)
 end
 
 script.on_init(onInit)
 script.on_configuration_changed(onInit)
 script.on_load(onLoad)
+
 script.on_event(defines.events.on_cutscene_cancelled, initPlayer)
 script.on_event(defines.events.on_player_created, initPlayer)
 script.on_event(defines.events.on_player_joined_game, initPlayer)
@@ -117,11 +130,17 @@ script.on_event(defines.events.script_raised_revive, placed)
 script.on_event(defines.events.on_robot_built_entity, placed)
 script.on_event(defines.events.on_robot_built_tile, placed)
 
-script.on_event(defines.events.on_player_rotated_entity , rotated)
-script.on_event(defines.events.on_selected_entity_changed, changed_selection)
-
 script.on_event(defines.events.on_player_mined_entity, removed)
 script.on_event(defines.events.on_player_mined_tile, removed)
 script.on_event(defines.events.on_robot_mined_entity, removed)
 script.on_event(defines.events.on_robot_mined_tile, removed)
 script.on_event(defines.events.script_raised_destroy, removed)
+
+script.on_event(defines.events.on_player_rotated_entity , rotated)
+script.on_event(defines.events.on_selected_entity_changed, changed_selection)
+
+script.on_event(defines.events.on_gui_opened, onGuiOpened)
+script.on_event(defines.events.on_gui_closed, onGuiClosed)
+--script.on_event(defines.events.on_gui_elem_changed, onGuiElemChanged)
+--script.on_event(defines.events.on_gui_switch_state_changed, onGuiSwitchStateChanged)
+script.on_event(defines.events.on_gui_click, onGuiClicked)

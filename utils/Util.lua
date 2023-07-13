@@ -1,6 +1,6 @@
 Util = Util or {}
 
-function safeCall(fName, ...)
+function Util.safeCall(fName, ...)
 	-- Dont use pcall() if the game is in Instrument mode --
 	if game.active_mods["debugadapter"] then
 		fName(...)

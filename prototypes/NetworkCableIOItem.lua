@@ -24,6 +24,7 @@ ioE.type = "assembling-machine"
 ioE.name = Constants.NetworkCables.itemIO.itemEntity.name
 ioE.icon = Constants.NetworkCables.itemIO.itemEntity.itemIcon
 ioE.icon_size = 512
+ioE.max_health = 350
 ioE.flags = {"placeable-neutral", "player-creation"}
 ioE.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 ioE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
@@ -134,7 +135,8 @@ io.energy_source =
 {
     type = "electric",
     usage_priority = "secondary-input",
-    buffer_capacity = "1J",
+    buffer_capacity = "0J",
+	drain = "0J",
     render_no_power_icon = false,
     render_no_network_icon = false
 }

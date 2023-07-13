@@ -361,6 +361,8 @@ function IIO:getRealDirection()
     end
 end
 
-function IIO:getTooltips()
-
+function IIO:getTooltips(guiTable, mainFrame, justCreated)
+    if justCreated == true then
+        
+    end
 end

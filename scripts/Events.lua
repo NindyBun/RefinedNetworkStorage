@@ -9,6 +9,7 @@ end
 
 function Event.tick(event)
     UpdateSys.update(event)
+    GUI.update(event)
 end
 
 function Event.placed(event)
@@ -24,16 +25,20 @@ function Event.placed(event)
         local ply = entity.last_user
         local pos = entity.position
         local fr = entity.force
+        local health = entity.health
         entity.destroy()
         entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply}
+        entity.health = health
     elseif entName == Constants.NetworkController.itemEntity.name and type ~= "entity-ghost" then
         entName =  Constants.NetworkController.slateEntity.name
         local surf = entity.surface
         local ply = entity.last_user
         local pos = entity.position
         local fr = entity.force
+        local health = entity.health
         entity.destroy()
         entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply}
+        entity.health = health
     elseif entName == Constants.NetworkCables.itemIO.itemEntity.name and type ~= "entity-ghost" then
         entName = Constants.NetworkCables.itemIO.slateEntity.name
         local surf = entity.surface
@@ -41,8 +46,10 @@ function Event.placed(event)
         local pos = entity.position
         local fr = entity.force
         local dir = entity.direction
+        local health = entity.health
         entity.destroy()
         entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply, direction=dir}
+        entity.health = health
     elseif entName == Constants.NetworkCables.fluidIO.itemEntity.name and type ~= "entity-ghost" then
         entName = Constants.NetworkCables.fluidIO.slateEntity.name
         local surf = entity.surface
@@ -50,8 +57,10 @@ function Event.placed(event)
         local pos = entity.position
         local fr = entity.force
         local dir = entity.direction
+        local health = entity.health
         entity.destroy()
         entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply, direction=dir}
+        entity.health = health
     end
 
     local objInfo = global.objectTables[entName]
@@ -84,6 +93,11 @@ function Event.removed(event)
     local obj = global.entityTable[entity.unit_number]
     if obj == nil then return end
 
+    if event.buffer ~= nil and event.buffer[1] ~= nil then
+        local itemStack = event.buffer[1]
+        itemStack.health = entity.health/entity.prototype.max_health
+    end
+
     if obj.DataConvert_EntityToItem ~= nil and event.buffer ~= nil and event.buffer[1] ~= nil then
         obj:DataConvert_EntityToItem(event.buffer[1])
     end
@@ -115,4 +129,15 @@ end
 
 function Event.ghost(event)
 
+end
+
+function Event.clear_gui(event)
+    local player = getPlayer(event.player_index)
+    for _, gui in pairs(player.gui.screen.children) do
+		if gui ~= nil and gui.valid == true and gui.get_mod() == "RefinedNetworkStorage" then
+			gui.destroy()
+		end
+	end
+    getRNSPlayer(event.player_index).GUI = nil
+    player.opened = nil
 end

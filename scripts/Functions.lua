@@ -4,14 +4,14 @@ function createObjectTables()
     addOrCreateObjectTable{tableName="PlayerTable", tag="RNSP", objName="RNSPlayer"}
     addOrCreateObjectTable{tableName="NetworkControllerTable", tag="NC", objName=Constants.NetworkController.slateEntity.name}
 --    addOrCreateObjectTable{tableName="NetworkInventoryInterfaceTable", tag="NII", objName=Constants.NetworkInventoryInterface.name}
-    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive1k.name}
-    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive4k.name}
-    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive16k.name}
-    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive64k.name}
-    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive4k.name}
-    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive16k.name}
-    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive64k.name}
-    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive256k.name}
+    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive1k.name}
+    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive4k.name}
+    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive16k.name}
+    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive64k.name}
+    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive4k.name}
+    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive16k.name}
+    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive64k.name}
+    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive256k.name}
     addOrCreateObjectTable{tableName="ItemIOTable", tag="IIO", objName=Constants.NetworkCables.itemIO.slateEntity.name}
     addOrCreateObjectTable{tableName="FluidIOTable", tag="FIO", objName=Constants.NetworkCables.fluidIO.slateEntity.name}
 --    addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLI.name}
@@ -35,7 +35,7 @@ function addOrCreateObjectTable(table)
     if table.tableName ~= nil and global[table.tableName] == nil then global[table.tableName] = {} end
 end
 
-function getNextAvailableNetworkID()
+--[[function getNextAvailableNetworkID()
     if global.networkID == nil then global.networkID = {{id=0, used=false}} end
     for _, index in pairs(global.networkID) do
         if not index.used then
@@ -46,7 +46,7 @@ function getNextAvailableNetworkID()
     local id = #global.networkID
     table.insert(global.networkID, {id=id, used=true})
     return id
-end
+end]]
 
 function valid(obj)
     if obj == nil then return false end

@@ -87,7 +87,7 @@ function NC:update()
     --Can check if energy*60 >= buffer then NC is stable
     --1 Joule converts to 60 Watts? How strange
     self.thisEntity.power_usage = powerDraw --Takes Joules as a param
-    self.thisEntity.electric_buffer_size = math.max(powerDraw*300, 1) --Takes Joules as a param
+    self.thisEntity.electric_buffer_size = math.max(powerDraw*300, 300) --Takes Joules as a param
     
     if self.thisEntity.energy >= powerDraw and self.thisEntity.energy ~= 0 then
         self:setActive(true)
@@ -143,7 +143,7 @@ function NC:collect()
             if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and ent.operable then
                 if global.entityTable[ent.unit_number] ~= nil then
                     local obj = global.entityTable[ent.unit_number]
-                    if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj.connectionDirection == area.direction then
+                    if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction then
                         --Do nothing
                     else
                         table.insert(self.connectedObjs[area.direction], obj)
@@ -155,6 +155,72 @@ function NC:collect()
 end
 
 --Tooltips
-function NC:getTooltips(GUI)
-    
+function NC:getTooltips(guiTable, mainFrame, justCreated)
+    if justCreated == true then
+        guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkController_Title"}
+        mainFrame.style.height = 450
+
+        local infoFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
+		infoFrame.style = Constants.Settings.RNS_Gui.frame_1
+		infoFrame.style.vertically_stretchable = true
+		infoFrame.style.minimal_width = 200
+		infoFrame.style.left_margin = 3
+		infoFrame.style.left_padding = 3
+		infoFrame.style.right_padding = 3
+
+        GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
+        --GuiApi.add_label(guiTable, "EnergyUsage", infoFrame, {"gui-description.RNS_NetworkController_EnergyUsage", self.thisEntity.power_usage}, Constants.Settings.RNS_Gui.orange, nil, true)
+        --GuiApi.add_label(guiTable, "EnergyBuffer", infoFrame, {"gui-description.RNS_NetworkController_EnergyBuffer", self.thisEntity.electric_buffer_size}, Constants.Settings.RNS_Gui.orange, nil, true)
+        
+        local connectedStructuresFrame = GuiApi.add_frame(guiTable, "", mainFrame, "vertical")
+		connectedStructuresFrame.style = Constants.Settings.RNS_Gui.frame_1
+		connectedStructuresFrame.style.vertically_stretchable = true
+		connectedStructuresFrame.style.minimal_width = 350
+		connectedStructuresFrame.style.left_margin = 3
+		connectedStructuresFrame.style.left_padding = 3
+		connectedStructuresFrame.style.right_padding = 3
+
+        GuiApi.add_subtitle(guiTable, "", connectedStructuresFrame, {"gui-description.RNS_NetworkController_Connections"})
+
+        local connectedStructuresSP = GuiApi.add_scroll_pane(guiTable, "", connectedStructuresFrame, nil, false)
+		connectedStructuresSP.style.vertically_stretchable = true
+		connectedStructuresSP.style.bottom_margin = 3
+
+        GuiApi.add_table(guiTable, "ConnectedStructuresTable", connectedStructuresSP, 2, true)
+    end
+
+    local infoFrame = guiTable.vars.InformationFrame
+    GuiApi.add_label(guiTable, "Status", infoFrame, {"gui-description.RNS_NetworkController_Status", self.stable and "Active" or "Inactive"}, Constants.Settings.RNS_Gui.orange, nil, true)
+    GuiApi.add_label(guiTable, "Energy", infoFrame, {"gui-description.RNS_NetworkController_EnergyUsage", self.thisEntity.power_usage}, Constants.Settings.RNS_Gui.orange, nil, true)
+    GuiApi.add_progress_bar(guiTable, "EnergyBar", infoFrame, "", self.thisEntity.energy .. "/" .. self.thisEntity.electric_buffer_size, true, nil, self.thisEntity.energy/self.thisEntity.electric_buffer_size, 200, 25)
+        
+    local ConnectedStructuresTable = guiTable.vars.ConnectedStructuresTable
+    ConnectedStructuresTable.clear()
+
+    for _, t in pairs(Constants.Drives.ItemDrive) do
+        local name = t.name
+        local count = Util.getTableLength(self.network.getOperableObjects(self.network.filter(name, self.network.ItemDriveTable)))
+        if count > 0 then
+            GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, name, count, 64, Constants.Settings.RNS_Gui.label_font_2)
+        end
+    end
+
+    for _, t in pairs(Constants.Drives.FluidDrive) do
+        local name = t.name
+        local count = Util.getTableLength(self.network.getOperableObjects(self.network.filter(name, self.network.FluidDriveTable)))
+        if count > 0 then
+            GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, name, count, 64, Constants.Settings.RNS_Gui.label_font_2)
+        end
+    end
+
+    local itemIOcount = Util.getTableLength(self.network.getOperableObjects(self.network.filter(Constants.NetworkCables.itemIO.slateEntity.name, self.network.ItemIOTable)))
+    if itemIOcount > 0 then
+        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.itemIO.itemEntity.name, itemIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
+    end
+
+    local fluidIOcount = Util.getTableLength(self.network.getOperableObjects(self.network.filter(Constants.NetworkCables.fluidIO.slateEntity.name, self.network.FluidIOTable)))
+    if fluidIOcount > 0 then
+        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.fluidIO.itemEntity.name, fluidIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
+    end
+
 end

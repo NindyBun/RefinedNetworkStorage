@@ -24,6 +24,7 @@ ioE.type = "assembling-machine"
 ioE.name = Constants.NetworkCables.fluidIO.itemEntity.name
 ioE.icon = Constants.NetworkCables.fluidIO.itemEntity.itemIcon
 ioE.icon_size = 512
+ioE.max_health = 350
 ioE.flags = {"placeable-neutral", "player-creation"}
 ioE.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 ioE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
