@@ -56,6 +56,6 @@ function RNSP:valid()
 end
 
 --Tooltips
-function RNSP:getTooltips(GUI)
+function RNSP:getTooltips(guiTable, mainFrame, justCreated)
     
 end

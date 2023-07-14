@@ -238,9 +238,9 @@ function IIO:IO()
             repeat
                 local a = 0
                 if self.io == "input" then
-                    foc.remove_item(Util.next(self.filters))
+                    a = foc.remove_item(Util.next(self.filters))
                 elseif self.io == "output" then
-                    foc.insert(Util.next(self.filters))
+                    a = foc.insert(Util.next(self.filters))
                 end
             until a ~= 0 or ind == self.filters.index
             return

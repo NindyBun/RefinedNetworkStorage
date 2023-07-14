@@ -60,3 +60,46 @@ function Util.getTableLength(array)
 	end
 	return count
 end
+
+function Util.tagEquals(tag1, tag2)
+	for n, o in pairs(tag1) do
+		if tag2[n] ~= nil then
+			if type(tag2[n]) ~= "table" then
+				if o ~= tag2[n] then return false end
+			else
+				if not Util.tagEquals(o, tag2[n]) then return false end
+			end
+		else
+			return false
+		end
+	end
+	return true
+end
+
+function Util.tagMatches(itemstack1, itemstack2)
+	if itemstack1.count <= 0 and itemstack2.count <= 0 then
+		return true
+	elseif itemstack1.count > 0 and itemstack2.count > 0 then
+		if Util.getTableLength(itemstack1.tags) ~= Util.getTableLength(itemstack2.tags) then
+			return false
+		else
+			return Util.tagEquals(itemstack1.tags, itemstack2.tags)
+		end
+	else
+		return false
+	end
+end
+
+function Util.dataMatches(itemstack1, itemstack2)
+	if itemstack1.health ~= itemstack2.health then return false end
+	if itemstack1.count ~= itemstack2.count then return false end
+	return true
+end
+
+function Util.itemstack_equals(itemstack1, itemstack2, limitTags)
+	if itemstack1.count <= 0 then
+		return itemstack2.count <= 0
+	else
+		return itemstack2.count > 0 and itemstack1.prototype == itemstack2.prototype and (limitTags and {Util.dataMatches(itemstack1, itemstack2)} or {Util.tagMatches(itemstack1, itemstack2)})[1]
+	end
+end
