@@ -105,6 +105,20 @@ Constants.NetworkCables = {
             entityS =  "__RefinedNetworkStorage__/graphics/Cables/IO/IOSheet_S.png"
         }
     },
+    externalIO = {
+        itemEntity = {
+            name = "RNS_NetworkCableIOExternal_Item",
+            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/IO/ExternalIO.png",
+            entityE =  "__RefinedNetworkStorage__/graphics/Cables/IO/ExternalIOSheet.png",
+            entityS =  "__RefinedNetworkStorage__/graphics/Cables/IO/IOSheet_S.png"
+        },
+        slateEntity = {
+            name = "RNS_NetworkCableIOExternal",
+            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/IO/ExternalIO.png",
+            entityE =  "__RefinedNetworkStorage__/graphics/Cables/IO/ExternalIOSheet_E.png",
+            entityS =  "__RefinedNetworkStorage__/graphics/Cables/IO/IOSheet_S.png"
+        }
+    },
     Cable = {
         item = {
             name = "RNS_NetworkCable_I",
