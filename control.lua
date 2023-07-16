@@ -18,6 +18,7 @@ require("scripts.objects.FluidIO")
 require("scripts.objects.ExternalIO")
 require("scripts.objects.ItemDrives")
 require("scripts.objects.FluidDrives")
+require("scripts.objects.NetworkInventoryInterface")
 
 --When the mod is added in a save
 function onInit()

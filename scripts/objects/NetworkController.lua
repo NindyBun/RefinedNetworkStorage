@@ -213,14 +213,24 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         end
     end
 
-    local itemIOcount = Util.getTableLength(self.network.getOperableObjects(self.network.filter(Constants.NetworkCables.itemIO.slateEntity.name, self.network.ItemIOTable)))
+    local itemIOcount = Util.getTableLength(self.network.getOperableObjects(self.network.ItemIOTable))
     if itemIOcount > 0 then
         GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.itemIO.itemEntity.name, itemIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
-    local fluidIOcount = Util.getTableLength(self.network.getOperableObjects(self.network.filter(Constants.NetworkCables.fluidIO.slateEntity.name, self.network.FluidIOTable)))
+    local fluidIOcount = Util.getTableLength(self.network.getOperableObjects(self.network.FluidIOTable))
     if fluidIOcount > 0 then
         GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.fluidIO.itemEntity.name, fluidIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
+    end
+
+    local externalIOcount = Util.getTableLength(self.network.getOperableObjects(self.network.ExternalIOcount))
+    if externalIOcount > 0 then
+        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.externalIO.itemEntity.name, fluidIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
+    end
+
+    local interfacecount = Util.getTableLength(self.network.getOperableObjects(self.network.NetworkInventoryInterfaceTable))
+    if interfacecount > 0 then
+        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkInventoryInterface.name, fluidIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
 end
