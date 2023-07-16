@@ -70,6 +70,9 @@ function EIO:update()
         self:remove()
         return
     end
+    if valid(self.networkController) == false then
+        self.networkController = nil
+    end
     if self.thisEntity.to_be_deconstructed() == true then return end
     self:createArms()
 end

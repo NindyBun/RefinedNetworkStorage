@@ -73,6 +73,9 @@ function IIO:update()
         self:remove()
         return
     end
+    if valid(self.networkController) == false then
+        self.networkController = nil
+    end
     if self.thisEntity.to_be_deconstructed() == true then return end
     self:createArms()
     --local tick = game.tick % (120/Constants.Settings.RNS_BaseItemIO_Speed) --based on belt speed

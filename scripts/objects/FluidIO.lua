@@ -67,6 +67,9 @@ function FIO:update()
         self:remove()
         return
     end
+    if valid(self.networkController) == false then
+        self.networkController = nil
+    end
     if self.thisEntity.to_be_deconstructed() == true then return end
     self:createArms()
     if game.tick % 1 == 0 then self:IO() end
