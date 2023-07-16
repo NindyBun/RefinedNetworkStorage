@@ -6,6 +6,7 @@ BaseNet = {
     ItemIOTable = nil,
     FluidIOTable = nil,
     ExternalIOTable = nil,
+    NetworkInventoryInterfaceTable = nil,
     shouldRefresh = false,
     updateTick = 200,
     lastUpdate = 0
@@ -44,6 +45,7 @@ function BaseNet:resetTables()
     self.ItemIOTable = {}
     self.FluidIOTable = {}
     self.ExternalIOTable = {}
+    self.NetworkInventoryInterfaceTable = {}
 end
 
 --Refreshes laser connections
@@ -117,5 +119,5 @@ end
 function BaseNet:getTotalObjects()
     return  Util.getTableLength(BaseNet.getOperableObjects(self.ItemDriveTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.FluidDriveTable)) 
             + Util.getTableLength(BaseNet.getOperableObjects(self.ItemIOTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.FluidIOTable))
-            + Util.getTableLength(BaseNet.getOperableObjects(self.ExternalIOTable))
+            + Util.getTableLength(BaseNet.getOperableObjects(self.ExternalIOTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.NetworkInventoryInterfaceTable))
 end
