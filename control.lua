@@ -15,6 +15,7 @@ require("scripts.objects.RNSPlayer")
 require("scripts.objects.NetworkCables")
 require("scripts.objects.ItemIO")
 require("scripts.objects.FluidIO")
+require("scripts.objects.ExternalIO")
 require("scripts.objects.ItemDrives")
 require("scripts.objects.FluidDrives")
 
@@ -31,10 +32,12 @@ function onInit()
 
     for _, obj in pairs(global.objectTables) do
 		if obj.tableName and obj.tag then
-			if _G[obj.tag].validate then
-				for _, entry in pairs(global[obj.tableName]) do
-					entry:validate()
-				end
+			if _G[obj.tag] ~= nil then
+                if _G[obj.tag].validate then
+                    for _, entry in pairs(global[obj.tableName]) do
+                        entry:validate()
+                    end
+                end
 			end
 		end
 	end

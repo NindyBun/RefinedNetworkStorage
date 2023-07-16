@@ -14,6 +14,7 @@ function createObjectTables()
     addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive256k.name}
     addOrCreateObjectTable{tableName="ItemIOTable", tag="IIO", objName=Constants.NetworkCables.itemIO.slateEntity.name}
     addOrCreateObjectTable{tableName="FluidIOTable", tag="FIO", objName=Constants.NetworkCables.fluidIO.slateEntity.name}
+    addOrCreateObjectTable{tableName="ExternalIOTable", tag="EIO", objName=Constants.NetworkCables.externalIO.slateEntity.name}
 --    addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLI.name}
 --    addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLS.name}
 --    addOrCreateObjectTable{tableName="NetworkLaserTable", tag="NL", objName=Constants.NetworkLasers.NLT.name}

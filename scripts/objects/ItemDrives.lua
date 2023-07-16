@@ -130,11 +130,7 @@ function ID:collect()
 end
 
 function ID:validate()
-    for n, _ in pairs(self.storage) do
-        if game.item_prototypes[n] == nil then
-            self.storage[n] = nil
-        end
-    end
+
 end
 
 function ID:has_item(name)

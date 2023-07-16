@@ -5,6 +5,7 @@ BaseNet = {
     FluidDriveTable = nil,
     ItemIOTable = nil,
     FluidIOTable = nil,
+    ExternalIOTable = nil,
     shouldRefresh = false,
     updateTick = 200,
     lastUpdate = 0
@@ -42,6 +43,7 @@ function BaseNet:resetTables()
     self.FluidDriveTable = {}
     self.ItemIOTable = {}
     self.FluidIOTable = {}
+    self.ExternalIOTable = {}
 end
 
 --Refreshes laser connections
@@ -78,6 +80,8 @@ function addConnectables(source, connections, master)
                 master.network.ItemIOTable[con.entID] = con
             elseif con.thisEntity.name == Constants.NetworkCables.fluidIO.slateEntity.name then
                 master.network.FluidIOTable[con.entID] = con
+            elseif con.thisEntity.name == Constants.NetworkCables.externalIO.slateEntity.name then
+                master.network.ExternalIOTable[con.entID] = con
             end
             addConnectables(con, connections, master)
             ::continue::
@@ -111,5 +115,7 @@ end
 
 --Get connected objects
 function BaseNet:getTotalObjects()
-    return Util.getTableLength(BaseNet.getOperableObjects(self.ItemDriveTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.FluidDriveTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.ItemIOTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.FluidIOTable))
+    return  Util.getTableLength(BaseNet.getOperableObjects(self.ItemDriveTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.FluidDriveTable)) 
+            + Util.getTableLength(BaseNet.getOperableObjects(self.ItemIOTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.FluidIOTable))
+            + Util.getTableLength(BaseNet.getOperableObjects(self.ExternalIOTable))
 end

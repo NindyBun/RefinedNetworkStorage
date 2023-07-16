@@ -152,3 +152,29 @@ io.fluid_boxes = {
     }
 }
 data:extend{io}
+
+local sprite1 = {}
+sprite1.type = "sprite"
+sprite1.name = Constants.Icons.storage.name
+sprite1.layers = {
+    {
+        filename = Constants.Icons.storage.sprite,
+        priority = "high",
+        size = 48,
+        scale = 24/48
+    }
+}
+data:extend{sprite1}
+
+local sprite2 = {}
+sprite2.type = "sprite"
+sprite2.name = Constants.Icons.storage_bothways.name
+sprite2.layers = {
+    {
+        filename = Constants.Icons.storage_bothways.sprite,
+        priority = "high",
+        size = 48,
+        scale = 24/48
+    }
+}
+data:extend{sprite2}

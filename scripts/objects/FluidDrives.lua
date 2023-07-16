@@ -130,12 +130,7 @@ function FD:collect()
 end
 
 function FD:validate()
-    for n, c in pairs(self.storage) do
-        if n ~= nil and game.fluid_prototypes[n] == nil then
-            n = nil
-            c = nil
-        end
-    end
+
 end
 
 function FD:getStorageSize()
