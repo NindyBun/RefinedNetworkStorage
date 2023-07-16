@@ -222,3 +222,12 @@ function GuiApi.add_progress_bar(guiTable, name, gui, text, tooltip, save, color
     end
     return progressBar
 end
+
+function GuiApi.add_text_field(guiTable, name, gui, text, tooltip, save, numeric, allowDecimal, allowNegative, isPassword, tags)
+    if name ~= nil and name ~= "" and guiTable.vars[name] ~= nil then guiTable.vars[name].destroy() end
+    local textField = gui.add{type="textfield", name=name, text=text, tooltip=tooltip, numeric=numeric or false, allow_decimal=allowDecimal or false, allow_negative=allowNegative or false, is_password=isPassword or false, tags=tags}
+    if guiTable ~= nil and save == true then
+        guiTable.vars[name] = textField
+    end
+    return textField
+end
