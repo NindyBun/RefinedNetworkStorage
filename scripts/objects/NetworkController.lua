@@ -223,14 +223,14 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.fluidIO.itemEntity.name, fluidIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
-    local externalIOcount = Util.getTableLength(self.network.getOperableObjects(self.network.ExternalIOcount))
+    local externalIOcount = Util.getTableLength(self.network.getOperableObjects(self.network.ExternalIOTable))
     if externalIOcount > 0 then
-        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.externalIO.itemEntity.name, fluidIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.externalIO.itemEntity.name, externalIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local interfacecount = Util.getTableLength(self.network.getOperableObjects(self.network.NetworkInventoryInterfaceTable))
     if interfacecount > 0 then
-        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkInventoryInterface.name, fluidIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkInventoryInterface.name, interfacecount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
 end

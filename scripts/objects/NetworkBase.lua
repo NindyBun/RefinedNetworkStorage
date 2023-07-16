@@ -84,6 +84,8 @@ function addConnectables(source, connections, master)
                 master.network.FluidIOTable[con.entID] = con
             elseif con.thisEntity.name == Constants.NetworkCables.externalIO.slateEntity.name then
                 master.network.ExternalIOTable[con.entID] = con
+            elseif con.thisEntity.name == Constants.NetworkInventoryInterface.name then
+                master.network.NetworkInventoryInterfaceTable[con.entID] = con
             end
             addConnectables(con, connections, master)
             ::continue::
