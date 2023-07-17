@@ -60,7 +60,8 @@ Constants.Settings = {
         frame_1 = "RNS_Frame_1",
         title_font = "TitleFont",
         label_font = "LabelFont",
-        label_font_2 = "LabelFont2"
+        label_font_2 = "LabelFont2",
+        scroll_pane = "Scroll_Pane"
     }
 }
 Constants.ItemGroup = {

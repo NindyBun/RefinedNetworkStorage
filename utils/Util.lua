@@ -103,3 +103,35 @@ function Util.itemstack_equals(itemstack1, itemstack2, limitTags)
 		return itemstack2.count > 0 and itemstack1.prototype == itemstack2.prototype and (limitTags and {Util.dataMatches(itemstack1, itemstack2)} or {Util.tagMatches(itemstack1, itemstack2)})[1]
 	end
 end
+
+function Util.get_item_name(itemName)
+	if game.item_prototypes[itemName] ~= nil then
+		return game.item_prototypes[itemName].localised_name
+	end
+end
+
+function Util.toRNumber(number)
+	if number == nil then return 0 end
+	local rNumber = number
+	local rSuffix = "";
+	if number >= 1000000000 then
+		rNumber = number/1000000000
+		rSuffix = " G"
+	elseif number >= 1000000 then
+		rNumber = number/1000000
+		rSuffix = " M"
+	elseif number >= 1000 then
+		rNumber = number/1000 
+		rSuffix = " k"
+	end
+
+	return string.format("%.2f", rNumber):gsub("%.0+$", "") .. rSuffix
+end
+
+function Util.copy_table(t1)
+	local t2 = {}
+	for k, j in pairs(t1 or {}) do
+		t2[k] = j
+	end
+	return t2
+end

@@ -95,7 +95,7 @@ end
 function GuiApi.add_button(guiTable, name, gui, sprite, hoverSprite, clickedSprite, tooltip, size, save, visible, count, style, tags)
     if visible == false then return end
     if name ~= nil and name ~= "" and guiTable.vars[name] ~= nil then guiTable.vars[name].destroy() end
-    local button = gui.add{type="sprite-button", name=name, sprite=sprite, hovered_sprite=hoverSprite, clicked_sprite=clickedSprite, resize_to_sprite=false, tooltip=tooltip, number=count, tags=tags}
+    local button = gui.add{type="sprite-button", name=name, sprite=sprite, hovered_sprite=hoverSprite, clicked_sprite=clickedSprite, resize_to_sprite=false, tooltip=tooltip, number=count, tags=tags, caption=caption}
     if style ~= nil then button.style = style end
     button.style.minimal_width = size
     button.style.maximal_width = size

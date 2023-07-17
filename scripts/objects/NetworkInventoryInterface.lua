@@ -211,26 +211,103 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText6"}, Constants.Settings.RNS_Gui.white)
     end
 
-    -- Get the Scroll Pane and the Text Field --
 	local inventoryScrollPane = guiTable.vars.InventoryScrollPane
 	local playerInventoryScrollPane = guiTable.vars.PlayerInventoryScrollPane
 	local textField = guiTable.vars.RNS_SearchTextField
 
-	-- Clear the Scroll Panes --
 	inventoryScrollPane.clear()
 	playerInventoryScrollPane.clear()
 
-    if self.networkController == nil and not self.networkController.stable then return end
+    if self.networkController == nil or not self.networkController.stable then return end
 
-	-- Create the Data Network Inventory --
-	self:createNetworkInventory(guiTable, inventoryScrollPane, textField.text)
+	--self:createNetworkInventory(guiTable, inventoryScrollPane, textField.text)
 
-	-- Create the Player Inventory --
 	self:createPlayerInventory(guiTable, RNSPlayer, playerInventoryScrollPane, textField.text)
 
-	-- Update the Network Capacity Label --
-	--local inv = self.dataNetwork.invObj
-	--guiTable.vars.DNCapacityLabel.caption = {"" , {"gui-description.NENetworkCapacity"}, " [color=yellow]", Util.toRNumber(inv.usedCapacity), "/", Util.toRNumber(inv.maxCapacity), "[/color]"}
-	--guiTable.vars.DNCapacityLabel.tooltip = "[color=yellow]" .. inv.usedCapacity .. "/" .. inv.maxCapacity .. "[/color]"
+end
+
+function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
+	local tableList = GuiApi.add_table(guiTable, "", scrollPane, 8)
+
+	for name, count in pairs(RNSPlayer.thisEntity.get_main_inventory().get_contents()) do
+		if count == nil or count == 0 then goto continue end
+
+		if guiTable.vars.tmpLocal ~= nil and Util.get_item_name(name)[1] ~= nil then
+			local locName = guiTable.vars.tmpLocal[Util.get_item_name(name)[1]]
+			if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
+		end
+
+		local buttonText = {"", "[color=blue]", Util.get_item_name(name), "[/color]\n[color=yellow]", Util.toRNumber(count), "[/color]"}
+		GuiApi.add_button(guiTable, "RNS_PInv" .. name, tableList, "item/" .. name, "item/" .. name, "item/" .. name, buttonText, 37, false, true, count, "shortcut_bar_button_blue", {ID=self.entID, name=name})
+		
+		::continue::
+	end
+end
+
+function NII:createNetworkInventory(GUITable, inventoryScrollPane, searchText)
+
+	-- Get the Mobile Factory --
+	local MF = self.MF
+
+	-- Create the Table --
+	local tableList = GAPI.addTable(GUITable, "", inventoryScrollPane, 8)
+
+	-- Look for all Deep Tanks --
+	for _, DT in pairs(MF.dataNetwork.DTKTable) do
+		
+		-- Check the Deep Tank --
+		if DT.ent == nil or DT.ent.valid == false or DT.inventoryFluid == nil or DT.inventoryCount == nil or DT.inventoryCount == 0 then goto continue end
+
+		-- Check the Search Text --
+		if GUITable.vars.tmpLocal ~= nil and Util.getLocFluidName(DT.inventoryFluid)[1] ~= nil then
+			local locName = GUITable.vars.tmpLocal[Util.getLocFluidName(DT.inventoryFluid)[1]]
+			if searchText ~= nil and searchText ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(searchText)) == nil then goto continue end
+		end
+
+		-- Create the Button --
+		local buttonText = {"", "[color=purple]", Util.getLocFluidName(DT.inventoryFluid), "[/color]\n[color=yellow]", Util.toRNumber(DT.inventoryCount), "[/color]"}
+		local button = GAPI.addButton(GUITable, "N.E.DTK," .. DT.ent.unit_number, tableList, "fluid/" .. DT.inventoryFluid, "fluid/" .. DT.inventoryFluid, buttonText, 37, false, true, DT.inventoryCount, "MF_Button_Purple")
+
+		::continue::
+
+	end
+
+	-- Look for all Deep Storages --
+	for _, DSR in pairs(MF.dataNetwork.DSRTable) do
+		-- Check the Deep Storage --
+		if DSR.ent == nil or DSR.ent.valid == false or DSR.inventoryItem == nil or DSR.inventoryCount == nil or DSR.inventoryCount == 0 then goto continue end
+
+		-- Check the Search Text --
+		if GUITable.vars.tmpLocal ~= nil and Util.getLocItemName(DSR.inventoryItem)[1] ~= nil then
+			local locName = GUITable.vars.tmpLocal[Util.getLocItemName(DSR.inventoryItem)[1]]
+			if searchText ~= nil and searchText ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(searchText)) == nil then goto continue end
+		end
+
+		-- Create the Button --
+		local buttonText = {"", "[color=green]", Util.getLocItemName(DSR.inventoryItem), "[/color]\n[color=yellow]", Util.toRNumber(DSR.inventoryCount), "[/color]"}
+		local button = GAPI.addButton(GUITable, "N.E.DSR" .. DSR.ent.unit_number, tableList, "item/" .. DSR.inventoryItem, "item/" .. DSR.inventoryItem, buttonText, 37, false, true, DSR.inventoryCount, "shortcut_bar_button_green", {ID=DSR.ent.unit_number})
+
+		::continue::
+	end
+
+	-- Look for all Data Network Inventory Items --
+	for name, count in pairs(MF.II.inventory) do
+		
+		-- Check the Item --
+		if count == nil or count == 0 then goto continue end
+
+		-- Check the Search Text --
+		if GUITable.vars.tmpLocal ~= nil and Util.getLocItemName(name)[1] ~= nil then
+			local locName = GUITable.vars.tmpLocal[Util.getLocItemName(name)[1]]
+			if searchText ~= nil and searchText ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(searchText)) == nil then goto continue end
+		end
+
+		-- Create the Button --
+		local buttonText = {"", "[color=blue]", Util.getLocItemName(name), "[/color]\n[color=yellow]", Util.toRNumber(count), "[/color]"}
+		local button = GAPI.addButton(GUITable, "N.E.Inv" .. name, tableList, "item/" .. name, "item/" .. name, buttonText, 37, false, true, count, "shortcut_bar_button_blue", {ID=self.entID, name=name})
+		
+		::continue::
+
+	end
 
 end
