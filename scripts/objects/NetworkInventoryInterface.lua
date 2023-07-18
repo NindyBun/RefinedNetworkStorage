@@ -238,7 +238,7 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 		end
 
 		local buttonText = {"", "[color=blue]", Util.get_item_name(name), "[/color]\n[color=yellow]", Util.toRNumber(count), "[/color]"}
-		GuiApi.add_button(guiTable, "RNS_PInv" .. name, tableList, "item/" .. name, "item/" .. name, "item/" .. name, buttonText, 37, false, true, count, "shortcut_bar_button_blue", {ID=self.entID, name=name})
+		GuiApi.add_button(guiTable, "RNS_PInv" .. name, tableList, "item/" .. name, "item/" .. name, "item/" .. name, buttonText, 37, false, true, count, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=name})
 		
 		::continue::
 	end

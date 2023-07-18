@@ -126,7 +126,28 @@ data.raw["gui-style"].default[Constants.Settings.RNS_Gui.scroll_pane] =
 	  }
 }
 
-data.raw["gui-style"].default.RNS_Fake_Button_Blue =
+data.raw["gui-style"].default[Constants.Settings.RNS_Gui.button_1] =
+{
+	type = "button_style",
+	parent = "shortcut_bar_button",
+	default_graphical_set =
+	{
+		base = {position={312, 744}, corner_size=8, tint={1, 1, 1}},
+		shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
+	},
+	hovered_graphical_set =
+	{
+		base = {position={312, 744}, corner_size=8, tint={255, 174, 0}},
+		shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
+	},
+	clicked_graphical_set =
+	{
+		base = {position={312, 744}, corner_size=8, tint={255, 174, 0}},
+		shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
+	}
+}
+
+--[[data.raw["gui-style"].default.RNS_Fake_Button_Blue =
 {
 	type = "button_style",
 	parent = "shortcut_bar_button",
@@ -208,4 +229,4 @@ data.raw["gui-style"].default.RNS_Fake_Button_Purple =
 		base = {position = {346, 759}, corner_size = 8, tint=purpleTint},
 		shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
 	}
-}
+}]]

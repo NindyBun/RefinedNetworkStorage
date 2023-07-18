@@ -55,6 +55,18 @@ function RNSP:valid()
     return true
 end
 
+function RNSP:get_inventory()
+    local contents = {}
+    local inv = self.thisEntity.get_main_inventory()
+    for i = 1, #inv do
+        local itemstack = inv[i]
+        if itemstack.count <= 0 then goto continue end
+        Util.add_or_merge(itemstack, contents)
+        ::continue::
+    end
+    return contents
+end
+
 --Tooltips
 function RNSP:getTooltips(guiTable, mainFrame, justCreated)
     
