@@ -92,7 +92,6 @@ end
 
 function Util.dataMatches(itemstack1, itemstack2)
 	if itemstack1.health ~= itemstack2.health then return false end
-	if itemstack1.count ~= itemstack2.count then return false end
 	return true
 end
 
@@ -128,10 +127,58 @@ function Util.toRNumber(number)
 	return string.format("%.2f", rNumber):gsub("%.0+$", "") .. rSuffix
 end
 
-function Util.copy_table(t1)
-	local t2 = {}
-	for k, j in pairs(t1 or {}) do
-		t2[k] = j
+function Util.add_or_merge(itemstack, list)
+	local found = false
+
+	local n = itemstack.name
+	local p = itemstack.prototype
+	local h = itemstack.health
+	local c = itemstack.count
+	local d = itemstack.is_repair_tool and itemstack.durability or nil
+	local t = itemstack.is_item_with_tags and itemstack.tags or {}
+	local a = p.type == "ammo" and itemstack.ammo or nil
+
+	if Util.getTableLength(list) == 0 then
+		table.insert(list, {id=itemstack.item_number or nil, cont={name=n, count=c, health=h, ammo=a, durability=d, tags=t}})
+		return
 	end
-	return t2
+
+	for i = 1, Util.getTableLength(list) do
+		local l = list[i]
+
+		if game.item_prototypes[l.cont.name] ~= p then goto continue end
+		if Util.getTableLength(t) ~= 0 and Util.getTableLength(l.cont.tags) ~= 0 and Util.tagMatches(l.cont, itemstack) then
+			l.cont.count = l.cont.count + c
+			l.cont.health = (l.cont.health + h)/2
+			found = true
+			goto continue
+		end
+		if d ~= nil and l.cont.durability ~= nil then
+			local d_temp = (l.cont.durability + d)
+			l.cont.count = l.cont.count + math.ceil(d_temp / p.durability)
+			l.cont.durability = math.min(d_temp, p.durability)
+			found = true
+			goto continue
+		end
+		if a ~= nil and l.cont.ammo ~= nil then
+			local a_temp = (l.ammo + a)
+			l.cont.count = l.cont.count + math.ceil(a_temp / p.ammo)
+			l.cont.ammo = math.min(a_temp, p.ammo)
+			found = true
+			goto continue
+		end
+		if l.cont.health == h and not itemstack.is_item_with_tags then
+			l.cont.count = l.cont.count + c
+			l.cont.health = (l.cont.health + h)/2
+			found = true
+			goto continue
+		end
+		
+		::continue::
+	end
+
+	if not found then
+		table.insert(list, {id=itemstack.item_number or nil, cont={name=n, count=c, health=h, ammo=a, durability=d, tags=t}})
+		return
+	end
 end

@@ -3,6 +3,7 @@ Event = Event or {}
 UpdateSys = UpdateSys or {}
 
 Constants = require("utils.constants")
+require("util")
 require("utils.Util")
 require("scripts.Events")
 require("scripts.Functions")

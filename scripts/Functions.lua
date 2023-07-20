@@ -57,8 +57,8 @@ end
 
 function getRNSPlayer(player)
 	if player == nil then return nil
-	elseif type(player) == "number" then return global.playerTable[game.players[player].name]
-	elseif type(player) == "string" then return global.playerTable[player]
+	elseif type(player) == "number" then return global.PlayerTable[game.players[player].name]
+	elseif type(player) == "string" then return global.PlayerTable[player]
 	else error("bad argument to getRNSPlayer()") end
 end
 

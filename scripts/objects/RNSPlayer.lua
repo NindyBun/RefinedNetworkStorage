@@ -61,6 +61,12 @@ function RNSP:get_inventory()
     for i = 1, #inv do
         local itemstack = inv[i]
         if itemstack.count <= 0 then goto continue end
+        if itemstack.is_item_with_inventory then goto continue end
+        if itemstack.grid ~= nil then goto continue end
+        if itemstack.is_blueprint or itemstack.is_blueprint_book then goto continue end
+        if itemstack.is_selection_tool then goto continue end
+        if itemstack.is_upgrade_item then goto continue end
+        if itemstack.is_deconstruction_item then goto continue end
         Util.add_or_merge(itemstack, contents)
         ::continue::
     end

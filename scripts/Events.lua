@@ -3,7 +3,7 @@ function Event.initPlayer(event)
 	if player == nil then return end
 	if player.controller_type == defines.controllers.cutscene then return end
 	if getRNSPlayer(player.name) == nil then
-		global.playerTable[player.name] = RNSP:new(player)
+		global.PlayerTable[player.name] = RNSP:new(player)
 	end
 end
 
@@ -149,6 +149,6 @@ function Event.clear_gui(event)
 			gui.destroy()
 		end
 	end
-    getRNSPlayer(event.player_index).GUI = nil
+    getRNSPlayer(event.player_index).GUI = {}
     player.opened = nil
 end
