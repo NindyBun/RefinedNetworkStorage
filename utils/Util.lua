@@ -138,7 +138,14 @@ function Util.add_or_merge(itemstack, list)
 	local t = itemstack.is_item_with_tags and itemstack.tags or {}
 	local a = p.type == "ammo" and itemstack.ammo or nil
 
-	if Util.getTableLength(list) == 0 then
+	
+	if itemstack.is_blueprint or itemstack.is_blueprint_book or itemstack.is_upgrade_item or itemstack.is_deconstruction_item then
+		table.insert(list, {id=itemstack.item_number or nil, cont={name=n, count=c, health=h, data=itemstack.export_stack(), label=itemstack.label}})
+		return
+	elseif itemstack.type == "spidertron-remote" then
+		table.insert(list, {id=itemstack.item_number or nil, cont={name=n, count=c, health=h, linked=itemstack.connected_entity or nil}})
+		return
+	elseif Util.getTableLength(list) == 0 then
 		table.insert(list, {id=itemstack.item_number or nil, cont={name=n, count=c, health=h, ammo=a, durability=d, tags=t}})
 		return
 	end
@@ -147,11 +154,15 @@ function Util.add_or_merge(itemstack, list)
 		local l = list[i]
 
 		if game.item_prototypes[l.cont.name] ~= p then goto continue end
-		if Util.getTableLength(t) ~= 0 and Util.getTableLength(l.cont.tags) ~= 0 and Util.tagMatches(l.cont, itemstack) then
-			l.cont.count = l.cont.count + c
-			l.cont.health = (l.cont.health + h)/2
-			found = true
-			goto continue
+		if itemstack.is_item_with_tags then
+			if Util.tagMatches(l.cont, itemstack) then
+				l.cont.count = l.cont.count + c
+				l.cont.health = (l.cont.health + h)/2
+				found = true
+				goto continue
+			else
+				goto continue
+			end
 		end
 		if d ~= nil and l.cont.durability ~= nil then
 			local d_temp = (l.cont.durability + d)
@@ -167,7 +178,7 @@ function Util.add_or_merge(itemstack, list)
 			found = true
 			goto continue
 		end
-		if l.cont.health == h and not itemstack.is_item_with_tags then
+		if l.cont.health == h then
 			l.cont.count = l.cont.count + c
 			l.cont.health = (l.cont.health + h)/2
 			found = true

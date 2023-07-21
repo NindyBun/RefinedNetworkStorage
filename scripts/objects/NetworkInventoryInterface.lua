@@ -238,7 +238,7 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 			if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
 		end
 
-		local buttonText = {"", "[color=blue]", Util.get_item_name(item.cont.name), "[/color]"}
+		local buttonText = {"", "[color=blue]", item.cont.label or Util.get_item_name(item.cont.name), "[/color]"}
 		if item.cont.health < 1 then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_health"})
@@ -256,6 +256,14 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_durability"})
 			table.insert(buttonText, item.cont.durability)
+		elseif item.cont.data ~= nil then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_data"})
+			table.insert(buttonText, item.id)
+		elseif item.cont.linked ~= nil then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_linked"})
+			table.insert(buttonText, item.cont.linked.entity_label or Util.get_item_name(item.cont.linked.name))
 		end
 		GuiApi.add_button(guiTable, "RNS_PInv" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=(item.cont.name)})
 		
