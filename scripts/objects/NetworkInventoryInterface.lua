@@ -244,23 +244,32 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 			table.insert(buttonText, {"gui-description.RNS_health"})
 			table.insert(buttonText, math.floor(item.cont.health*100) .. "%")
 		end
+		
 		if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_tags"})
 			table.insert(buttonText, item.id)
-		elseif item.cont.ammo ~= nil then
-			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_ammo"})
-			table.insert(buttonText, item.cont.ammo)
-		elseif item.cont.durability ~= nil then
-			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_durability"})
-			table.insert(buttonText, item.cont.durability)
 		elseif item.cont.data ~= nil then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_data"})
 			table.insert(buttonText, item.id)
-		elseif item.cont.linked ~= nil then
+		elseif item.id ~= nil then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_item_number"})
+			table.insert(buttonText, item.id)
+		end
+		
+		if item.cont.ammo ~= nil then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_ammo"})
+			table.insert(buttonText, item.cont.ammo .. "/" .. game.item_prototypes[item.cont.name].magazine_size)
+		end
+		if item.cont.durability ~= nil then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_durability"})
+			table.insert(buttonText, item.cont.durability .. "/" .. game.item_prototypes[item.cont.name].durability)
+		end
+		if item.cont.linked ~= nil then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_linked"})
 			table.insert(buttonText, item.cont.linked.entity_label or Util.get_item_name(item.cont.linked.name))

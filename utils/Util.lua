@@ -145,8 +145,8 @@ function Util.add_or_merge(itemstack, list)
 	elseif itemstack.type == "spidertron-remote" then
 		table.insert(list, {id=itemstack.item_number or nil, cont={name=n, count=c, health=h, linked=itemstack.connected_entity or nil}})
 		return
-	elseif Util.getTableLength(list) == 0 then
-		table.insert(list, {id=itemstack.item_number or nil, cont={name=n, count=c, health=h, ammo=a, durability=d, tags=t}})
+	elseif itemstack.grid ~= nil then
+		table.insert(list, {id=itemstack.item_number or nil, cont={name=n, count=c, health=h}})
 		return
 	end
 
@@ -155,9 +155,9 @@ function Util.add_or_merge(itemstack, list)
 
 		if game.item_prototypes[l.cont.name] ~= p then goto continue end
 		if itemstack.is_item_with_tags then
-			if Util.tagMatches(l.cont, itemstack) then
+			if Util.tagMatches(l.cont, itemstack) and l.cont.health < 1 and h < 1 then
 				l.cont.count = l.cont.count + c
-				l.cont.health = (l.cont.health + h)/2
+				l.cont.health = math.min((l.cont.health + h)/2, 1)
 				found = true
 				goto continue
 			else
@@ -165,22 +165,20 @@ function Util.add_or_merge(itemstack, list)
 			end
 		end
 		if d ~= nil and l.cont.durability ~= nil then
-			local d_temp = (l.cont.durability + d)
-			l.cont.count = l.cont.count + math.ceil(d_temp / p.durability)
-			l.cont.durability = math.min(d_temp, p.durability)
+			l.cont.count = l.cont.count + c
+			l.cont.durability = math.min((l.cont.durability + d)/2, p.durability)
 			found = true
 			goto continue
 		end
 		if a ~= nil and l.cont.ammo ~= nil then
-			local a_temp = (l.ammo + a)
-			l.cont.count = l.cont.count + math.ceil(a_temp / p.ammo)
-			l.cont.ammo = math.min(a_temp, p.ammo)
+			l.cont.count = l.cont.count + c
+			l.cont.ammo = math.min((l.cont.ammo + a)/2, p.magazine_size)
 			found = true
 			goto continue
 		end
 		if l.cont.health == h then
 			l.cont.count = l.cont.count + c
-			l.cont.health = (l.cont.health + h)/2
+			l.cont.health = math.min((l.cont.health + h)/2, 1)
 			found = true
 			goto continue
 		end
