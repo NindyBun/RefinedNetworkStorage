@@ -1,5 +1,5 @@
 local Constants = {}
-
+Constants.MOD_ID = "RefinedNetworkStorage"
 Constants.Settings = {
     RNS_BlankIcon = "__RefinedNetworkStorage__/graphics/blank.png",
     RNS_FR_Cable = "RNS_FR_NetworkCable",

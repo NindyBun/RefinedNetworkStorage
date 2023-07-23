@@ -61,8 +61,6 @@ function RNSP:get_inventory()
     for i = 1, #inv do
         local itemstack = inv[i]
         if itemstack.count <= 0 then goto continue end
-        --if itemstack.is_item_with_inventory then goto continue end
-        --if itemstack.grid ~= nil then goto continue end
         Util.add_or_merge(itemstack, contents)
         ::continue::
     end

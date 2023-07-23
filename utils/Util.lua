@@ -140,13 +140,13 @@ function Util.add_or_merge(itemstack, list)
 
 	
 	if itemstack.is_blueprint or itemstack.is_blueprint_book or itemstack.is_upgrade_item or itemstack.is_deconstruction_item then
-		table.insert(list, {id=itemstack.item_number or nil, cont={name=n, count=c, health=h, data=itemstack.export_stack(), label=itemstack.label}})
+		table.insert(list, {id=itemstack.item_number or nil, stack=itemstack, cont={name=n, count=c, health=h, data=itemstack.export_stack(), label=itemstack.label}})
 		return
 	elseif itemstack.type == "spidertron-remote" then
-		table.insert(list, {id=itemstack.item_number or nil, cont={name=n, count=c, health=h, linked=itemstack.connected_entity or nil}})
+		table.insert(list, {id=itemstack.item_number or nil, stack=itemstack, cont={name=n, count=c, health=h, linked=itemstack.connected_entity or nil}})
 		return
 	elseif itemstack.grid ~= nil then
-		table.insert(list, {id=itemstack.item_number or nil, cont={name=n, count=c, health=h}})
+		table.insert(list, {id=itemstack.item_number or nil, stack=itemstack, cont={name=n, count=c, health=h}})
 		return
 	end
 
@@ -187,7 +187,7 @@ function Util.add_or_merge(itemstack, list)
 	end
 
 	if not found then
-		table.insert(list, {id=itemstack.item_number or nil, cont={name=n, count=c, health=h, ammo=a, durability=d, tags=t}})
+		table.insert(list, {id=itemstack.item_number or nil, stack=itemstack, cont={name=n, count=c, health=h, ammo=a, durability=d, tags=t}})
 		return
 	end
 end

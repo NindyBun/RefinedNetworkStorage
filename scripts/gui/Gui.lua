@@ -91,4 +91,10 @@ function GUI.on_gui_clicked(event)
         end
         return
     end
+
+    if string.match(event.element.name, "RNS_NII") then
+        NII.interaction(event, event.player_index)
+        GUI.update(true)
+        return
+    end
 end

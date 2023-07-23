@@ -108,14 +108,17 @@ function removed(event)
 end
 
 function onGuiOpened(event)
+    if event.element.get_mod() ~= Constants.MOD_ID then return end
     Util.safeCall(GUI.on_gui_opened, event)
 end
 
 function onGuiClosed(event)
+    if event.element.get_mod() ~= Constants.MOD_ID then return end
     Util.safeCall(GUI.on_gui_closed, event)
 end
 
 function onGuiClicked(event)
+    if event.element.get_mod() ~= Constants.MOD_ID then return end
     Util.safeCall(GUI.on_gui_clicked, event)
 end
 
