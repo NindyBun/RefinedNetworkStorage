@@ -6,6 +6,7 @@ NII = {
     cardinals = nil,
     updateTick = 60,
     lastUpdate = 0,
+	inventory = nil,
 }
 
 function NII:new(object)
@@ -16,6 +17,7 @@ function NII:new(object)
     mt.__index = NII
     t.thisEntity = object
     t.entID = object.unit_number
+	t.inventory = game.create_inventory(100)
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -220,7 +222,7 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 
     if self.networkController == nil or not self.networkController.stable then return end
 
-	--self:createNetworkInventory(guiTable, inventoryScrollPane, textField.text)
+	self:createNetworkInventory(guiTable, inventoryScrollPane, textField.text)
 
 	self:createPlayerInventory(guiTable, RNSPlayer, playerInventoryScrollPane, textField.text)
 
@@ -280,73 +282,78 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 	end
 end
 
---function NII:createNetworkInventory(GUITable, inventoryScrollPane, searchText)
---
---	-- Get the Mobile Factory --
---	local MF = self.MF
---
---	-- Create the Table --
---	local tableList = GAPI.addTable(GUITable, "", inventoryScrollPane, 8)
---
---	-- Look for all Deep Tanks --
---	for _, DT in pairs(MF.dataNetwork.DTKTable) do
---		
---		-- Check the Deep Tank --
---		if DT.ent == nil or DT.ent.valid == false or DT.inventoryFluid == nil or DT.inventoryCount == nil or DT.inventoryCount == 0 then goto continue end
---
---		-- Check the Search Text --
---		if GUITable.vars.tmpLocal ~= nil and Util.getLocFluidName(DT.inventoryFluid)[1] ~= nil then
---			local locName = GUITable.vars.tmpLocal[Util.getLocFluidName(DT.inventoryFluid)[1]]
---			if searchText ~= nil and searchText ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(searchText)) == nil then goto continue end
---		end
---
---		-- Create the Button --
---		local buttonText = {"", "[color=purple]", Util.getLocFluidName(DT.inventoryFluid), "[/color]\n[color=yellow]", Util.toRNumber(DT.inventoryCount), "[/color]"}
---		local button = GAPI.addButton(GUITable, "N.E.DTK," .. DT.ent.unit_number, tableList, "fluid/" .. DT.inventoryFluid, "fluid/" .. DT.inventoryFluid, buttonText, 37, false, true, DT.inventoryCount, "MF_Button_Purple")
---
---		::continue::
---
---	end
---
---	-- Look for all Deep Storages --
---	for _, DSR in pairs(MF.dataNetwork.DSRTable) do
---		-- Check the Deep Storage --
---		if DSR.ent == nil or DSR.ent.valid == false or DSR.inventoryItem == nil or DSR.inventoryCount == nil or DSR.inventoryCount == 0 then goto continue end
---
---		-- Check the Search Text --
---		if GUITable.vars.tmpLocal ~= nil and Util.getLocItemName(DSR.inventoryItem)[1] ~= nil then
---			local locName = GUITable.vars.tmpLocal[Util.getLocItemName(DSR.inventoryItem)[1]]
---			if searchText ~= nil and searchText ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(searchText)) == nil then goto continue end
---		end
---
---		-- Create the Button --
---		local buttonText = {"", "[color=green]", Util.getLocItemName(DSR.inventoryItem), "[/color]\n[color=yellow]", Util.toRNumber(DSR.inventoryCount), "[/color]"}
---		local button = GAPI.addButton(GUITable, "N.E.DSR" .. DSR.ent.unit_number, tableList, "item/" .. DSR.inventoryItem, "item/" .. DSR.inventoryItem, buttonText, 37, false, true, DSR.inventoryCount, "shortcut_bar_button_green", {ID=DSR.ent.unit_number})
---
---		::continue::
---	end
---
---	-- Look for all Data Network Inventory Items --
---	for name, count in pairs(MF.II.inventory) do
---		
---		-- Check the Item --
---		if count == nil or count == 0 then goto continue end
---
---		-- Check the Search Text --
---		if GUITable.vars.tmpLocal ~= nil and Util.getLocItemName(name)[1] ~= nil then
---			local locName = GUITable.vars.tmpLocal[Util.getLocItemName(name)[1]]
---			if searchText ~= nil and searchText ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(searchText)) == nil then goto continue end
---		end
---
---		-- Create the Button --
---		local buttonText = {"", "[color=blue]", Util.getLocItemName(name), "[/color]\n[color=yellow]", Util.toRNumber(count), "[/color]"}
---		local button = GAPI.addButton(GUITable, "N.E.Inv" .. name, tableList, "item/" .. name, "item/" .. name, buttonText, 37, false, true, count, "shortcut_bar_button_blue", {ID=self.entID, name=name})
---		
---		::continue::
---
---	end
---
---end
+function NII:get_inventory()
+    local contents = {}
+    local inv = self.inventory
+	if inv == nil then self.inventory = game.create_inventory(100) end
+    for i = 1, #inv do
+        local itemstack = inv[i]
+        if itemstack.count <= 0 then goto continue end
+        Util.add_or_merge(itemstack, contents)
+        ::continue::
+    end
+    return contents
+end
+
+function NII:createNetworkInventory(guiTable, inventoryScrollPane, text)
+	local tableList = GuiApi.add_table(guiTable, "", inventoryScrollPane, 8)
+	local inv = self:get_inventory()
+	if Util.getTableLength(inv) == 0 then return end
+
+	for i = 1, Util.getTableLength(inv) do
+		local item = inv[i]
+		if guiTable.vars.tmpLocal ~= nil and Util.get_item_name(item.cont.name)[1] ~= nil then
+			local locName = guiTable.vars.tmpLocal[Util.get_item_name(item.cont.name)[1]]
+			if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
+		end
+
+		local buttonText = {"", "[color=blue]", item.cont.label or Util.get_item_name(item.cont.name), "[/color]"}
+		if item.cont.health < 1 then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_health"})
+			table.insert(buttonText, math.floor(item.cont.health*100) .. "%")
+		end
+		
+		if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_tags"})
+			table.insert(buttonText, item.id)
+		elseif item.cont.data ~= nil then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_data"})
+			table.insert(buttonText, item.id)
+		elseif item.id ~= nil then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_item_number"})
+			table.insert(buttonText, item.id)
+		end
+		
+		if item.cont.ammo ~= nil then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_ammo"})
+			table.insert(buttonText, item.cont.ammo .. "/" .. game.item_prototypes[item.cont.name].magazine_size)
+		end
+		if item.cont.durability ~= nil then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_durability"})
+			table.insert(buttonText, item.cont.durability .. "/" .. game.item_prototypes[item.cont.name].durability)
+		end
+		if item.cont.linked ~= nil then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_linked"})
+			table.insert(buttonText, item.cont.linked.entity_label or Util.get_item_name(item.cont.linked.name))
+		end
+		GuiApi.add_button(guiTable, "RNS_NII_NIIInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=(item.cont.name), stack=item})
+		
+		::continue::
+	end
+
+end
+
+function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
+	
+	
+end
 
 function NII.interaction(event, playerIndex)
 	if event.element.name == "RNS_SearchTextField" then return end
@@ -357,6 +364,10 @@ function NII.interaction(event, playerIndex)
 	if event.button == defines.mouse_button_type.right and event.shift == true then count = -3 end --10 Stacks
 	if event.button == defines.mouse_button_type.left and event.control == true then count = -4 end --All Stacks
 
-	
+	if string.match(event.element.name, "RNS_NII_PInv") then
+		local obj = global.entityTable[event.element.tags.ID]
+		NII.transfer_from_pinv(getRNSPlayer(playerIndex), obj, event.element.tags, count)
+		return
+	end
 
 end
