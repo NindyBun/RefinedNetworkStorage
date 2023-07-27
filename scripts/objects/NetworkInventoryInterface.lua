@@ -154,6 +154,7 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		playerInventoryFrame.style = Constants.Settings.RNS_Gui.frame_1
 		playerInventoryFrame.style.vertically_stretchable = true
 		playerInventoryFrame.style.left_padding = 3
+		playerInventoryFrame.style.left_margin = 3
 		playerInventoryFrame.style.right_padding = 3
 		playerInventoryFrame.style.right_margin = 3
 		
@@ -273,7 +274,7 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 			table.insert(buttonText, {"gui-description.RNS_linked"})
 			table.insert(buttonText, item.cont.linked.entity_label or Util.get_item_name(item.cont.linked.name))
 		end
-		GuiApi.add_button(guiTable, "RNS_NII_PInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 38, false, true, item.cont.count, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=(item.cont.name), stack=item})
+		GuiApi.add_button(guiTable, "RNS_NII_PInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=(item.cont.name), stack=item})
 		
 		::continue::
 	end
