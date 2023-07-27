@@ -6,7 +6,6 @@ NII = {
     cardinals = nil,
     updateTick = 60,
     lastUpdate = 0,
-	inventory = nil,
 }
 
 function NII:new(object)
@@ -17,7 +16,6 @@ function NII:new(object)
     mt.__index = NII
     t.thisEntity = object
     t.entID = object.unit_number
-	t.inventory = game.create_inventory(100)
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -142,12 +140,12 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		inventoryFrame.style.right_margin = 3
 
 		-- Add the Title --
-		GuiApi.add_subtitle(guiTable, "", inventoryFrame, {"gui-description.NetworkInventory"})
+		GuiApi.add_subtitle(guiTable, "", inventoryFrame, {"gui-description.RNS_NetworkInventory"})
 
 		-- Create the Network Inventory Scroll Pane --
 		local inventoryScrollPane = GuiApi.add_scroll_pane(guiTable, "InventoryScrollPane", inventoryFrame, 500, true)
 		inventoryScrollPane.style = Constants.Settings.RNS_Gui.scroll_pane
-		inventoryScrollPane.style.minimal_width = 308
+		inventoryScrollPane.style.minimal_width = 304
 		inventoryScrollPane.style.vertically_stretchable = true
 		inventoryScrollPane.style.bottom_margin = 3
 
@@ -158,14 +156,14 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		playerInventoryFrame.style.left_padding = 3
 		playerInventoryFrame.style.right_padding = 3
 		playerInventoryFrame.style.right_margin = 3
-
+		
 		-- Add the Title --
-		GuiApi.add_subtitle(guiTable, "", playerInventoryFrame, {"gui-description.PlayerInventory"})
+		GuiApi.add_subtitle(guiTable, "", playerInventoryFrame, {"gui-description.RNS_PlayerInventory"})
 
 		-- Create the Player Inventory Scroll Pane --
 		local playerInventoryScrollPane = GuiApi.add_scroll_pane(guiTable, "PlayerInventoryScrollPane", playerInventoryFrame, 500, true)
 		playerInventoryScrollPane.style = Constants.Settings.RNS_Gui.scroll_pane
-		playerInventoryScrollPane.style.minimal_width = 308
+		playerInventoryScrollPane.style.minimal_width = 304
 		playerInventoryScrollPane.style.vertically_stretchable = true
 		playerInventoryScrollPane.style.bottom_margin = 3
 
@@ -186,7 +184,7 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		searchFlow.style.vertical_align = "center"
 		
 		-- Create the Search Label --
-		GuiApi.add_label(guiTable, "Label", searchFlow, {"", {"gui-description.RNS_SearchText"}, ": "}, nil, {"gui-description.RNS_SearchText"}, false, nil, Constants.Settings.RNS_Gui.yellow_title)
+		GuiApi.add_label(guiTable, "Label", searchFlow, {"", {"gui-description.RNS_SearchText"}, ": "}, nil, {"gui-description.RNS_SearchText"}, false)
 		
 		-- Create the Search TextField
 		local textField = GuiApi.add_text_field(guiTable, "RNS_SearchTextField", searchFlow, "", "", true, false, false, false, false)
@@ -222,7 +220,7 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 
     if self.networkController == nil or not self.networkController.stable then return end
 
-	self:createNetworkInventory(guiTable, inventoryScrollPane, textField.text)
+	--self:createNetworkInventory(guiTable, inventoryScrollPane, textField.text)
 
 	self:createPlayerInventory(guiTable, RNSPlayer, playerInventoryScrollPane, textField.text)
 
@@ -250,7 +248,6 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 		if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_tags"})
-			table.insert(buttonText, item.id)
 		elseif item.cont.data ~= nil then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_data"})
@@ -276,87 +273,102 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 			table.insert(buttonText, {"gui-description.RNS_linked"})
 			table.insert(buttonText, item.cont.linked.entity_label or Util.get_item_name(item.cont.linked.name))
 		end
-		GuiApi.add_button(guiTable, "RNS_NII_PInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=(item.cont.name), stack=item})
+		GuiApi.add_button(guiTable, "RNS_NII_PInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 38, false, true, item.cont.count, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=(item.cont.name), stack=item})
 		
 		::continue::
 	end
-end
-
-function NII:get_inventory()
-    local contents = {}
-    local inv = self.inventory
-	if inv == nil then self.inventory = game.create_inventory(100) end
-    for i = 1, #inv do
-        local itemstack = inv[i]
-        if itemstack.count <= 0 then goto continue end
-        Util.add_or_merge(itemstack, contents)
-        ::continue::
-    end
-    return contents
 end
 
 function NII:createNetworkInventory(guiTable, inventoryScrollPane, text)
 	local tableList = GuiApi.add_table(guiTable, "", inventoryScrollPane, 8)
-	local inv = self:get_inventory()
-	if Util.getTableLength(inv) == 0 then return end
 
-	for i = 1, Util.getTableLength(inv) do
-		local item = inv[i]
-		if guiTable.vars.tmpLocal ~= nil and Util.get_item_name(item.cont.name)[1] ~= nil then
-			local locName = guiTable.vars.tmpLocal[Util.get_item_name(item.cont.name)[1]]
-			if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
-		end
+	for _, drive in pairs(self.networkController.network.ItemDriveTable) do
+		local inv = drive:get_inventory()
+		if Util.getTableLength(inv) == 0 then goto continue end
 
-		local buttonText = {"", "[color=blue]", item.cont.label or Util.get_item_name(item.cont.name), "[/color]"}
-		if item.cont.health < 1 then
-			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_health"})
-			table.insert(buttonText, math.floor(item.cont.health*100) .. "%")
+		for i = 1, Util.getTableLength(inv) do
+			local item = inv[i]
+			if guiTable.vars.tmpLocal ~= nil and Util.get_item_name(item.cont.name)[1] ~= nil then
+				local locName = guiTable.vars.tmpLocal[Util.get_item_name(item.cont.name)[1]]
+				if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
+			end
+
+			local buttonText = {"", "[color=blue]", item.cont.label or Util.get_item_name(item.cont.name), "[/color]"}
+			if item.cont.health < 1 then
+				table.insert(buttonText, "\n")
+				table.insert(buttonText, {"gui-description.RNS_health"})
+				table.insert(buttonText, math.floor(item.cont.health*100) .. "%")
+			end
+			
+			if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 then
+				table.insert(buttonText, "\n")
+				table.insert(buttonText, {"gui-description.RNS_tags"})
+				table.insert(buttonText, item.id)
+			elseif item.cont.data ~= nil then
+				table.insert(buttonText, "\n")
+				table.insert(buttonText, {"gui-description.RNS_data"})
+				table.insert(buttonText, item.id)
+			elseif item.id ~= nil then
+				table.insert(buttonText, "\n")
+				table.insert(buttonText, {"gui-description.RNS_item_number"})
+				table.insert(buttonText, item.id)
+			end
+			
+			if item.cont.ammo ~= nil then
+				table.insert(buttonText, "\n")
+				table.insert(buttonText, {"gui-description.RNS_ammo"})
+				table.insert(buttonText, item.cont.ammo .. "/" .. game.item_prototypes[item.cont.name].magazine_size)
+			end
+			if item.cont.durability ~= nil then
+				table.insert(buttonText, "\n")
+				table.insert(buttonText, {"gui-description.RNS_durability"})
+				table.insert(buttonText, item.cont.durability .. "/" .. game.item_prototypes[item.cont.name].durability)
+			end
+			if item.cont.linked ~= nil then
+				table.insert(buttonText, "\n")
+				table.insert(buttonText, {"gui-description.RNS_linked"})
+				table.insert(buttonText, item.cont.linked.entity_label or Util.get_item_name(item.cont.linked.name))
+			end
+			GuiApi.add_button(guiTable, "RNS_NII_IDInv_" .. drive.entID .. "_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 38, false, true, item.cont.count, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=(item.cont.name), stack=item})
+			
+			::continue::
 		end
-		
-		if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 then
-			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_tags"})
-			table.insert(buttonText, item.id)
-		elseif item.cont.data ~= nil then
-			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_data"})
-			table.insert(buttonText, item.id)
-		elseif item.id ~= nil then
-			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_item_number"})
-			table.insert(buttonText, item.id)
-		end
-		
-		if item.cont.ammo ~= nil then
-			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_ammo"})
-			table.insert(buttonText, item.cont.ammo .. "/" .. game.item_prototypes[item.cont.name].magazine_size)
-		end
-		if item.cont.durability ~= nil then
-			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_durability"})
-			table.insert(buttonText, item.cont.durability .. "/" .. game.item_prototypes[item.cont.name].durability)
-		end
-		if item.cont.linked ~= nil then
-			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_linked"})
-			table.insert(buttonText, item.cont.linked.entity_label or Util.get_item_name(item.cont.linked.name))
-		end
-		GuiApi.add_button(guiTable, "RNS_NII_NIIInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=(item.cont.name), stack=item})
-		
 		::continue::
 	end
-
 end
 
 function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
-	
+	if RNSPlayer.thisEntity == nil or NII == nil then return end
+	local network = NII.networkController ~= nil and NII.networkController.network or nil
+	if network == nil then return end
+	if tags == nil then return end
+
+	if count == -1 then count = game.item_prototypes[tags.cont.name].stack_size end
+	if count == -2 then count = game.item_prototypes[tags.cont.name].stack_size/2 end
+	if count == -3 then count = game.item_prototypes[tags.cont.name].stack_size*10 end
+	if count == -4 then count = (2^32)-1 end
+
+	local inv = RNSPlayer.thisEntity.get_main_inventory()
+	local amount = math.min(tags.cont.count, count)
+	if amount <= 0 then return end
+
+	for i = 1, #inv do
+		local itemstack1 = inv[i]
+		local itemstack2 = tags
+		if Util.itemstack_matches(itemstack1, itemstack2) then
+			for _, drive in pairs(network.ItemDriveTable) do
+				if drive:has_room() then
+					amount = amount - drive:insert(itemstack2, amount, itemstack1)
+					if amount <= 0 then return end
+				end
+			end
+		end
+	end
 	
 end
 
 function NII.interaction(event, playerIndex)
-	if event.element.name == "RNS_SearchTextField" then return end
+	if string.match(event.element.name, "RNS_SearchTextField") then return end
 	local count = 0
 	if event.button == defines.mouse_button_type.left then count = 1 end --1 Item
 	if event.button == defines.mouse_button_type.left and event.shift == true then count = -1 end --1 Stack

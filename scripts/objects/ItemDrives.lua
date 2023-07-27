@@ -27,7 +27,7 @@ function ID:new(object)
     elseif object.name == Constants.Drives.ItemDrive.ItemDrive64k.name then
         t.maxStorage = Constants.Drives.ItemDrive.ItemDrive64k.max_size
     end
-    t.storage = {}
+    t.storage = game.create_inventory(100)
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -140,6 +140,13 @@ function ID:has_item(name)
     return self.storage[name] or 0
 end
 
+function ID:has_empty_slot()
+    for i = 1, #self.storage do
+        if self.storage[1].count <= 0 then return true end
+    end
+    return false
+end
+
 function ID:has_room(count)
     if count ~= nil then
         if self:getRemainingStorageSize() >= count then return true end
@@ -148,42 +155,43 @@ function ID:has_room(count)
     return false
 end
 
-function ID:insert_item(name, count)
-    if not self:has_room() then return 0 end
-
-    local capable_amount = math.min(count, self:getRemainingStorageSize())
-
-    if capable_amount > 0 then
-        if self.storage[name] ~= nil then
-            self.storage[name] = self.storage[name] + capable_amount
-        else
-            self.storage[name] = capable_amount
-        end
+function ID:insert_item(tag, count, itemstack)
+    local insertable = math.min(count, self:getRemainingStorageSize())
+    local inserted = 0
+    if tag.id == nil and tag.cont ~= nil then
+        repeat
+            local temp = {name=tag.cont.name, count=insertable, health=tag.cont.health, durability=tag.cont.durability, ammo=tag.cont.ammo, tags=tag.cont.tags}
+            if not self:has_empty_slot() then self.storage.resize(#self.storage+1) end
+            local amount = self.storage.insert(temp)
+            insertable = insertable - amount
+            inserted = inserted + amount
+        until insertable <= 0 or not self.storage.can_insert(temp)
+        return inserted
     end
-
-    return capable_amount
+    return 0
 end
 
-function ID:remove_item(name, count)
-    if self.storage[name] ~= nil then
-        local avalible_amount = math.min(count, self.storage[name])
-
-        self.storage[name] = self.storage[name] - avalible_amount
-
-        if self.storage[name] <= 0 then
-            self.storage[name] = nil
-        end
-
-        return avalible_amount
+function ID:get_inventory()
+    local contents = {}
+    local inv = self.storage
+    for i = 1, #inv do
+        local itemstack = inv[i]
+        if itemstack.count <= 0 then goto continue end
+        Util.add_or_merge(itemstack, contents)
+        ::continue::
     end
+    return contents
+end
+
+function ID:remove_item(itemstack, count)
 
     return 0
 end
 
 function ID:getStorageSize()
     local count = 0
-    for _, c in pairs(self.storage) do
-        count = count + c
+    for i = 1, #self.storage do
+        count = count + self.storage[i].count
     end
     return count
 end
@@ -193,7 +201,7 @@ function ID:getRemainingStorageSize()
 end
 
 function ID:DataConvert_ItemToEntity(tag)
-    self.storage = tag or {}
+    self.storage = tag or game.create_inventory(100)
 end
 
 function ID:DataConvert_EntityToItem(tag)

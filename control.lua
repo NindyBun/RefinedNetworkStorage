@@ -3,7 +3,6 @@ Event = Event or {}
 UpdateSys = UpdateSys or {}
 
 Constants = require("utils.constants")
-require("util")
 require("utils.Util")
 require("scripts.Events")
 require("scripts.Functions")
@@ -76,7 +75,7 @@ function onTick(event)
     Util.safeCall(Event.tick, event)
 end
 
-function pipette(event)
+--[[function pipette(event)
 	if Util.safeCall(Event.pipette, event) == false then
         game.print({"gui-description.RNS_pipette_failed"})
         local entity = event.created_entity or event.entity or event.destination
@@ -84,7 +83,7 @@ function pipette(event)
             entity.destroy()
         end
     end
-end
+end]]
 
 function placed(event)
     if Util.safeCall(Event.placed, event) == false then
@@ -118,7 +117,8 @@ function onGuiClosed(event)
 end
 
 function onGuiClicked(event)
-    if event.element.get_mod() ~= Constants.MOD_ID then return end
+    --if event.element.get_mod() ~= Constants.MOD_ID then return end
+    game.print("Clicked")
     Util.safeCall(GUI.on_gui_clicked, event)
 end
 
@@ -149,6 +149,7 @@ script.on_event(defines.events.on_selected_entity_changed, changed_selection)
 
 script.on_event(defines.events.on_gui_opened, onGuiOpened)
 script.on_event(defines.events.on_gui_closed, onGuiClosed)
+script.on_event(defines.events.on_gui_click, onGuiClicked)
+
 --script.on_event(defines.events.on_gui_elem_changed, onGuiElemChanged)
 --script.on_event(defines.events.on_gui_switch_state_changed, onGuiSwitchStateChanged)
-script.on_event(defines.events.on_gui_click, onGuiClicked)

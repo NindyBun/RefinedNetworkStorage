@@ -90,19 +90,6 @@ function Util.tagMatches(itemstack1, itemstack2)
 	end
 end
 
-function Util.dataMatches(itemstack1, itemstack2)
-	if itemstack1.health ~= itemstack2.health then return false end
-	return true
-end
-
-function Util.itemstack_equals(itemstack1, itemstack2, limitTags)
-	if itemstack1.count <= 0 then
-		return itemstack2.count <= 0
-	else
-		return itemstack2.count > 0 and itemstack1.prototype == itemstack2.prototype and (limitTags and {Util.dataMatches(itemstack1, itemstack2)} or {Util.tagMatches(itemstack1, itemstack2)})[1]
-	end
-end
-
 function Util.get_item_name(itemName)
 	if game.item_prototypes[itemName] ~= nil then
 		return game.item_prototypes[itemName].localised_name
@@ -125,6 +112,24 @@ function Util.toRNumber(number)
 	end
 
 	return string.format("%.2f", rNumber):gsub("%.0+$", "") .. rSuffix
+end
+
+function Util.itemstack_matches(itemstack1, itemstack2)
+	if game.item_prototypes[itemstack1.name or itemstack1.cont.name] ~= game.item_prototypes[itemstack2.name or itemstack2.cont.name] then return false end
+	if itemstack1.id ~= nil and itemstack2.id ~= nil and itemstack1.id == itemstack2.id then return true end
+	if (itemstack1.is_item_with_tags or itemstack1.stack.is_item_with_tags) and (itemstack2.is_item_with_tags or itemstack2.stack.is_item_with_tags) then
+		if Util.tagMatches(itemstack1.cont or itemstack1, itemstack2.cont or itemstack2) and (itemstack1.health or itemstack1.cont.health) == (itemstack2.health or itemstack2.cont.health) then return true end
+	end
+	if (itemstack1.durability or itemstack1.cont.durability) and (itemstack2.durability or itemstack2.cont.durability) then
+		if (itemstack1.durability or itemstack1.cont.durability) == (itemstack2.durability or itemstack2.cont.durability) then return true end
+	end
+	if (itemstack1.ammo or itemstack1.cont.ammo) and (itemstack2.ammo or itemstack2.cont.ammo) then
+		if (itemstack1.ammo or itemstack1.cont.ammo) == (itemstack2.ammo or itemstack2.cont.ammo) then return true end
+	end
+	if (itemstack1.health or itemstack1.cont.health) and (itemstack2.health or itemstack2.cont.health) then
+		if (itemstack1.health or itemstack1.cont.health) == (itemstack2.health or itemstack2.cont.health) then return true end
+	end
+	return false
 end
 
 function Util.add_or_merge(itemstack, list)
@@ -187,7 +192,7 @@ function Util.add_or_merge(itemstack, list)
 	end
 
 	if not found then
-		table.insert(list, {id=itemstack.item_number or nil, stack=itemstack, cont={name=n, count=c, health=h, ammo=a, durability=d, tags=t}})
+		table.insert(list, {cont={name=n, count=c, health=h, ammo=a, durability=d, tags=t}})
 		return
 	end
 end
