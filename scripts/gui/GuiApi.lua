@@ -80,7 +80,7 @@ end
 
 function GuiApi.add_scroll_pane(guiTable, name, gui, size, save, style, scroll_verically)
     if name ~= nil and name ~= "" and guiTable.vars[name] ~= nil then guiTable.vars[name].destroy() end
-    local scrollPane = gui.add{type="scroll-pane", name=name, horizontal_scroll_policy="never", vertical_scroll_polic=scroll_verically or "always"}
+    local scrollPane = gui.add{type="scroll-pane", name=name, horizontal_scroll_policy="never", vertical_scroll_policy=scroll_verically or "always"}
     if style ~= nil then scrollPane.style = style end
     scrollPane.style.padding = 0
     scrollPane.style.margin = 0
