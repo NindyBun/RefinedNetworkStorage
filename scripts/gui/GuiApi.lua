@@ -162,16 +162,16 @@ end
 
 function GuiApi.add_table(guiTable, name, gui, column, save)
     if name ~= nil and name ~= "" and guiTable.vars[name] ~= nil then guiTable.vars[name].destroy() end
-    local table = gui.add{type="table", name=name, column_count=column}
-    table.style.padding = 0
-    table.style.margin = 0
-    table.style.cell_padding = 0
-    table.style.horizontal_spacing = 0
-    table.style.vertical_spacing = 0
+    local tableGui = gui.add{type="table", name=name, column_count=column}
+    tableGui.style.padding = 0
+    tableGui.style.margin = 0
+    tableGui.style.cell_padding = 0
+    tableGui.style.horizontal_spacing = 0
+    tableGui.style.vertical_spacing = 0
     if guiTable ~= nil and save == true then
-        guiTable.vars[name] = table
+        guiTable.vars[name] = tableGui
     end
-    return table
+    return tableGui
 end
 
 function GuiApi.add_sprite(guiTable, name, gui, path, tooltip, save)

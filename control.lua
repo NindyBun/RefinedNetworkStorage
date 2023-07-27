@@ -118,8 +118,11 @@ end
 
 function onGuiClicked(event)
     --if event.element.get_mod() ~= Constants.MOD_ID then return end
-    game.print("Clicked")
-    Util.safeCall(GUI.on_gui_clicked, event)
+    game.print(event.element.name or "Not Named")
+    if Util.safeCall(GUI.on_gui_clicked, event) == false then
+		getPlayer(event.player_index).print({"gui-description.RNS_update_gui_failed"})
+		Util.safeCall(Event.clear_gui, event)
+	end
 end
 
 script.on_init(onInit)

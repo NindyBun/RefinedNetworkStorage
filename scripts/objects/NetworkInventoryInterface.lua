@@ -145,7 +145,7 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		-- Create the Network Inventory Scroll Pane --
 		local inventoryScrollPane = GuiApi.add_scroll_pane(guiTable, "InventoryScrollPane", inventoryFrame, 500, true)
 		inventoryScrollPane.style = Constants.Settings.RNS_Gui.scroll_pane
-		inventoryScrollPane.style.minimal_width = 304
+		inventoryScrollPane.style.minimal_width = 308
 		inventoryScrollPane.style.vertically_stretchable = true
 		inventoryScrollPane.style.bottom_margin = 3
 
@@ -163,7 +163,7 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		-- Create the Player Inventory Scroll Pane --
 		local playerInventoryScrollPane = GuiApi.add_scroll_pane(guiTable, "PlayerInventoryScrollPane", playerInventoryFrame, 500, true)
 		playerInventoryScrollPane.style = Constants.Settings.RNS_Gui.scroll_pane
-		playerInventoryScrollPane.style.minimal_width = 304
+		playerInventoryScrollPane.style.minimal_width = 308
 		playerInventoryScrollPane.style.vertically_stretchable = true
 		playerInventoryScrollPane.style.bottom_margin = 3
 
@@ -376,10 +376,10 @@ function NII.interaction(event, playerIndex)
 	if event.button == defines.mouse_button_type.right and event.shift == true then count = -3 end --10 Stacks
 	if event.button == defines.mouse_button_type.left and event.control == true then count = -4 end --All Stacks
 
-	if string.match(event.element.name, "RNS_NII_PInv") then
+	--[[if string.match(event.element.name, "RNS_NII_PInv") then
 		local obj = global.entityTable[event.element.tags.ID]
 		NII.transfer_from_pinv(getRNSPlayer(playerIndex), obj, event.element.tags, count)
 		return
-	end
+	end]]
 
 end
