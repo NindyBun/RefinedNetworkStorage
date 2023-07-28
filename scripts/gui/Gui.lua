@@ -2,7 +2,7 @@ function GUI.update(force)
     for _, player in pairs(game.connected_players) do
         local RNSPlayer = getRNSPlayer(player.name)
         if RNSPlayer ~= nil then
-            if game.tick%1 == 0 or force then
+            if game.tick%60 == 0 or force then
                 for _, guiTable in pairs(RNSPlayer.GUI or {}) do
                     if guiTable.gui ~= nil and guiTable.gui.valid == true and GUI["update_" .. guiTable.gui.name] ~= nil then
                         if guiTable.vars.currentObject.thisEntity == nil or guiTable.vars.currentObject.thisEntity.valid == false or guiTable.vars.currentObject.thisEntity.to_be_deconstructed() == true then

@@ -217,7 +217,7 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 	local textField = guiTable.vars.RNS_SearchTextField
 
 	inventoryScrollPane.clear()
-	playerInventoryScrollPane.clear()
+	--playerInventoryScrollPane.clear()
 
     if self.networkController == nil or not self.networkController.stable then return end
 
@@ -229,8 +229,10 @@ end
 
 function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 	local tableList = GuiApi.add_table(guiTable, "", scrollPane, 8)
+	
 	local inv = RNSPlayer:get_inventory()
 	if Util.getTableLength(inv) == 0 then return end
+	guiTable.vars.tmpLocal = {}
 
 	for i = 1, Util.getTableLength(inv) do
 		local item = inv[i]

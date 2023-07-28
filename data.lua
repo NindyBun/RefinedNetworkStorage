@@ -107,7 +107,7 @@ local outer_frame_light = outer_frame_light()
 outer_frame_light.base.center = {position = {42,8}, size=1}
 data.raw["gui-style"].default[Constants.Settings.RNS_Gui.scroll_pane] =
 {
-	type = 'scroll_pane_style',
+	type = "scroll_pane_style",
 	padding = 0,
 	extra_padding_when_activated = 0,
 	extra_right_padding_when_activated = -12,
