@@ -217,7 +217,7 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 	local textField = guiTable.vars.RNS_SearchTextField
 
 	inventoryScrollPane.clear()
-	--playerInventoryScrollPane.clear()
+	playerInventoryScrollPane.clear()
 
     if self.networkController == nil or not self.networkController.stable then return end
 

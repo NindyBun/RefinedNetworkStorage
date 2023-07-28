@@ -46,7 +46,7 @@ function GuiApi.create_title(guiTable)
 end
 
 function GuiApi.add_flow(guiTable, name, gui, direction, save)
-    if name ~= nil and name ~= "" and guiTable.vars[name] ~= nil then guiTable.vars[name].destroy() end
+    if name ~= nil and name ~= "" and gui[name] ~= nil then gui[name].destroy() end
     local flow = gui.add{type="flow", name=name, direction=direction}
     flow.style.padding = 0
     flow.style.margin = 0
@@ -67,7 +67,7 @@ function GuiApi.center_window(guiTable)
 end
 
 function GuiApi.add_frame(guiTable, name, gui, direction, save)
-    if name ~= nil and name ~= "" and guiTable.vars[name] ~= nil then guiTable.vars[name].destroy() end
+    if name ~= nil and name ~= "" and gui[name] ~= nil then gui[name].destroy() end
     local frame = gui.add{type="frame", name=name, direction=direction}
     frame.style.padding = 0
     frame.style.margin = 0
@@ -79,7 +79,7 @@ function GuiApi.add_frame(guiTable, name, gui, direction, save)
 end
 
 function GuiApi.add_scroll_pane(guiTable, name, gui, size, save, style, scroll_verically)
-    if name ~= nil and name ~= "" and guiTable.vars[name] ~= nil then guiTable.vars[name].destroy() end
+    if name ~= nil and name ~= "" and gui[name] ~= nil then gui[name].destroy() end
     local scrollPane = gui.add{type="scroll-pane", name=name, horizontal_scroll_policy="never", vertical_scroll_policy=scroll_verically or "always"}
     if style ~= nil then scrollPane.style = style end
     scrollPane.style.padding = 0
@@ -94,7 +94,7 @@ end
 
 function GuiApi.add_button(guiTable, name, gui, sprite, hoverSprite, clickedSprite, tooltip, size, save, visible, count, style, tags)
     if visible == false then return end
-    if name ~= nil and name ~= "" and guiTable.vars[name] ~= nil then guiTable.vars[name].destroy() end
+    if name ~= nil and name ~= "" and gui[name] ~= nil then gui[name].destroy() end
     local button = gui.add{type="sprite-button", name=name, sprite=sprite, hovered_sprite=hoverSprite, clicked_sprite=clickedSprite, resize_to_sprite=false, tooltip=tooltip, number=count, tags=tags}
     if style ~= nil then button.style = style end
     button.style.minimal_width = size
@@ -110,7 +110,7 @@ function GuiApi.add_button(guiTable, name, gui, sprite, hoverSprite, clickedSpri
 end
 
 function GuiApi.add_label(guiTable, name, gui, text, color, tooltip, save, font, style)
-    if name ~= nil and name ~= "" and guiTable.vars[name] ~= nil then guiTable.vars[name].destroy() end
+    if name ~= nil and name ~= "" and gui[name] ~= nil then gui[name].destroy() end
 
     local label = gui.add{type="label", name, caption=text, tooltip=tooltip}
     if style ~= nil then
@@ -126,7 +126,7 @@ function GuiApi.add_label(guiTable, name, gui, text, color, tooltip, save, font,
 end
 
 function GuiApi.add_empty_widget(guiTable, name, gui, parent, sizeX, sizeY, save)
-    if name ~= nil and name ~= "" and guiTable.vars[name] ~= nil then guiTable.vars[name].destroy() end
+    if name ~= nil and name ~= "" and gui[name] ~= nil then gui[name].destroy() end
     local widget = gui.add{type="empty-widget", name=name, style="draggable_space"}
     widget.drag_target = parent
     if sizeX ~= nil then widget.style.height = sizeX end
@@ -141,7 +141,7 @@ function GuiApi.add_empty_widget(guiTable, name, gui, parent, sizeX, sizeY, save
 end
 
 function GuiApi.add_line(guiTable, name, gui, direction, save)
-    if name ~= nil and name ~= "" and guiTable.vars[name] ~= nil then guiTable.vars[name].destroy() end
+    if name ~= nil and name ~= "" and gui[name] ~= nil then gui[name].destroy() end
     local line = gui.add{type="line", name=name, direction=direction}
     if guiTable ~= nil and save == true then
         guiTable.vars[name] = line
@@ -161,7 +161,7 @@ function GuiApi.add_subtitle(guiTable, name, gui, text, save)
 end
 
 function GuiApi.add_table(guiTable, name, gui, column, save)
-    if name ~= nil and name ~= "" and guiTable.vars[name] ~= nil then guiTable.vars[name].destroy() end
+    if name ~= nil and name ~= "" and gui[name] ~= nil then gui[name].destroy() end
     local tableGui = gui.add{type="table", name=name, column_count=column}
     tableGui.style.padding = 0
     tableGui.style.margin = 0
@@ -175,7 +175,7 @@ function GuiApi.add_table(guiTable, name, gui, column, save)
 end
 
 function GuiApi.add_sprite(guiTable, name, gui, path, tooltip, save)
-    if name ~= nil and name ~= "" and guiTable.vars[name] ~= nil then guiTable.vars[name].destroy() end
+    if name ~= nil and name ~= "" and gui[name] ~= nil then gui[name].destroy() end
     local sprite = gui.add{type="sprite", name=name, sprite=path, tooltip=tooltip}
     sprite.style.padding = 0
     sprite.style.margin = 0
@@ -206,7 +206,7 @@ function GuiApi.add_item_frame(guiTable, name, gui, item, amount, itemSize, font
 end
 
 function GuiApi.add_progress_bar(guiTable, name, gui, text, tooltip, save, color, value, size, bar_width)
-    if name ~= nil and name ~= "" and guiTable.vars[name] ~= nil then guiTable.vars[name].destroy() end
+    if name ~= nil and name ~= "" and gui[name] ~= nil then gui[name].destroy() end
 
     local progressBar = gui.add{type="progressbar", name=name, caption=text, tooltip=tooltip}
     if color ~= nil then progressBar.style.color = color end
@@ -224,7 +224,7 @@ function GuiApi.add_progress_bar(guiTable, name, gui, text, tooltip, save, color
 end
 
 function GuiApi.add_text_field(guiTable, name, gui, text, tooltip, save, numeric, allowDecimal, allowNegative, isPassword, tags)
-    if name ~= nil and name ~= "" and guiTable.vars[name] ~= nil then guiTable.vars[name].destroy() end
+    if name ~= nil and name ~= "" and gui[name] ~= nil then gui[name].destroy() end
     local textField = gui.add{type="textfield", name=name, text=text, tooltip=tooltip, numeric=numeric or false, allow_decimal=allowDecimal or false, allow_negative=allowNegative or false, is_password=isPassword or false, tags=tags}
     if guiTable ~= nil and save == true then
         guiTable.vars[name] = textField
