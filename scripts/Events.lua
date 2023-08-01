@@ -9,7 +9,7 @@ end
 
 function Event.tick(event)
     UpdateSys.update(event)
-    GUI.update(event)
+    GUI.update()
 end
 
 function Event.placed(event)

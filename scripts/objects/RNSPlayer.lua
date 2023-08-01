@@ -67,6 +67,10 @@ function RNSP:get_inventory()
     return contents
 end
 
+function RNSP:remove_item(itemstack, count)
+
+end
+
 --Tooltips
 function RNSP:getTooltips(guiTable, mainFrame, justCreated)
     

@@ -117,6 +117,16 @@ function BaseNet.filter(name, array)
     return filtered
 end
 
+function BaseNet:get_item_storage_size()
+    local m = 0
+    local t = 0
+    for _, drive in pairs(self.getOperableObjects(self.ItemDriveTable)) do
+        m = m + drive.maxStorage
+        t = t + drive:getStorageSize()
+    end
+    return t, m
+end
+
 --Get connected objects
 function BaseNet:getTotalObjects()
     return  Util.getTableLength(BaseNet.getOperableObjects(self.ItemDriveTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.FluidDriveTable)) 

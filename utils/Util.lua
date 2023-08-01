@@ -132,6 +132,17 @@ function Util.itemstack_matches(itemstack1, itemstack2)
 	return false
 end
 
+function Util.itemstack_convert(itemstack, id, label, data, linked)
+	local n = itemstack.name
+	local p = itemstack.prototype
+	local h = itemstack.health
+	local c = itemstack.count
+	local d = itemstack.is_repair_tool and itemstack.durability or nil
+	local t = itemstack.is_item_with_tags and itemstack.tags or nil
+	local a = p.type == "ammo" and itemstack.ammo or nil
+	return {id=id, stack=itemstack, label=label, data=data, linked=linked, cont={name=n, count=c, health=h, ammo=a, durability=d, tags=t}}
+end
+
 function Util.add_or_merge(itemstack, list)
 	local found = false
 
@@ -140,18 +151,18 @@ function Util.add_or_merge(itemstack, list)
 	local h = itemstack.health
 	local c = itemstack.count
 	local d = itemstack.is_repair_tool and itemstack.durability or nil
-	local t = itemstack.is_item_with_tags and itemstack.tags or {}
+	local t = itemstack.is_item_with_tags and itemstack.tags or nil
 	local a = p.type == "ammo" and itemstack.ammo or nil
 
 	
 	if itemstack.is_blueprint or itemstack.is_blueprint_book or itemstack.is_upgrade_item or itemstack.is_deconstruction_item then
-		table.insert(list, {id=itemstack.item_number or nil, stack=itemstack, cont={name=n, count=c, health=h, data=itemstack.export_stack(), label=itemstack.label}})
+		table.insert(list, Util.itemstack_convert(itemstack, itemstack.item_number, itemstack.label, itemstack.export_stack()))
 		return
 	elseif itemstack.type == "spidertron-remote" then
-		table.insert(list, {id=itemstack.item_number or nil, stack=itemstack, cont={name=n, count=c, health=h, linked=itemstack.connected_entity or nil}})
+		table.insert(list, Util.itemstack_convert(itemstack, itemstack.item_number, nil, nil, itemstack.connected_entity or nil))
 		return
 	elseif itemstack.grid ~= nil then
-		table.insert(list, {id=itemstack.item_number or nil, stack=itemstack, cont={name=n, count=c, health=h}})
+		table.insert(list, Util.itemstack_convert(itemstack, itemstack.item_number))
 		return
 	end
 
@@ -192,7 +203,7 @@ function Util.add_or_merge(itemstack, list)
 	end
 
 	if not found then
-		table.insert(list, {cont={name=n, count=c, health=h, ammo=a, durability=d, tags=t}})
+		table.insert(list, Util.itemstack_convert(itemstack))
 		return
 	end
 end

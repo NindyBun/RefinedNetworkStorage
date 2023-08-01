@@ -142,7 +142,7 @@ end
 
 function ID:has_empty_slot()
     for i = 1, #self.storage do
-        if self.storage[1].count <= 0 then return true end
+        if self.storage[i].count <= 0 then return true end
     end
     return false
 end
@@ -155,20 +155,16 @@ function ID:has_room(count)
     return false
 end
 
-function ID:insert_item(tag, count, itemstack)
+function ID:insert_item(tag, count, itemstackC, itemstackA)
     local insertable = math.min(count, self:getRemainingStorageSize())
-    local inserted = 0
+    if insertable <= 0 then return 0 end
     if tag.id == nil and tag.cont ~= nil then
+        local temp = {name=tag.cont.name, count=insertable, health=tag.cont.health, durability=tag.cont.durability, ammo=tag.cont.ammo, tags=tag.cont.tags}
         repeat
-            local temp = {name=tag.cont.name, count=insertable, health=tag.cont.health, durability=tag.cont.durability, ammo=tag.cont.ammo, tags=tag.cont.tags}
-            if not self:has_empty_slot() then self.storage.resize(#self.storage+1) end
-            local amount = self.storage.insert(temp)
-            insertable = insertable - amount
-            inserted = inserted + amount
-        until insertable <= 0 or not self.storage.can_insert(temp)
-        return inserted
+            self.storage.resize(#self.storage+10)
+        until self.storage.can_insert(temp)
+        if self.storage.can_insert(temp) then return self.storage.insert(temp) end
     end
-    return 0
 end
 
 function ID:get_inventory()
