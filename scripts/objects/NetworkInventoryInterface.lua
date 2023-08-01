@@ -367,13 +367,13 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 
 	for i = 1, #inv do
 		local itemstackA = inv[i]
-		if itemstackA.count <= 0 then goto continue end
+		if itemstackA.count <= 0  then goto continue end
 		local itemstack1 = Util.itemstack_convert(itemstackA)
 		if Util.itemstack_matches(itemstack1, itemstack) then
 			for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 				if drive:has_room() then
 					local tempAmount = math.min(itemstackA.count, amount)
-					local insertedAmount = drive:insert_item(itemstack, tempAmount, itemstack1, itemstackA)
+					local insertedAmount = drive:insert_item(itemstack, tempAmount)
 					amount = amount - insertedAmount
 					itemstackA.count = itemstackA.count - insertedAmount
 					if amount <= 0 then return end
@@ -404,7 +404,7 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 		for i = 1, #drive.storage do
 			local itemstackA = drive.storage[i]
-			if itemstackA.count <= 0 then goto continue end
+			if itemstackA.count <= 0 or drive:has_item(itemstack.cont.name) == 0 then goto continue end
 			local itemstack1 = Util.itemstack_convert(itemstackA)
 			if Util.itemstack_matches(itemstack1, itemstack) then
 				if not inv.is_full() then

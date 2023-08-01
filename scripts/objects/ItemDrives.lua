@@ -155,7 +155,7 @@ function ID:has_room(count)
     return false
 end
 
-function ID:insert_item(tag, count, itemstackC, itemstackA)
+function ID:insert_item(tag, count)
     local insertable = math.min(count, self:getRemainingStorageSize())
     if insertable <= 0 then return 0 end
     if tag.id == nil and tag.cont ~= nil then
@@ -183,11 +183,6 @@ function ID:get_inventory()
         ::continue::
     end
     return contents
-end
-
-function ID:remove_item(itemstack, count)
-
-    return 0
 end
 
 function ID:getStorageSize()
