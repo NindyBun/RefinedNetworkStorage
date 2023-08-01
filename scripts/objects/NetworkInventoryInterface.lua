@@ -258,8 +258,9 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 		end
 		
 		if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 then
+			local t, m = drive:get_item_storage_size()
 			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_tags"})
+			table.insert(buttonText, {"gui-description.RNS_tags", t, m})
 		elseif item.data ~= nil then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_data"})
@@ -313,9 +314,9 @@ function NII:createNetworkInventory(guiTable, inventoryScrollPane, text)
 			end
 			
 			if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 then
+				local t, m = drive:get_item_storage_size()
 				table.insert(buttonText, "\n")
-				table.insert(buttonText, {"gui-description.RNS_tags"})
-				table.insert(buttonText, item.id)
+				table.insert(buttonText, {"gui-description.RNS_tags", t, m})
 			elseif item.data ~= nil then
 				table.insert(buttonText, "\n")
 				table.insert(buttonText, {"gui-description.RNS_data"})

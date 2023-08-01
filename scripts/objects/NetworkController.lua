@@ -190,9 +190,9 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
     end
 
     local infoFrame = guiTable.vars.InformationFrame
-    GuiApi.add_label(guiTable, "Status", infoFrame, {"gui-description.RNS_NetworkController_Status", self.stable and "Active" or "Inactive"}, Constants.Settings.RNS_Gui.orange, nil, true)
-    GuiApi.add_label(guiTable, "Energy", infoFrame, {"gui-description.RNS_NetworkController_EnergyUsage", self.thisEntity.power_usage}, Constants.Settings.RNS_Gui.orange, nil, true)
-    GuiApi.add_progress_bar(guiTable, "EnergyBar", infoFrame, "", self.thisEntity.energy .. "/" .. self.thisEntity.electric_buffer_size, true, nil, self.thisEntity.energy/self.thisEntity.electric_buffer_size, 200, 25)
+    GuiApi.add_label(guiTable, "Status", infoFrame, {"gui-description.RNS_NetworkController_Status", self.stable and "Active" or "Inactive"}, Constants.Settings.RNS_Gui.orange, nil, false)
+    GuiApi.add_label(guiTable, "Energy", infoFrame, {"gui-description.RNS_NetworkController_EnergyUsage", self.thisEntity.power_usage}, Constants.Settings.RNS_Gui.orange, nil, false)
+    GuiApi.add_progress_bar(guiTable, "EnergyBar", infoFrame, "", self.thisEntity.energy .. "/" .. self.thisEntity.electric_buffer_size, false, nil, self.thisEntity.energy/self.thisEntity.electric_buffer_size, 200, 25)
         
     local ConnectedStructuresTable = guiTable.vars.ConnectedStructuresTable
     ConnectedStructuresTable.clear()

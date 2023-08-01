@@ -27,7 +27,7 @@ function ID:new(object)
     elseif object.name == Constants.Drives.ItemDrive.ItemDrive64k.name then
         t.maxStorage = Constants.Drives.ItemDrive.ItemDrive64k.max_size
     end
-    t.storage = game.create_inventory(100)
+    t.storage = game.create_inventory(t.maxStorage)
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -160,16 +160,7 @@ function ID:insert_item(tag, count)
     if insertable <= 0 then return 0 end
     if tag.id == nil and tag.cont ~= nil then
         local temp = {name=tag.cont.name, count=insertable, health=tag.cont.health, durability=tag.cont.durability, ammo=tag.cont.ammo, tags=tag.cont.tags}
-        local inserted = 0
-        repeat
-            local insert = self.storage.insert(temp)
-            inserted = inserted + insert
-            temp.count = temp.count - insert
-            if inserted <= insertable then
-                self.storage.resize(#self.storage+10)
-            end
-        until inserted == insertable
-        return insertable
+        return self.storage.insert(temp)
     end
 end
 
@@ -198,13 +189,19 @@ function ID:getRemainingStorageSize()
 end
 
 function ID:DataConvert_ItemToEntity(tag)
-    self.storage = tag or game.create_inventory(100)
+    for _, itemstack in pairs(tag) do
+        self.storage.insert(itemstack.cont)
+    end
 end
 
 function ID:DataConvert_EntityToItem(tag)
     if self.storage ~= nil then
         if self:getStorageSize() == 0 then return end
-        tag.set_tag(Constants.Settings.RNS_Tag, self.storage)
+        local storage = {}
+        for i = 1, #self.storage do
+            table.insert(storage, Util.itemstack_convert(self.storage[i]))
+        end
+        tag.set_tag(Constants.Settings.RNS_Tag, storage)
         tag.custom_description = {"", tag.prototype.localised_description, {"item-description.RNS_ItemDriveTag", self:getStorageSize(), self.maxStorage}}
     end
 end
