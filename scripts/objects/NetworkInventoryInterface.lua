@@ -367,9 +367,10 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 
 	for i = 1, #inv do
 		local itemstackA = inv[i]
+		if itemstackA.count <= 0 then goto continue end
 		local itemstack1 = Util.itemstack_convert(itemstackA)
 		if Util.itemstack_matches(itemstack1, itemstack) then
-			for _, drive in pairs(network.ItemDriveTable) do
+			for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 				if drive:has_room() then
 					local tempAmount = math.min(itemstackA.count, amount)
 					local insertedAmount = drive:insert_item(itemstack, tempAmount, itemstack1, itemstackA)
@@ -378,7 +379,43 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 					if amount <= 0 then return end
 				end
 			end
+		end
+		::continue::
+	end
+	
+end
 
+function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
+	if RNSPlayer.thisEntity == nil or NII == nil then return end
+	local network = NII.networkController ~= nil and NII.networkController.network or nil
+	if network == nil then return end
+	if tags == nil then return end
+	local itemstack = tags.stack
+
+	if count == -1 then count = game.item_prototypes[itemstack.cont.name].stack_size end
+	if count == -2 then count = game.item_prototypes[itemstack.cont.name].stack_size/2 end
+	if count == -3 then count = game.item_prototypes[itemstack.cont.name].stack_size*10 end
+	if count == -4 then count = (2^32)-1 end
+
+	local inv = RNSPlayer.thisEntity.get_main_inventory()
+	local amount = math.min(itemstack.cont.count, count)
+	if amount <= 0 then return end
+
+	for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+		for i = 1, #drive.storage do
+			local itemstackA = drive.storage[i]
+			if itemstackA.count <= 0 then goto continue end
+			local itemstack1 = Util.itemstack_convert(itemstackA)
+			if Util.itemstack_matches(itemstack1, itemstack) then
+				if not inv.is_full() then
+					local tempAmount = math.min(itemstackA.count, amount)
+					local insertedAmount = RNSPlayer:insert_item(itemstack, tempAmount)
+					amount = amount - insertedAmount
+					itemstackA.count = itemstackA.count - insertedAmount
+					if amount <= 0 then return end
+				end
+			end
+			::continue::
 		end
 	end
 	

@@ -160,10 +160,16 @@ function ID:insert_item(tag, count, itemstackC, itemstackA)
     if insertable <= 0 then return 0 end
     if tag.id == nil and tag.cont ~= nil then
         local temp = {name=tag.cont.name, count=insertable, health=tag.cont.health, durability=tag.cont.durability, ammo=tag.cont.ammo, tags=tag.cont.tags}
+        local inserted = 0
         repeat
-            self.storage.resize(#self.storage+10)
-        until self.storage.can_insert(temp)
-        if self.storage.can_insert(temp) then return self.storage.insert(temp) end
+            local insert = self.storage.insert(temp)
+            inserted = inserted + insert
+            temp.count = temp.count - insert
+            if inserted <= insertable then
+                self.storage.resize(#self.storage+10)
+            end
+        until inserted == insertable
+        return insertable
     end
 end
 
@@ -219,8 +225,8 @@ function ID:getTooltips(guiTable, mainFrame, justCreated)
 		infoFrame.style.left_padding = 3
 		infoFrame.style.right_padding = 3
 		GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
-        --GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_ItemDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
+        GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_ItemDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
     end
-    local infoFrame = guiTable.vars.InformationFrame
-    GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_ItemDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
+    local capacity = guiTable.vars.Capacity
+    capacity.caption = {"gui-description.RNS_ItemDrive_Capacity", self:getStorageSize(), self.maxStorage}
 end
