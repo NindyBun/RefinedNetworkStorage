@@ -199,7 +199,9 @@ function ID:DataConvert_EntityToItem(tag)
         if self:getStorageSize() == 0 then return end
         local storage = {}
         for i = 1, #self.storage do
+            if self.storage[i].count <= 0 then goto continue end
             table.insert(storage, Util.itemstack_convert(self.storage[i]))
+            ::continue::
         end
         tag.set_tag(Constants.Settings.RNS_Tag, storage)
         tag.custom_description = {"", tag.prototype.localised_description, {"item-description.RNS_ItemDriveTag", self:getStorageSize(), self.maxStorage}}

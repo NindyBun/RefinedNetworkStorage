@@ -100,7 +100,7 @@ end
 function BaseNet.getOperableObjects(array)
     local objs = {}
     for _, o in pairs(array) do
-        if o.thisEntity.to_be_deconstructed() == false then
+        if o.thisEntity.valid and o.thisEntity.to_be_deconstructed() == false then
             objs[o.entID] = o
         end
     end

@@ -117,7 +117,7 @@ end
 function Util.itemstack_matches(itemstack1, itemstack2)
 	if game.item_prototypes[itemstack1.name or itemstack1.cont.name] ~= game.item_prototypes[itemstack2.name or itemstack2.cont.name] then return false end
 	if itemstack1.id ~= nil and itemstack2.id ~= nil and itemstack1.id == itemstack2.id then return true end
-	if (itemstack1.is_item_with_tags or itemstack1.stack.is_item_with_tags) and (itemstack2.is_item_with_tags or itemstack2.stack.is_item_with_tags) then
+	if itemstack1.type == "item-with-tags" and itemstack2.type == "item-with-tags" then
 		if Util.tagMatches(itemstack1.cont or itemstack1, itemstack2.cont or itemstack2) and (itemstack1.health or itemstack1.cont.health) == (itemstack2.health or itemstack2.cont.health) then return true end
 	end
 	if (itemstack1.durability or itemstack1.cont.durability) and (itemstack2.durability or itemstack2.cont.durability) then
@@ -140,7 +140,7 @@ function Util.itemstack_convert(itemstack, id, label, data, linked)
 	local d = itemstack.is_repair_tool and itemstack.durability or nil
 	local t = itemstack.is_item_with_tags and itemstack.tags or nil
 	local a = p.type == "ammo" and itemstack.ammo or nil
-	return {id=id, stack=itemstack, label=label, data=data, linked=linked, cont={name=n, count=c, health=h, ammo=a, durability=d, tags=t}}
+	return {id=id, type=itemstack.type, label=label, data=data, linked=linked, description=(itemstack.type == "item-with-tags" and itemstack.custom_description or ""), cont={name=n, count=c, health=h, ammo=a, durability=d, tags=t}}
 end
 
 function Util.add_or_merge(itemstack, list)
@@ -170,7 +170,7 @@ function Util.add_or_merge(itemstack, list)
 		local l = list[i]
 
 		if game.item_prototypes[l.cont.name] ~= p then goto continue end
-		if itemstack.is_item_with_tags then
+		if itemstack.type == "item-with-tags" and l.type == "item-with-tags" then
 			if Util.tagMatches(l.cont, itemstack) and l.cont.health < 1 and h < 1 then
 				l.cont.count = l.cont.count + c
 				l.cont.health = math.min((l.cont.health + h)/2, 1)

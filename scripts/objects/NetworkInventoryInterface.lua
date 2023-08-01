@@ -257,10 +257,9 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 			table.insert(buttonText, math.floor(item.cont.health*100) .. "%")
 		end
 		
-		if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 then
-			local t, m = drive:get_item_storage_size()
+		if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 and item.description ~= "" then
 			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_tags", t, m})
+			table.insert(buttonText, item.description)
 		elseif item.data ~= nil then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_data"})
@@ -313,10 +312,9 @@ function NII:createNetworkInventory(guiTable, inventoryScrollPane, text)
 				table.insert(buttonText, math.floor(item.cont.health*100) .. "%")
 			end
 			
-			if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 then
-				local t, m = drive:get_item_storage_size()
+			if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 and item.description ~= "" then
 				table.insert(buttonText, "\n")
-				table.insert(buttonText, {"gui-description.RNS_tags", t, m})
+				table.insert(buttonText, item.description)
 			elseif item.data ~= nil then
 				table.insert(buttonText, "\n")
 				table.insert(buttonText, {"gui-description.RNS_data"})
@@ -405,7 +403,7 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 		for i = 1, #drive.storage do
 			local itemstackA = drive.storage[i]
-			if itemstackA.count <= 0 or drive:has_item(itemstack.cont.name) == 0 then goto continue end
+			if itemstackA.count <= 0 then goto continue end
 			local itemstack1 = Util.itemstack_convert(itemstackA)
 			if Util.itemstack_matches(itemstack1, itemstack) then
 				if not inv.is_full() then

@@ -169,9 +169,11 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
 		infoFrame.style.right_padding = 3
 
         GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
-        --GuiApi.add_label(guiTable, "EnergyUsage", infoFrame, {"gui-description.RNS_NetworkController_EnergyUsage", self.thisEntity.power_usage}, Constants.Settings.RNS_Gui.orange, nil, true)
-        --GuiApi.add_label(guiTable, "EnergyBuffer", infoFrame, {"gui-description.RNS_NetworkController_EnergyBuffer", self.thisEntity.electric_buffer_size}, Constants.Settings.RNS_Gui.orange, nil, true)
-        
+
+        GuiApi.add_label(guiTable, "EnergyUsage", infoFrame, {"gui-description.RNS_NetworkController_EnergyUsage", self.thisEntity.power_usage}, Constants.Settings.RNS_Gui.orange, nil, true)
+        GuiApi.add_label(guiTable, "EnergyBuffer", infoFrame, {"gui-description.RNS_NetworkController_EnergyBuffer", self.thisEntity.electric_buffer_size}, Constants.Settings.RNS_Gui.orange, nil, true)
+        GuiApi.add_progress_bar(guiTable, "EnergyBar", infoFrame, "", self.thisEntity.energy .. "/" .. self.thisEntity.electric_buffer_size, true, nil, self.thisEntity.energy/self.thisEntity.electric_buffer_size, 200, 25)
+    
         local connectedStructuresFrame = GuiApi.add_frame(guiTable, "", mainFrame, "vertical")
 		connectedStructuresFrame.style = Constants.Settings.RNS_Gui.frame_1
 		connectedStructuresFrame.style.vertically_stretchable = true
@@ -189,11 +191,15 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_table(guiTable, "ConnectedStructuresTable", connectedStructuresSP, 2, true)
     end
 
-    local infoFrame = guiTable.vars.InformationFrame
-    GuiApi.add_label(guiTable, "Status", infoFrame, {"gui-description.RNS_NetworkController_Status", self.stable and "Active" or "Inactive"}, Constants.Settings.RNS_Gui.orange, nil, false)
-    GuiApi.add_label(guiTable, "Energy", infoFrame, {"gui-description.RNS_NetworkController_EnergyUsage", self.thisEntity.power_usage}, Constants.Settings.RNS_Gui.orange, nil, false)
-    GuiApi.add_progress_bar(guiTable, "EnergyBar", infoFrame, "", self.thisEntity.energy .. "/" .. self.thisEntity.electric_buffer_size, false, nil, self.thisEntity.energy/self.thisEntity.electric_buffer_size, 200, 25)
-        
+    local energyUsage = guiTable.vars.EnergyUsage
+    local energyBuffer = guiTable.vars.EnergyBuffer
+    local energyBar = guiTable.vars.EnergyBar
+
+    energyUsage.caption = {"gui-description.RNS_NetworkController_EnergyUsage", self.thisEntity.power_usage}
+    energyBuffer.caption = {"gui-description.RNS_NetworkController_EnergyBuffer", self.thisEntity.electric_buffer_size}
+    energyBar.tooltip = self.thisEntity.energy .. "/" .. self.thisEntity.electric_buffer_size
+    energyBar.value = self.thisEntity.energy/self.thisEntity.electric_buffer_size
+
     local ConnectedStructuresTable = guiTable.vars.ConnectedStructuresTable
     ConnectedStructuresTable.clear()
 
