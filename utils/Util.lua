@@ -155,9 +155,20 @@ function Util.itemstack_convert(itemstack)
 	if itemstack.item_number then converted.id = itemstack.item_number end
 	if itemstack.label then converted.label = itemstack.label end
 	if itemstack.connected_entity then converted.linked = itemstack.connected_entity end
-	if itemstack.grid then converted.isEmpty = itemstack.grid.count() <= 0 and true or false end
-	if itemstack.is_blueprint_book then converted.isEmpty = #itemstack.get_inventory(defines.inventory.item_main) <= 0 and true or false end
-
+	if itemstack.grid then converted.modified = itemstack.grid.count() <= 0 and false or true end
+	if itemstack.is_blueprint_book then converted.modified = #itemstack.get_inventory(defines.inventory.item_main) <= 0 and false or true end
+	if itemstack.is_deconstruction_item then
+		converted.modified = #itemstack.entity_filters > 0 or #itemstack.tile_filters > 0 or itemstack.label or itemstack.trees_and_rocks_only and true or false
+	end
+	if itemstack.is_upgrade_item then
+		converted.modified = itemstack.label and true or false
+		for i = 1, itemstack.prototype.mapper_count do
+			if itemstack.get_mapper(i, "from").name ~= nil or itemstack.get_mapper(i, "to").name ~= nil then
+				converted.modified = true
+				break
+			end
+		end
+	end
 
 	return converted
 end
