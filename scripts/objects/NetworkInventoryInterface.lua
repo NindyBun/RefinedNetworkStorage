@@ -230,7 +230,7 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 	inventorySize.caption = {"gui-description.RNS_Inventory_Size", t, m}
 
 
-	self:createNetworkInventory(guiTable, inventoryScrollPane, textField.text)
+	self:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, textField.text)
 
 	self:createPlayerInventory(guiTable, RNSPlayer, playerInventoryScrollPane, textField.text)
 
@@ -241,12 +241,12 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 	
 	local inv = RNSPlayer:get_inventory()
 	if Util.getTableLength(inv) == 0 then return end
-	guiTable.vars.tmpLocal = {}
 
 	for i = 1, Util.getTableLength(inv) do
 		local item = inv[i]
-		if guiTable.vars.tmpLocal ~= nil and Util.get_item_name(item.cont.name)[1] ~= nil then
-			local locName = guiTable.vars.tmpLocal[Util.get_item_name(item.cont.name)[1]]
+		RNSPlayer.thisEntity.request_translation(Util.get_item_name(item.cont.name))
+		if Util.get_item_name(item.cont.name)[1] ~= nil then
+			local locName = Util.get_item_name(item.cont.name)[1]
 			if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
 		end
 
@@ -291,7 +291,7 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 	end
 end
 
-function NII:createNetworkInventory(guiTable, inventoryScrollPane, text)
+function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, text)
 	local tableList = GuiApi.add_table(guiTable, "", inventoryScrollPane, 8)
 
 	for _, drive in pairs(self.networkController.network.ItemDriveTable) do
@@ -300,8 +300,9 @@ function NII:createNetworkInventory(guiTable, inventoryScrollPane, text)
 
 		for i = 1, Util.getTableLength(inv) do
 			local item = inv[i]
-			if guiTable.vars.tmpLocal ~= nil and Util.get_item_name(item.cont.name)[1] ~= nil then
-				local locName = guiTable.vars.tmpLocal[Util.get_item_name(item.cont.name)[1]]
+			RNSPlayer.thisEntity.request_translation(Util.get_item_name(item.cont.name))
+			if Util.get_item_name(item.cont.name)[1] ~= nil then
+				local locName = Util.get_item_name(item.cont.name)[1]
 				if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
 			end
 
@@ -356,7 +357,7 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	local itemstack = tags.stack
 
 	if count == -1 then count = game.item_prototypes[itemstack.cont.name].stack_size end
-	if count == -2 then count = game.item_prototypes[itemstack.cont.name].stack_size/2 end
+	if count == -2 then count = math.max(1, game.item_prototypes[itemstack.cont.name].stack_size/2) end
 	if count == -3 then count = game.item_prototypes[itemstack.cont.name].stack_size*10 end
 	if count == -4 then count = (2^32)-1 end
 
@@ -364,24 +365,23 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	local amount = math.min(itemstack.cont.count, count)
 	if amount <= 0 then return end
 
-	for i = 1, #inv do
-		local itemstackA = inv[i]
-		if itemstackA.count <= 0  then goto continue end
-		local itemstack1 = Util.itemstack_convert(itemstackA)
-		if Util.itemstack_matches(itemstack1, itemstack) then
-			for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-				if drive:has_room() then
-					local tempAmount = math.min(itemstackA.count, amount)
-					local insertedAmount = drive:insert_item(itemstack, tempAmount)
-					amount = amount - insertedAmount
-					itemstackA.count = itemstackA.count - insertedAmount
-					if amount <= 0 then return end
-				end
+	if itemstack.id == nil then
+		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+			if drive:has_room() then
+				local transfered = BaseNet.transfer_basic_item(inv, drive.storage, itemstack, math.min(amount, drive:getRemainingStorageSize()))
+				amount = amount - transfered
+				if amount <= 0 then return end
 			end
 		end
-		::continue::
+	else
+		--[[for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+			if drive:has_room() then
+				local transfered = BaseNet.transfer_advanced_item(inv, drive.storage, itemstack, math.min(amount, drive:getRemainingStorageSize()))
+				amount = amount - transfered
+				if amount <= 0 then return end
+			end
+		end]]
 	end
-	
 end
 
 function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
@@ -392,7 +392,7 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	local itemstack = tags.stack
 
 	if count == -1 then count = game.item_prototypes[itemstack.cont.name].stack_size end
-	if count == -2 then count = game.item_prototypes[itemstack.cont.name].stack_size/2 end
+	if count == -2 then count = math.max(1, game.item_prototypes[itemstack.cont.name].stack_size/2) end
 	if count == -3 then count = game.item_prototypes[itemstack.cont.name].stack_size*10 end
 	if count == -4 then count = (2^32)-1 end
 
@@ -400,24 +400,17 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	local amount = math.min(itemstack.cont.count, count)
 	if amount <= 0 then return end
 
-	for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-		for i = 1, #drive.storage do
-			local itemstackA = drive.storage[i]
-			if itemstackA.count <= 0 then goto continue end
-			local itemstack1 = Util.itemstack_convert(itemstackA)
-			if Util.itemstack_matches(itemstack1, itemstack) then
-				if not inv.is_full() then
-					local tempAmount = math.min(itemstackA.count, amount)
-					local insertedAmount = RNSPlayer:insert_item(itemstack, tempAmount)
-					amount = amount - insertedAmount
-					itemstackA.count = itemstackA.count - insertedAmount
-					if amount <= 0 then return end
-				end
+	if itemstack.id == nil then
+		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+			if RNSPlayer:has_room() then
+				local transfered = BaseNet.transfer_basic_item(drive.storage, inv, itemstack, math.min(amount, drive:has_item(itemstack)))
+				amount = amount - transfered
+				if amount <= 0 then return end
 			end
-			::continue::
 		end
+	else
+
 	end
-	
 end
 
 function NII.interaction(event, playerIndex)

@@ -29,6 +29,7 @@ function onInit()
     end
 
 	global.entityTable = global.entityTable or {}
+    global.tempInventoryTable = global.tempInventoryTable or {}
     createObjectTables()
 
     for _, obj in pairs(global.objectTables) do
@@ -57,6 +58,11 @@ function onLoad()
 				_G[obj.tag]:rebuild(entry)
 			end
 		end
+    end
+    for id, obj in pairs(global.tempInventoryTable) do
+        if not obj.itemstack.valid or obj.itemstack == nil then
+            global.tempInventoryTable[id] = nil
+        end
     end
 end
 

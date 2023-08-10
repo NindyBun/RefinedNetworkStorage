@@ -97,6 +97,39 @@ function BaseNet:getTooltips()
     
 end
 
+-- from_inv, to_inv, itemstack_data, count
+function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count)
+    local temp = {name=itemstack_data.cont.name, count=count, health=itemstack_data.cont.health, durability=itemstack_data.cont.durability, ammo=itemstack_data.cont.ammo, tags=itemstack_data.cont.tags}
+    
+    --local removed = from_inv.remove(temp) --Removes the first instance by name. Not what I wanted it to do...
+    local inserted = to_inv.insert(temp) --This works fine tho
+
+    local temp_count = inserted
+
+    for i = 1, #from_inv do
+        local itemstack = from_inv[i]
+        if itemstack.count <= 0 then goto continue end
+        local itemstackC = Util.itemstack_convert(itemstack)
+        if Util.itemstack_matches(itemstackC, itemstack_data) == false then goto continue end
+
+        local min = math.min(itemstack.count, temp_count)
+        temp_count = temp_count - min
+        itemstack.count = itemstack.count - min <= 0 and 0 or itemstack.count - min
+
+        if temp_count <= 0 then break end
+        ::continue::
+    end
+
+    return inserted
+end
+
+--from_inv, to_inv, itemstack_data, count
+function BaseNet.transfer_advanced_item(from_inv, to_inv, itemstack_data, count)
+
+end
+
+
+
 function BaseNet.getOperableObjects(array)
     local objs = {}
     for _, o in pairs(array) do

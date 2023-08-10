@@ -84,9 +84,9 @@ function Event.placed(event)
             global[objInfo.tableName][entity.unit_number] = obj
         end
         if event.stack ~= nil and event.stack.valid_for_read == true and event.stack.type == "item-with-tags" then
-			local tags = event.stack.get_tag(Constants.Settings.RNS_Tag)
-			if tags ~= nil then
-				obj:DataConvert_ItemToEntity(tags)
+			local id = event.stack.get_tag(Constants.Settings.RNS_Tag)
+			if id ~= nil then
+				obj:DataConvert_ItemToEntity(id)
 			end
 		end
 		-- Validate properties taken from Blueprint or Item Tags

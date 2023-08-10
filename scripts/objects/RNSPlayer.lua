@@ -55,6 +55,15 @@ function RNSP:valid()
     return true
 end
 
+function RNSP:has_room()
+    if not self.thisEntity.get_main_inventory().is_full() then return true end
+    local inv = self.thisEntity.get_main_inventory()
+    for i = 1, #inv do
+        if inv[i].count <= 0 then return true end
+    end
+    return false
+end
+
 function RNSP:get_inventory()
     local contents = {}
     local inv = self.thisEntity.get_main_inventory()

@@ -136,8 +136,19 @@ function ID:validate()
 
 end
 
-function ID:has_item(name)
-    return self.storage[name] or 0
+function ID:has_item(itemstack_data)
+    local amount = 0
+    local inv = self.storage
+    for i = 1, #inv do
+        local itemstack = inv[i]
+        if itemstack.count <= 0 then goto continue end
+        local itemstackC = Util.itemstack_convert(itemstack)
+        if Util.itemstack_matches(itemstackC, itemstack_data) then
+            amount = amount + itemstack.count
+        end
+        ::continue::
+    end
+    return amount
 end
 
 function ID:has_empty_slot()
@@ -153,15 +164,6 @@ function ID:has_room(count)
     end
     if self:getRemainingStorageSize() > 0 then return true end
     return false
-end
-
-function ID:insert_item(tag, count)
-    local insertable = math.min(count, self:getRemainingStorageSize())
-    if insertable <= 0 then return 0 end
-    if tag.id == nil and tag.cont ~= nil then
-        local temp = {name=tag.cont.name, count=insertable, health=tag.cont.health, durability=tag.cont.durability, ammo=tag.cont.ammo, tags=tag.cont.tags}
-        return self.storage.insert(temp)
-    end
 end
 
 function ID:get_inventory()
@@ -188,23 +190,28 @@ function ID:getRemainingStorageSize()
     return self.maxStorage - self:getStorageSize()
 end
 
-function ID:DataConvert_ItemToEntity(tag)
-    for _, itemstack in pairs(tag) do
-        self.storage.insert(itemstack.cont)
+function ID:DataConvert_ItemToEntity(id)
+    local inv = global.tempInventoryTable[id].storage
+    for i = 1, #inv do
+        if inv[i].count <= 0 then goto continue end
+        self.storage.insert(inv[i])
+        ::continue::
     end
+    global.tempInventoryTable[id] = nil
 end
 
-function ID:DataConvert_EntityToItem(tag)
+function ID:DataConvert_EntityToItem(item)
     if self.storage ~= nil then
         if self:getStorageSize() == 0 then return end
-        local storage = {}
+        local storage = game.create_inventory(self.maxStorage)
         for i = 1, #self.storage do
             if self.storage[i].count <= 0 then goto continue end
-            table.insert(storage, Util.itemstack_convert(self.storage[i]))
+            storage.insert(self.storage[i])
             ::continue::
         end
-        tag.set_tag(Constants.Settings.RNS_Tag, storage)
-        tag.custom_description = {"", tag.prototype.localised_description, {"item-description.RNS_ItemDriveTag", self:getStorageSize(), self.maxStorage}}
+        global.tempInventoryTable[item.item_number] = {itemstack=item, storage=storage}
+        item.set_tag(Constants.Settings.RNS_Tag, item.item_number)
+        item.custom_description = {"", item.prototype.localised_description, {"item-description.RNS_ItemDriveTag", self:getStorageSize(), self.maxStorage}}
     end
 end
 
