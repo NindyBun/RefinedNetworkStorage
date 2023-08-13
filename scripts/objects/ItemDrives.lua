@@ -199,7 +199,8 @@ end
 
 function ID:DataConvert_EntityToItem(item)
     if self.storage ~= nil then
-        if self:getStorageSize() == 0 then return end
+        local size = self:getStorageSize()
+        if size == 0 then return end
         local storage = game.create_inventory(self.maxStorage)
         for i = 1, #self.storage do
             if self.storage[i].count <= 0 then goto continue end
@@ -208,7 +209,7 @@ function ID:DataConvert_EntityToItem(item)
         end
         global.tempInventoryTable[item.item_number] = {itemstack=item, storage=storage}
         item.set_tag(Constants.Settings.RNS_Tag, item.item_number)
-        item.custom_description = {"", item.prototype.localised_description, {"item-description.RNS_ItemDriveTag", self:getStorageSize(), self.maxStorage}}
+        item.custom_description = {"", item.prototype.localised_description, {"item-description.RNS_ItemDriveTag", size, self.maxStorage}}
     end
 end
 

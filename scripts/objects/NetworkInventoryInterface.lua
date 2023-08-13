@@ -260,10 +260,9 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 		if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 and item.description ~= "" then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, item.description)
-		elseif item.id ~= nil then
+		elseif item.modified ~= nil and item.modified == true then
 			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_item_number"})
-			table.insert(buttonText, item.id)
+			table.insert(buttonText, {"gui-description.RNS_item_modified"})
 		end
 		
 		if item.cont.ammo ~= nil then
@@ -276,12 +275,12 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 			table.insert(buttonText, {"gui-description.RNS_durability"})
 			table.insert(buttonText, item.cont.durability .. "/" .. game.item_prototypes[item.cont.name].durability)
 		end
-		if item.linked ~= nil then
+		if item.linked ~= nil and item.linked ~= "" then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_linked"})
 			table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
 		end
-		GuiApi.add_button(guiTable, "RNS_NII_PInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=(item.cont.name), stack=item})
+		GuiApi.add_button(guiTable, "RNS_NII_PInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, item.modified and Constants.Settings.RNS_Gui.button_2 or Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=(item.cont.name), stack=item})
 		
 		::continue::
 	end
@@ -312,10 +311,9 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 			if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 and item.description ~= "" then
 				table.insert(buttonText, "\n")
 				table.insert(buttonText, item.description)
-			elseif item.id ~= nil then
+			elseif item.modified ~= nil and item.modified == true then
 				table.insert(buttonText, "\n")
-				table.insert(buttonText, {"gui-description.RNS_item_number"})
-				table.insert(buttonText, item.id)
+				table.insert(buttonText, {"gui-description.RNS_item_modified"})
 			end
 			
 			if item.cont.ammo ~= nil then
@@ -333,7 +331,7 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 				table.insert(buttonText, {"gui-description.RNS_linked"})
 				table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
 			end
-			GuiApi.add_button(guiTable, "RNS_NII_IDInv_" .. drive.entID .. "_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 38, false, true, item.cont.count, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=(item.cont.name), stack=item})
+			GuiApi.add_button(guiTable, "RNS_NII_IDInv_" .. drive.entID .. "_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 38, false, true, item.cont.count, item.modified and Constants.Settings.RNS_Gui.button_2 or Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=(item.cont.name), stack=item})
 			
 			::continue::
 		end

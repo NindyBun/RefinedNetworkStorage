@@ -59,6 +59,7 @@ Constants.Settings = {
         yellow_title = "yellow_label",
         frame_1 = "Frame_1",
         button_1 = "Button_1",
+        button_2 = "Button_2",
         title_font = "TitleFont",
         label_font = "LabelFont",
         label_font_2 = "LabelFont2",

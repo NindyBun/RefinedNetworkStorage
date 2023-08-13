@@ -132,101 +132,38 @@ data.raw["gui-style"].default[Constants.Settings.RNS_Gui.button_1] =
 	parent = "shortcut_bar_button",
 	default_graphical_set =
 	{
-		base = {position={312, 744}, corner_size=8, tint={1, 1, 1}},
+		base = {position={312, 744}, corner_size=8, tint={255, 255, 255}},
 		shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
 	},
 	hovered_graphical_set =
 	{
-		base = {position={312, 744}, corner_size=8, tint={255, 174, 0}},
+		base = {position={312, 744}, corner_size=8, tint={243, 170, 69}},
 		shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
 	},
 	clicked_graphical_set =
 	{
-		base = {position={312, 744}, corner_size=8, tint={255, 174, 0}},
+		base = {position={312, 744}, corner_size=8, tint={243, 170, 69}},
 		shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
 	}
 }
 
---[[data.raw["gui-style"].default.RNS_Fake_Button_Blue =
+data.raw["gui-style"].default[Constants.Settings.RNS_Gui.button_2] =
 {
 	type = "button_style",
 	parent = "shortcut_bar_button",
 	default_graphical_set =
 	{
-		base = {position = {312, 759}, corner_size = 8},
-        shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
-	},
-	hovered_graphical_set =
-	{
-		base = {position = {312, 759}, corner_size = 8},
-        shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
-	},
-	clicked_graphical_set =
-	{
-		base = {position = {312, 759}, corner_size = 8},
-        shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
-	}
-}
-
-data.raw["gui-style"].default.RNS_Fake_Button_Green =
-{
-	type = "button_style",
-	parent = "shortcut_bar_button",
-	default_graphical_set =
-	{
-		base = {position = {312, 792}, corner_size = 8},
-        shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
-	},
-	hovered_graphical_set =
-	{
-		base = {position = {312, 792}, corner_size = 8},
-        shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
-	},
-	clicked_graphical_set =
-	{
-		base = {position = {312, 792}, corner_size = 8},
-        shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
-	}
-}
-
-data.raw["gui-style"].default.RNS_Fake_Button_Red =
-{
-	type = "button_style",
-	parent = "shortcut_bar_button",
-	default_graphical_set =
-	{
-		base = {position = {312, 776}, corner_size = 8},
-        shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
-	},
-	hovered_graphical_set =
-	{
-		base = {position = {312, 776}, corner_size = 8},
-        shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
-	},
-	clicked_graphical_set =
-	{
-		base = {position = {312, 776}, corner_size = 8},
-        shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
-	}
-}
-
-data.raw["gui-style"].default.RNS_Fake_Button_Purple =
-{
-	type = "button_style",
-	parent = "shortcut_bar_button",
-	default_graphical_set =
-	{
-		base = {position = {346, 759}, corner_size = 8, tint=purpleTint},
+		base = {position={312, 744}, corner_size=8, tint={255, 130, 255}},
 		shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
 	},
 	hovered_graphical_set =
 	{
-		base = {position = {346, 759}, corner_size = 8, tint=purpleTint},
+		base = {position={312, 744}, corner_size=8, tint={255, 216, 255}},
 		shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
 	},
 	clicked_graphical_set =
 	{
-		base = {position = {346, 759}, corner_size = 8, tint=purpleTint},
+		base = {position={312, 744}, corner_size=8, tint={255, 216, 255}},
 		shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
 	}
-}]]
+}

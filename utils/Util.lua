@@ -117,15 +117,16 @@ end
 -- Only takes converted itemstacks
 -- Doesn't check linked entity or if an item is modified or it's item number
 function Util.itemstack_matches(itemstack1, itemstack2, checkLinked)
+	--Need to fix, it doesn't work properly for advanced items
 	if type(itemstack1) ~= "table" or type(itemstack2) ~= "table" then return false end
 
 	if game.item_prototypes[itemstack1.cont.name] ~= game.item_prototypes[itemstack2.cont.name] then return false end
 
 	if checkLinked then
-		if itemstack1.linked and itemstack2.linked and itemstack1.linked.unit_number ~= itemstack2.linked.unit_number then return false end
+		if itemstack1.linked and itemstack2.linked and itemstack1.linked ~= "" and itemstack2.linked ~= "" and itemstack1.linked.unit_number ~= itemstack2.linked.unit_number then return false end
 	end
 
-	if itemstack1.modified and itemstack2.modified and itemstack1.id and itemstack2.id and itemstack1.id ~= itemstack2.id then return false end
+	if itemstack1.modified and itemstack2.modified and itemstack1.modified == true and itemstack2.modified == true and itemstack1.id and itemstack2.id and itemstack1.id ~= itemstack2.id then return false end
 
 	if itemstack1.label and itemstack2.label and itemstack1.label ~= itemstack2.label then return false end
 
@@ -145,7 +146,7 @@ function Util.itemstack_matches(itemstack1, itemstack2, checkLinked)
 end
 
 function Util.itemstack_convert(itemstack)
-	local converted = {}
+	local converted = {cont={}}
 
 	converted.cont.name = itemstack.name
 	converted.cont.count = itemstack.count
@@ -161,19 +162,24 @@ function Util.itemstack_convert(itemstack)
 
 	if itemstack.item_number then converted.id = itemstack.item_number end
 	if itemstack.label then converted.label = itemstack.label end
-	if itemstack.connected_entity then converted.linked = itemstack.connected_entity end
+	if itemstack.type == "spidertron-remote" then
+		converted.linked = itemstack.connected_entity or ""
+		converted.modified = converted.linked ~= "" and true or false
+	end
 	if itemstack.grid then converted.modified = itemstack.grid.count() <= 0 and false or true end
 	if itemstack.is_blueprint then converted.modified = itemstack.is_blueprint_setup() end
-	if itemstack.is_blueprint_book then converted.modified = #itemstack.get_inventory(defines.inventory.item_main) <= 0 and false or true end
+	if itemstack.is_blueprint_book then converted.modified = ((#itemstack.get_inventory(defines.inventory.item_main) <= 0) and {false} or {true})[1] end
 	if itemstack.is_deconstruction_item then
-		converted.modified = #itemstack.entity_filters > 0 or #itemstack.tile_filters > 0 or itemstack.label or itemstack.trees_and_rocks_only or itemstack.entity_filter_mode ~= 0 or itemstack.tile_filter_mode ~= 0 or itemstack.tile_selection_mode ~= 0 and true or false
+		converted.modified = ((#itemstack.entity_filters > 0 or #itemstack.tile_filters > 0 or itemstack.label or itemstack.trees_and_rocks_only or itemstack.entity_filter_mode ~= 0 or itemstack.tile_filter_mode ~= 0 or itemstack.tile_selection_mode ~= 0) and {true} or {false})[1]
 	end
 	if itemstack.is_upgrade_item then
-		converted.modified = itemstack.label and true or false
-		for i = 1, itemstack.prototype.mapper_count do
-			if itemstack.get_mapper(i, "from").name ~= nil or itemstack.get_mapper(i, "to").name ~= nil then
-				converted.modified = true
-				break
+		converted.modified = (itemstack.label and {true} or {false})[1]
+		if not converted.modified then 
+			for i = 1, itemstack.prototype.mapper_count do
+				if itemstack.get_mapper(i, "from").name ~= nil or itemstack.get_mapper(i, "to").name ~= nil then
+					converted.modified = true
+					break
+				end
 			end
 		end
 	end
@@ -190,18 +196,23 @@ function Util.add_or_merge(itemstack, list)
 		local l = list[i]
 
 		if game.item_prototypes[l.cont.name] ~= game.item_prototypes[itemstackC.cont.name] then goto continue end
-		if not itemstackC.modified and not l.modified then
-			l.cont.count = l.cont.count + itemstackC.cont.count
-			l.cont.health = math.min((l.cont.health + itemstackC.cont.health)/2, 1)
-			found = true
-			goto continue
-		end
-		if (itemstackC.linked and l.linked and itemstackC.linked.unit_number == l.linked.unit_number)
-			or (itemstackC.linked == nil and l.linked == nil) then
+		if itemstackC.modified ~= nil and l.modified ~= nil then
+			if itemstackC.modified == false and l.modified == false then
 				l.cont.count = l.cont.count + itemstackC.cont.count
 				l.cont.health = math.min((l.cont.health + itemstackC.cont.health)/2, 1)
 				found = true
 				goto continue
+			else
+				if itemstackC.linked ~= nil and l.linked ~= nil then
+					if itemstackC.linked ~= "" and l.linked ~= "" and itemstackC.linked.unit_number == l.linked.unit_number then
+						l.cont.count = l.cont.count + itemstackC.cont.count
+						l.cont.health = math.min((l.cont.health + itemstackC.cont.health)/2, 1)
+						found = true
+						goto continue
+					end
+				end
+				goto continue
+			end
 		end
 		if itemstackC.type == "item-with-tags" and l.type == "item-with-tags" then
 			if Util.tagMatches(l.cont, itemstackC.cont) and l.cont.health < 1 and itemstackC.cont.health < 1 then
