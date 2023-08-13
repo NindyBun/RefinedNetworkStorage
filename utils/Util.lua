@@ -115,26 +115,33 @@ function Util.toRNumber(number)
 end
 
 -- Only takes converted itemstacks
-function Util.itemstack_matches(itemstack1, itemstack2, checkID)
+-- Doesn't check linked entity or if an item is modified or it's item number
+function Util.itemstack_matches(itemstack1, itemstack2, checkLinked)
 	if type(itemstack1) ~= "table" or type(itemstack2) ~= "table" then return false end
 
+	if game.item_prototypes[itemstack1.cont.name] ~= game.item_prototypes[itemstack2.cont.name] then return false end
 
-	
-	if itemstack1.id ~= nil and itemstack2.id ~= nil and itemstack1.id ~= itemstack2.id then return false end
+	if checkLinked then
+		if itemstack1.linked and itemstack2.linked and itemstack1.linked.unit_number ~= itemstack2.linked.unit_number then return false end
+	end
 
-	if itemstack1.type ~= nil and itemstack2.type ~= nil and itemstack1.type == "item-with-tags" and itemstack2.type == "item-with-tags" and Util.tagMatches(itemstack1.cont, itemstack2.cont) == false then return false end
+	if itemstack1.modified and itemstack2.modified and itemstack1.id and itemstack2.id and itemstack1.id ~= itemstack2.id then return false end
+
+	if itemstack1.label and itemstack2.label and itemstack1.label ~= itemstack2.label then return false end
+
+	if itemstack1.type and itemstack2.type and itemstack1.type == "item-with-tags" and itemstack2.type == "item-with-tags" and Util.tagMatches(itemstack1.cont, itemstack2.cont) == false then return false end
 
 	if itemstack1.cont == nil or itemstack2.cont == nil then return false end
 
-	if itemstack1.cont.name ~= nil and itemstack2.cont.name ~= nil and game.item_prototypes[itemstack1.cont.name] ~= game.item_prototypes[itemstack2.cont.name] then return false end
+	if itemstack1.cont.name and itemstack2.cont.name and game.item_prototypes[itemstack1.cont.name] ~= game.item_prototypes[itemstack2.cont.name] then return false end
 	
-	if itemstack1.cont.durability ~= nil and itemstack2.cont.durability ~= nil and itemstack1.cont.durability == itemstack2.cont.durability then return true end
+	if itemstack1.cont.durability and itemstack2.cont.durability and itemstack1.cont.durability ~= itemstack2.cont.durability then return false end
 
-	if itemstack1.cont.ammo ~= nil and itemstack2.cont.ammo ~= nil and itemstack1.cont.ammo == itemstack2.cont.ammo then return true end
+	if itemstack1.cont.ammo and itemstack2.cont.ammo and itemstack1.cont.ammo ~= itemstack2.cont.ammo then return false end
 
-	if itemstack1.cont.health ~= nil and itemstack2.cont.health ~= nil and itemstack1.cont.health == itemstack2.cont.health then return true end
+	if itemstack1.cont.health and itemstack2.cont.health and itemstack1.cont.health ~= itemstack2.cont.health then return false end
 
-	return false
+	return true
 end
 
 function Util.itemstack_convert(itemstack)
@@ -156,9 +163,10 @@ function Util.itemstack_convert(itemstack)
 	if itemstack.label then converted.label = itemstack.label end
 	if itemstack.connected_entity then converted.linked = itemstack.connected_entity end
 	if itemstack.grid then converted.modified = itemstack.grid.count() <= 0 and false or true end
+	if itemstack.is_blueprint then converted.modified = itemstack.is_blueprint_setup() end
 	if itemstack.is_blueprint_book then converted.modified = #itemstack.get_inventory(defines.inventory.item_main) <= 0 and false or true end
 	if itemstack.is_deconstruction_item then
-		converted.modified = #itemstack.entity_filters > 0 or #itemstack.tile_filters > 0 or itemstack.label or itemstack.trees_and_rocks_only and true or false
+		converted.modified = #itemstack.entity_filters > 0 or #itemstack.tile_filters > 0 or itemstack.label or itemstack.trees_and_rocks_only or itemstack.entity_filter_mode ~= 0 or itemstack.tile_filter_mode ~= 0 or itemstack.tile_selection_mode ~= 0 and true or false
 	end
 	if itemstack.is_upgrade_item then
 		converted.modified = itemstack.label and true or false
@@ -178,66 +186,48 @@ function Util.add_or_merge(itemstack, list)
 
 	local itemstackC = Util.itemstack_convert(itemstack)
 
-	local n = itemstack.name
-	local p = itemstack.prototype
-	local h = itemstack.health
-	local c = itemstack.count
-	local d = itemstack.is_repair_tool and itemstack.durability or nil
-	local t = itemstack.is_item_with_tags and itemstack.tags or nil
-	local a = p.type == "ammo" and itemstack.ammo or nil
-
-	if itemstack.is_upgrade_item or itemstack.is_deconstruction_item then
-		table.insert(list, Util.itemstack_convert(itemstack))
-		return
-	end
-
 	for i = 1, Util.getTableLength(list) do
 		local l = list[i]
 
-		if game.item_prototypes[l.cont.name] ~= p then goto continue end
-		if itemstack.isEmpty ~= nil and l.isEmpty ~= nil and itemstack.isEmpty and l.isEmpty then
-			if itemstack.grid ~= nil and l.grid ~= nil then
-				l.cont.count = l.cont.count + c
-				found = true
-				goto continue
-			end
-			if itemstack.label ~= nil and l.label ~= nil and itemstack.label == l.label then
-				l.cont.count = l.cont.count + c
-				found = true
-				goto continue
-			end
+		if game.item_prototypes[l.cont.name] ~= game.item_prototypes[itemstackC.cont.name] then goto continue end
+		if not itemstackC.modified and not l.modified then
+			l.cont.count = l.cont.count + itemstackC.cont.count
+			l.cont.health = math.min((l.cont.health + itemstackC.cont.health)/2, 1)
+			found = true
+			goto continue
 		end
-		if (itemstack.connected_entity ~= nil and l.linked ~= nil and itemstack.connected_entity.unit_number == l.linked.unit_number)
-			or (itemstack.connected_entity == nil and l.linked == nil) then
-				l.cont.count = l.cont.count + c
+		if (itemstackC.linked and l.linked and itemstackC.linked.unit_number == l.linked.unit_number)
+			or (itemstackC.linked == nil and l.linked == nil) then
+				l.cont.count = l.cont.count + itemstackC.cont.count
+				l.cont.health = math.min((l.cont.health + itemstackC.cont.health)/2, 1)
 				found = true
 				goto continue
 		end
-		if itemstack.type == "item-with-tags" and l.type == "item-with-tags" then
-			if Util.tagMatches(l.cont, itemstack) and l.cont.health < 1 and h < 1 then
-				l.cont.count = l.cont.count + c
-				l.cont.health = math.min((l.cont.health + h)/2, 1)
+		if itemstackC.type == "item-with-tags" and l.type == "item-with-tags" then
+			if Util.tagMatches(l.cont, itemstackC.cont) and l.cont.health < 1 and itemstackC.cont.health < 1 then
+				l.cont.count = l.cont.count + itemstackC.cont.count
+				l.cont.health = math.min((l.cont.health + itemstackC.cont.health)/2, 1)
 				found = true
 				goto continue
 			else
 				goto continue
 			end
 		end
-		if d ~= nil and l.cont.durability ~= nil then
-			l.cont.count = l.cont.count + c
-			l.cont.durability = math.min((l.cont.durability + d)/2, p.durability)
+		if itemstackC.cont.durability and l.cont.durability then
+			l.cont.count = l.cont.count + itemstackC.cont.count
+			l.cont.durability = math.min((l.cont.durability + itemstackC.cont.durability)/2, game.item_prototypes[itemstackC.cont.name].durability)
 			found = true
 			goto continue
 		end
-		if a ~= nil and l.cont.ammo ~= nil then
-			l.cont.count = l.cont.count + c
-			l.cont.ammo = math.min((l.cont.ammo + a)/2, p.magazine_size)
+		if itemstackC.cont.ammo and l.cont.ammo then
+			l.cont.count = l.cont.count + itemstackC.cont.count
+			l.cont.ammo = math.min((l.cont.ammo + itemstackC.cont.ammo)/2, game.item_prototypes[itemstackC.cont.name].magazine_size)
 			found = true
 			goto continue
 		end
-		if l.cont.health == h then
-			l.cont.count = l.cont.count + c
-			l.cont.health = math.min((l.cont.health + h)/2, 1)
+		if l.cont.health == itemstackC.cont.health then
+			l.cont.count = l.cont.count + itemstackC.cont.count
+			l.cont.health = math.min((l.cont.health + itemstackC.cont.health)/2, 1)
 			found = true
 			goto continue
 		end
@@ -246,7 +236,7 @@ function Util.add_or_merge(itemstack, list)
 	end
 
 	if not found then
-		table.insert(list, Util.itemstack_convert(itemstack))
+		table.insert(list, itemstackC)
 		return
 	end
 end

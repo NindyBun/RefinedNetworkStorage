@@ -260,10 +260,6 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 		if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 and item.description ~= "" then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, item.description)
-		elseif item.data ~= nil then
-			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_data"})
-			table.insert(buttonText, item.id)
 		elseif item.id ~= nil then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_item_number"})
@@ -316,10 +312,6 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 			if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 and item.description ~= "" then
 				table.insert(buttonText, "\n")
 				table.insert(buttonText, item.description)
-			elseif item.data ~= nil then
-				table.insert(buttonText, "\n")
-				table.insert(buttonText, {"gui-description.RNS_data"})
-				table.insert(buttonText, item.id)
 			elseif item.id ~= nil then
 				table.insert(buttonText, "\n")
 				table.insert(buttonText, {"gui-description.RNS_item_number"})
@@ -374,13 +366,13 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 			end
 		end
 	else
-		--[[for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-			if drive:has_room() then
+		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+			if drive:has_empty_slot() then
 				local transfered = BaseNet.transfer_advanced_item(inv, drive.storage, itemstack, math.min(amount, drive:getRemainingStorageSize()))
 				amount = amount - transfered
 				if amount <= 0 then return end
 			end
-		end]]
+		end
 	end
 end
 
@@ -406,10 +398,20 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 				local transfered = BaseNet.transfer_basic_item(drive.storage, inv, itemstack, math.min(amount, drive:has_item(itemstack)))
 				amount = amount - transfered
 				if amount <= 0 then return end
+			else
+				return
 			end
 		end
 	else
-
+		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+			if RNSPlayer:has_empty_slot() then
+				local transfered = BaseNet.transfer_advanced_item(drive.storage, inv, itemstack, math.min(amount, drive:has_item(itemstack, true)))
+				amount = amount - transfered
+				if amount <= 0 then return end
+			else
+				return
+			end
+		end
 	end
 end
 

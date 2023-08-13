@@ -136,14 +136,14 @@ function ID:validate()
 
 end
 
-function ID:has_item(itemstack_data)
+function ID:has_item(itemstack_data, checkLinked)
     local amount = 0
     local inv = self.storage
     for i = 1, #inv do
         local itemstack = inv[i]
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
-        if Util.itemstack_matches(itemstackC, itemstack_data) then
+        if Util.itemstack_matches(itemstackC, itemstack_data, checkLinked) then
             amount = amount + itemstack.count
         end
         ::continue::
@@ -158,10 +158,7 @@ function ID:has_empty_slot()
     return false
 end
 
-function ID:has_room(count)
-    if count ~= nil then
-        if self:getRemainingStorageSize() >= count then return true end
-    end
+function ID:has_room()
     if self:getRemainingStorageSize() > 0 then return true end
     return false
 end
@@ -194,7 +191,7 @@ function ID:DataConvert_ItemToEntity(id)
     local inv = global.tempInventoryTable[id].storage
     for i = 1, #inv do
         if inv[i].count <= 0 then goto continue end
-        self.storage.insert(inv[i])
+        self.storage[i].transfer_stack(inv[i])
         ::continue::
     end
     global.tempInventoryTable[id] = nil
@@ -206,7 +203,7 @@ function ID:DataConvert_EntityToItem(item)
         local storage = game.create_inventory(self.maxStorage)
         for i = 1, #self.storage do
             if self.storage[i].count <= 0 then goto continue end
-            storage.insert(self.storage[i])
+            storage[i].transfer_stack(self.storage[i])
             ::continue::
         end
         global.tempInventoryTable[item.item_number] = {itemstack=item, storage=storage}

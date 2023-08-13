@@ -125,7 +125,27 @@ end
 
 --from_inv, to_inv, itemstack_data, count
 function BaseNet.transfer_advanced_item(from_inv, to_inv, itemstack_data, count)
+    local temp_count = count
+    
+    for i = 1, #from_inv do
+        local itemstack = from_inv[i]
+        if itemstack.count <= 0 then goto continue end
+        local itemstackC = Util.itemstack_convert(itemstack)
+        if Util.itemstack_matches(itemstackC, itemstack_data, true) == false then goto continue end
 
+        local min = math.min(itemstack.count, temp_count)
+        for j = 1, #to_inv do
+            if itemstack.count > 0 then goto continue end
+            if to_inv[j].transfer_stack(itemstack) then
+                temp_count = temp_count - min
+                break
+            end
+            ::continue::
+        end
+
+        if temp_count <= 0 then break end
+        ::continue::
+    end
 end
 
 
