@@ -122,25 +122,26 @@ function Util.itemstack_matches(itemstack1, itemstack2, checkLinked)
 
 	if game.item_prototypes[itemstack1.cont.name] ~= game.item_prototypes[itemstack2.cont.name] then return false end
 
-	if checkLinked then
-		if itemstack1.linked and itemstack2.linked and itemstack1.linked ~= "" and itemstack2.linked ~= "" and itemstack1.linked.unit_number ~= itemstack2.linked.unit_number then return false end
-	end
+	if itemstack1.cont == nil or itemstack2.cont == nil then return false end
+	if itemstack1.cont.name and itemstack2.cont.name and game.item_prototypes[itemstack1.cont.name] ~= game.item_prototypes[itemstack2.cont.name] then return false end
+	if itemstack1.cont.durability and itemstack2.cont.durability and itemstack1.cont.durability ~= itemstack2.cont.durability then return false end
+	if itemstack1.cont.ammo and itemstack2.cont.ammo and itemstack1.cont.ammo ~= itemstack2.cont.ammo then return false end
+	if itemstack1.cont.health and itemstack2.cont.health and itemstack1.cont.health ~= itemstack2.cont.health then return false end
 
-	if itemstack1.modified and itemstack2.modified and itemstack1.modified == true and itemstack2.modified == true and itemstack1.id and itemstack2.id and itemstack1.id ~= itemstack2.id then return false end
+	if itemstack1.modified ~= nil and itemstack2.modified ~= nil then
+		if itemstack1.modified ~= itemstack2.modified then return false end
+		if itemstack1.modified == true and itemstack2.modified == true then
+			if itemstack1.linked ~= nil and itemstack2.linked ~= nil then
+				if itemstack1.linked ~= "" and itemstack2.linked ~= "" and itemstack1.linked.unit_number ~= itemstack2.linked.unit_number then
+					return false
+				end
+			end
+		end
+	end
 
 	if itemstack1.label and itemstack2.label and itemstack1.label ~= itemstack2.label then return false end
 
 	if itemstack1.type and itemstack2.type and itemstack1.type == "item-with-tags" and itemstack2.type == "item-with-tags" and Util.tagMatches(itemstack1.cont, itemstack2.cont) == false then return false end
-
-	if itemstack1.cont == nil or itemstack2.cont == nil then return false end
-
-	if itemstack1.cont.name and itemstack2.cont.name and game.item_prototypes[itemstack1.cont.name] ~= game.item_prototypes[itemstack2.cont.name] then return false end
-	
-	if itemstack1.cont.durability and itemstack2.cont.durability and itemstack1.cont.durability ~= itemstack2.cont.durability then return false end
-
-	if itemstack1.cont.ammo and itemstack2.cont.ammo and itemstack1.cont.ammo ~= itemstack2.cont.ammo then return false end
-
-	if itemstack1.cont.health and itemstack2.cont.health and itemstack1.cont.health ~= itemstack2.cont.health then return false end
 
 	return true
 end
