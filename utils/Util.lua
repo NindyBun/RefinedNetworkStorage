@@ -167,7 +167,7 @@ function Util.itemstack_convert(itemstack)
 		converted.linked = itemstack.connected_entity or ""
 		converted.modified = converted.linked ~= "" and true or false
 	end
-	if itemstack.grid then converted.modified = itemstack.grid.count() <= 0 and false or true end
+	if itemstack.grid then converted.modified = (itemstack.grid.count() <= 0 and {false} or {true})[1] end
 	if itemstack.is_blueprint then converted.modified = itemstack.is_blueprint_setup() end
 	if itemstack.is_blueprint_book then converted.modified = ((#itemstack.get_inventory(defines.inventory.item_main) <= 0) and {false} or {true})[1] end
 	if itemstack.is_deconstruction_item then
