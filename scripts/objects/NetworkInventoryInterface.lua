@@ -326,7 +326,7 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 				table.insert(buttonText, {"gui-description.RNS_durability"})
 				table.insert(buttonText, item.cont.durability .. "/" .. game.item_prototypes[item.cont.name].durability)
 			end
-			if item.linked ~= nil then
+			if item.linked ~= nil and item.linked ~= "" then
 				table.insert(buttonText, "\n")
 				table.insert(buttonText, {"gui-description.RNS_linked"})
 				table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
