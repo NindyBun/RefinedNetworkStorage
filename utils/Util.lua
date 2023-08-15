@@ -196,17 +196,26 @@ function Util.add_or_merge(itemstack, list)
 	for i = 1, Util.getTableLength(list) do
 		local l = list[i]
 
-		if game.item_prototypes[l.cont.name] ~= game.item_prototypes[itemstackC.cont.name] then goto continue end
-		if itemstackC.modified ~= nil and l.modified ~= nil then
+		--if game.item_prototypes[l.cont.name] ~= game.item_prototypes[itemstackC.cont.name] then goto continue end
+		if Util.itemstack_matches(itemstackC, l, true) then
+			l.cont.count = l.cont.count + itemstackC.cont.count
+			l.cont.health = math.min((l.cont.health + itemstackC.cont.health)/2, 1)
+			if l.cont.durability then
+				l.cont.durability = math.min((l.cont.durability + itemstackC.cont.durability)/2, game.item_prototypes[itemstackC.cont.name].durability)
+			end
+			if l.cont.ammo then
+				l.cont.ammo = math.min((l.cont.ammo + itemstackC.cont.ammo)/2, game.item_prototypes[itemstackC.cont.name].magazine_size)
+			end
+			found = true
+		end
+		--[[if itemstackC.modified ~= nil and l.modified ~= nil then
 			if itemstackC.modified == false and l.modified == false then
-				l.cont.count = l.cont.count + itemstackC.cont.count
 				l.cont.health = math.min((l.cont.health + itemstackC.cont.health)/2, 1)
 				found = true
 				goto continue
 			else
 				if itemstackC.linked ~= nil and l.linked ~= nil then
 					if itemstackC.linked ~= "" and l.linked ~= "" and itemstackC.linked.unit_number == l.linked.unit_number then
-						l.cont.count = l.cont.count + itemstackC.cont.count
 						l.cont.health = math.min((l.cont.health + itemstackC.cont.health)/2, 1)
 						found = true
 						goto continue
@@ -217,7 +226,6 @@ function Util.add_or_merge(itemstack, list)
 		end
 		if itemstackC.type == "item-with-tags" and l.type == "item-with-tags" then
 			if Util.tagMatches(l.cont, itemstackC.cont) and l.cont.health < 1 and itemstackC.cont.health < 1 then
-				l.cont.count = l.cont.count + itemstackC.cont.count
 				l.cont.health = math.min((l.cont.health + itemstackC.cont.health)/2, 1)
 				found = true
 				goto continue
@@ -226,24 +234,25 @@ function Util.add_or_merge(itemstack, list)
 			end
 		end
 		if itemstackC.cont.durability and l.cont.durability then
-			l.cont.count = l.cont.count + itemstackC.cont.count
 			l.cont.durability = math.min((l.cont.durability + itemstackC.cont.durability)/2, game.item_prototypes[itemstackC.cont.name].durability)
 			found = true
 			goto continue
 		end
 		if itemstackC.cont.ammo and l.cont.ammo then
-			l.cont.count = l.cont.count + itemstackC.cont.count
 			l.cont.ammo = math.min((l.cont.ammo + itemstackC.cont.ammo)/2, game.item_prototypes[itemstackC.cont.name].magazine_size)
 			found = true
 			goto continue
 		end
 		if l.cont.health == itemstackC.cont.health then
-			l.cont.count = l.cont.count + itemstackC.cont.count
 			l.cont.health = math.min((l.cont.health + itemstackC.cont.health)/2, 1)
 			found = true
 			goto continue
 		end
 		
+		::continue::
+		if found then
+			l.cont.count = l.cont.count + itemstackC.cont.count
+		end]]
 		::continue::
 	end
 

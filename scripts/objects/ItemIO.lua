@@ -366,6 +366,24 @@ end
 
 function IIO:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
-        
+		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_Item"}
+
+		--mainFrame.style.height = 450
+
+		local informationFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
+		informationFrame.style = Constants.Settings.RNS_Gui.frame_1
+		informationFrame.style.vertically_stretchable = true
+		informationFrame.style.left_padding = 3
+		informationFrame.style.right_padding = 3
+		informationFrame.style.right_margin = 3
+		informationFrame.style.minimal_width = 200
+
+		GuiApi.add_subtitle(guiTable, "", informationFrame, {"gui-description.RNS_Information"})
+
+        -- Whitelist/Blacklist mode
+        -- Match metadata mode
+        -- Input/Output mode
+
+        --Filters 2 max
     end
 end
