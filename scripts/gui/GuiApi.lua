@@ -231,3 +231,34 @@ function GuiApi.add_text_field(guiTable, name, gui, text, tooltip, save, numeric
     end
     return textField
 end
+
+function GuiApi.add_switch(guiTable, name, gui, text1, text2, tooltip1, tooltip2, state, save, tags)
+    if gui[name] ~= nil then gui[name].destroy() end
+    local switch = gui.add{type="switch", name=name, switch_state=state or "left", left_label_caption=text1, right_label_caption=text2, left_label_tooltip=tooltip1, right_label_tooltip=tooltip2, tags=tags}
+
+    if guiTable ~= nil and save == true then
+        guiTable.vars[name] = switch
+    end
+    return switch
+end
+
+function GuiApi.add_filter(guiTable, name, gui, tooltip, save, elemType, size, tags)
+    if gui[name] ~= nil then gui[name].destroy() end
+    local filter = gui.add{type="choose-elem-button", name=name, tooltip=tooltip, elem_type=elemType, tags=tags}
+    filter.style.height = size
+    filter.style.width = size
+    if guiTable ~= nil and save == true then
+        guiTable.vars[name] = filter
+    end
+    return filter
+end
+
+function GuiApi.add_checkbox(guiTable, name, gui, text, tooltip, state, save, tags)
+    if gui[name] ~= nil then gui[name].destroy() end
+    local checkBox = gui.add{type="checkbox", name=name, caption=text, tooltip=tooltip, state=state or false, tags = tags}
+
+    if guiTable ~= nil and save == true then
+        guiTable.vars[name] = checkBox
+    end
+    return checkBox
+end

@@ -7,7 +7,8 @@ IIO = {
     focusedEntity = nil,
     cardinals = nil,
     filters = nil,
-    state = nil,
+    metadataMode = false,
+    whitelist = true,
     io = "output",
     ioIcon = nil
 }
@@ -56,7 +57,6 @@ function IIO:rebuild(object)
 end
 
 function IIO:remove()
-    if self.state ~= nil then self.state.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
         self.networkController.network.ItemIOTable[self.entID] = nil
@@ -380,10 +380,26 @@ function IIO:getTooltips(guiTable, mainFrame, justCreated)
 
 		GuiApi.add_subtitle(guiTable, "", informationFrame, {"gui-description.RNS_Information"})
 
+        local modeFlow = GuiApi.add_flow(guiTable, "", informationFrame, "horizontal")
+		modeFlow.style.vertical_align = "center"
+
         -- Whitelist/Blacklist mode
-        -- Match metadata mode
+        local state = "left"
+		if self.whitelist == false then state = "right" end
+		GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_Whitelist", modeFlow, {"gui-description.Whitelist"}, {"gui-description.Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
+
         -- Input/Output mode
+        local state1 = "left"
+		if self.io == "output" then state1 = "right" end
+		GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_IO", modeFlow, {"gui-description.Input"}, {"gui-description.Output"}, "", "", state1, false, {ID=self.thisEntity.unit_number})
+
+        -- Match metadata mode
+        GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Meta", modeFlow, {"gui-description.Metadata"}, "", self.metadataMode, false, {ID=self.thisEntity.unit_number})
 
         --Filters 2 max
     end
+end
+
+function IIO.interaction(event, player)
+
 end
