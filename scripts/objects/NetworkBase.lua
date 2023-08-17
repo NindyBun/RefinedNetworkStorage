@@ -107,7 +107,7 @@ function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, me
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
         if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) == false then
-            if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
+            if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] and metadataMode then
                 if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo ~= itemstackC.cont.ammo and itemstackC.cont.count > 1 then
                     itemstackC.cont.count = itemstackC.cont.count - 1
                     mod = true
