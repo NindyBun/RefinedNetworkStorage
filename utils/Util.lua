@@ -139,8 +139,9 @@ function Util.itemstack_matches(itemstack_data, itemstack_to_be_checked, metadat
 			end
 		end
 	end
-	if itemstack_data.cont.health and itemstack_to_be_checked.cont.health and itemstack_data.cont.health ~= itemstack_to_be_checked.cont.health and not metadataMode then return false end
-
+	if itemstack_data.cont.health and itemstack_to_be_checked.cont.health and itemstack_data.cont.health ~= itemstack_to_be_checked.cont.health then
+		if not metadataMode then return false end
+	end
 	if itemstack_data.modified ~= nil and itemstack_to_be_checked.modified ~= nil then
 		if itemstack_data.modified ~= itemstack_to_be_checked.modified then return false end
 		if itemstack_data.modified == true and itemstack_to_be_checked.modified == true then
