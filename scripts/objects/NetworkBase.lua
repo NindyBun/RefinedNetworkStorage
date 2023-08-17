@@ -98,40 +98,68 @@ function BaseNet:getTooltips()
 end
 
 -- from_inv, to_inv, itemstack_data, count
-function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count)
-    local temp = {name=itemstack_data.cont.name, count=count, health=itemstack_data.cont.health, durability=itemstack_data.cont.durability, ammo=itemstack_data.cont.ammo, tags=itemstack_data.cont.tags}
-    
-    --local removed = from_inv.remove(temp) --Removes the first instance by name. Not what I wanted it to do...
-    local inserted = to_inv.insert(temp) --This works fine tho
-
-    local temp_count = inserted
+function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, metadataMode)
+    local temp_count = count
 
     for i = 1, #from_inv do
+        local mod = false
         local itemstack = from_inv[i]
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
-        if Util.itemstack_matches(itemstackC, itemstack_data) == false then goto continue end
+        if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) == false then
+            if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
+                if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo ~= itemstackC.cont.ammo and itemstackC.cont.count > 1 then
+                    itemstackC.cont.count = itemstackC.cont.count - 1
+                    mod = true
+                    goto go
+                end
+                if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability ~= itemstackC.cont.durability and itemstackC.cont.count > 1 then
+                    itemstackC.cont.count = itemstackC.cont.count - 1
+                    mod = true
+                    goto go
+                end
+            end
+            goto continue
+        end
 
-        local min = math.min(itemstack.count, temp_count)
-        temp_count = temp_count - min
+        ::go::
+        local min = math.min(itemstackC.cont.count, temp_count)
+        local temp = {
+            name=itemstack_data.cont.name,
+            count=min,
+            health=itemstack_data.cont.health,
+            durability=itemstack_data.cont.durability,
+            ammo=itemstack_data.cont.ammo,
+            tags=itemstack_data.cont.tags
+        }
+        local inserted = to_inv.insert(temp)
+        
+        temp_count = temp_count - inserted
         itemstack.count = itemstack.count - min <= 0 and 0 or itemstack.count - min
+
+        if itemstack.count > 0 and itemstackC.cont.ammo and mod then
+            itemstack.ammo = itemstackC.cont.ammo
+        end
+        if itemstack.count > 0 and itemstackC.cont.durability and mod then
+            itemstack.durability = itemstackC.cont.durability
+        end
 
         if temp_count <= 0 then break end
         ::continue::
     end
 
-    return inserted
+    return count - temp_count
 end
 
 --from_inv, to_inv, itemstack_data, count
-function BaseNet.transfer_advanced_item(from_inv, to_inv, itemstack_data, count)
+function BaseNet.transfer_advanced_item(from_inv, to_inv, itemstack_data, count, metadataMode)
     local temp_count = count
     
     for i = 1, #from_inv do
         local itemstack = from_inv[i]
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
-        if Util.itemstack_matches(itemstackC, itemstack_data, true) == false then goto continue end
+        if Util.itemstack_matches(itemstack_data, itemstackC, true) == false then goto continue end
 
         local min = math.min(itemstack.count, temp_count)
         for j = 1, #to_inv do

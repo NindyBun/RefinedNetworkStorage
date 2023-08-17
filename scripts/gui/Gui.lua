@@ -98,3 +98,15 @@ function GUI.on_gui_clicked(event)
         return
     end
 end
+
+function GUI.on_gui_element_changed(event)
+    local player = getPlayer(event.player_index)
+    local RNSPlayer = getRNSPlayer(event.player_index)
+    if player == nil then return end
+
+    if string.match(event.element.name, "RNS_NetworkCableIO_Item") then
+        IIO.interaction(event, player)
+        GUI.update(true)
+        return
+    end
+end

@@ -136,14 +136,14 @@ function ID:validate()
 
 end
 
-function ID:has_item(itemstack_data, checkLinked)
+function ID:has_item(itemstack_data, metadataMode)
     local amount = 0
     local inv = self.storage
     for i = 1, #inv do
         local itemstack = inv[i]
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
-        if Util.itemstack_matches(itemstackC, itemstack_data, checkLinked) then
+        if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) then
             amount = amount + itemstack.count
         end
         ::continue::

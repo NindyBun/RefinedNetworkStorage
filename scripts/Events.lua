@@ -152,3 +152,4 @@ function Event.clear_gui(event)
     getRNSPlayer(event.player_index).GUI = {}
     player.opened = nil
 end
+

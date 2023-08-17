@@ -130,6 +130,15 @@ function onGuiClicked(event)
 	end
 end
 
+function onGuiElemChanged(event)
+    if event.element.get_mod() ~= Constants.MOD_ID then return end
+    if event.element == nil or event.element.valid == false then return end
+	if Util.safeCall(GUI.on_gui_element_changed, event) == false then
+		getPlayer(event.player_index).print({"gui-description.NS_update_gui_failed"})
+		Util.safeCall(Event.clear_gui, event)
+	end
+end
+
 script.on_init(onInit)
 script.on_configuration_changed(onInit)
 script.on_load(onLoad)
@@ -159,5 +168,9 @@ script.on_event(defines.events.on_gui_opened, onGuiOpened)
 script.on_event(defines.events.on_gui_closed, onGuiClosed)
 script.on_event(defines.events.on_gui_click, onGuiClicked)
 
---script.on_event(defines.events.on_gui_elem_changed, onGuiElemChanged)
---script.on_event(defines.events.on_gui_switch_state_changed, onGuiSwitchStateChanged)
+script.on_event(defines.events.on_gui_elem_changed, onGuiElemChanged)
+script.on_event(defines.events.on_gui_checked_state_changed, onGuiElemChanged)
+script.on_event(defines.events.on_gui_selection_state_changed, onGuiElemChanged)
+script.on_event(defines.events.on_gui_text_changed, onGuiElemChanged)
+script.on_event(defines.events.on_gui_switch_state_changed, onGuiElemChanged)
+script.on_event(defines.events.on_gui_selected_tab_changed, onGuiElemChanged)

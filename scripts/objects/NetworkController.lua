@@ -96,7 +96,7 @@ function NC:update()
     end
 
     if not self.stable then return end
-    local tickItemIO = game.tick % (120/Constants.Settings.RNS_BaseItemIO_Speed) --based on belt speed
+    local tickItemIO = game.tick % (60/Constants.Settings.RNS_BaseItemIO_Speed) --based on belt speed
     if tickItemIO >= 0.0 and tickItemIO < 1.0 then self:updateItemIO() end
 
     if game.tick % 60 == 0.0 then self:updateFluidIO() end

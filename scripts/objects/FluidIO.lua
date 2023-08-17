@@ -102,7 +102,7 @@ function FIO:generateModeIcon()
         target_offset=offset,
         surface=self.thisEntity.surface,
         only_in_alt_mode=true,
-        orientation=self.io == "input" and (self:getRealDirection()*0.25)-0.25 or ((self:getRealDirection()*0.25)+0.25)%1.00
+        orientation=self.io == "input" and ((self:getRealDirection()*0.25)+0.25)%1.00 or ((self:getRealDirection()*0.25)-0.25)
     }
 end
 

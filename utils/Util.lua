@@ -116,34 +116,59 @@ end
 
 -- Only takes converted itemstacks
 -- Doesn't check linked entity or if an item is modified or it's item number
-function Util.itemstack_matches(itemstack1, itemstack2, checkLinked)
+function Util.itemstack_matches(itemstack_data, itemstack_to_be_checked, metadataMode)
 	--Need to fix, it doesn't work properly for advanced items
-	if type(itemstack1) ~= "table" or type(itemstack2) ~= "table" then return false end
+	if itemstack_data.cont == nil or itemstack_to_be_checked.cont == nil then return false end
 
-	if game.item_prototypes[itemstack1.cont.name] ~= game.item_prototypes[itemstack2.cont.name] then return false end
+	if game.item_prototypes[itemstack_data.cont.name] ~= game.item_prototypes[itemstack_to_be_checked.cont.name] then return false end
 
-	if itemstack1.cont == nil or itemstack2.cont == nil then return false end
-	if itemstack1.cont.name and itemstack2.cont.name and game.item_prototypes[itemstack1.cont.name] ~= game.item_prototypes[itemstack2.cont.name] then return false end
-	if itemstack1.cont.durability and itemstack2.cont.durability and itemstack1.cont.durability ~= itemstack2.cont.durability then return false end
-	if itemstack1.cont.ammo and itemstack2.cont.ammo and itemstack1.cont.ammo ~= itemstack2.cont.ammo then return false end
-	if itemstack1.cont.health and itemstack2.cont.health and itemstack1.cont.health ~= itemstack2.cont.health then return false end
+	if itemstack_data.cont == nil or itemstack_to_be_checked.cont == nil then return false end
+	if itemstack_data.cont.name and itemstack_to_be_checked.cont.name and game.item_prototypes[itemstack_data.cont.name] ~= game.item_prototypes[itemstack_to_be_checked.cont.name] then return false end
 
-	if itemstack1.modified ~= nil and itemstack2.modified ~= nil then
-		if itemstack1.modified ~= itemstack2.modified then return false end
-		if itemstack1.modified == true and itemstack2.modified == true then
-			if itemstack1.linked ~= nil and itemstack2.linked ~= nil then
-				if itemstack1.linked ~= "" and itemstack2.linked ~= "" and itemstack1.linked.unit_number ~= itemstack2.linked.unit_number then
+	if itemstack_data.cont.durability and itemstack_to_be_checked.cont.durability then
+		if not metadataMode then
+			if itemstack_data.cont.durability ~= itemstack_to_be_checked.cont.durability then
+				return false
+			end
+		end
+	end
+	if itemstack_data.cont.ammo and itemstack_to_be_checked.cont.ammo then
+		if not metadataMode then
+			if itemstack_data.cont.ammo ~= itemstack_to_be_checked.cont.ammo then
+				return false
+			end
+		end
+	end
+	if itemstack_data.cont.health and itemstack_to_be_checked.cont.health and itemstack_data.cont.health ~= itemstack_to_be_checked.cont.health and not metadataMode then return false end
+
+	if itemstack_data.modified ~= nil and itemstack_to_be_checked.modified ~= nil then
+		if itemstack_data.modified ~= itemstack_to_be_checked.modified then return false end
+		if itemstack_data.modified == true and itemstack_to_be_checked.modified == true then
+			if itemstack_data.linked ~= nil and itemstack_to_be_checked.linked ~= nil then
+				if itemstack_data.linked ~= "" and itemstack_to_be_checked.linked ~= "" and itemstack_data.linked.unit_number ~= itemstack_to_be_checked.linked.unit_number then
 					return false
 				end
 			end
 		end
 	end
 
-	if itemstack1.label and itemstack2.label and itemstack1.label ~= itemstack2.label then return false end
+	if itemstack_data.label and itemstack_to_be_checked.label and itemstack_data.label ~= itemstack_to_be_checked.label then return false end
 
-	if itemstack1.type and itemstack2.type and itemstack1.type == "item-with-tags" and itemstack2.type == "item-with-tags" and Util.tagMatches(itemstack1.cont, itemstack2.cont) == false then return false end
+	if itemstack_data.type and itemstack_to_be_checked.type and itemstack_data.type == "item-with-tags" and itemstack_to_be_checked.type == "item-with-tags" and Util.tagMatches(itemstack_data.cont, itemstack_to_be_checked.cont) == false then return false end
 
 	return true
+end
+
+function Util.itemstack_template(item_prototype)
+	local template = {cont={}}
+	template.cont.name = item_prototype.name
+	template.cont.count = 1
+	template.cont.health = 1
+	template.cont.tags = {}
+	template.type = item_prototype.type
+	if item_prototype.durability then template.cont.durability = item_prototype.durability end
+	if item_prototype.type == "ammo" then template.cont.ammo = item_prototype.magazine_size end
+	return template
 end
 
 function Util.itemstack_convert(itemstack)
@@ -188,24 +213,24 @@ function Util.itemstack_convert(itemstack)
 	return converted
 end
 
-function Util.add_or_merge(itemstack, list)
+function Util.add_or_merge(itemstack, list, bypass)
 	local found = false
 
-	local itemstackC = Util.itemstack_convert(itemstack)
+	local itemstackC = bypass and itemstack or Util.itemstack_convert(itemstack)
 
 	for i = 1, Util.getTableLength(list) do
 		local l = list[i]
 
 		--if game.item_prototypes[l.cont.name] ~= game.item_prototypes[itemstackC.cont.name] then goto continue end
-		if Util.itemstack_matches(itemstackC, l, true) then
+		if Util.itemstack_matches(l, itemstackC) then
 			l.cont.count = l.cont.count + itemstackC.cont.count
-			l.cont.health = math.min((l.cont.health + itemstackC.cont.health)/2, 1)
-			if l.cont.durability then
-				l.cont.durability = math.min((l.cont.durability + itemstackC.cont.durability)/2, game.item_prototypes[itemstackC.cont.name].durability)
-			end
-			if l.cont.ammo then
-				l.cont.ammo = math.min((l.cont.ammo + itemstackC.cont.ammo)/2, game.item_prototypes[itemstackC.cont.name].magazine_size)
-			end
+			--l.cont.health = math.min((l.cont.health + itemstackC.cont.health)/2, 1)
+			--if l.cont.durability then
+			--	l.cont.durability = math.min((l.cont.durability + itemstackC.cont.durability)/2, game.item_prototypes[itemstackC.cont.name].durability)
+			--end
+			--if l.cont.ammo then
+			--	l.cont.ammo = math.min((l.cont.ammo + itemstackC.cont.ammo)/2, game.item_prototypes[itemstackC.cont.name].magazine_size)
+			--end
 			found = true
 		end
 		--[[if itemstackC.modified ~= nil and l.modified ~= nil then
@@ -257,6 +282,26 @@ function Util.add_or_merge(itemstack, list)
 	end
 
 	if not found then
+		if itemstackC.cont.durability and itemstackC.cont.count > 1 and itemstackC.cont.durability ~= game.item_prototypes[itemstackC.cont.name].durability then
+			local type1 = Util.itemstack_convert(itemstack)
+			type1.cont.count = 1
+			local type2 = Util.itemstack_convert(itemstack)
+			type2.cont.count = type2.cont.count - 1
+			type2.cont.durability = game.item_prototypes[type2.cont.name].durability
+			Util.add_or_merge(type1, list, true)
+			Util.add_or_merge(type2, list, true)
+			return
+		end
+		if itemstackC.cont.ammo and itemstackC.cont.count > 1 and itemstackC.cont.ammo ~= game.item_prototypes[itemstackC.cont.name].magazine_size then
+			local type1 = Util.itemstack_convert(itemstack)
+			type1.cont.count = 1
+			local type2 = Util.itemstack_convert(itemstack)
+			type2.cont.count = type2.cont.count - 1
+			type2.cont.ammo = game.item_prototypes[type2.cont.name].magazine_size
+			Util.add_or_merge(type1, list, true)
+			Util.add_or_merge(type2, list, true)
+			return
+		end
 		table.insert(list, itemstackC)
 		return
 	end

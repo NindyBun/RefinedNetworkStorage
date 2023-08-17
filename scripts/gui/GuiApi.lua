@@ -58,7 +58,7 @@ function GuiApi.add_flow(guiTable, name, gui, direction, save)
 end
 
 function GuiApi.add_close_button(guiTable)
-    local button = GuiApi.add_button(guiTable, guiTable.gui.name .. "_CloseButton", guiTable.vars.topBarFlow, "utility.close_white", "utility.close_black", "utility.close_black", {"gui-description.closeButton"}, Constants.Settings.RNS_Gui.close_button_size)
+    local button = GuiApi.add_button(guiTable, guiTable.gui.name .. "_CloseButton", guiTable.vars.topBarFlow, "utility.close_white", "utility.close_black", "utility.close_black", {"gui-description.RNS_CloseButton"}, Constants.Settings.RNS_Gui.close_button_size)
     button.style = "frame_action_button"
 end
 
@@ -247,6 +247,7 @@ function GuiApi.add_filter(guiTable, name, gui, tooltip, save, elemType, size, t
     local filter = gui.add{type="choose-elem-button", name=name, tooltip=tooltip, elem_type=elemType, tags=tags}
     filter.style.height = size
     filter.style.width = size
+    
     if guiTable ~= nil and save == true then
         guiTable.vars[name] = filter
     end
