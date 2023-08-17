@@ -50,7 +50,7 @@ function Util.next(array)
 	array.index = array.index or 1
 	local value = array.values[array.index]
 	array.index = (array.index%Util.getTableLength(array.values))+1
-	return value
+	return value or array.values[array.index]
 end
 
 function Util.getTableLength(array)
@@ -159,7 +159,8 @@ function Util.itemstack_matches(itemstack_data, itemstack_to_be_checked, metadat
 	return true
 end
 
-function Util.itemstack_template(item_prototype)
+function Util.itemstack_template(name)
+	local item_prototype = game.item_prototypes[name]
 	local template = {cont={}}
 	template.cont.name = item_prototype.name
 	template.cont.count = 1

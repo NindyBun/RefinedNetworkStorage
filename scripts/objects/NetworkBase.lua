@@ -127,9 +127,9 @@ function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, me
         local temp = {
             name=itemstack_data.cont.name,
             count=min,
-            health=itemstack_data.cont.health,
-            durability=itemstack_data.cont.durability,
-            ammo=itemstack_data.cont.ammo,
+            health=not metadataMode and itemstack_data.cont.health or itemstackC.cont.health,
+            durability=not metadataMode and itemstack_data.cont.durability or itemstackC.cont.durability,
+            ammo=not metadataMode and itemstack_data.cont.ammo or itemstackC.cont.ammo,
             tags=itemstack_data.cont.tags
         }
         local inserted = to_inv.insert(temp)

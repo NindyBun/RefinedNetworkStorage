@@ -247,7 +247,8 @@ function IIO:IO()
                     a = foc.remove_item(Util.next(self.filters))
                 elseif self.io == "output" and self.whitelist == true and Util.getTableLength(self.filters.values) > 0 then
                     local nextItem = Util.next(self.filters)
-                    local itemstack = Util.itemstack_template(game.item_prototypes[nextItem])
+                    if nextItem == nil then return end
+                    local itemstack = Util.itemstack_template(nextItem)
                     for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
                         if not inv.is_full() and drive:has_item(itemstack, self.metadataMode) > 0 then
                             a = BaseNet.transfer_basic_item(drive.storage, inv, itemstack, 1, self.metadataMode)
