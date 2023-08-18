@@ -132,9 +132,7 @@ function Util.itemstack_matches(itemstack_data, itemstack_to_be_checked, metadat
 	end
 	if itemstack_data.cont.ammo and itemstack_to_be_checked.cont.ammo then
 		if itemstack_data.cont.ammo ~= itemstack_to_be_checked.cont.ammo then
-			if not metadataMode then
-				return false
-			end
+			if not metadataMode then return false end
 		end
 	end
 	if itemstack_data.cont.health and itemstack_to_be_checked.cont.health and itemstack_data.cont.health ~= itemstack_to_be_checked.cont.health then

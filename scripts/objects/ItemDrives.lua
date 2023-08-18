@@ -136,14 +136,14 @@ function ID:validate()
 
 end
 
-function ID:has_item(itemstack_data)
+function ID:has_item(itemstack_data, metadataMode)
     local amount = 0
     local inv = self.storage
     for i = 1, #inv do
         local itemstack = inv[i]
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
-        if Util.itemstack_matches(itemstack_data, itemstackC) then
+        if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) then
             amount = amount + itemstack.count
         elseif game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
             if ((itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo ~= itemstackC.cont.ammo) or (itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability ~= itemstackC.cont.durability)) and itemstackC.cont.count > 1 then

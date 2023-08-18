@@ -134,7 +134,7 @@ function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, me
         if itemstack.count > 0 and itemstackC.cont.ammo and not metadataMode then
             if mod then itemstack.ammo = itemstackC.cont.ammo end
         end
-        if itemstack.count > 0 and itemstackC.cont.durability and mod then
+        if itemstack.count > 0 and itemstackC.cont.durability and not metadataMode then
             if mod then itemstack.durability = itemstackC.cont.durability end
         end
 
