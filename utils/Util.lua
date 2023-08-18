@@ -126,15 +126,13 @@ function Util.itemstack_matches(itemstack_data, itemstack_to_be_checked, metadat
 	if itemstack_data.cont.name and itemstack_to_be_checked.cont.name and game.item_prototypes[itemstack_data.cont.name] ~= game.item_prototypes[itemstack_to_be_checked.cont.name] then return false end
 
 	if itemstack_data.cont.durability and itemstack_to_be_checked.cont.durability then
-		if not metadataMode then
-			if itemstack_data.cont.durability ~= itemstack_to_be_checked.cont.durability then
-				return false
-			end
+		if itemstack_data.cont.durability ~= itemstack_to_be_checked.cont.durability then
+			if not metadataMode then return false end
 		end
 	end
 	if itemstack_data.cont.ammo and itemstack_to_be_checked.cont.ammo then
-		if not metadataMode then
-			if itemstack_data.cont.ammo ~= itemstack_to_be_checked.cont.ammo then
+		if itemstack_data.cont.ammo ~= itemstack_to_be_checked.cont.ammo then
+			if not metadataMode then
 				return false
 			end
 		end

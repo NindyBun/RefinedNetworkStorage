@@ -102,19 +102,13 @@ function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, me
     local temp_count = count
 
     for i = 1, #from_inv do
-        local mod = false
         local itemstack = from_inv[i]
+        local mod = false
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
         if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) == false then
-            if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] and metadataMode then
-                if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo ~= itemstackC.cont.ammo and itemstackC.cont.count > 1 then
-                    itemstackC.cont.count = itemstackC.cont.count - 1
-                    mod = true
-                    goto go
-                end
-                if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability ~= itemstackC.cont.durability and itemstackC.cont.count > 1 then
-                    itemstackC.cont.count = itemstackC.cont.count - 1
+            if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
+                if ((itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo ~= itemstackC.cont.ammo) or (itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability ~= itemstackC.cont.durability)) and itemstackC.cont.count > 1 then
                     mod = true
                     goto go
                 end
@@ -135,13 +129,13 @@ function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, me
         local inserted = to_inv.insert(temp)
         
         temp_count = temp_count - inserted
-        itemstack.count = itemstack.count - min <= 0 and 0 or itemstack.count - min
+        itemstack.count = itemstack.count - inserted <= 0 and 0 or itemstack.count - inserted
 
-        if itemstack.count > 0 and itemstackC.cont.ammo and mod then
-            itemstack.ammo = itemstackC.cont.ammo
+        if itemstack.count > 0 and itemstackC.cont.ammo and not metadataMode then
+            if mod then itemstack.ammo = itemstackC.cont.ammo end
         end
         if itemstack.count > 0 and itemstackC.cont.durability and mod then
-            itemstack.durability = itemstackC.cont.durability
+            if mod then itemstack.durability = itemstackC.cont.durability end
         end
 
         if temp_count <= 0 then break end
