@@ -358,7 +358,7 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	if itemstack.id == nil then
 		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 			if drive:has_room() then
-				local transfered = BaseNet.transfer_basic_item(inv, drive.storage, itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true)
+				local transfered = BaseNet.transfer_basic_item(inv, drive.storage, itemstack, math.min(amount, drive:getRemainingStorageSize()))
 				amount = amount - transfered
 				if amount <= 0 then return end
 			end
