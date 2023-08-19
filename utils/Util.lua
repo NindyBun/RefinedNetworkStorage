@@ -117,6 +117,7 @@ end
 -- Only takes converted itemstacks
 -- Doesn't check linked entity or if an item is modified or it's item number
 function Util.itemstack_matches(itemstack_data, itemstack_to_be_checked, allowMetadata)
+	allowMetadata = allowMetadata or false
 	--Need to fix, it doesn't work properly for advanced items
 	if itemstack_data.cont == nil or itemstack_to_be_checked.cont == nil then return false end
 
@@ -215,6 +216,7 @@ end
 
 function Util.add_or_merge(itemstack, list, bypass)
 	local found = false
+	bypass = bypass or false
 
 	local itemstackC = bypass and itemstack or Util.itemstack_convert(itemstack)
 

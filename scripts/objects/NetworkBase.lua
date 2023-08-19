@@ -107,7 +107,7 @@ function BaseNet.transfer_item(from_inv, to_inv, count)
 
         if itemstackC.id == nil then
             itemstackC.cont.count = count
-            local inserted = to_inv.insert(itemstackC)
+            local inserted = to_inv.insert(itemstackC.cont)
             amount = amount + inserted
             itemstack.count = itemstack.count - inserted <= 0 and 0 or itemstack.count - inserted
         else
@@ -130,13 +130,15 @@ end
 -- from_inv, to_inv, itemstack_data, count
 function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, metadataMode, whitelist)
     local temp_count = count
+    whitelist = whitelist or false
+    metadataMode = metadataMode or false
 
     for i = 1, #from_inv do
         local itemstack = from_inv[i]
         local mod = false
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
-        if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) == whitelist then
+        if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) == false then
             if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
                 if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo > itemstackC.cont.ammo and itemstackC.cont.count > 1 then
                     mod = true
@@ -184,7 +186,9 @@ end
 --from_inv, to_inv, itemstack_data, count
 function BaseNet.transfer_advanced_item(from_inv, to_inv, itemstack_data, count, metadataMode, whitelist)
     local temp_count = count
-    
+    whitelist = whitelist or false
+    metadataMode = metadataMode or false
+
     for i = 1, #from_inv do
         local itemstack = from_inv[i]
         if itemstack.count <= 0 then goto continue end

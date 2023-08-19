@@ -259,7 +259,7 @@ function IIO:IO()
                     local itemstack = Util.itemstack_template(nextItem)
                     for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
                         if drive:has_room() then
-                            a = Constants.Settings.RNS_TypesWithID[itemstack.type] == false and BaseNet.transfer_basic_item(inv, drive.storage, itemstack, 1, self.metadataMode, self.whitelist) or BaseNet.transfer_advanced_item(inv, drive.storage, itemstack, 1, self.metadataMode, self.whitelist)
+                            a = Constants.Settings.RNS_TypesWithID[itemstack.type] == nil and BaseNet.transfer_basic_item(inv, drive.storage, itemstack, 1, self.metadataMode, self.whitelist) or BaseNet.transfer_advanced_item(inv, drive.storage, itemstack, 1, self.metadataMode, self.whitelist)
                         end
                     end
                 elseif Util.getTableLength(self.filters.values) == 0 and self.whitelist == false then
@@ -274,8 +274,8 @@ function IIO:IO()
                 if nextItem == nil then return end
                 local itemstack = Util.itemstack_template(nextItem)
                 for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                    if not inv.is_full() and drive:has_item(itemstack, self.metadataMode) > 0 then
-                        a = Constants.Settings.RNS_TypesWithID[itemstack.type] == false and BaseNet.transfer_basic_item(drive.storage, inv, itemstack, 1, self.metadataMode) or BaseNet.transfer_advanced_item(drive.storage, inv, itemstack, 1, self.metadataMode)
+                    if drive:has_item(itemstack, self.metadataMode) > 0 then
+                        a = Constants.Settings.RNS_TypesWithID[itemstack.type] == nil and BaseNet.transfer_basic_item(drive.storage, inv, itemstack, 1, self.metadataMode, true) or BaseNet.transfer_advanced_item(drive.storage, inv, itemstack, 1, self.metadataMode, true)
                     else
                         return
                     end
