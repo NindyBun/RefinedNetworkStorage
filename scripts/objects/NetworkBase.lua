@@ -97,8 +97,13 @@ function BaseNet:getTooltips()
     
 end
 
+-- from_inv, to_inv, count
+function BaseNet.transfer_item(from_inv, to_inv, count)
+
+end
+
 -- from_inv, to_inv, itemstack_data, count
-function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, metadataMode)
+function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, metadataMode, whitelist)
     local temp_count = count
 
     for i = 1, #from_inv do
@@ -106,7 +111,7 @@ function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, me
         local mod = false
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
-        if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) == false then
+        if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) == whitelist then
             if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
                 if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo > itemstackC.cont.ammo and itemstackC.cont.count > 1 then
                     mod = true
@@ -152,14 +157,14 @@ function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, me
 end
 
 --from_inv, to_inv, itemstack_data, count
-function BaseNet.transfer_advanced_item(from_inv, to_inv, itemstack_data, count, metadataMode)
+function BaseNet.transfer_advanced_item(from_inv, to_inv, itemstack_data, count, metadataMode, whitelist)
     local temp_count = count
     
     for i = 1, #from_inv do
         local itemstack = from_inv[i]
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
-        if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) == false then goto continue end
+        if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) == whitelist then goto continue end
 
         local min = math.min(itemstack.count, temp_count)
         for j = 1, #to_inv do
