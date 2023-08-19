@@ -253,43 +253,20 @@ function IIO:IO()
         repeat
             local a = 0
             if self.io == "input" then
-                if self.whitelist == true and Util.getTableLength(self.filters.values) > 0 then
+                if Util.getTableLength(self.filters.values) > 0 then
                     local nextItem = Util.next(self.filters)
                     if nextItem == nil then return end
                     local itemstack = Util.itemstack_template(nextItem)
-                    if Constants.Settings.RNS_TypesWithID[itemstack.type] == false then
-                        for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                            if drive:has_room() then
-                                a = BaseNet.transfer_basic_item(inv, drive.storage, itemstack, 1, self.metadataMode, true)
-                            end
-                        end
-                    else
-                        for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                            if drive:has_empty_slot() then
-                                a = BaseNet.transfer_advanced_item(inv, drive.storage, itemstack, 1, self.metadataMode, true)
-                            end
+                    for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+                        if drive:has_room() then
+                            a = Constants.Settings.RNS_TypesWithID[itemstack.type] == false and BaseNet.transfer_basic_item(inv, drive.storage, itemstack, 1, self.metadataMode, self.whitelist) or BaseNet.transfer_advanced_item(inv, drive.storage, itemstack, 1, self.metadataMode, self.whitelist)
                         end
                     end
-                elseif self.whitelist == false then
-                    if Util.getTableLength(self.filters.values) > 0 then
-                        local nextItem = Util.next(self.filters)
-                        if nextItem == nil then return end
-                        local itemstack = Util.itemstack_template(nextItem)
-                        if Constants.Settings.RNS_TypesWithID[itemstack.type] == false then
-                            for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                                if drive:has_room() then
-                                    a = BaseNet.transfer_basic_item(inv, drive.storage, itemstack, 1, self.metadataMode)
-                                end
-                            end
-                        else
-                            for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                                if drive:has_empty_slot() then
-                                    a = BaseNet.transfer_advanced_item(inv, drive.storage, itemstack, 1, self.metadataMode)
-                                end
-                            end
+                elseif Util.getTableLength(self.filters.values) == 0 and self.whitelist == false then
+                    for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+                        if drive:has_room() then --#kDrives have #k slots so as long as the drive has room then it also has a slot open
+                            a = BaseNet.transfer_item(inv, drive.storage, 1)
                         end
-                    else
-                    
                     end
                 end
             elseif self.io == "output" and self.whitelist == true and Util.getTableLength(self.filters.values) > 0 then

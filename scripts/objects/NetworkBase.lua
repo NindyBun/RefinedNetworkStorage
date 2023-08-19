@@ -99,7 +99,32 @@ end
 
 -- from_inv, to_inv, count
 function BaseNet.transfer_item(from_inv, to_inv, count)
+    local amount = 0
+    for i = 1, #from_inv do
+        local itemstack = from_inv[i]
+        if itemstack.count <= 0 then goto continue end
+        local itemstackC = Util.itemstack_convert(itemstack)
 
+        if itemstackC.id == nil then
+            itemstackC.cont.count = count
+            local inserted = to_inv.insert(itemstackC)
+            amount = amount + inserted
+            itemstack.count = itemstack.count - inserted <= 0 and 0 or itemstack.count - inserted
+        else
+            for j = 1, #to_inv do
+                local itemstack_j = to_inv[j]
+                if itemstack_j.count > 0 then goto continue end
+                if itemstack_j.transfer_stack(itemstack) then
+                    amount = amount + 1
+                    break
+                end
+                ::continue::
+            end
+        end
+
+        ::continue::
+    end
+    return amount
 end
 
 -- from_inv, to_inv, itemstack_data, count
