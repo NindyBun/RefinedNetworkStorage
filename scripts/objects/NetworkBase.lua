@@ -108,7 +108,11 @@ function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, me
         local itemstackC = Util.itemstack_convert(itemstack)
         if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) == false then
             if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
-                if ((itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo ~= itemstackC.cont.ammo) or (itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability ~= itemstackC.cont.durability)) and itemstackC.cont.count > 1 then
+                if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo > itemstackC.cont.ammo and itemstackC.cont.count > 1 then
+                    mod = true
+                    goto go
+                end
+                if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability > itemstackC.cont.durability and itemstackC.cont.count > 1 then
                     mod = true
                     goto go
                 end
@@ -127,6 +131,8 @@ function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, me
             tags=itemstack_data.cont.tags
         }
         local inserted = to_inv.insert(temp)
+
+        if inserted <= 0 then return count - temp_count end
         
         temp_count = temp_count - inserted
         itemstack.count = itemstack.count - inserted <= 0 and 0 or itemstack.count - inserted
@@ -153,7 +159,7 @@ function BaseNet.transfer_advanced_item(from_inv, to_inv, itemstack_data, count,
         local itemstack = from_inv[i]
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
-        if Util.itemstack_matches(itemstack_data, itemstackC, true) == false then goto continue end
+        if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) == false then goto continue end
 
         local min = math.min(itemstack.count, temp_count)
         for j = 1, #to_inv do
@@ -164,6 +170,7 @@ function BaseNet.transfer_advanced_item(from_inv, to_inv, itemstack_data, count,
                 break
             end
             ::continue::
+            if j == #to_inv then return count - temp_count end
         end
 
         if temp_count <= 0 then break end

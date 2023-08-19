@@ -113,11 +113,12 @@ function IIO:generateModeIcon()
     }
 end
 
-function IIO:IO()
+function IIO:transportIO()
     if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then return end
     local network = self.networkController.network
     if self.focusedEntity ~= nil and self.focusedEntity.valid == true then
         local foc = self.focusedEntity
+        local ind = self.filters.index
         if foc.type == "transport-belt" or foc.type == "underground-belt" or foc.type == "splitter" or foc.type == "loader" or foc.type == "loader-1x1" then
             local beltDir = Util.direction(foc)
             local ioDir = self:getRealDirection()
@@ -238,28 +239,38 @@ function IIO:IO()
                     return
                 end
             end
-        else
-            local ind = self.filters.index
-            local inv = foc.get_inventory(defines.inventory.chest)
-            repeat
-                local a = 0
-                if self.io == "input" then
-                    a = foc.remove_item(Util.next(self.filters))
-                elseif self.io == "output" and self.whitelist == true and Util.getTableLength(self.filters.values) > 0 then
-                    local nextItem = Util.next(self.filters)
-                    if nextItem == nil then return end
-                    local itemstack = Util.itemstack_template(nextItem)
-                    for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                        if not inv.is_full() and drive:has_item(itemstack, self.metadataMode) > 0 then
-                            a = BaseNet.transfer_basic_item(drive.storage, inv, itemstack, 1, self.metadataMode)
-                        else
-                            return
-                        end
+        end
+    end
+end
+
+function IIO:IO()
+    if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then return end
+    local network = self.networkController.network
+    if self.focusedEntity ~= nil and self.focusedEntity.valid == true then
+        local foc = self.focusedEntity
+        local ind = self.filters.index
+        local inv = foc.get_inventory(defines.inventory.chest)
+        repeat
+            local a = 0
+            if self.io == "input" then
+
+
+                
+                a = foc.remove_item(Util.next(self.filters))
+            elseif self.io == "output" and self.whitelist == true and Util.getTableLength(self.filters.values) > 0 then
+                local nextItem = Util.next(self.filters)
+                if nextItem == nil then return end
+                local itemstack = Util.itemstack_template(nextItem)
+                for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+                    if not inv.is_full() and drive:has_item(itemstack, self.metadataMode) > 0 then
+                        a = Constants.Settings.RNS_TypesWithID[itemstack.type] == false and BaseNet.transfer_basic_item(drive.storage, inv, itemstack, 1, self.metadataMode) or BaseNet.transfer_advanced_item(drive.storage, inv, itemstack, 1, self.metadataMode)
+                    else
+                        return
                     end
                 end
-            until a ~= 0 or ind == self.filters.index
-            return
-        end
+            end
+        until a ~= 0 or ind == self.filters.index
+        return
     end
 end
 

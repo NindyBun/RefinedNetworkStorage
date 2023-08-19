@@ -116,7 +116,7 @@ end
 
 -- Only takes converted itemstacks
 -- Doesn't check linked entity or if an item is modified or it's item number
-function Util.itemstack_matches(itemstack_data, itemstack_to_be_checked, metadataMode)
+function Util.itemstack_matches(itemstack_data, itemstack_to_be_checked, allowMetadata)
 	--Need to fix, it doesn't work properly for advanced items
 	if itemstack_data.cont == nil or itemstack_to_be_checked.cont == nil then return false end
 
@@ -127,31 +127,33 @@ function Util.itemstack_matches(itemstack_data, itemstack_to_be_checked, metadat
 
 	if itemstack_data.cont.durability and itemstack_to_be_checked.cont.durability then
 		if itemstack_data.cont.durability ~= itemstack_to_be_checked.cont.durability then
-			if not metadataMode then return false end
+			if not allowMetadata then return false end
 		end
 	end
 	if itemstack_data.cont.ammo and itemstack_to_be_checked.cont.ammo then
 		if itemstack_data.cont.ammo ~= itemstack_to_be_checked.cont.ammo then
-			if not metadataMode then return false end
+			if not allowMetadata then return false end
 		end
 	end
 	if itemstack_data.cont.health and itemstack_to_be_checked.cont.health and itemstack_data.cont.health ~= itemstack_to_be_checked.cont.health then
-		if not metadataMode then return false end
+		if not allowMetadata then return false end
 	end
 	if itemstack_data.modified ~= nil and itemstack_to_be_checked.modified ~= nil then
-		if itemstack_data.modified ~= itemstack_to_be_checked.modified then return false end
-		if itemstack_data.modified == true and itemstack_to_be_checked.modified == true then
-			if itemstack_data.linked ~= nil and itemstack_to_be_checked.linked ~= nil then
-				if itemstack_data.linked ~= "" and itemstack_to_be_checked.linked ~= "" and itemstack_data.linked.unit_number ~= itemstack_to_be_checked.linked.unit_number then
-					return false
+		if not allowMetadata then
+			if itemstack_data.modified ~= itemstack_to_be_checked.modified then return false end
+			if itemstack_data.modified == true and itemstack_to_be_checked.modified == true then
+				if itemstack_data.linked ~= nil and itemstack_to_be_checked.linked ~= nil then
+					if itemstack_data.linked ~= "" and itemstack_to_be_checked.linked ~= "" and itemstack_data.linked.unit_number ~= itemstack_to_be_checked.linked.unit_number then
+						return false
+					end
 				end
 			end
 		end
 	end
 
-	if itemstack_data.label and itemstack_to_be_checked.label and itemstack_data.label ~= itemstack_to_be_checked.label then return false end
+	if itemstack_data.label and itemstack_to_be_checked.label and itemstack_data.label ~= itemstack_to_be_checked.label and not allowMetadata then return false end
 
-	if itemstack_data.type and itemstack_to_be_checked.type and itemstack_data.type == "item-with-tags" and itemstack_to_be_checked.type == "item-with-tags" and Util.tagMatches(itemstack_data.cont, itemstack_to_be_checked.cont) == false then return false end
+	if itemstack_data.type and itemstack_to_be_checked.type and itemstack_data.type == "item-with-tags" and itemstack_to_be_checked.type == "item-with-tags" and Util.tagMatches(itemstack_data.cont, itemstack_to_be_checked.cont) == false and not allowMetadata then return false end
 
 	return true
 end

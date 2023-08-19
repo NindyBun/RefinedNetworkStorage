@@ -144,10 +144,23 @@ function ID:has_item(itemstack_data, metadataMode)
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
         if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) then
+            if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
+                if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo < game.item_prototypes[itemstackC.cont.name].magazine_size then
+                    amount = amount + 1
+                    goto continue
+                end
+                if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability < game.item_prototypes[itemstackC.cont.name].durability then
+                    amount = amount + 1
+                    goto continue
+                end
+            end
             amount = amount + itemstack.count
         elseif game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
-            if ((itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo ~= itemstackC.cont.ammo) or (itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability ~= itemstackC.cont.durability)) and itemstackC.cont.count > 1 then
-                amount = amount + (itemstack.count-1)
+            if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo > itemstackC.cont.ammo and itemstackC.cont.count > 1 then
+                amount = amount + itemstack.count - 1
+            end
+            if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability > itemstackC.cont.durability and itemstackC.cont.count > 1 then
+                amount = amount + itemstack.count - 1
             end
         end
         ::continue::
