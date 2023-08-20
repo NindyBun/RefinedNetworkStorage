@@ -138,8 +138,11 @@ function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, me
         local mod = false
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
-        if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) == not whitelist then
+        if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) == false then
             if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
+                if not whitelist then
+                    goto continue
+                end
                 if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo > itemstackC.cont.ammo and itemstackC.cont.count > 1 then
                     mod = true
                     goto go
@@ -148,11 +151,29 @@ function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, me
                     mod = true
                     goto go
                 end
+                goto continue
+            elseif not whitelist then
+                itemstack_data = Util.itemstack_template(itemstackC.cont.name)
+                if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) == false then
+                    if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo > itemstackC.cont.ammo and itemstackC.cont.count > 1 then
+                        mod = true
+                        goto go
+                    end
+                    if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability > itemstackC.cont.durability and itemstackC.cont.count > 1 then
+                        mod = true
+                        goto go
+                    end
+                elseif metadataMode then
+                    goto go
+                end
+                goto continue
             end
+        elseif not whitelist then
             goto continue
         end
 
         ::go::
+        
         local min = math.min(itemstackC.cont.count, temp_count)
         local temp = {
             name=itemstack_data.cont.name,
@@ -160,7 +181,7 @@ function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, me
             health=not metadataMode and itemstack_data.cont.health or itemstackC.cont.health,
             durability=not metadataMode and itemstack_data.cont.durability or itemstackC.cont.durability,
             ammo=not metadataMode and itemstack_data.cont.ammo or itemstackC.cont.ammo,
-            tags=itemstack_data.cont.tags
+            tags=not metadataMode and itemstack_data.cont.tags or itemstackC.cont.tags
         }
         local inserted = to_inv.insert(temp)
 

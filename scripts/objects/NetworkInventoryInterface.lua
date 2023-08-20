@@ -358,7 +358,7 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	if itemstack.id == nil then
 		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 			if drive:has_room() then
-				local transfered = BaseNet.transfer_basic_item(inv, drive.storage, itemstack, math.min(amount, drive:getRemainingStorageSize()))
+				local transfered = BaseNet.transfer_basic_item(inv, drive.storage, itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true)
 				amount = amount - transfered
 				if amount <= 0 then return end
 			end
@@ -366,7 +366,7 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	else
 		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 			if drive:has_empty_slot() then
-				local transfered = BaseNet.transfer_advanced_item(inv, drive.storage, itemstack, math.min(amount, drive:getRemainingStorageSize()))
+				local transfered = BaseNet.transfer_advanced_item(inv, drive.storage, itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true)
 				amount = amount - transfered
 				if amount <= 0 then return end
 			end
@@ -393,7 +393,7 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	if itemstack.id == nil then
 		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 			if RNSPlayer:has_room() then
-				local transfered = BaseNet.transfer_basic_item(drive.storage, inv, itemstack, math.min(amount, drive:has_item(itemstack)))
+				local transfered = BaseNet.transfer_basic_item(drive.storage, inv, itemstack, math.min(amount, drive:has_item(itemstack)), false, true)
 				amount = amount - transfered
 				if amount <= 0 then return end
 			else
@@ -403,7 +403,7 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	else
 		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 			if RNSPlayer:has_empty_slot() then
-				local transfered = BaseNet.transfer_advanced_item(drive.storage, inv, itemstack, math.min(amount, drive:has_item(itemstack, true)))
+				local transfered = BaseNet.transfer_advanced_item(drive.storage, inv, itemstack, math.min(amount, drive:has_item(itemstack, true)), false, true)
 				amount = amount - transfered
 				if amount <= 0 then return end
 			else
