@@ -274,7 +274,8 @@ function IIO:IO()
                 elseif Util.getTableLength(self.filters.values) == 0 and self.whitelist == false then
                     for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
                         if drive:has_room() then --#kDrives have #k slots so as long as the drive has room then it also has a slot open
-                            a = BaseNet.transfer_item(inv, drive.storage, 1)
+                            a = BaseNet.transfer_item(inv, drive.storage, 1, self.metadataMode)
+                            return
                         end
                     end
                 end
