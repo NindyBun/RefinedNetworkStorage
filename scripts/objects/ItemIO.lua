@@ -257,11 +257,20 @@ function IIO:IO()
                     local nextItem = Util.next(self.filters)
                     if nextItem == nil then return end
                     local itemstack = Util.itemstack_template(nextItem)
-                    for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                        if drive:has_room() then
-                            a = Constants.Settings.RNS_TypesWithID[itemstack.type] == nil and BaseNet.transfer_basic_item(inv, drive.storage, itemstack, 1, self.metadataMode, self.whitelist) or BaseNet.transfer_advanced_item(inv, drive.storage, itemstack, 1, self.metadataMode, self.whitelist)
+                    if self.whitelist then
+                        for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+                            if drive:has_room() then
+                                a = Constants.Settings.RNS_TypesWithID[itemstack.type] == nil and BaseNet.transfer_basic_item(inv, drive.storage, itemstack, 1, self.metadataMode, true) or BaseNet.transfer_advanced_item(inv, drive.storage, itemstack, 1, self.metadataMode, true)
+                            end
                         end
+                    else
+                    
                     end
+                    --for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+                    --    if drive:has_room() then
+                    --        a = Constants.Settings.RNS_TypesWithID[itemstack.type] == nil and BaseNet.transfer_basic_item(inv, drive.storage, itemstack, 1, self.metadataMode, self.whitelist) or BaseNet.transfer_advanced_item(inv, drive.storage, itemstack, 1, self.metadataMode, self.whitelist)
+                    --    end
+                    --end
                 elseif Util.getTableLength(self.filters.values) == 0 and self.whitelist == false then
                     for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
                         if drive:has_room() then --#kDrives have #k slots so as long as the drive has room then it also has a slot open

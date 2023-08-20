@@ -151,24 +151,7 @@ function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, me
                     mod = true
                     goto go
                 end
-                goto continue
-            elseif not whitelist then
-                itemstack_data = Util.itemstack_template(itemstackC.cont.name)
-                if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) == false then
-                    if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo > itemstackC.cont.ammo and itemstackC.cont.count > 1 then
-                        mod = true
-                        goto go
-                    end
-                    if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability > itemstackC.cont.durability and itemstackC.cont.count > 1 then
-                        mod = true
-                        goto go
-                    end
-                elseif metadataMode then
-                    goto go
-                end
-                goto continue
             end
-        elseif not whitelist then
             goto continue
         end
 
