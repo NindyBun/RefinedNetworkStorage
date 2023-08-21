@@ -43,7 +43,10 @@ function IIO:new(object)
     }
     t.filters = {
         index = 1,
-        values = {}
+        values = {
+            [1] = "",
+            [2] = ""
+        }
     }
     UpdateSys.addEntity(t)
     return t
@@ -254,8 +257,8 @@ function IIO:IO()
             local a = 0
             if self.io == "input" then
                 if Util.getTableLength(self.filters.values) > 0 then
-                    local nextItem = Util.next(self.filters)
-                    if nextItem == nil then return end
+                    local nextItem = Util.next_non_nil(self.filters)
+                    if nextItem == "" then return end
                     local itemstack = Util.itemstack_template(nextItem)
                     if self.whitelist then
                         for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
@@ -275,7 +278,6 @@ function IIO:IO()
                     for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
                         if drive:has_room() then --#kDrives have #k slots so as long as the drive has room then it also has a slot open
                             a = BaseNet.transfer_item(inv, drive.storage, 1, self.metadataMode)
-                            return
                         end
                     end
                 end
@@ -429,11 +431,11 @@ function IIO:getTooltips(guiTable, mainFrame, justCreated)
 
         local filter1 = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_1", filterFlow, "", true, "item", 40, {ID=self.thisEntity.unit_number})
 		guiTable.vars.filter1 = filter1
-		if self.filters.values[1] ~= nil then filter1.elem_value = self.filters.values[1] end
+		if self.filters.values[1] ~= "" then filter1.elem_value = self.filters.values[1] end
 
         local filter2 = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_2", filterFlow, "", true, "item", 40, {ID=self.thisEntity.unit_number})
 		guiTable.vars.filter2 = filter2
-		if self.filters.values[2] ~= nil then filter2.elem_value = self.filters.values[2] end
+		if self.filters.values[2] ~= "" then filter2.elem_value = self.filters.values[2] end
 
         local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", mainFrame, "vertical", true)
 		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -459,10 +461,10 @@ function IIO:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Item_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
     end
 
-    if self.filters[1] ~= nil then
+    if self.filters.values[1] ~= "" then
         guiTable.vars.filter1.elem_value = self.filters.values[1]
     end
-    if self.filters[2] ~= nil then
+    if self.filters.values[2] ~= "" then
         guiTable.vars.filter2.elem_value = self.filters.values[2]
     end
 
@@ -483,7 +485,7 @@ function IIO.interaction(event, player)
             if event.element.elem_value ~= nil then
                 io.filters.values[index] = event.element.elem_value
             else
-                io.filters.values[index] = nil
+                io.filters.values[index] = ""
             end
         end
 		GUI.update(true)

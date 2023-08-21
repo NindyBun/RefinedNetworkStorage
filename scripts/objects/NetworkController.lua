@@ -108,7 +108,7 @@ end
 function NC:updateItemIO(belt)
     for _, item in pairs(self.network.ItemIOTable) do
         if belt then
-            item:transportIO()
+            --item:transportIO()
         else
             item:IO()
         end
