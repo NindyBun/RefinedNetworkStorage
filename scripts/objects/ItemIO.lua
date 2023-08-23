@@ -271,10 +271,16 @@ function IIO:IO()
             end
         elseif self.io == "output" and self.whitelist == true and Util.getTableLength_non_nil(self.filters.values) > 0 then
             for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                local nextItem = Util.next_non_nil(self.filters)
-                if nextItem == "" then return end
-                local itemstack = Util.itemstack_template(nextItem)
-                local has = drive:has_item(itemstack, self.metadataMode)
+                local initial = self.filters.index
+                local nextItem = ""
+                local itemstack = nil
+                local has = 0
+                repeat
+                    nextItem = Util.next_non_nil(self.filters)
+                    if nextItem == "" then return end
+                    itemstack = Util.itemstack_template(nextItem)
+                    has = drive:has_item(itemstack, self.metadataMode)
+                until has > 0 or initial == self.filters.index
                 if has > 0 then
                     BaseNet.transfer_item(drive.storage, inv, itemstack, 1, self.metadataMode, true)
                     --if Constants.Settings.RNS_TypesWithID[itemstack.type] == nil then
