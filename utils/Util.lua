@@ -53,7 +53,7 @@ function Util.next_non_nil(array)
 	repeat
 		value = array.values[array.index]
 		array.index = (array.index%Util.getTableLength(array.values))+1
-	until value ~= "" or oldIndex == array.index
+	until value ~= "" or value ~= nil or oldIndex == array.index
 	return value
 end
 
@@ -68,7 +68,7 @@ end
 function Util.getTableLength(array)
 	local count = 0
 	for _, v in pairs(array) do
-		if v ~= nil or v ~= "" then
+		if v ~= nil and v ~= "" then
 			count = count + 1
 		end
 	end

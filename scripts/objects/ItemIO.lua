@@ -282,8 +282,8 @@ function IIO:IO()
                     end
                 end
             elseif self.io == "output" and self.whitelist == true and Util.getTableLength(self.filters.values) > 0 then
-                local nextItem = Util.next(self.filters)
-                if nextItem == nil then return end
+                local nextItem = Util.next_non_nil(self.filters)
+                if nextItem == "" then return end
                 local itemstack = Util.itemstack_template(nextItem)
                 for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
                     if drive:has_item(itemstack, self.metadataMode) > 0 then
