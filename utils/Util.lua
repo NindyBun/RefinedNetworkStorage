@@ -53,6 +53,7 @@ function Util.next_non_nil(array)
 	repeat
 		value = array.values[array.index]
 		array.index = (array.index%Util.getTableLength(array.values))+1
+		game.print(value .. "<>" .. array.index)
 	until (value ~= "" and value ~= nil) or initial == array.index
 	return value
 end
@@ -66,6 +67,14 @@ function Util.next(array)
 end
 
 function Util.getTableLength(array)
+	local count = 0
+	for _, _ in pairs(array) do
+		count = count + 1
+	end
+	return count
+end
+
+function Util.getTableLength_non_nil(array)
 	local count = 0
 	for _, v in pairs(array) do
 		if v ~= nil and v ~= "" then
