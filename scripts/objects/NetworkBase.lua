@@ -98,12 +98,19 @@ function BaseNet:getTooltips()
 end
 
 -- from_inv, to_inv, count
-function BaseNet.transfer_item(from_inv, to_inv, count, metadataMode)
+function BaseNet.transfer_item(from_inv, to_inv, itemstack_data, count, metadataMode, whitelist)
     local amount = count
     for i = 1, #from_inv do
         local itemstack = from_inv[i]
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
+        if itemstack_data ~= nil then
+            if whitelist == true then
+                if game.item_prototypes[itemstackC.cont.name] ~= game.item_prototypes[itemstack_data.cont.name] then goto continue end
+            elseif whitelist == false then
+                if game.item_prototypes[itemstackC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then goto continue end
+            end
+        end
         local item_template = Util.itemstack_template(itemstackC.cont.name)
         local min = math.min(itemstackC.cont.count, amount)
         if itemstackC.id == nil then

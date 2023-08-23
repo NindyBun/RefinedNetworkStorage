@@ -251,50 +251,39 @@ function IIO:IO()
     local network = self.networkController.network
     if self.focusedEntity ~= nil and self.focusedEntity.valid == true then
         local foc = self.focusedEntity
-        local ind = self.filters.index
         local inv = foc.get_inventory(defines.inventory.chest)
-        repeat
-            local a = 0
-            if self.io == "input" then
-                if Util.getTableLength(self.filters.values) > 0 then
-                    local nextItem = Util.next_non_nil(self.filters)
-                    if nextItem == "" then return end
-                    local itemstack = Util.itemstack_template(nextItem)
-                    if self.whitelist then
-                        for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                            if drive:has_room() then
-                                a = Constants.Settings.RNS_TypesWithID[itemstack.type] == nil and BaseNet.transfer_basic_item(inv, drive.storage, itemstack, 1, self.metadataMode, true) or BaseNet.transfer_advanced_item(inv, drive.storage, itemstack, 1, self.metadataMode, true)
-                            end
-                        end
-                    else
-                    
-                    end
-                    --for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                    --    if drive:has_room() then
-                    --        a = Constants.Settings.RNS_TypesWithID[itemstack.type] == nil and BaseNet.transfer_basic_item(inv, drive.storage, itemstack, 1, self.metadataMode, self.whitelist) or BaseNet.transfer_advanced_item(inv, drive.storage, itemstack, 1, self.metadataMode, self.whitelist)
-                    --    end
-                    --end
-                elseif Util.getTableLength(self.filters.values) == 0 and self.whitelist == false then
-                    for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                        if drive:has_room() then --#kDrives have #k slots so as long as the drive has room then it also has a slot open
-                            a = BaseNet.transfer_item(inv, drive.storage, 1, self.metadataMode)
-                        end
-                    end
-                end
-            elseif self.io == "output" and self.whitelist == true and Util.getTableLength(self.filters.values) > 0 then
+        if self.io == "input" then
+            if Util.getTableLength(self.filters.values) > 0 then
                 local nextItem = Util.next_non_nil(self.filters)
                 if nextItem == "" then return end
                 local itemstack = Util.itemstack_template(nextItem)
                 for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                    if drive:has_item(itemstack, self.metadataMode) > 0 then
-                        a = Constants.Settings.RNS_TypesWithID[itemstack.type] == nil and BaseNet.transfer_basic_item(drive.storage, inv, itemstack, 1, self.metadataMode, true) or BaseNet.transfer_advanced_item(drive.storage, inv, itemstack, 1, self.metadataMode, true)
-                    else
-                        return
+                    if drive:has_room() then
+                        BaseNet.transfer_item(inv, drive.storage, itemstack, 1, self.metadataMode, self.whitelist)
+                    end
+                end
+            elseif Util.getTableLength(self.filters.values) == 0 and self.whitelist == false then
+                for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+                    if drive:has_room() then --#kDrives have #k slots so as long as the drive has room then it also has a slot open
+                        BaseNet.transfer_item(inv, drive.storage, nil, 1, self.metadataMode, false)
                     end
                 end
             end
-        until a ~= 0 or ind == self.filters.index
-        return
+        elseif self.io == "output" and self.whitelist == true and Util.getTableLength(self.filters.values) > 0 then
+            for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+                local nextItem = Util.next_non_nil(self.filters)
+                if nextItem == "" then return end
+                local itemstack = Util.itemstack_template(nextItem)
+                local has = drive:has_item(itemstack, self.metadataMode)
+                if has > 0 then
+                    if Constants.Settings.RNS_TypesWithID[itemstack.type] == nil then
+                        BaseNet.transfer_basic_item(drive.storage, inv, itemstack, 1, self.metadataMode, true)
+                    else
+                        BaseNet.transfer_advanced_item(drive.storage, inv, itemstack, 1, self.metadataMode, true)
+                    end
+                end
+            end
+        end
     end
 end
 

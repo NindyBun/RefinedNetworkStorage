@@ -49,11 +49,11 @@ function Util.next_non_nil(array)
 	array.values = array.values or array
 	array.index = array.index or 1
 	local value = ""
-	local oldIndex = array.index
+	local initial = array.index
 	repeat
 		value = array.values[array.index]
 		array.index = (array.index%Util.getTableLength(array.values))+1
-	until value ~= "" or value ~= nil or oldIndex == array.index
+	until (value ~= "" and value ~= nil) or initial == array.index
 	return value
 end
 
