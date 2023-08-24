@@ -48,6 +48,13 @@ function IIO:new(object)
             [2] = ""
         }
     }
+    t.focusedEntity = {
+        thisEntity = nil,
+        inventory = {
+            index = 1,
+            values = nil
+        }
+    }
     UpdateSys.addEntity(t)
     return t
 end
@@ -121,7 +128,6 @@ function IIO:transportIO()
     local network = self.networkController.network
     if self.focusedEntity ~= nil and self.focusedEntity.valid == true then
         local foc = self.focusedEntity
-        local ind = self.filters.index
         if foc.type == "transport-belt" or foc.type == "underground-belt" or foc.type == "splitter" or foc.type == "loader" or foc.type == "loader-1x1" then
             local beltDir = Util.direction(foc)
             local ioDir = self:getRealDirection()
@@ -246,48 +252,98 @@ function IIO:transportIO()
     end
 end
 
+function IIO.has_item(inv, itemstack_data, metadataMode)
+    local amount = 0
+    for i = 1, #inv do
+        local itemstack = inv[i]
+        if itemstack.count <= 0 then goto continue end
+        local itemstackC = Util.itemstack_convert(itemstack)
+        if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) then
+            if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
+                if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo < game.item_prototypes[itemstackC.cont.name].magazine_size then
+                    amount = amount + 1
+                    goto continue
+                end
+                if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability < game.item_prototypes[itemstackC.cont.name].durability then
+                    amount = amount + 1
+                    goto continue
+                end
+            end
+            amount = amount + itemstack.count
+        elseif game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
+            if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo > itemstackC.cont.ammo and itemstackC.cont.count > 1 then
+                amount = amount + itemstack.count - 1
+            end
+            if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability > itemstackC.cont.durability and itemstackC.cont.count > 1 then
+                amount = amount + itemstack.count - 1
+            end
+        end
+        ::continue::
+    end
+    return amount
+end
+
+function IIO.check_insertable_mode(io, mode)
+    return string.match(io, mode) ~= nil
+end
+
 function IIO:IO()
     if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then return end
     local network = self.networkController.network
-    if self.focusedEntity ~= nil and self.focusedEntity.valid == true then
-        local foc = self.focusedEntity
-        local inv = foc.get_inventory(defines.inventory.chest)
+    if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true and self.focusedEntity.inventory.values ~= nil then
+        local foc = self.focusedEntity.thisEntity
         if self.io == "input" then
-            if Util.getTableLength_non_nil(self.filters.values) > 0 then
-                local nextItem = Util.next_non_nil(self.filters)
-                if nextItem == "" then return end
-                local itemstack = Util.itemstack_template(nextItem)
-                for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                    if drive:has_room() then
-                        BaseNet.transfer_item(inv, drive.storage, itemstack, 1, self.metadataMode, self.whitelist)
-                    end
-                end
-            elseif Util.getTableLength_non_nil(self.filters.values) == 0 and self.whitelist == false then
-                for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                    if drive:has_room() then --#kDrives have #k slots so as long as the drive has room then it also has a slot open
-                        BaseNet.transfer_item(inv, drive.storage, nil, 1, self.metadataMode, false)
-                    end
-                end
-            end
+        --    if Util.getTableLength_non_nil(self.filters.values) > 0 then
+        --        local initial = self.filters.index
+        --        local nextItem = ""
+        --        local itemstack = nil
+        --        local has = 0
+        --        repeat
+        --            nextItem = Util.next_non_nil(self.filters)
+        --            if nextItem == "" then return end
+        --            itemstack = Util.itemstack_template(nextItem)
+        --            has = IIO.has_item(inv, itemstack, self.metadataMode)
+        --        until has > 0 or initial == self.filters.index
+        --        if has > 0 then
+        --            for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+        --                if drive:has_room() then
+        --                    BaseNet.transfer_item(inv, drive.storage, itemstack, 1, self.metadataMode, self.whitelist)
+        --                end
+        --            end
+        --        end
+        --    elseif Util.getTableLength_non_nil(self.filters.values) == 0 and self.whitelist == false then
+        --        for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+        --            if drive:has_room() then --#kDrives have #k slots so as long as the drive has room then it also has a slot open
+        --                BaseNet.transfer_item(inv, drive.storage, nil, 1, self.metadataMode, false)
+        --            end
+        --        end
+        --    end
         elseif self.io == "output" and self.whitelist == true and Util.getTableLength_non_nil(self.filters.values) > 0 then
             for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                local initial = self.filters.index
+                local initialItem = self.filters.index
                 local nextItem = ""
                 local itemstack = nil
                 local has = 0
+
+                local canInsert = false
+                local inv = nil
                 repeat
                     nextItem = Util.next_non_nil(self.filters)
                     if nextItem == "" then return end
                     itemstack = Util.itemstack_template(nextItem)
                     has = drive:has_item(itemstack, self.metadataMode)
-                until has > 0 or initial == self.filters.index
-                if has > 0 then
+                    local initialIndex = self.focusedEntity.inventory.index
+                    if has > 0 then
+                        repeat
+                            local ii = Util.next(self.focusedEntity.inventory)
+                            inv = foc.get_inventory(ii.slot)
+                            canInsert = IIO.check_insertable_mode(ii.io, "input") and inv.can_insert(itemstack.cont)
+                        until canInsert == true or initialIndex == self.focusedEntity.inventory.index
+                    end
+                until has > 0 or initialItem == self.filters.index
+
+                if has > 0 and canInsert == true then
                     BaseNet.transfer_item(drive.storage, inv, itemstack, 1, self.metadataMode, true)
-                    --if Constants.Settings.RNS_TypesWithID[itemstack.type] == nil then
-                    --    BaseNet.transfer_basic_item(drive.storage, inv, itemstack, 1, self.metadataMode, true)
-                    --else
-                    --    BaseNet.transfer_advanced_item(drive.storage, inv, itemstack, 1, self.metadataMode, true)
-                    --end
                 end
             end
         end
@@ -316,6 +372,16 @@ function IIO:getCheckArea()
         [2] = {direction = 2, startP = {x+0.5, y-0.5}, endP = {x+1.5, y+0.5}}, --East
         [4] = {direction = 4, startP = {x-0.5, y+0.5}, endP = {x+0.5, y+1.5}}, --South
         [3] = {direction = 3, startP = {x-1.5, y-0.5}, endP = {x-0.5, y+0.5}}, --West
+    }
+end
+
+function IIO:reset_focused_entity()
+    self.focusedEntity = {
+        thisEntity = nil,
+        inventory = {
+            index = 1,
+            values = nil
+        }
     }
 end
 
@@ -350,8 +416,12 @@ function IIO:createArms()
                     end
                 elseif ent ~= nil and self:getDirection() == area.direction then --Get entity with inventory
                     if Constants.Settings.RNS_TypesWithContainer[ent.type] == true then
-                        self.focusedEntity = ent
-                        break
+                        if self.focusedEntity.thisEntity == nil or (self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false) then
+                            self:reset_focused_entity()
+                            self.focusedEntity.thisEntity = ent
+                            self.focusedEntity.inventory.values = Constants.Settings.RNS_Inventory_Types[ent.type]
+                            break
+                        end
                     end
                 end
             end

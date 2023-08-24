@@ -60,6 +60,38 @@ Constants.Settings = {
         ["item-with-inventory"] = true,
         ["item-with-tags"] = true,
     },
+    RNS_Inventory_Types = {
+        ["container"] = {
+            [1] = {
+                slot = defines.inventory.chest,
+                io = "input/output"
+            }
+        },
+        ["infinity-container"] = {
+            [1] = {
+                slot = defines.inventory.chest,
+                io = "input/output"
+            }
+        },
+        ["furnace"] = {
+            [1] = {
+                slot = defines.inventory.fuel,
+                io = "input"
+            },
+            [2] = {
+                slot = defines.inventory.burnt_result,
+                io = "output"
+            },
+            [3] = {
+                slot = defines.inventory.furnace_source,
+                io = "input"
+            },
+            [4] = {
+                slot = defines.inventory.furnace_result,
+                io = "output"
+            },
+        }
+    },
     RNS_Gui = {
         drag_area_size = 25,
         close_button_size = 20,
