@@ -89,7 +89,7 @@ function IIO:update()
     if self.thisEntity.to_be_deconstructed() == true then return end
     self:createArms()
     --local tick = game.tick % (120/Constants.Settings.RNS_BaseItemIO_Speed) --based on belt speed
-    --if tick >= 0.0 and tick < 1.0 then self:IO() end
+    --if tick >= 0.0 and tick < 1.0 then self:IO() end --This is done in the Network Controller
 end
 
 function IIO:toggleHoverIcon(hovering)
