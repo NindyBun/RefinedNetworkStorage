@@ -90,6 +90,24 @@ Constants.Settings = {
                 slot = defines.inventory.furnace_result,
                 io = "output"
             },
+        },
+        ["assembling-machine"] = {
+            [1] = {
+                slot = defines.inventory.fuel,
+                io = "input"
+            },
+            [2] = {
+                slot = defines.inventory.burnt_result,
+                io = "output"
+            },
+            [3] = {
+                slot = defines.inventory.assembling_machine_input,
+                io = "input"
+            },
+            [4] = {
+                slot = defines.inventory.assembling_machine_output,
+                io = "output"
+            },
         }
     },
     RNS_Gui = {
