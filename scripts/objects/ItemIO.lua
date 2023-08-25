@@ -87,6 +87,9 @@ function IIO:update()
         self.networkController = nil
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
+    if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false then
+        self:reset_focused_entity()
+    end
     self:createArms()
     --local tick = game.tick % (120/Constants.Settings.RNS_BaseItemIO_Speed) --based on belt speed
     --if tick >= 0.0 and tick < 1.0 then self:IO() end --This is done in the Network Controller
@@ -322,7 +325,7 @@ function IIO:IO()
                 if has > 0 and isOperable == true and inv ~= nil then
                     for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
                         if drive:has_room() then
-                            BaseNet.transfer_item(inv, drive.storage, itemstack, 1, self.metadataMode, self.whitelist)
+                            BaseNet.transfer_item(inv, drive:get_sorted_and_merged_inventory(), itemstack, 1, self.metadataMode, self.whitelist)
                         end
                     end
                 end
@@ -340,7 +343,7 @@ function IIO:IO()
                             end
                         until isOperable == true or initialIndex == self.focusedEntity.inventory.index
                         if isOperable == true and inv ~= nil then
-                            BaseNet.transfer_item(inv, drive.storage, nil, 1, self.metadataMode, false)
+                            BaseNet.transfer_item(inv, drive:get_sorted_and_merged_inventory(), nil, 1, self.metadataMode, false)
                         end
                     end
                 end
@@ -372,7 +375,7 @@ function IIO:IO()
                 until has > 0 or initialItem == self.filters.index
 
                 if has > 0 and isOperable == true and inv ~= nil then
-                    BaseNet.transfer_item(drive.storage, inv, itemstack, 1, self.metadataMode, true)
+                    BaseNet.transfer_item(drive:get_sorted_and_merged_inventory(), inv, itemstack, 1, self.metadataMode, true)
                 end
             end
         end

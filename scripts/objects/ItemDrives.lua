@@ -138,10 +138,10 @@ end
 
 function ID:has_item(itemstack_data, metadataMode)
     local amount = 0
-    local inv = self.storage
+    local inv = self:get_sorted_and_merged_inventory()
     for i = 1, #inv do
         local itemstack = inv[i]
-        if itemstack.count <= 0 then goto continue end
+        if itemstack.count <= 0 then break end
         local itemstackC = Util.itemstack_convert(itemstack)
         if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) then
             if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
@@ -168,6 +168,11 @@ function ID:has_item(itemstack_data, metadataMode)
     return amount
 end
 
+function ID:get_sorted_and_merged_inventory()
+    self.storage.sort_and_merge()
+    return self.storage
+end
+
 function ID:has_empty_slot()
     for i = 1, #self.storage do
         if self.storage[i].count <= 0 then return true end
@@ -182,19 +187,21 @@ end
 
 function ID:get_inventory()
     local contents = {}
-    local inv = self.storage
+    local inv = self:get_sorted_and_merged_inventory()
     for i = 1, #inv do
         local itemstack = inv[i]
-        if itemstack.count <= 0 then goto continue end
+        if itemstack.count <= 0 then break end
         Util.add_or_merge(itemstack, contents)
-        ::continue::
     end
     return contents
 end
 
 function ID:getStorageSize()
     local count = 0
-    for i = 1, #self.storage do
+    for i = 1, #self:get_sorted_and_merged_inventory() do
+        if self.storage[i].count <= 0 then
+            break
+        end
         count = count + self.storage[i].count
     end
     return count
@@ -219,10 +226,9 @@ function ID:DataConvert_EntityToItem(item)
         local size = self:getStorageSize()
         if size == 0 then return end
         local storage = game.create_inventory(self.maxStorage)
-        for i = 1, #self.storage do
-            if self.storage[i].count <= 0 then goto continue end
+        for i = 1, #self:get_sorted_and_merged_inventory() do
+            if self.storage[i].count <= 0 then break end
             storage[i].transfer_stack(self.storage[i])
-            ::continue::
         end
         global.tempInventoryTable[item.item_number] = {itemstack=item, storage=storage}
         item.set_tag(Constants.Settings.RNS_Tag, item.item_number)

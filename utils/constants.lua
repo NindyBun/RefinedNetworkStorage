@@ -61,6 +61,136 @@ Constants.Settings = {
         ["item-with-tags"] = true,
     },
     RNS_Inventory_Types = {
+        ["rocket-silo"] = {
+            [1] = {
+                slot = defines.inventory.rocket_silo_rocket,
+                io = "input"
+            },
+            [2] = {
+                slot = defines.inventory.rocket_silo_result,
+                io = "output"
+            },
+            [3] = {
+                slot = defines.inventory.rocket_silo_input,
+                io = "input"
+            },
+            [4] = {
+                slot = defines.inventory.rocket_silo_output,
+                io = "output"
+            }
+        },
+        ["mining-drill"] = {
+            [1] = {
+                slot = defines.inventory.fuel,
+                io = "input"
+            },
+            [2] = {
+                slot = defines.inventory.burnt_result,
+                io = "output"
+            },
+            [3] = {
+                slot = defines.inventory.chest,
+                io = "output"
+            }
+        },
+        ["reactor"] = {
+            [1] = {
+                slot = defines.inventory.fuel,
+                io = "input"
+            },
+            [2] = {
+                slot = defines.inventory.burnt_result,
+                io = "output"
+            },
+        },
+        ["locomotive"] = {
+            [1] = {
+                slot = defines.inventory.fuel,
+                io = "input"
+            },
+            [2] = {
+                slot = defines.inventory.burnt_result,
+                io = "output"
+            },
+        },
+        ["lab"] = {
+            [1] = {
+                slot = defines.inventory.lab_input,
+                io = "input"
+            }
+        },
+        ["cargo-wagon"] = {
+            [1] = {
+                slot = defines.inventory.cargo_wagon,
+                io = "input/output"
+            }
+        },
+        ["burner-generator"] = {
+            [1] = {
+                slot = defines.inventory.fuel,
+                io = "input"
+            },
+            [2] = {
+                slot = defines.inventory.burnt_result,
+                io = "output"
+            },
+        },
+        ["boiler"] = {
+            [1] = {
+                slot = defines.inventory.fuel,
+                io = "input"
+            },
+            [2] = {
+                slot = defines.inventory.burnt_result,
+                io = "output"
+            },
+        },
+        ["artillery-wagon"] = {
+            [1] = {
+                slot = defines.inventory.artillery_wagon_ammo,
+                io = "input/output"
+            }
+        },
+        ["artillery-turret"] = {
+            [1] = {
+                slot = defines.inventory.artillery_turret_ammo,
+                io = "input/output"
+            }
+        },
+        ["ammo-turret"] = {
+            [1] = {
+                slot = defines.inventory.turret_ammo,
+                io = "input/output"
+            }
+        },
+        ["roboport"] = {
+            [1] = {
+                slot = defines.inventory.roboport_robot,
+                io = "input/output"
+            },
+            [2] = {
+                slot = defines.inventory.roboport_material,
+                io = "input/output"
+            }
+        },
+        ["rocket-silo-rocket"] = {
+            [1] = {
+                slot = defines.inventory.rocket,
+                io = "input/output"
+            }
+        },
+        ["logistic-container"] = {
+            [1] = {
+                slot = defines.inventory.chest,
+                io = "input/output"
+            }
+        },
+        ["linked-container"] = {
+            [1] = {
+                slot = defines.inventory.chest,
+                io = "input/output"
+            }
+        },
         ["container"] = {
             [1] = {
                 slot = defines.inventory.chest,

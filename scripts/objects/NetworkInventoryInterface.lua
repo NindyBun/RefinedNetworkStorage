@@ -224,7 +224,7 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 	inventoryScrollPane.clear()
 	playerInventoryScrollPane.clear()
 
-    if self.networkController == nil or not self.networkController.stable then return end
+    if self.networkController == nil or not self.networkController.stable or (self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == false) then return end
 	
 	local t, m = self.networkController.network:get_item_storage_size()
 	inventorySize.caption = {"gui-description.RNS_Inventory_Size", t, m}
@@ -288,53 +288,57 @@ end
 
 function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, text)
 	local tableList = GuiApi.add_table(guiTable, "", inventoryScrollPane, 8)
-
-	for _, drive in pairs(self.networkController.network.ItemDriveTable) do
-		local inv = drive:get_inventory()
-		if Util.getTableLength(inv) == 0 then goto continue end
-
-		for i = 1, Util.getTableLength(inv) do
-			local item = inv[i]
-			RNSPlayer.thisEntity.request_translation(Util.get_item_name(item.cont.name))
-			if Util.get_item_name(item.cont.name)[1] ~= nil then
-				local locName = Util.get_item_name(item.cont.name)[1]
-				if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
-			end
-
-			local buttonText = {"", "[color=blue]", item.label or Util.get_item_name(item.cont.name), "[/color]"}
-			if item.cont.health < 1 then
-				table.insert(buttonText, "\n")
-				table.insert(buttonText, {"gui-description.RNS_health"})
-				table.insert(buttonText, math.floor(item.cont.health*100) .. "%")
-			end
-			
-			if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 and item.description ~= "" then
-				table.insert(buttonText, "\n")
-				table.insert(buttonText, item.description)
-			elseif item.modified ~= nil and item.modified == true then
-				table.insert(buttonText, "\n")
-				table.insert(buttonText, {"gui-description.RNS_item_modified"})
-			end
-			
-			if item.cont.ammo ~= nil then
-				table.insert(buttonText, "\n")
-				table.insert(buttonText, {"gui-description.RNS_ammo"})
-				table.insert(buttonText, item.cont.ammo .. "/" .. game.item_prototypes[item.cont.name].magazine_size)
-			end
-			if item.cont.durability ~= nil then
-				table.insert(buttonText, "\n")
-				table.insert(buttonText, {"gui-description.RNS_durability"})
-				table.insert(buttonText, item.cont.durability .. "/" .. game.item_prototypes[item.cont.name].durability)
-			end
-			if item.linked ~= nil and item.linked ~= "" then
-				table.insert(buttonText, "\n")
-				table.insert(buttonText, {"gui-description.RNS_linked"})
-				table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
-			end
-			GuiApi.add_button(guiTable, "RNS_NII_IDInv_" .. drive.entID .. "_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 38, false, true, item.cont.count, item.modified and Constants.Settings.RNS_Gui.button_2 or Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=(item.cont.name), stack=item})
-			
-			::continue::
+	local inv = {}
+	for _, drive in pairs(BaseNet.getOperableObjects(self.networkController.network.ItemDriveTable)) do
+		local inventory = drive:get_sorted_and_merged_inventory()
+		for i = 1, #inventory do
+			local itemstack = inventory[i]
+			if itemstack.count <= 0 then break end
+			Util.add_or_merge(itemstack, inv)
 		end
+	end
+
+	if Util.getTableLength(inv) == 0 then return end
+	for i = 1, Util.getTableLength(inv) do
+		local item = inv[i]
+		RNSPlayer.thisEntity.request_translation(Util.get_item_name(item.cont.name))
+		if Util.get_item_name(item.cont.name)[1] ~= nil then
+			local locName = Util.get_item_name(item.cont.name)[1]
+			if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
+		end
+
+		local buttonText = {"", "[color=blue]", item.label or Util.get_item_name(item.cont.name), "[/color]"}
+		if item.cont.health < 1 then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_health"})
+			table.insert(buttonText, math.floor(item.cont.health*100) .. "%")
+		end
+		
+		if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 and item.description ~= "" then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, item.description)
+		elseif item.modified ~= nil and item.modified == true then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_item_modified"})
+		end
+		
+		if item.cont.ammo ~= nil then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_ammo"})
+			table.insert(buttonText, item.cont.ammo .. "/" .. game.item_prototypes[item.cont.name].magazine_size)
+		end
+		if item.cont.durability ~= nil then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_durability"})
+			table.insert(buttonText, item.cont.durability .. "/" .. game.item_prototypes[item.cont.name].durability)
+		end
+		if item.linked ~= nil and item.linked ~= "" then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_linked"})
+			table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
+		end
+		GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, item.modified and Constants.Settings.RNS_Gui.button_2 or Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=(item.cont.name), stack=item})
+		
 		::continue::
 	end
 end
@@ -358,7 +362,7 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	if itemstack.id == nil then
 		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 			if drive:has_room() then
-				local transfered = BaseNet.transfer_basic_item(inv, drive.storage, itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true)
+				local transfered = BaseNet.transfer_basic_item(inv, drive:get_sorted_and_merged_inventory(), itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true)
 				amount = amount - transfered
 				if amount <= 0 then return end
 			end
@@ -366,7 +370,7 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	else
 		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 			if drive:has_empty_slot() then
-				local transfered = BaseNet.transfer_advanced_item(inv, drive.storage, itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true)
+				local transfered = BaseNet.transfer_advanced_item(inv, drive:get_sorted_and_merged_inventory(), itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true)
 				amount = amount - transfered
 				if amount <= 0 then return end
 			end
@@ -393,7 +397,7 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	if itemstack.id == nil then
 		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 			if RNSPlayer:has_room() then
-				local transfered = BaseNet.transfer_basic_item(drive.storage, inv, itemstack, math.min(amount, drive:has_item(itemstack)), false, true)
+				local transfered = BaseNet.transfer_basic_item(drive:get_sorted_and_merged_inventory(), inv, itemstack, math.min(amount, drive:has_item(itemstack)), false, true)
 				amount = amount - transfered
 				if amount <= 0 then return end
 			else
@@ -403,7 +407,7 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	else
 		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 			if RNSPlayer:has_empty_slot() then
-				local transfered = BaseNet.transfer_advanced_item(drive.storage, inv, itemstack, math.min(amount, drive:has_item(itemstack, true)), false, true)
+				local transfered = BaseNet.transfer_advanced_item(drive:get_sorted_and_merged_inventory(), inv, itemstack, math.min(amount, drive:has_item(itemstack, true)), false, true)
 				amount = amount - transfered
 				if amount <= 0 then return end
 			else
