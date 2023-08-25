@@ -153,6 +153,39 @@ io.fluid_boxes = {
 }
 data:extend{io}
 
+local combinator = {}
+combinator.circuit_wire_connection_points = {
+	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}},
+	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}},
+	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}},
+	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}}
+}
+combinator.circuit_wire_max_distance = 0
+combinator.collision_box = {{-0.5, -0.5}, {0.5, 0.5}}
+combinator.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+combinator.flags = {'placeable-neutral', 'not-upgradable', 'not-rotatable'}
+combinator.icon = Constants.Settings.RNS_BlankIcon
+combinator.icon_size = 32
+combinator.item_slot_count = 2
+combinator.name = 'rns-combinator'
+combinator.type = 'constant-combinator'
+combinator.collision_mask = {}
+combinator.remove_decoratives = 'false'
+combinator.sprites = {
+	filename = Constants.Settings.RNS_BlankIcon,
+	priority = 'extra-high',
+	size = 32
+}
+combinator.activity_led_sprites = {
+	filename = Constants.Settings.RNS_BlankIcon,
+	priority = 'extra-high',
+	size = 32
+}
+combinator.draw_copper_wires = false
+combinator.draw_circuit_wires = false
+combinator.activity_led_light_offsets = {{0, 0}, {0, 0}, {0, 0}, {0, 0}}
+combinator.selectable_in_game = false
+data:extend{combinator}
 --[[function createItemIO(id)
     local io1 = {}
 	io1.type = "container"

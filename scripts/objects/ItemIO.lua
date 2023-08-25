@@ -10,7 +10,8 @@ IIO = {
     metadataMode = false,
     whitelist = true,
     io = "output",
-    ioIcon = nil
+    ioIcon = nil,
+    combinator = nil
 }
 
 function IIO:new(object)
@@ -55,6 +56,14 @@ function IIO:new(object)
             values = nil
         }
     }
+    t.combinator = object.surface.create_entity{
+        name="rns-combinator",
+        position=object.position,
+        force="neutral"
+    }
+    t.combinator.destructible = false
+    t.combinator.operable = false
+    t.combinator.minable = false
     UpdateSys.addEntity(t)
     return t
 end
@@ -67,6 +76,7 @@ function IIO:rebuild(object)
 end
 
 function IIO:remove()
+    if self.combinator ~= nil then self.combinator.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
         self.networkController.network.ItemIOTable[self.entID] = nil
@@ -582,8 +592,10 @@ function IIO.interaction(event, player)
         if index ~= 0 then
             if event.element.elem_value ~= nil then
                 io.filters.values[index] = event.element.elem_value
+                io.combinator.get_or_create_control_behavior().set_signal(index, {signal={type="item", name=event.element.elem_value}, count=1})
             else
                 io.filters.values[index] = ""
+                io.combinator.get_or_create_control_behavior().set_signal(index, nil)
             end
         end
 		GUI.update(true)
