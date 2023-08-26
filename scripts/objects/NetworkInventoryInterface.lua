@@ -280,7 +280,7 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 			table.insert(buttonText, {"gui-description.RNS_linked"})
 			table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
 		end
-		GuiApi.add_button(guiTable, "RNS_NII_PInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, item.modified and Constants.Settings.RNS_Gui.button_2 or Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=(item.cont.name), stack=item})
+		GuiApi.add_button(guiTable, "RNS_NII_PInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or item.ammo or item.durability)and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.entID, name=(item.cont.name), stack=item})
 		
 		::continue::
 	end
@@ -290,11 +290,18 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 	local tableList = GuiApi.add_table(guiTable, "", inventoryScrollPane, 8)
 	local inv = {}
 	for _, drive in pairs(BaseNet.getOperableObjects(self.networkController.network.ItemDriveTable)) do
-		local inventory = drive:get_sorted_and_merged_inventory()
-		for i = 1, #inventory do
-			local itemstack = inventory[i]
+		local storage = drive:get_sorted_and_merged_inventory()
+		for i = 1, #storage.inventory do
+			local itemstack = storage.inventory[i]
 			if itemstack.count <= 0 then break end
 			Util.add_or_merge(itemstack, inv)
+		end
+		for _, v in pairs(storage.item_list) do
+			local c = Util.itemstack_template(v.name)
+			c.cont.count = v.count
+			if c.cont.ammo then c.cont.ammo = v.ammo end
+			if c.cont.durability then c.cont.durability = v.durability end
+			Util.add_or_merge(c, inv)
 		end
 	end
 
@@ -337,7 +344,7 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 			table.insert(buttonText, {"gui-description.RNS_linked"})
 			table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
 		end
-		GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, item.modified and Constants.Settings.RNS_Gui.button_2 or Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=(item.cont.name), stack=item})
+		GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or item.ammo or item.durability)and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.entID, name=(item.cont.name), stack=item})
 		
 		::continue::
 	end
@@ -359,21 +366,11 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	local amount = math.min(itemstack.cont.count, count)
 	if amount <= 0 then return end
 
-	if itemstack.id == nil then
-		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-			if drive:has_room() then
-				local transfered = BaseNet.transfer_basic_item(inv, drive:get_sorted_and_merged_inventory(), itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true)
-				amount = amount - transfered
-				if amount <= 0 then return end
-			end
-		end
-	else
-		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-			if drive:has_empty_slot() then
-				local transfered = BaseNet.transfer_advanced_item(inv, drive:get_sorted_and_merged_inventory(), itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true)
-				amount = amount - transfered
-				if amount <= 0 then return end
-			end
+	for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+		if drive:has_room() then
+			local transfered = BaseNet.transfer_item(inv, drive:get_sorted_and_merged_inventory(), itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true, "inv_to_array")
+			amount = amount - transfered
+			if amount <= 0 then return end
 		end
 	end
 end
@@ -394,25 +391,13 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	local amount = math.min(itemstack.cont.count, count)
 	if amount <= 0 then return end
 
-	if itemstack.id == nil then
-		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-			if RNSPlayer:has_room() then
-				local transfered = BaseNet.transfer_basic_item(drive:get_sorted_and_merged_inventory(), inv, itemstack, math.min(amount, drive:has_item(itemstack)), false, true)
-				amount = amount - transfered
-				if amount <= 0 then return end
-			else
-				return
-			end
-		end
-	else
-		for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-			if RNSPlayer:has_empty_slot() then
-				local transfered = BaseNet.transfer_advanced_item(drive:get_sorted_and_merged_inventory(), inv, itemstack, math.min(amount, drive:has_item(itemstack, true)), false, true)
-				amount = amount - transfered
-				if amount <= 0 then return end
-			else
-				return
-			end
+	for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+		if RNSPlayer:has_room() then
+			local transfered = BaseNet.transfer_item(drive:get_sorted_and_merged_inventory(), inv, itemstack, math.min(amount, drive:has_item(itemstack)), false, true, "array_to_inv")
+			amount = amount - transfered
+			if amount <= 0 then return end
+		else
+			return
 		end
 	end
 end

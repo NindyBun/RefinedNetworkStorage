@@ -165,6 +165,7 @@ function Util.itemstack_matches(itemstack_data, itemstack_to_be_checked, allowMe
 		if not allowMetadata then
 			if itemstack_data.modified ~= itemstack_to_be_checked.modified then return false end
 			if itemstack_data.modified == true and itemstack_to_be_checked.modified == true then
+				if itemstack_data.label and itemstack_to_be_checked.label and itemstack_data.label ~= itemstack_to_be_checked.label and not allowMetadata then return false end
 				if itemstack_data.linked ~= nil and itemstack_to_be_checked.linked ~= nil then
 					if itemstack_data.linked ~= "" and itemstack_to_be_checked.linked ~= "" and itemstack_data.linked.unit_number ~= itemstack_to_be_checked.linked.unit_number then
 						return false
@@ -174,8 +175,6 @@ function Util.itemstack_matches(itemstack_data, itemstack_to_be_checked, allowMe
 		end
 	end
 
-	if itemstack_data.label and itemstack_to_be_checked.label and itemstack_data.label ~= itemstack_to_be_checked.label and not allowMetadata then return false end
-
 	if itemstack_data.type and itemstack_to_be_checked.type and itemstack_data.type == "item-with-tags" and itemstack_to_be_checked.type == "item-with-tags" and Util.tagMatches(itemstack_data.cont, itemstack_to_be_checked.cont) == false and not allowMetadata then return false end
 
 	return true
@@ -184,6 +183,7 @@ end
 function Util.itemstack_template(name)
 	local item_prototype = game.item_prototypes[name]
 	local template = {cont={}}
+	template.modified = false
 	template.cont.name = item_prototype.name
 	template.cont.count = 1
 	template.cont.health = 1
@@ -197,6 +197,7 @@ end
 function Util.itemstack_convert(itemstack)
 	local converted = {cont={}}
 
+	converted.modified = false
 	converted.cont.name = itemstack.name
 	converted.cont.count = itemstack.count
 	converted.cont.health = itemstack.health
@@ -206,14 +207,15 @@ function Util.itemstack_convert(itemstack)
 	if itemstack.type == "ammo" then converted.cont.ammo = itemstack.ammo end
 	if itemstack.is_item_with_tags then
 		converted.cont.tags = itemstack.tags
+		if Util.getTableLength(converted.cont.tags) ~= 0 then converted.modified = true end
 		converted.description = itemstack.custom_description
+		if converted.description ~= "" then converted.modified = true end
 	end
 
 	if itemstack.item_number then converted.id = itemstack.item_number end
-	if itemstack.label then converted.label = itemstack.label end
 	if itemstack.type == "spidertron-remote" then
 		converted.linked = itemstack.connected_entity or ""
-		converted.modified = converted.linked ~= "" and true or false
+		converted.modified = ((converted.linked ~= "" or converted.modified == true) and {true} or {false})[1]
 	end
 	if itemstack.grid then converted.modified = (itemstack.grid.count() <= 0 and {false} or {true})[1] end
 	if itemstack.is_blueprint then converted.modified = itemstack.is_blueprint_setup() end
@@ -231,6 +233,15 @@ function Util.itemstack_convert(itemstack)
 				end
 			end
 		end
+	end
+
+	if itemstack.label ~= nil then
+		converted.label = itemstack.label
+		converted.modified = true
+	end
+
+	if itemstack.health ~= 1 then
+		converted.modified = true
 	end
 
 	return converted

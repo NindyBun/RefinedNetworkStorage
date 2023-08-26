@@ -3,7 +3,7 @@ ID = {
     entID = nil,
     networkController = nil,
     maxStorage = 0,
-    storage = nil,
+    storageArray = nil,
     connectedObjs = nil,
     cardinals = nil,
     updateTick = 60,
@@ -27,7 +27,10 @@ function ID:new(object)
     elseif object.name == Constants.Drives.ItemDrive.ItemDrive64k.name then
         t.maxStorage = Constants.Drives.ItemDrive.ItemDrive64k.max_size
     end
-    t.storage = game.create_inventory(t.maxStorage)
+    t.storageArray = {
+        item_list={},
+        inventory=game.create_inventory(t.maxStorage)
+    }
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -133,49 +136,94 @@ function ID:collect()
 end
 
 function ID:validate()
-
+    for k, _ in pairs(self.storageArray.item_list) do
+        if game.item_prototypes[k] == nil then
+            self.storageArray.item_list[k] = nil
+        end
+    end
 end
 
-function ID:has_item(itemstack_data, metadataMode)
+function ID:add_or_merge_basic_item(itemstack_data)
+    local inv = self.storageArray.item_list
+    if inv[itemstack_data.cont.name] ~= nil then
+        local data = inv[itemstack_data.cont.name]
+        data.count = data.count + itemstack_data.cont.count
+        if data.ammo ~= nil then
+            local a = (data.ammo+itemstack_data.cont.ammo)%game.item_prototypes[data.name].magazine_size
+            data.ammo = a == 0 and game.item_prototypes[data.name].magazine_size or a
+        end
+        if data.durability ~= nil then
+            local d = (data.durability+itemstack_data.cont.durability)%game.item_prototypes[data.name].durability
+            data.durability = d == 0 and game.item_prototypes[data.name].durability or d
+        end
+    else
+        inv[itemstack_data.cont.name] = {
+            name = itemstack_data.cont.name,
+            count = itemstack_data.cont.count,
+            ammo = itemstack_data.cont.ammo,
+            durability = itemstack_data.cont.durability
+        }
+    end
+end
+
+function ID:has_item(itemstack_data, getModified)
     local amount = 0
-    local inv = self:get_sorted_and_merged_inventory()
-    for i = 1, #inv do
-        local itemstack = inv[i]
-        if itemstack.count <= 0 then break end
-        local itemstackC = Util.itemstack_convert(itemstack)
-        if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) then
-            if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
-                if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo < game.item_prototypes[itemstackC.cont.name].magazine_size then
+    local storage = self:get_sorted_and_merged_inventory()
+
+    local list = storage.item_list[itemstack_data.cont.name]
+    if list ~= nil and itemstack_data.modified == false then
+        if (list.ammo == itemstack_data.cont.ammo or list.durability == itemstack_data.cont.durability) and (list.ammo == game.item_prototypes[list.name].magazine_size or list.durability == game.item_prototypes[list.name].durability) and getModified == false then
+            amount = amount + list.count
+        else
+            if getModified == true then
+                if (list.ammo == itemstack_data.cont.ammo or list.durability == itemstack_data.cont.durability) and (list.ammo ~= game.item_prototypes[list.name].magazine_size or list.durability ~= game.item_prototypes[list.name].durability) then
                     amount = amount + 1
-                    goto continue
                 end
-                if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability < game.item_prototypes[itemstackC.cont.name].durability then
-                    amount = amount + 1
-                    goto continue
-                end
-            end
-            amount = amount + itemstack.count
-        elseif game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
-            if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo > itemstackC.cont.ammo and itemstackC.cont.count > 1 then
-                amount = amount + itemstack.count - 1
-            end
-            if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability > itemstackC.cont.durability and itemstackC.cont.count > 1 then
-                amount = amount + itemstack.count - 1
+            else
+                amount = amount + list.count - 1
             end
         end
-        ::continue::
     end
+    if getModified == true then
+        for i = 1, #storage.inventory do
+            local itemstack = storage.inventory[i]
+            if itemstack.count <= 0 then break end
+            local itemstackC = Util.itemstack_convert(itemstack)
+            if Util.itemstack_matches(itemstack_data, itemstackC, getModified) then
+                --if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
+                --    if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo < game.item_prototypes[itemstackC.cont.name].magazine_size then
+                --        amount = amount + 1
+                --        goto continue
+                --    end
+                --    if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability < game.item_prototypes[itemstackC.cont.name].durability then
+                --        amount = amount + 1
+                --        goto continue
+                --    end
+                --end
+                amount = amount + itemstackC.cont.count
+            --elseif game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
+                --if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo > itemstackC.cont.ammo and itemstackC.cont.count > 1 then
+                --    amount = amount + itemstack.count - 1
+                --end
+                --if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability > itemstackC.cont.durability and itemstackC.cont.count > 1 then
+                --    amount = amount + itemstack.count - 1
+                --end
+            end
+            ::continue::
+        end
+    end
+
     return amount
 end
 
 function ID:get_sorted_and_merged_inventory()
-    self.storage.sort_and_merge()
-    return self.storage
+    self.storageArray.inventory.sort_and_merge()
+    return self.storageArray
 end
 
 function ID:has_empty_slot()
-    for i = 1, #self.storage do
-        if self.storage[i].count <= 0 then return true end
+    for i = 1, #self.storageArray.inventory do
+        if self.storageArray.inventory[i].count <= 0 then return true end
     end
     return false
 end
@@ -185,24 +233,20 @@ function ID:has_room()
     return false
 end
 
-function ID:get_inventory()
-    local contents = {}
-    local inv = self:get_sorted_and_merged_inventory()
-    for i = 1, #inv do
-        local itemstack = inv[i]
-        if itemstack.count <= 0 then break end
-        Util.add_or_merge(itemstack, contents)
-    end
-    return contents
-end
 
 function ID:getStorageSize()
     local count = 0
-    for i = 1, #self:get_sorted_and_merged_inventory() do
-        if self.storage[i].count <= 0 then
+    local inv = self:get_sorted_and_merged_inventory()
+    for _, v in pairs(inv.item_list) do
+        if v ~= nil then
+            count = count + v.count
+        end
+    end
+    for i = 1, #inv.inventory do
+        if inv.inventory[i].count <= 0 then
             break
         end
-        count = count + self.storage[i].count
+        count = count + inv.inventory[i].count
     end
     return count
 end
@@ -212,25 +256,27 @@ function ID:getRemainingStorageSize()
 end
 
 function ID:DataConvert_ItemToEntity(id)
-    local inv = global.tempInventoryTable[id].storage
-    for i = 1, #inv do
-        if inv[i].count <= 0 then goto continue end
-        self.storage[i].transfer_stack(inv[i])
+    local tag = global.tempInventoryTable[id]
+    self.storageArray.item_list = tag.item_list
+    for i = 1, #tag.inventory do
+        if tag.inventory[i].count <= 0 then goto continue end
+        self.storageArray.inventory[i].transfer_stack(tag.inventory[i])
         ::continue::
     end
     global.tempInventoryTable[id] = nil
 end
 
 function ID:DataConvert_EntityToItem(item)
-    if self.storage ~= nil then
+    if self.storageArray ~= nil then
         local size = self:getStorageSize()
         if size == 0 then return end
         local storage = game.create_inventory(self.maxStorage)
-        for i = 1, #self:get_sorted_and_merged_inventory() do
-            if self.storage[i].count <= 0 then break end
-            storage[i].transfer_stack(self.storage[i])
+        local inv = self:get_sorted_and_merged_inventory().inventory
+        for i = 1, #inv do
+            if inv[i].count <= 0 then break end
+            storage[i].transfer_stack(inv[i])
         end
-        global.tempInventoryTable[item.item_number] = {itemstack=item, storage=storage}
+        global.tempInventoryTable[item.item_number] = {item_list=self.storageArray.item_list, inventory=storage}
         item.set_tag(Constants.Settings.RNS_Tag, item.item_number)
         item.custom_description = {"", item.prototype.localised_description, {"item-description.RNS_ItemDriveTag", size, self.maxStorage}}
     end

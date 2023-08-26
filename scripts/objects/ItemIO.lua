@@ -335,7 +335,7 @@ function IIO:IO()
                 if has > 0 and isOperable == true and inv ~= nil then
                     for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
                         if drive:has_room() then
-                            BaseNet.transfer_item(inv, drive:get_sorted_and_merged_inventory(), itemstack, 1, self.metadataMode, self.whitelist)
+                            BaseNet.transfer_item(inv, drive:get_sorted_and_merged_inventory(), itemstack, math.min(1, math.min(has, drive:getRemainingStorageSize())), self.metadataMode, self.whitelist, "inv_to_array")
                         end
                     end
                 end
@@ -353,7 +353,7 @@ function IIO:IO()
                             end
                         until isOperable == true or initialIndex == self.focusedEntity.inventory.index
                         if isOperable == true and inv ~= nil then
-                            BaseNet.transfer_item(inv, drive:get_sorted_and_merged_inventory(), nil, 1, self.metadataMode, false)
+                            BaseNet.transfer_item(inv, drive:get_sorted_and_merged_inventory(), nil, math.min(1, drive:getRemainingStorageSize()), self.metadataMode, false, "inv_to_array")
                         end
                     end
                 end
@@ -385,7 +385,7 @@ function IIO:IO()
                 until has > 0 or initialItem == self.filters.index
 
                 if has > 0 and isOperable == true and inv ~= nil then
-                    BaseNet.transfer_item(drive:get_sorted_and_merged_inventory(), inv, itemstack, 1, self.metadataMode, true)
+                    BaseNet.transfer_item(drive:get_sorted_and_merged_inventory(), inv, itemstack, 1, self.metadataMode, true, "array_to_inv")
                 end
             end
         end

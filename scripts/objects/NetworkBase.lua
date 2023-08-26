@@ -98,40 +98,64 @@ function BaseNet:getTooltips()
 end
 
 -- from_inv, to_inv, count
-function BaseNet.transfer_item(from_inv, to_inv, itemstack_data, count, metadataMode, whitelist)
+function BaseNet.transfer_item(from_inv, to_inv, itemstack_data, count, allowMetadata, whitelist, transferDirection)
     local amount = count
-    for i = 1, #from_inv do
-        local itemstack = from_inv[i]
-        if itemstack.count <= 0 then goto continue end
-        local itemstackC = Util.itemstack_convert(itemstack)
-        if itemstack_data ~= nil then
-            if whitelist == true then
-                if game.item_prototypes[itemstackC.cont.name] ~= game.item_prototypes[itemstack_data.cont.name] then goto continue end
-            elseif whitelist == false then
-                if game.item_prototypes[itemstackC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then goto continue end
+    if transferDirection == "inv_to_array" then
+        for i = 1, #from_inv do
+            local itemstack = from_inv[i]
+            if itemstack.count <= 0 then goto continue end
+            local itemstackC = Util.itemstack_convert(itemstack)
+            if itemstack_data ~= nil then
+                if whitelist == true then
+                    if game.item_prototypes[itemstackC.cont.name] ~= game.item_prototypes[itemstack_data.cont.name] then goto continue end
+                elseif whitelist == false then
+                    if game.item_prototypes[itemstackC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then goto continue end
+                end
             end
+            local item_template = Util.itemstack_template(itemstackC.cont.name)
+            local min = math.min(itemstackC.cont.count, amount)
+            if itemstackC.id == nil then
+                amount = amount - BaseNet.transfer_basic_item(itemstack, to_inv.inventory, item_template, min, allowMetadata)
+            else
+                amount = amount - BaseNet.transfer_advanced_item(itemstack, to_inv.inventory, item_template, min, allowMetadata)
+            end
+            if amount <= 0 then break end
+            ::continue::
         end
-        local item_template = Util.itemstack_template(itemstackC.cont.name)
-        local min = math.min(itemstackC.cont.count, amount)
-        if itemstackC.id == nil then
-            amount = amount - BaseNet.transfer_basic_item(from_inv, to_inv, item_template, min, metadataMode)
-        else
-            amount = amount - BaseNet.transfer_advanced_item(from_inv, to_inv, item_template, min, metadataMode)
+    end
+    if transferDirection == "inv_to_inv" then
+        for i = 1, #from_inv do
+            local itemstack = from_inv[i]
+            if itemstack.count <= 0 then goto continue end
+            local itemstackC = Util.itemstack_convert(itemstack)
+            if itemstack_data ~= nil then
+                if whitelist == true then
+                    if game.item_prototypes[itemstackC.cont.name] ~= game.item_prototypes[itemstack_data.cont.name] then goto continue end
+                elseif whitelist == false then
+                    if game.item_prototypes[itemstackC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then goto continue end
+                end
+            end
+            local item_template = Util.itemstack_template(itemstackC.cont.name)
+            local min = math.min(itemstackC.cont.count, amount)
+            if itemstackC.id == nil then
+                amount = amount - BaseNet.transfer_basic_item(itemstack, to_inv, item_template, min, allowMetadata, transferDirection)
+            else
+                amount = amount - BaseNet.transfer_advanced_item(itemstack, to_inv, item_template, min, allowMetadata, transferDirection)
+            end
+            if amount <= 0 then break end
+            ::continue::
         end
-        if amount <= 0 then break end
-        ::continue::
     end
     return count - amount
 end
 
 -- from_inv, to_inv, itemstack_data, count
-function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, metadataMode, whitelist)
+function BaseNet.transfer_basic_item(from_inv_itemstack, to_inv, itemstack_data, count, metadataMode, transferDirection)
     local temp_count = count
-    whitelist = whitelist or false
     metadataMode = metadataMode or false
 
-    for i = 1, #from_inv do
-        local itemstack = from_inv[i]
+    for i = 1, 1 do
+        local itemstack = from_inv_itemstack --from_inv[i]
         local mod = false
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
@@ -161,12 +185,10 @@ function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, me
             tags=not metadataMode and itemstack_data.cont.tags or itemstackC.cont.tags
         }
         local inserted = to_inv.insert(temp)
-
         if inserted <= 0 then return count - temp_count end
         
         temp_count = temp_count - inserted
         itemstack.count = itemstack.count - inserted <= 0 and 0 or itemstack.count - inserted
-
         if itemstack.count > 0 and itemstackC.cont.ammo and not metadataMode then
             if mod then itemstack.ammo = itemstackC.cont.ammo end
         end
@@ -182,13 +204,13 @@ function BaseNet.transfer_basic_item(from_inv, to_inv, itemstack_data, count, me
 end
 
 --from_inv, to_inv, itemstack_data, count
-function BaseNet.transfer_advanced_item(from_inv, to_inv, itemstack_data, count, metadataMode, whitelist)
+function BaseNet.transfer_advanced_item(from_inv_itemstack, to_inv, itemstack_data, count, metadataMode, whitelist, transferDirection)
     local temp_count = count
     whitelist = whitelist or false
     metadataMode = metadataMode or false
 
-    for i = 1, #from_inv do
-        local itemstack = from_inv[i]
+    for i = 1, 1 do
+        local itemstack = from_inv_itemstack --from_inv[i]
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
         if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) == not whitelist then goto continue end

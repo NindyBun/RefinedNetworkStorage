@@ -32,17 +32,17 @@ function onInit()
     global.tempInventoryTable = global.tempInventoryTable or {}
     createObjectTables()
 
-    for _, obj in pairs(global.objectTables) do
-		if obj.tableName and obj.tag then
-			if _G[obj.tag] ~= nil then
-                if _G[obj.tag].validate then
-                    for _, entry in pairs(global[obj.tableName]) do
-                        entry:validate()
-                    end
-                end
-			end
-		end
-	end
+    --for _, obj in pairs(global.objectTables) do
+	--	if obj.tableName and obj.tag then
+	--		if _G[obj.tag] ~= nil then
+    --            if _G[obj.tag].validate then
+    --                for _, entry in pairs(global[obj.tableName]) do
+    --                    entry:validate()
+    --                end
+    --            end
+	--		end
+	--	end
+	--end
 
     if global.playerTable == nil then global.playerTable = {} end
 	for _, player in pairs(game.players) do
@@ -56,6 +56,7 @@ function onLoad()
 		if obj.tableName ~= nil and obj.tag ~= nil and _G[obj.tag] ~= nil then
 			for _, entry in pairs(global[obj.tableName] or {}) do
 				_G[obj.tag]:rebuild(entry)
+                if _G[obj.tag].validate then entry:validate() end
 			end
 		end
     end
