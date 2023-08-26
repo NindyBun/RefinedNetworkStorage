@@ -100,51 +100,26 @@ end
 -- from_inv, to_inv, count
 function BaseNet.transfer_item(from_inv, to_inv, itemstack_data, count, allowMetadata, whitelist, transferDirection)
     local amount = count
-    if transferDirection == "inv_to_array" then
-        for i = 1, #from_inv do
-            local itemstack = from_inv[i]
-            if itemstack.count <= 0 then goto continue end
-            local itemstackC = Util.itemstack_convert(itemstack)
-            if itemstack_data ~= nil then
-                if whitelist == true then
-                    if game.item_prototypes[itemstackC.cont.name] ~= game.item_prototypes[itemstack_data.cont.name] then goto continue end
-                elseif whitelist == false then
-                    if game.item_prototypes[itemstackC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then goto continue end
-                end
+    for i = 1, #from_inv do
+        local itemstack = from_inv[i]
+        if itemstack.count <= 0 then goto continue end
+        local itemstackC = Util.itemstack_convert(itemstack)
+        if itemstack_data ~= nil then
+            if whitelist == true then
+                if game.item_prototypes[itemstackC.cont.name] ~= game.item_prototypes[itemstack_data.cont.name] then goto continue end
+            elseif whitelist == false then
+                if game.item_prototypes[itemstackC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then goto continue end
             end
-            local item_template = Util.itemstack_template(itemstackC.cont.name)
-            local min = math.min(itemstackC.cont.count, amount)
-            if itemstackC.id == nil then
-                amount = amount - BaseNet.transfer_basic_item(itemstack, to_inv.inventory, item_template, min, allowMetadata)
-            else
-                amount = amount - BaseNet.transfer_advanced_item(itemstack, to_inv.inventory, item_template, min, allowMetadata)
-            end
-            if amount <= 0 then break end
-            ::continue::
         end
-    end
-    if transferDirection == "inv_to_inv" then
-        for i = 1, #from_inv do
-            local itemstack = from_inv[i]
-            if itemstack.count <= 0 then goto continue end
-            local itemstackC = Util.itemstack_convert(itemstack)
-            if itemstack_data ~= nil then
-                if whitelist == true then
-                    if game.item_prototypes[itemstackC.cont.name] ~= game.item_prototypes[itemstack_data.cont.name] then goto continue end
-                elseif whitelist == false then
-                    if game.item_prototypes[itemstackC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then goto continue end
-                end
-            end
-            local item_template = Util.itemstack_template(itemstackC.cont.name)
-            local min = math.min(itemstackC.cont.count, amount)
-            if itemstackC.id == nil then
-                amount = amount - BaseNet.transfer_basic_item(itemstack, to_inv, item_template, min, allowMetadata, transferDirection)
-            else
-                amount = amount - BaseNet.transfer_advanced_item(itemstack, to_inv, item_template, min, allowMetadata, transferDirection)
-            end
-            if amount <= 0 then break end
-            ::continue::
+        local item_template = Util.itemstack_template(itemstackC.cont.name)
+        local min = math.min(itemstackC.cont.count, amount)
+        if itemstackC.id == nil then
+            amount = amount - BaseNet.transfer_basic_item(itemstack, to_inv, item_template, min, allowMetadata, transferDirection)
+        else
+            amount = amount - BaseNet.transfer_advanced_item(itemstack, to_inv, item_template, min, allowMetadata, transferDirection)
         end
+        if amount <= 0 then break end
+        ::continue::
     end
     return count - amount
 end
