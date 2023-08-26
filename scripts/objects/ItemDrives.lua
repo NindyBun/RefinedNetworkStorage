@@ -143,11 +143,12 @@ function ID:validate()
     end
 end
 
-function ID:add_or_merge_basic_item(itemstack_data)
+--Needs to be worked
+function ID:add_or_merge_basic_item(itemstack_data, count)
     local inv = self.storageArray.item_list
     if inv[itemstack_data.cont.name] ~= nil then
         local data = inv[itemstack_data.cont.name]
-        data.count = data.count + itemstack_data.cont.count
+        data.count = data.count + math.min(self:getRemainingStorageSize(), itemstack_data.cont.count)
         if data.ammo ~= nil then
             local a = (data.ammo+itemstack_data.cont.ammo)%game.item_prototypes[data.name].magazine_size
             data.ammo = a == 0 and game.item_prototypes[data.name].magazine_size or a
@@ -159,7 +160,7 @@ function ID:add_or_merge_basic_item(itemstack_data)
     else
         inv[itemstack_data.cont.name] = {
             name = itemstack_data.cont.name,
-            count = itemstack_data.cont.count,
+            count = math.min(self:getRemainingStorageSize(), itemstack_data.cont.count),
             ammo = itemstack_data.cont.ammo,
             durability = itemstack_data.cont.durability
         }
