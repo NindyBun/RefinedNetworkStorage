@@ -107,12 +107,11 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
     for i=1, 1 do
         for j=1, 1 do
             if list[itemstack_data.cont.name] ~= nil and itemstack_data.modified == false then --throws error on count must be positive integer
-                game.print(itemstack_data.cont.ammo)
                 local item = list[itemstack_data.cont.name]
                 local min = math.min(item.count, amount)
                 if min <= 1 and allowMetadata == false then
-                    if item.ammo ~= nil and item.ammo ~= game.item_prototypes[item.name].magazine_size then break end
-                    if item.durability ~= nil and item.durability ~= game.item_prototypes[item.name].durability then break end
+                    if item.ammo ~= nil and item.ammo ~= itemstack_data.cont.ammo then break end
+                    if item.durability ~= nil and item.durability ~= itemstack_data.cont.durability then break end
                 elseif min > 1 and allowMetadata == false then --using item.count > 1 must be the problem
                     if item.ammo ~= nil and item.ammo ~= game.item_prototypes[item.name].magazine_size then min = min - 1 end
                     if item.durability ~= nil and item.durability ~= game.item_prototypes[item.name].durability then min = min - 1 end
