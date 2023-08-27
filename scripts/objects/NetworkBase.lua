@@ -106,13 +106,13 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
     local inventory = drive_inv.storageArray.inventory
     for i=1, 1 do
         for j=1, 1 do
-            if list[itemstack_data.cont.name] ~= nil and itemstack_data.modified == false then --throws error on count must be positive integer
+            if list[itemstack_data.cont.name] ~= nil and itemstack_data.modified == false then
                 local item = list[itemstack_data.cont.name]
                 local min = math.min(item.count, amount)
                 if min <= 1 and allowMetadata == false then
                     if item.ammo ~= nil and item.ammo ~= itemstack_data.cont.ammo then break end
                     if item.durability ~= nil and item.durability ~= itemstack_data.cont.durability then break end
-                elseif min > 1 and allowMetadata == false then --using item.count > 1 must be the problem
+                elseif min > 1 and allowMetadata == false then
                     if item.ammo ~= nil and item.ammo ~= game.item_prototypes[item.name].magazine_size then min = min - 1 end
                     if item.durability ~= nil and item.durability ~= game.item_prototypes[item.name].durability then min = min - 1 end
                 end
@@ -122,7 +122,7 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
                     durability=not allowMetadata and itemstack_data.cont.durability or item.durability,
                     ammo=not allowMetadata and itemstack_data.cont.ammo or item.ammo
                 }
-                local t = to_inv.insert(temp)
+                local t = to_inv.insert(temp) --Doesn't insert the right ammo/durability or it sets the same data back after it transfers
                 amount = amount - t
                 item.count = item.count - t
                 if allowMetadata == true and t > 0 then
@@ -140,7 +140,7 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
             if item1.count <= 0 then break end
             local item1C = Util.itemstack_convert(item1) --Doesn't grab the right item
             if Util.itemstack_matches(itemstack_data, item1C, allowMetadata) == true then
-                if item1C.cont.health ~= 1 then --was missing the .cont.
+                if item1C.cont.health ~= 1 then
                     local min1 = math.min(item1C.cont.count, amount)
                     local temp = {
                         name=itemstack_data.cont.name,
