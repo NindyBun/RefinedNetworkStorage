@@ -106,7 +106,7 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
     local inventory = drive_inv.storageArray.inventory
     for i=1, 1 do
         for j=1, 1 do
-            if list[itemstack_data.cont.name] ~= nil then --throws error on count must be positive integer
+            if list[itemstack_data.cont.name] ~= nil and itemstack_data.modified == false then --throws error on count must be positive integer
                 local item = list[itemstack_data.cont.name]
                 local min = math.min(item.count, amount)
                 if min <= 1 and allowMetadata == false then
