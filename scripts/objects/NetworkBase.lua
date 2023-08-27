@@ -106,7 +106,7 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
     local inventory = drive_inv.storageArray.inventory
     for i=1, 1 do
         for j=1, 1 do
-            if list[itemstack_data.cont.name] ~= nil then
+            if list[itemstack_data.cont.name] ~= nil then --throws error on count must be positive integer
                 local item = list[itemstack_data.cont.name]
                 local min = math.min(item.count, amount)
                 if item.count <= 1 and allowMetadata == false then
@@ -138,7 +138,7 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
         for k=1, #inventory do
             local item1 = inventory[k]
             if item1.count <= 0 then break end
-            local item1C = Util.itemstack_convert(item1)
+            local item1C = Util.itemstack_convert(item1) --Doesn't grab the right item
             if Util.itemstack_matches(itemstack_data, item1C, allowMetadata) == true then
                 if item1C.health ~= 1 then
                     local min1 = math.min(item1.count, amount)
