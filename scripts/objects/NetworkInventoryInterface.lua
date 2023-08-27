@@ -301,7 +301,7 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 			c.cont.count = v.count
 			if c.cont.ammo then c.cont.ammo = v.ammo end
 			if c.cont.durability then c.cont.durability = v.durability end
-			Util.add_or_merge(c, inv)
+			Util.add_or_merge(c, inv, true)
 		end
 	end
 
@@ -368,8 +368,8 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 
 	for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 		if drive:has_room() then
-			local transfered = BaseNet.transfer_item(inv, drive:get_sorted_and_merged_inventory(), itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true, "inv_to_array")
-			amount = amount - transfered
+			--local transfered = BaseNet.transfer_item(inv, drive:get_sorted_and_merged_inventory(), itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true, "inv_to_array")
+			amount = amount - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true)
 			if amount <= 0 then return end
 		end
 	end
@@ -393,8 +393,8 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 
 	for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 		if RNSPlayer:has_room() then
-			local transfered = BaseNet.transfer_item(drive:get_sorted_and_merged_inventory(), inv, itemstack, math.min(amount, drive:has_item(itemstack)), false, true, "array_to_inv")
-			amount = amount - transfered
+			--local transfered = BaseNet.transfer_item(drive:get_sorted_and_merged_inventory(), inv, itemstack, math.min(amount, drive:has_item(itemstack)), false, true, "array_to_inv")
+			amount = amount - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, math.min(amount, drive:getRemainingStorageSize()), false)
 			if amount <= 0 then return end
 		else
 			return

@@ -143,28 +143,29 @@ function ID:validate()
     end
 end
 
---Needs to be worked
-function ID:add_or_merge_basic_item(itemstack_data, count)
+function ID:add_or_merge_basic_item(itemstack_data, amount)
     local inv = self.storageArray.item_list
-    if inv[itemstack_data.cont.name] ~= nil then
-        local data = inv[itemstack_data.cont.name]
-        data.count = data.count + math.min(self:getRemainingStorageSize(), itemstack_data.cont.count)
+    local min = math.min(self:getRemainingStorageSize(), amount)
+    if inv[itemstack_data.name] ~= nil then
+        local data = inv[itemstack_data.name]
+        data.count = data.count + min
         if data.ammo ~= nil then
-            local a = (data.ammo+itemstack_data.cont.ammo)%game.item_prototypes[data.name].magazine_size
+            local a = (data.ammo+itemstack_data.ammo)%game.item_prototypes[data.name].magazine_size
             data.ammo = a == 0 and game.item_prototypes[data.name].magazine_size or a
         end
         if data.durability ~= nil then
-            local d = (data.durability+itemstack_data.cont.durability)%game.item_prototypes[data.name].durability
+            local d = (data.durability+itemstack_data.durability)%game.item_prototypes[data.name].durability
             data.durability = d == 0 and game.item_prototypes[data.name].durability or d
         end
     else
-        inv[itemstack_data.cont.name] = {
-            name = itemstack_data.cont.name,
-            count = math.min(self:getRemainingStorageSize(), itemstack_data.cont.count),
-            ammo = itemstack_data.cont.ammo,
-            durability = itemstack_data.cont.durability
+        inv[itemstack_data.name] = {
+            name = itemstack_data.name,
+            count = min,
+            ammo = itemstack_data.ammo,
+            durability = itemstack_data.durability
         }
     end
+    return min
 end
 
 function ID:has_item(itemstack_data, getModified)

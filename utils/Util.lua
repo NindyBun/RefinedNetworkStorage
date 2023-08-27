@@ -318,23 +318,39 @@ function Util.add_or_merge(itemstack, list, bypass)
 
 	if not found then
 		if itemstackC.cont.durability and itemstackC.cont.count > 1 and itemstackC.cont.durability ~= game.item_prototypes[itemstackC.cont.name].durability then
-			local type1 = Util.itemstack_convert(itemstack)
-			type1.cont.count = 1
-			local type2 = Util.itemstack_convert(itemstack)
-			type2.cont.count = type2.cont.count - 1
-			type2.cont.durability = game.item_prototypes[type2.cont.name].durability
-			Util.add_or_merge(type1, list, true)
-			Util.add_or_merge(type2, list, true)
+			if bypass == false then
+				local type1 = Util.itemstack_convert(itemstack)
+				type1.cont.count = 1
+				local type2 = Util.itemstack_convert(itemstack)
+				type2.cont.count = type2.cont.count - 1
+				type2.cont.durability = game.item_prototypes[type2.cont.name].durability
+				Util.add_or_merge(type1, list, true)
+				Util.add_or_merge(type2, list, true)
+			else
+				local type2 = Util.itemstack_template(itemstackC.cont.name)
+				type2.cont.count = itemstackC.cont.count - 1
+				itemstackC.cont.count = 1
+				Util.add_or_merge(itemstackC, list, true)
+				Util.add_or_merge(type2, list, true)
+			end
 			return
 		end
 		if itemstackC.cont.ammo and itemstackC.cont.count > 1 and itemstackC.cont.ammo ~= game.item_prototypes[itemstackC.cont.name].magazine_size then
-			local type1 = Util.itemstack_convert(itemstack)
-			type1.cont.count = 1
-			local type2 = Util.itemstack_convert(itemstack)
-			type2.cont.count = type2.cont.count - 1
-			type2.cont.ammo = game.item_prototypes[type2.cont.name].magazine_size
-			Util.add_or_merge(type1, list, true)
-			Util.add_or_merge(type2, list, true)
+			if bypass == false then
+				local type1 = Util.itemstack_convert(itemstack)
+				type1.cont.count = 1
+				local type2 = Util.itemstack_convert(itemstack)
+				type2.cont.count = type2.cont.count - 1
+				type2.cont.ammo = game.item_prototypes[type2.cont.name].magazine_size
+				Util.add_or_merge(type1, list, true)
+				Util.add_or_merge(type2, list, true)
+			else
+				local type2 = Util.itemstack_template(itemstackC.cont.name)
+				type2.cont.count = itemstackC.cont.count - 1
+				itemstackC.cont.count = 1
+				Util.add_or_merge(itemstackC, list, true)
+				Util.add_or_merge(type2, list, true)
+			end
 			return
 		end
 		table.insert(list, itemstackC)

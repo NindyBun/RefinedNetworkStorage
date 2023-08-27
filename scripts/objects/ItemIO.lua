@@ -385,7 +385,7 @@ function IIO:IO()
                 until has > 0 or initialItem == self.filters.index
 
                 if has > 0 and isOperable == true and inv ~= nil then
-                    BaseNet.transfer_item(drive:get_sorted_and_merged_inventory(), inv, itemstack, 1, self.metadataMode, true, "array_to_inv")
+                    BaseNet.transfer_item(drive:get_sorted_and_merged_inventory(), inv, itemstack, math.min(1, drive:getRemainingStorageSize()), self.metadataMode, true, "array_to_inv")
                 end
             end
         end

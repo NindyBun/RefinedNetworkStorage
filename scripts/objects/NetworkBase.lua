@@ -97,6 +97,162 @@ function BaseNet:getTooltips()
     
 end
 
+--Meant for exporting from the network. Exporting is always whitelisted
+function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, count, allowMetadata)
+    allowMetadata = allowMetadata or false
+    drive_inv:get_sorted_and_merged_inventory()
+    local amount = count
+    local list = drive_inv.storageArray.item_list
+    local inventory = drive_inv.storageArray.inventory
+    for i=1, 1 do
+        for j=1, 1 do
+            if list[itemstack_data.cont.name] ~= nil then
+                local item = list[itemstack_data.cont.name]
+                local min = math.min(item.count, amount)
+                if item.count <= 1 and allowMetadata == false then
+                    if item.ammo ~= nil and item.ammo ~= game.item_prototypes[item.name].magazine_size then break end
+                    if item.durability ~= nil and item.durability ~= game.item_prototypes[item.name].durability then break end
+                elseif item.count > 1 and allowMetadata == false then
+                    if item.ammo ~= nil and item.ammo ~= game.item_prototypes[item.name].magazine_size then min = min - 1 end
+                    if item.durability ~= nil and item.durability ~= game.item_prototypes[item.name].durability then min = min - 1 end
+                end
+                local temp = {
+                    name=itemstack_data.cont.name,
+                    count=min,
+                    durability=not allowMetadata and itemstack_data.cont.durability or item.durability,
+                    ammo=not allowMetadata and itemstack_data.cont.ammo or item.ammo
+                }
+                local t = to_inv.insert(temp)
+                amount = amount - t
+                item.count = item.count - t
+                if allowMetadata == true and t > 0 then
+                    if item.ammo ~= nil then item.ammo = game.item_prototypes[item.name].magazine_size end
+                    if item.durability ~= nil then item.durability = game.item_prototypes[item.name].durability end
+                end
+                if item.count <= 0 then
+                    list[itemstack_data.cont.name] = nil
+                end
+            end
+        end
+        if amount <= 0 then break end
+        for k=1, #inventory do
+            local item1 = inventory[k]
+            if item1.count <= 0 then break end
+            local item1C = Util.itemstack_convert(item1)
+            if Util.itemstack_matches(itemstack_data, item1C, allowMetadata) == true then
+                if item1C.health ~= 1 then
+                    local min1 = math.min(item1.count, amount)
+                    local temp = {
+                        name=itemstack_data.cont.name,
+                        count=min1,
+                        health=not allowMetadata and itemstack_data.cont.health or item1C.cont.health,
+                        durability=not allowMetadata and itemstack_data.cont.durability or item1C.cont.durability,
+                        ammo=not allowMetadata and itemstack_data.cont.ammo or item1C.cont.ammo,
+                        tags=not allowMetadata and itemstack_data.cont.tags or item1C.cont.tags
+                    }
+                    local t = to_inv.insert(temp)
+                    amount = amount - t
+                    item1.count = item1.count - t <= 0 and 0 or item1.count - 1
+                else
+                    for l=1, #to_inv do
+                        local item2 = to_inv[l]
+                        if item2.count > 0 then goto continue end
+                        if item2.transfer_stack(item1) then
+                            amount = amount - item1.count
+                            break
+                        end
+                        ::continue::
+                    end
+                end
+            end
+            if amount <= 0 then break end
+        end
+    end
+    return count - amount
+end
+
+--Meant for importing from the network. Importing always needs whitelist or blacklist or no filters
+function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data, count, allowMetadata, whitelist)
+    whitelist = whitelist or false
+    allowMetadata = allowMetadata or false
+    drive_inv:get_sorted_and_merged_inventory()
+    local amount = count
+    for i=1, #from_inv do
+        local mod = false
+        local item = from_inv[i]
+        if item.count <= 0 then goto continue end
+        local itemC = Util.itemstack_convert(item)
+        itemstack_data = itemstack_data or Util.itemstack_template(itemC.cont.name)
+        if whitelist == true then
+            if game.item_prototypes[itemC.cont.name] ~= game.item_prototypes[itemstack_data.cont.name] then goto continue end
+        else
+            if game.item_prototypes[itemC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then goto continue end
+        end
+        local min = math.min(itemC.cont.count, amount)
+        --modify count if metadataMode
+
+        if Util.itemstack_matches(itemstack_data, itemC, allowMetadata) == false then
+            if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemC.cont.name] then
+                if itemstack_data.cont.ammo and itemC.cont.ammo and itemstack_data.cont.ammo > itemC.cont.ammo and itemC.cont.count > 1 then
+                    mod = true
+                    goto go
+                end
+                if itemstack_data.cont.durability and itemC.cont.durability and itemstack_data.cont.durability > itemC.cont.durability and itemC.cont.count > 1 then
+                    mod = true
+                    goto go
+                end
+            end
+            goto continue
+        end
+        ::go::
+        if itemC.modified == false then
+            local temp = {
+                name=itemstack_data.cont.name,
+                count=min,
+                durability=not allowMetadata and itemstack_data.cont.durability or itemC.cont.durability,
+                ammo=not allowMetadata and itemstack_data.cont.ammo or itemC.cont.ammo,
+            }
+            local t = drive_inv:add_or_merge_basic_item(temp, min)
+            amount = amount - t
+            item.count = item.count - t <= 0 and 0 or item.count - t
+            if item.count > 0 and itemC.cont.ammo and not allowMetadata then
+                if mod then item.ammo = itemC.cont.ammo end
+            end
+            if item.count > 0 and itemC.cont.durability and not allowMetadata then
+                if mod then item.durability = itemC.cont.durability end
+            end
+        elseif itemC.modified == true then
+            local inv = drive_inv.storageArray.inventory
+            if item.item_number == nil then
+                local temp1 = {
+                    name=itemstack_data.cont.name,
+                    count=min,
+                    health=not allowMetadata and itemstack_data.cont.health or itemC.cont.health,
+                    durability=not allowMetadata and itemstack_data.cont.durability or itemC.cont.durability,
+                    ammo=not allowMetadata and itemstack_data.cont.ammo or itemC.cont.ammo,
+                    tags=not allowMetadata and itemstack_data.cont.tags or itemC.cont.tags
+                }
+                local t = inv.insert(temp1)
+                amount = amount - t
+                item.count = item.count - t <= 0 and 0 or item.count - t
+            else
+                for j=1, #inv do
+                    local item1 = inv[j]
+                    if item1.count > 0 then goto continue end
+                    if item1.transfer_stack(item) then
+                        amount = amount - min
+                        break
+                    end
+                    ::continue::
+                end
+            end
+        end
+        if amount <= 0 then break end
+        ::continue::
+    end
+    return count - amount
+end
+
 -- from_inv, to_inv, count
 function BaseNet.transfer_item(from_inv, to_inv, itemstack_data, count, allowMetadata, whitelist, transferDirection)
     local amount = count
