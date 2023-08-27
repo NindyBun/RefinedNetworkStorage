@@ -109,10 +109,10 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
             if list[itemstack_data.cont.name] ~= nil then --throws error on count must be positive integer
                 local item = list[itemstack_data.cont.name]
                 local min = math.min(item.count, amount)
-                if item.count <= 1 and allowMetadata == false then
+                if min <= 1 and allowMetadata == false then
                     if item.ammo ~= nil and item.ammo ~= game.item_prototypes[item.name].magazine_size then break end
                     if item.durability ~= nil and item.durability ~= game.item_prototypes[item.name].durability then break end
-                elseif item.count > 1 and allowMetadata == false then
+                elseif min > 1 and allowMetadata == false then --using item.count > 1 must be the problem
                     if item.ammo ~= nil and item.ammo ~= game.item_prototypes[item.name].magazine_size then min = min - 1 end
                     if item.durability ~= nil and item.durability ~= game.item_prototypes[item.name].durability then min = min - 1 end
                 end
@@ -140,8 +140,8 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
             if item1.count <= 0 then break end
             local item1C = Util.itemstack_convert(item1) --Doesn't grab the right item
             if Util.itemstack_matches(itemstack_data, item1C, allowMetadata) == true then
-                if item1C.health ~= 1 then
-                    local min1 = math.min(item1.count, amount)
+                if item1C.cont.health ~= 1 then --was missing the .cont.
+                    local min1 = math.min(item1C.cont.count, amount)
                     local temp = {
                         name=itemstack_data.cont.name,
                         count=min1,
@@ -152,7 +152,7 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
                     }
                     local t = to_inv.insert(temp)
                     amount = amount - t
-                    item1.count = item1.count - t <= 0 and 0 or item1.count - 1
+                    item1.count = item1.count - t <= 0 and 0 or item1.count - t
                 else
                     for l=1, #to_inv do
                         local item2 = to_inv[l]
