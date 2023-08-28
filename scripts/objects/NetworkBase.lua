@@ -125,7 +125,7 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
                 local t = to_inv.insert(temp) --Doesn't insert the right ammo/durability or it sets the same data back after it transfers
                 amount = amount - t
                 item.count = item.count - t
-                if allowMetadata == true and t > 0 then
+                if allowMetadata == false and t > 0 then
                     if item.ammo ~= nil then item.ammo = game.item_prototypes[item.name].magazine_size end
                     if item.durability ~= nil then item.durability = game.item_prototypes[item.name].durability end
                 end
