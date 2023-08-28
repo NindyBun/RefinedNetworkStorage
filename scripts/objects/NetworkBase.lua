@@ -109,12 +109,12 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
             if list[itemstack_data.cont.name] ~= nil and itemstack_data.modified == false then
                 local item = list[itemstack_data.cont.name]
                 local min = math.min(item.count, amount)
-                if min <= 1 and allowMetadata == false then
+                if item.count <= 1 and allowMetadata == false then
                     if item.ammo ~= nil and item.ammo ~= itemstack_data.cont.ammo then break end
                     if item.durability ~= nil and item.durability ~= itemstack_data.cont.durability then break end
-                elseif min > 1 and allowMetadata == false then
-                    if item.ammo ~= nil and item.ammo ~= itemstack_data.cont.ammo then min = min - 1 end
-                    if item.durability ~= nil and item.durability ~= itemstack_data.cont.durability then min = min - 1 end
+                elseif item.count > 1 and allowMetadata == false then
+                    --if item.ammo ~= nil and item.ammo ~= itemstack_data.cont.ammo then min = min - 1 end
+                    --if item.durability ~= nil and item.durability ~= itemstack_data.cont.durability then min = min - 1 end
                 end
                 local temp = {
                     name=itemstack_data.cont.name,
@@ -122,7 +122,7 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
                     durability=not allowMetadata and itemstack_data.cont.durability or item.durability,
                     ammo=not allowMetadata and itemstack_data.cont.ammo or item.ammo
                 }
-                local t = to_inv.insert(temp) --Doesn't insert the right ammo/durability or it sets the same data back after it transfers
+                local t = to_inv.insert(temp)
                 amount = amount - t
                 item.count = item.count - t
                 if allowMetadata == false and t > 0 then
