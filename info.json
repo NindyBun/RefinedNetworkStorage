@@ -4,7 +4,7 @@
 	"title": "Refined Network Storage",
 	"author": "NindyBun",
 	"homepage":"",
-	"description": "Store and access items/fluids digitally.",
+	"description": "Store, access, and transfer items/fluids digitally.",
 	"factorio_version": "1.1",
 	"dependencies": [
 		"base >= 1.0"
