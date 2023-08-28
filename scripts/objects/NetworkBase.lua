@@ -113,8 +113,8 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
                     if item.ammo ~= nil and item.ammo ~= itemstack_data.cont.ammo then break end
                     if item.durability ~= nil and item.durability ~= itemstack_data.cont.durability then break end
                 elseif min > 1 and allowMetadata == false then
-                    if item.ammo ~= nil and item.ammo ~= game.item_prototypes[item.name].magazine_size then min = min - 1 end
-                    if item.durability ~= nil and item.durability ~= game.item_prototypes[item.name].durability then min = min - 1 end
+                    if item.ammo ~= nil and item.ammo ~= itemstack_data.cont.ammo then min = min - 1 end
+                    if item.durability ~= nil and item.durability ~= itemstack_data.cont.durability then min = min - 1 end
                 end
                 local temp = {
                     name=itemstack_data.cont.name,
