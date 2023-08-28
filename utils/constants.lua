@@ -1,6 +1,7 @@
-local Constants = {}
+Constants = {}
 Constants.MOD_ID = "RefinedNetworkStorage"
 Constants.Settings = {
+    RNS_RoundRobin = "RNS_RoundRobin",
     RNS_BlankIcon = "__RefinedNetworkStorage__/graphics/blank.png",
     RNS_FR_Cable = "RNS_FR_NetworkCable",
     RNS_Tag = "RNS_StorageTag",
@@ -8,8 +9,9 @@ Constants.Settings = {
         ["Right"] = 2,
         ["Left"] = 1,
     },
-    RNS_BaseItemIO_Speed = 15,
-    RNS_BaseFluidIO_Speed = 1200/60,
+    RNS_BaseItemIO_TickSpeed = 15,
+    RNS_BaseItemIO_TransferCapacity = 1,
+    RNS_BaseFluidIO_TickSpeed = 1200/60,
     RNS_TypesWithContainer = {
         ["ammo-turret"] = true,
         ["artillery-turret"] = true,

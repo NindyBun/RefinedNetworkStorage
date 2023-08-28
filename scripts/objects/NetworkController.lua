@@ -97,16 +97,35 @@ function NC:update()
 
     if not self.stable then return end
 
-    local tickItemIO = game.tick % (60/Constants.Settings.RNS_BaseItemIO_Speed) --speed based on both sides of a belt
+    local tickItemIO = game.tick % (60/Constants.Settings.RNS_BaseItemIO_TickSpeed) --speed based on both sides of a belt
     if tickItemIO >= 0.0 and tickItemIO < 1.0 then self:updateItemIO() end
-    local tickItemBeltIO = game.tick % (120/Constants.Settings.RNS_BaseItemIO_Speed) --speed based on 1 side of a belt
+    local tickItemBeltIO = game.tick % (120/Constants.Settings.RNS_BaseItemIO_TickSpeed) --speed based on 1 side of a belt
     if tickItemBeltIO >= 0.0 and tickItemBeltIO < 1.0 then self:updateItemIO(true) end
 
     if game.tick % 60 == 0.0 then self:updateFluidIO() end
 end
 
 function NC:updateItemIO(belt)
-    for _, item in pairs(self.network.ItemIOTable) do
+    local import = {}
+    local export = {}
+    for _, item in pairs(BaseNet.getOperableObjects(self.network.ItemIOTable)) do
+        if item.io == "input" then table.insert(import, item) end
+        if item.io == "output" then
+            if settings.global[Constants.Settings.RNS_RoundRobin].value then
+                table.insert(export, item.processed == false and 1 or (Util.getTableLength(export)+1), item)
+            else
+                table.insert(export, item)
+            end
+        end
+    end
+    for _, item in pairs(import) do
+        if belt then
+            --item:transportIO()
+        else
+            item:IO()
+        end
+    end
+    for _, item in pairs(export) do
         if belt then
             --item:transportIO()
         else

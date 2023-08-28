@@ -1,4 +1,4 @@
-Constants = require("utils.constants")
+--Constants = require("utils.constants")
 require("prototypes.Drives")
 require("prototypes.NetworkController")
 require("prototypes.NetworkInventoryBlock")
