@@ -253,6 +253,7 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
     return count - amount
 end
 
+--[[
 -- from_inv, to_inv, count
 function BaseNet.transfer_item(from_inv, to_inv, itemstack_data, count, allowMetadata, whitelist, transferDirection)
     local amount = count
@@ -363,7 +364,7 @@ function BaseNet.transfer_advanced_item(from_inv_itemstack, to_inv, itemstack_da
     end
     return count - temp_count
 end
-
+]]
 
 
 function BaseNet.getOperableObjects(array)
