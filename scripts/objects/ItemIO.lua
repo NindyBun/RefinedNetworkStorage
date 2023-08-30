@@ -137,7 +137,9 @@ function IIO:generateModeIcon()
     }
 end
 
-function IIO:transportIO()
+--Transport Belts do not have an inventory, only an array. Meaning we can only input/output default items, no modified items because we can't access the inventory.
+--We are not using this at all due to the lack of lua access
+--[[function IIO:transportIO()
     if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then return end
     local network = self.networkController.network
     if self.focusedEntity ~= nil and self.focusedEntity.valid == true then
@@ -264,7 +266,7 @@ function IIO:transportIO()
             end
         end
     end
-end
+end]]
 
 function IIO.has_item(inv, itemstack_data, metadataMode)
     local amount = 0

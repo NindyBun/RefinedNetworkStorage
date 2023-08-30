@@ -2,7 +2,7 @@ GUI = GUI or {}
 Event = Event or {}
 UpdateSys = UpdateSys or {}
 
---Constants = require("utils.constants")
+Constants = require("utils.constants")
 require("utils.Util")
 require("scripts.Events")
 require("scripts.Functions")
