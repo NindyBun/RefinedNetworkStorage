@@ -8,7 +8,10 @@ FIO = {
     filter = nil,
     whitelist = false,
     ioIcon = nil,
-    io = "output"
+    io = "output",
+    processed=false,
+    focusedEntity=nil,
+    combinator=nil
 }
 
 function FIO:new(object)
@@ -39,6 +42,24 @@ function FIO:new(object)
         [3] = {}, --S
         [4] = {}, --W
     }
+    t.filter = ""
+    t.focusedEntity = {
+        thisEntity = nil,
+        fluid_box = {
+            index = nil,
+            filter = "",
+            target_position = nil,
+            flow = ""
+        }
+    }
+    t.combinator = object.surface.create_entity{
+        name="rns-combinator",
+        position=object.position,
+        force="neutral"
+    }
+    t.combinator.destructible = false
+    t.combinator.operable = false
+    t.combinator.minable = false
     UpdateSys.addEntity(t)
     return t
 end
@@ -51,6 +72,7 @@ function FIO:rebuild(object)
 end
 
 function FIO:remove()
+    if self.combinator ~= nil then self.combinator.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
         self.networkController.network.FluidIOTable[self.entID] = nil
@@ -71,8 +93,10 @@ function FIO:update()
         self.networkController = nil
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
+    if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false then
+        self:reset_focused_entity()
+    end
     self:createArms()
-    if game.tick % 1 == 0 then self:IO() end
 end
 
 function FIO:toggleHoverIcon(hovering)
@@ -106,22 +130,98 @@ function FIO:generateModeIcon()
     }
 end
 
-function FIO:IO()
-    local tank = self.thisEntity
-    local fluid = nil
+function FIO.transfer_fluid(ent, drive, tank, amount, fluid_box)
+    local count = amount
+    for i=1, 1 do
+        if tank ~= nil then
+            local temperature0 = tank.temperature
+            local amount0 = tank.amount
+            local name = tank.name
+            ent.fluidbox[fluid_box.index] = {
+                name = name,
+                amount = amount0 + math.min(drive:has_fluid(fluid_box.filter), count),
+                temperature = temperature0
+            }
+            local amount1 = tank.amount
+            local diff = amount1 - amount0
+            count = count - diff and 0 or count - diff
+            if diff <= 0 then break end
+            ent.fluidbox[fluid_box.index] = { --Need fix, temperature is nil
+                name = name,
+                amount = amount1,
+                temperature = ((drive.fluidArray[name].temperature or game.fluid_prototypes[name].default_temperature) * diff + amount0 * (temperature0 or game.fluid_prototypes[name].default_temperature)) / (amount1)
+            }
+            drive:remove_fluid(name, diff)
+        else
+            ent.fluidbox[fluid_box.index] = { --Something's wrong here
+                name = fluid_box.filter,
+                amount = math.min(drive:has_fluid(fluid_box.filter), count),
+                temperature = game.fluid_prototypes[fluid_box.filter].default_temperature
+            }
+            local inserted = tank.amount
+            count = count - inserted <= 0 and 0 or count - inserted
+            if inserted <= 0 then break end
+            drive:remove_fluid(fluid_box.filter, inserted)
+        end
+        if count <= 0 then break end
+    end
+    return amount - count
+end
 
-    for i=1, #tank.fluidbox do
-        if tank.fluidbox[i] then
-            fluid = tank.fluidbox[i]
-            break
+function FIO:IO()
+    local transportCapacity = Constants.Settings.RNS_BaseFluidIO_TransferCapacity
+    --#tank.fluidbox returns number of pipe connections
+    --tank.fluidbox.get_locked_fluid(index) returns filtered fluid at an index
+    --tank.fluidbox[index] returns the contents of the fluidbox at an index
+    --tank.fluidbox.get_pipe_connections(index)[1] returns the fluidbox prototype at a pipe index and fluidbox index, we can use flow_direction and target_position
+    --tank.fluidbox[index] = nil sets the fluidbox empty
+    --tank.fluidbox[index] = {name?, amount?, tempurature?} sets the fluidbox
+
+    for i=1, 1 do
+        if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
+        local network = self.networkController.network
+        if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true then
+            local fluid_box = self.focusedEntity.fluid_box
+            local tank = self.focusedEntity.thisEntity.fluidbox[fluid_box.index]
+
+            for _, drive in pairs(BaseNet.getOperableObjects(network.FluidDriveTable)) do
+                if self.io == "input" and self.filter == fluid_box.filter and self.filter ~= "" then
+                    if string.match(fluid_box.flow, "output") == nil then break end
+                    if drive:has_room() == 0 then goto continue end
+
+                    if tank == nil then break end
+                    local temperature = tank.temperature
+                    local amount = tank.amount
+                    local name = tank.name
+
+                    local inserted = drive:insert_fluid(name, math.min(amount, math.min(drive:getRemainingStorageSize(), transportCapacity)), temperature)
+                    transportCapacity = transportCapacity - inserted
+                    if amount == inserted then
+                        self.focusedEntity.thisEntity.fluidbox[fluid_box.index] = nil
+                        break
+                    end
+                    self.focusedEntity.thisEntity.fluidbox[fluid_box.index] = {
+                        name = name,
+                        amount = amount - inserted,
+                        temperature = temperature
+                    }
+                elseif self.io == "output" then
+                    if string.match(fluid_box.flow, "input") == nil then break end
+                    if drive:has_fluid(self.filter) == 0 then break end
+                    if self.filter == fluid_box.filter and fluid_box.filter ~= "" then
+                        transportCapacity = transportCapacity - FIO.transfer_fluid(self.focusedEntity.thisEntity, drive, tank, math.min(drive:has_fluid(self.filter), transportCapacity), fluid_box)
+                        if transportCapacity <= 0 then break end
+                    elseif self.filter ~= "" and fluid_box.filter == "" then
+                        transportCapacity = transportCapacity - FIO.transfer_fluid(self.focusedEntity.thisEntity, drive, tank, math.min(drive:has_fluid(self.filter), transportCapacity), fluid_box)
+                        if transportCapacity <= 0 then break end
+                    end
+                end
+                ::continue::
+                if transportCapacity <= 0 then break end
+            end
         end
     end
-
-    if self.io == "input" and fluid == nil then
-        tank.remove_fluid{name=fluid.name, amount=Constants.Settings.RNS_BaseFluidIO_Speed}
-    elseif self.io == "output" and self.filter ~= nil then
-        tank.insert_fluid({name=self.filter.name, amount=Constants.Settings.RNS_BaseFluidIO_Speed, tempurature=15})
-    end
+    self.processed = transportCapacity < Constants.Settings.RNS_BaseFluidIO_TransferCapacity
 end
 
 function FIO:resetConnection()
@@ -136,6 +236,18 @@ function FIO:resetConnection()
             rendering.destroy(arm)
         end
     end
+end
+
+function FIO:reset_focused_entity()
+    self.focusedEntity = {
+        thisEntity = nil,
+        fluid_box = {
+            index = 1,
+            filter = "",
+            target_position = {},
+            flow = ""
+        }
+    }
 end
 
 function FIO:getCheckArea()
@@ -177,6 +289,25 @@ function FIO:createArms()
                             end
                         end
                         break
+                    end
+                elseif ent ~= nil and self:getDirection() == area.direction then --Get entity with inventory
+                    if #ent.fluidbox ~= 0 then
+                        if self.focusedEntity.thisEntity == nil or (self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false) then
+                            self:reset_focused_entity()
+                            self.focusedEntity.thisEntity = ent
+                            for i=1, #ent.fluidbox do
+                                for j=1, #ent.fluidbox.get_pipe_connections(i) do
+                                    local target = ent.fluidbox.get_pipe_connections(i)[j]
+                                    if target.target_position.x == self.thisEntity.position.x and target.target_position.y == self.thisEntity.position.y then
+                                        self.focusedEntity.fluid_box.index = i
+                                        self.focusedEntity.fluid_box.flow =  target.flow_direction
+                                        self.focusedEntity.fluid_box.target_position = target.target_position
+                                        self.focusedEntity.fluid_box.filter =  (ent.fluidbox.get_locked_fluid(i) ~= nil and {ent.fluidbox.get_locked_fluid(i)} or {""})[1]
+                                        break
+                                    end
+                                end
+                            end
+                        end
                     end
                 end
             end
@@ -233,5 +364,73 @@ function FIO:getRealDirection()
 end
 
 function FIO:getTooltips(guiTable, mainFrame, justCreated)
+    if justCreated == true then
+		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_Fluid"}
 
+        local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", mainFrame, "vertical", true)
+		filtersFrame.style = Constants.Settings.RNS_Gui.frame_1
+		filtersFrame.style.vertically_stretchable = true
+		filtersFrame.style.left_padding = 3
+		filtersFrame.style.right_padding = 3
+		filtersFrame.style.right_margin = 3
+		filtersFrame.style.width = 100
+
+        GuiApi.add_subtitle(guiTable, "", filtersFrame, {"gui-description.RNS_Filter"})
+
+        local filterFlow = GuiApi.add_flow(guiTable, "", filtersFrame, "vertical")
+        filterFlow.style.horizontal_align = "center"
+
+        local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Fluid_Filter", filterFlow, "", true, "fluid", 40, {ID=self.thisEntity.unit_number})
+		guiTable.vars.filter = filter
+		if self.filter ~= "" then filter.elem_value = self.filter end
+
+        local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", mainFrame, "vertical", true)
+		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
+		settingsFrame.style.vertically_stretchable = true
+		settingsFrame.style.left_padding = 3
+		settingsFrame.style.right_padding = 3
+		settingsFrame.style.right_margin = 3
+		settingsFrame.style.minimal_width = 200
+
+		GuiApi.add_subtitle(guiTable, "", settingsFrame, {"gui-description.RNS_Setting"})
+
+        -- Input/Output mode
+        local state = "left"
+		if self.io == "output" then state = "right" end
+		GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_Fluid_IO", settingsFrame, {"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, "", "", state, false, {ID=self.thisEntity.unit_number})
+    end
+
+    if self.filter ~= "" then
+        guiTable.vars.filter.elem_value = self.filter
+    end
+    
+end
+
+
+function FIO.interaction(event, player)
+    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Filter") then
+		local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        if event.element.elem_value ~= nil then
+            io.filter = event.element.elem_value
+            io.combinator.get_or_create_control_behavior().set_signal(1, {signal={type="fluid", name=event.element.elem_value}, count=1})
+        else
+            io.filter = ""
+            io.combinator.get_or_create_control_behavior().set_signal(1, nil)
+        end
+		GUI.update(true)
+		return
+	end
+
+    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_IO") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.io = event.element.switch_state == "left" and "input" or "output"
+        io.processed = false
+        io:generateModeIcon()
+		GUI.update(true)
+		return
+    end
 end

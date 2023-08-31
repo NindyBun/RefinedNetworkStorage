@@ -2,7 +2,7 @@ function GUI.update(force)
     for _, player in pairs(game.connected_players) do
         local RNSPlayer = getRNSPlayer(player.name)
         if RNSPlayer ~= nil then
-            if game.tick%55 == 0 or force then
+            if game.tick % Constants.Settings.RNS_Gui_Tick == 0 or force then
                 for _, guiTable in pairs(RNSPlayer.GUI or {}) do
                     if guiTable.gui ~= nil and guiTable.gui.valid == true and GUI["update_" .. guiTable.gui.name] ~= nil then
                         if guiTable.vars.currentObject.thisEntity == nil or guiTable.vars.currentObject.thisEntity.valid == false or guiTable.vars.currentObject.thisEntity.to_be_deconstructed() == true then
@@ -106,6 +106,12 @@ function GUI.on_gui_element_changed(event)
 
     if string.match(event.element.name, "RNS_NetworkCableIO_Item") then
         IIO.interaction(event, player)
+        GUI.update(true)
+        return
+    end
+
+    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid") then
+        FIO.interaction(event, player)
         GUI.update(true)
         return
     end

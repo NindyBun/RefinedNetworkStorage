@@ -289,6 +289,7 @@ end
 function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, text)
 	local tableList = GuiApi.add_table(guiTable, "", inventoryScrollPane, 8)
 	local inv = {}
+	local fluid = {}
 	for _, drive in pairs(BaseNet.getOperableObjects(self.networkController.network.ItemDriveTable)) do
 		local storage = drive:get_sorted_and_merged_inventory()
 		for i = 1, #storage.inventory do
@@ -304,51 +305,82 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 			Util.add_or_merge(c, inv, true)
 		end
 	end
+	for _, drive in pairs(BaseNet.getOperableObjects(self.networkController.network.FluidDriveTable)) do
+		for k, c in pairs(drive.fluidArray) do
+			if c == nil then goto continue end
+			if fluid[k] ~= nil then
+				fluid[k].amount = fluid[k].amount + c.amount
+				fluid[k].temperature = (fluid[k].temperature * fluid[k].amount + c.amount * (c.temperature or game.fluid_prototypes[c.name].default_temperature)) / (fluid[k].amount + c.amount)
+			else
+				fluid[k] = {
+					name = c.name,
+					amount = c.amount,
+					temperature = c.temperature
+				}
+			end
+			::continue::
+		end
+	end
 
-	if Util.getTableLength(inv) == 0 then return end
-	for i = 1, Util.getTableLength(inv) do
-		local item = inv[i]
-		RNSPlayer.thisEntity.request_translation(Util.get_item_name(item.cont.name))
-		if Util.get_item_name(item.cont.name)[1] ~= nil then
-			local locName = Util.get_item_name(item.cont.name)[1]
-			if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
-		end
+	-----------------------------------------------------------------------------------Items----------------------------------------------------------------------------------------
+	if Util.getTableLength(inv) > 0 then
+		for i = 1, Util.getTableLength(inv) do
+			local item = inv[i]
+			RNSPlayer.thisEntity.request_translation(Util.get_item_name(item.cont.name))
+			if Util.get_item_name(item.cont.name)[1] ~= nil then
+				local locName = Util.get_item_name(item.cont.name)[1]
+				if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
+			end
 
-		local buttonText = {"", "[color=blue]", item.label or Util.get_item_name(item.cont.name), "[/color]"}
-		if item.cont.health < 1 then
-			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_health"})
-			table.insert(buttonText, math.floor(item.cont.health*100) .. "%")
+			local buttonText = {"", "[color=blue]", item.label or Util.get_item_name(item.cont.name), "[/color]"}
+			if item.cont.health < 1 then
+				table.insert(buttonText, "\n")
+				table.insert(buttonText, {"gui-description.RNS_health"})
+				table.insert(buttonText, math.floor(item.cont.health*100) .. "%")
+			end
+			
+			if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 and item.description ~= "" then
+				table.insert(buttonText, "\n")
+				table.insert(buttonText, item.description)
+			elseif item.modified ~= nil and item.modified == true then
+				table.insert(buttonText, "\n")
+				table.insert(buttonText, {"gui-description.RNS_item_modified"})
+			end
+			
+			if item.cont.ammo ~= nil then
+				table.insert(buttonText, "\n")
+				table.insert(buttonText, {"gui-description.RNS_ammo"})
+				table.insert(buttonText, item.cont.ammo .. "/" .. game.item_prototypes[item.cont.name].magazine_size)
+			end
+			if item.cont.durability ~= nil then
+				table.insert(buttonText, "\n")
+				table.insert(buttonText, {"gui-description.RNS_durability"})
+				table.insert(buttonText, item.cont.durability .. "/" .. game.item_prototypes[item.cont.name].durability)
+			end
+			if item.linked ~= nil and item.linked ~= "" then
+				table.insert(buttonText, "\n")
+				table.insert(buttonText, {"gui-description.RNS_linked"})
+				table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
+			end
+			GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or item.ammo or item.durability)and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.entID, name=(item.cont.name), stack=item})
+			::continue::
 		end
-		
-		if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 and item.description ~= "" then
-			table.insert(buttonText, "\n")
-			table.insert(buttonText, item.description)
-		elseif item.modified ~= nil and item.modified == true then
-			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_item_modified"})
+	end
+	-----------------------------------------------------------------------------------Fluids----------------------------------------------------------------------------------------
+	if Util.getTableLength(fluid) > 0 then
+		for k, c in pairs(fluid) do
+			RNSPlayer.thisEntity.request_translation(Util.get_fluid_name(c.name))
+			if Util.get_fluid_name(c.name)[1] ~= nil then
+				local locName = Util.get_fluid_name(c.name)[1]
+				if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
+			end
+			local buttonText = {"", "[color=blue]", Util.get_fluid_name(c.name), "[/color]\n", {"gui-description.RNS_temperature"}, c.temperature or game.fluid_prototypes[c.name].default_temperature}
+			GuiApi.add_button(guiTable, "RNS_NII_FDInv_".. k, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
+			::continue::
 		end
-		
-		if item.cont.ammo ~= nil then
-			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_ammo"})
-			table.insert(buttonText, item.cont.ammo .. "/" .. game.item_prototypes[item.cont.name].magazine_size)
-		end
-		if item.cont.durability ~= nil then
-			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_durability"})
-			table.insert(buttonText, item.cont.durability .. "/" .. game.item_prototypes[item.cont.name].durability)
-		end
-		if item.linked ~= nil and item.linked ~= "" then
-			table.insert(buttonText, "\n")
-			table.insert(buttonText, {"gui-description.RNS_linked"})
-			table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
-		end
-		GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or item.ammo or item.durability)and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.entID, name=(item.cont.name), stack=item})
-		
-		::continue::
 	end
 end
+
 
 function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	if RNSPlayer.thisEntity == nil or NII == nil then return end
@@ -402,6 +434,33 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	end
 end
 
+function NII.transfer_from_fdinv(RNSPlayer, NII, tags, count)
+	if RNSPlayer.thisEntity == nil or NII == nil then return end
+	local network = NII.networkController ~= nil and NII.networkController.network or nil
+	if network == nil then return end
+	if tags == nil then return end
+	local fluid = tags.name
+
+	--if count == -1 then count = game.item_prototypes[itemstack.cont.name].stack_size end
+	--if count == -2 then count = math.max(1, game.item_prototypes[itemstack.cont.name].stack_size/2) end
+	--if count == -3 then count = game.item_prototypes[itemstack.cont.name].stack_size*10 end
+	--if count == -4 then count = (2^32)-1 end
+--
+	--local inv = RNSPlayer.thisEntity.get_main_inventory()
+	--local amount = math.min(itemstack.cont.count, count)
+	--if amount <= 0 then return end
+--
+	--for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+	--	if RNSPlayer:has_room() then
+	--		--local transfered = BaseNet.transfer_item(drive:get_sorted_and_merged_inventory(), inv, itemstack, math.min(amount, drive:has_item(itemstack)), false, true, "array_to_inv")
+	--		amount = amount - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, math.min(amount, drive:getRemainingStorageSize()), false)
+	--		if amount <= 0 then return end
+	--	else
+	--		return
+	--	end
+	--end
+end
+
 function NII.interaction(event, playerIndex)
 	if string.match(event.element.name, "RNS_SearchTextField") then return end
 	local count = 0
@@ -420,6 +479,12 @@ function NII.interaction(event, playerIndex)
 	if string.match(event.element.name, "RNS_NII_IDInv") then
 		local obj = global.entityTable[event.element.tags.ID]
 		NII.transfer_from_idinv(getRNSPlayer(playerIndex), obj, event.element.tags, count)
+		return
+	end
+
+	if string.match(event.element.name, "RNS_NII_FDInv") then
+		local obj = global.entityTable[event.element.tags.ID]
+		NII.transfer_from_fdinv(getRNSPlayer(playerIndex), obj, event.element.tags, count)
 		return
 	end
 

@@ -102,8 +102,6 @@ function IIO:update()
         self:reset_focused_entity()
     end
     self:createArms()
-    --local tick = game.tick % (120/Constants.Settings.RNS_BaseItemIO_Speed) --based on belt speed
-    --if tick >= 0.0 and tick < 1.0 then self:IO() end --This is done in the Network Controller
 end
 
 function IIO:toggleHoverIcon(hovering)
@@ -386,7 +384,7 @@ function IIO:IO()
             end
         end
     end
-    self.processed = transportCapacity < Constants.Settings.RNS_BaseItemIO_TransferCapacity and true or false
+    self.processed = transportCapacity < Constants.Settings.RNS_BaseItemIO_TransferCapacity
 end
 
 function IIO:resetConnection()

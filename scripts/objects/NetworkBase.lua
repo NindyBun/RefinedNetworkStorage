@@ -112,7 +112,7 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
                 if item.count <= 1 and allowMetadata == false then
                     if item.ammo ~= nil and item.ammo ~= itemstack_data.cont.ammo then break end
                     if item.durability ~= nil and item.durability ~= itemstack_data.cont.durability then break end
-                elseif item.count > 1 and allowMetadata == false then
+                --elseif item.count > 1 and allowMetadata == false then
                     --if item.ammo ~= nil and item.ammo ~= itemstack_data.cont.ammo then min = min - 1 end
                     --if item.durability ~= nil and item.durability ~= itemstack_data.cont.durability then min = min - 1 end
                 end

@@ -1,3 +1,19 @@
+data:extend
+{
+    {
+        type = "fluid",
+        name = "rns_empty_fluid",
+        default_temperature = 15,
+        max_temperature = 100,
+        heat_capacity = "0.2KJ",
+        base_color = {r=0, g=0.34, b=0.6},
+        flow_color = {r=0.7, g=0.7, b=0.7},
+        icon = Constants.Settings.RNS_BlankIcon,
+        icon_size = 32,
+        hidden = true
+    }
+}
+
 local ioI = {}
 ioI.type = "item"
 ioI.name = Constants.NetworkCables.fluidIO.itemEntity.name
@@ -73,6 +89,8 @@ ioE.energy_usage = "1J"
 ioE.fluid_boxes = {
     {
         base_area = 1,
+        base_level = 1,
+        filter="rns_empty_fluid",
         pipe_connections = {
             {type = "input-output", position = {0, -1}}
         },
@@ -91,7 +109,9 @@ io.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 io.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
 io.window_bounding_box = {{0, 0}, {0, 0}}
 io.fluid_box = {
-    base_area = 12,
+    base_area = 1, --scales by 100x
+    base_level = 1,
+    filter="rns_empty_fluid",
     hide_connection_info = true,
     pipe_connections = {
         {position = {0, -1}}

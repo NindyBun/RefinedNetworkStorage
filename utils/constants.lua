@@ -9,9 +9,11 @@ Constants.Settings = {
         ["Right"] = 2,
         ["Left"] = 1,
     },
-    RNS_BaseItemIO_TickSpeed = 15,
+    RNS_Gui_Tick = 55,
+    RNS_ItemIO_Tick = 4,
     RNS_BaseItemIO_TransferCapacity = 1,
-    RNS_BaseFluidIO_TickSpeed = 1200/60,
+    RNS_FluidIO_Tick = 5,
+    RNS_BaseFluidIO_TransferCapacity = 100,
     RNS_TypesWithContainer = {
         ["ammo-turret"] = true,
         ["artillery-turret"] = true,

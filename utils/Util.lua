@@ -118,6 +118,12 @@ function Util.get_item_name(itemName)
 	end
 end
 
+function Util.get_fluid_name(fluidName)
+	if game.fluid_prototypes[fluidName] ~= nil then
+		return game.fluid_prototypes[fluidName].localised_name
+	end
+end
+
 function Util.toRNumber(number)
 	if number == nil then return 0 end
 	local rNumber = number

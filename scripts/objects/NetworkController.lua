@@ -97,12 +97,11 @@ function NC:update()
 
     if not self.stable then return end
 
-    local tickItemIO = game.tick % (60/Constants.Settings.RNS_BaseItemIO_TickSpeed) --speed based on both sides of a belt
-    if tickItemIO >= 0.0 and tickItemIO < 1.0 then self:updateItemIO() end
-    local tickItemBeltIO = game.tick % (120/Constants.Settings.RNS_BaseItemIO_TickSpeed) --speed based on 1 side of a belt
-    if tickItemBeltIO >= 0.0 and tickItemBeltIO < 1.0 then self:updateItemIO(true) end
+    if game.tick % Constants.Settings.RNS_ItemIO_Tick == 0 then self:updateItemIO() end --Base is every 4 ticks to match yellow belt speed at 15/s
+    --local tickItemBeltIO = game.tick % (120/Constants.Settings.RNS_BaseItemIO_TickSpeed) --speed based on 1 side of a belt
+    --if tickItemBeltIO >= 0.0 and tickItemBeltIO < 1.0 then self:updateItemIO(true) end
 
-    if game.tick % 60 == 0.0 then self:updateFluidIO() end
+    if game.tick % Constants.Settings.RNS_FluidIO_Tick == 0 then self:updateFluidIO() end --Base is every 5 ticks to match offshore pump speed at 1200/s
 end
 
 function NC:updateItemIO(belt)

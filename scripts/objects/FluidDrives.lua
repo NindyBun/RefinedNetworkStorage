@@ -3,7 +3,7 @@ FD = {
     entID = nil,
     networkController = nil,
     maxStorage = 0,
-    storage = nil,
+    fluidArray = nil,
     connectedObjs = nil,
     cardinals = nil,
     updateTick = 60,
@@ -27,7 +27,7 @@ function FD:new(object)
     elseif object.name == Constants.Drives.FluidDrive.FluidDrive256k.name then
         t.maxStorage = Constants.Drives.FluidDrive.FluidDrive256k.max_size
     end
-    t.storage = {}
+    t.fluidArray = {}
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -133,12 +133,53 @@ function FD:collect()
 end
 
 function FD:validate()
+    for k, _ in pairs(self.fluidArray) do
+        if game.fluid_prototypes[k] == nil then
+            self.fluidArray[k] = nil
+        end
+    end
+end
 
+function FD:has_fluid(name)
+    if self.fluidArray[name] ~= nil then return self.fluidArray[name].amount end
+    return 0
+end
+
+function FD:insert_fluid(name, amount, temperature)
+    if self:has_room() == false then return 0 end
+    if self.fluidArray[name] ~= nil then
+        local tank = self.fluidArray[name]
+        local min = math.min(amount, self:getRemainingStorageSize())
+        tank.temperature = ((tank.temperature or game.fluid_prototypes[name].default_temperature) * tank.amount + min * temperature) / (tank.amount + min)
+        tank.amount = tank.amount + min
+        return min
+    else
+        self.fluidArray[name] = {
+            name = name,
+            amount = amount,
+            temperature = temperature
+        }
+        return amount
+    end
+end
+
+function FD:remove_fluid(name, amount)
+    if self.fluidArray[name] == nil then return 0 end
+    local tank = self.fluidArray[name]
+    local min = math.min(amount, tank.amount)
+    tank.amount = (tank.amount - min <= 0) and 0 or tank.amount - min
+    if tank.amount == 0 then self.fluidArray[name] = nil end
+    return min
+end
+
+function FD:has_room()
+    if self:getRemainingStorageSize() > 0 then return true end
+    return false
 end
 
 function FD:getStorageSize()
     local count = 0
-    for _, c in pairs(self.storage) do
+    for _, c in pairs(self.fluidArray) do
         count = count + c.amount
     end
     return count
@@ -149,13 +190,13 @@ function FD:getRemainingStorageSize()
 end
 
 function FD:DataConvert_ItemToEntity(tag)
-    self.storage = tag or {}
+    self.fluidArray = tag or {}
 end
 
 function FD:DataConvert_EntityToItem(tag)
-    if self.storage ~= nil then
+    if self.fluidArray ~= nil then
         if self:getStorageSize() == 0 then return end
-        tag.set_tag(Constants.Settings.RNS_Tag, self.storage)
+        tag.set_tag(Constants.Settings.RNS_Tag, self.fluidArray)
         tag.custom_description = {"", tag.prototype.localised_description, {"item-description.RNS_FluidDriveTag", self:getStorageSize(), self.maxStorage}}
     end
 end
@@ -171,9 +212,9 @@ function FD:getTooltips(guiTable, mainFrame, justCreated)
         infoFrame.style.left_padding = 3
         infoFrame.style.right_padding = 3
         GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
-        --GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_FluidDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
+        GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_FluidDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
     end
 
-    local infoFrame = guiTable.vars.InformationFrame
-    GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_ItemDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
+    local capacity = guiTable.vars.Capacity
+    capacity.caption = {"gui-description.RNS_FluidDrive_Capacity", self:getStorageSize(), self.maxStorage}
 end
