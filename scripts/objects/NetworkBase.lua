@@ -97,6 +97,69 @@ function BaseNet:getTooltips()
     
 end
 
+function BaseNet.transfer_from_drive_to_tank(drive, tank_entity, index, name, amount_to_transfer)
+    local amount = amount_to_transfer
+
+    for i=1, 1 do
+        if tank_entity.fluidbox[index] == nil then
+            tank_entity.fluidbox[index] = {
+                name = name,
+                amount = amount,
+                temperature = drive.fluidArray[name].temperature
+            }
+            local transfered = tank_entity.fluidbox[index].amount
+            amount = amount - transfered <= 0 and 0 or amount - transfered
+            drive:remove_fluid(name, transfered)
+            break
+        else
+            local amount0 = tank_entity.fluidbox[index].amount
+            local temp0 = tank_entity.fluidbox[index].temperature
+            tank_entity.fluidbox[index] = {
+                name = name,
+                amount = amount0 + amount,
+                temperature = temp0
+            }
+            local amount1 = tank_entity.fluidbox[index].amount
+            local transfered = amount1 - amount0 <= 0 and 0 or amount1 - amount0
+            amount = amount - transfered <= 0 and 0 or amount - transfered
+            if transfered <= 0 then break end
+            tank_entity.fluidbox[index] = {
+                name = name,
+                amount = amount1,
+                temperature = (drive.fluidArray[name].temperature * transfered + amount0 * temp0) / (amount1)
+            }
+            drive:remove_fluid(name, transfered)
+            break
+        end
+    end
+
+    return amount_to_transfer - amount
+end
+
+function BaseNet.transfer_from_tank_to_drive(drive, tank_entity, index, name, amount_to_transfer)
+    local amount = amount_to_transfer
+
+    for i=1, 1 do
+        if tank_entity.fluidbox[index] == nil then break end
+        local amount0 = tank_entity.fluidbox[index].amount
+        local temp0 = tank_entity.fluidbox[index].temperature
+        local transfered = drive:insert_fluid(name, math.min(amount0, amount), temp0)
+        amount = amount - transfered <= 0 and 0 or amount - transfered
+        if transfered <= 0 then break end
+        if amount0 - transfered <= 0 then
+            tank_entity.fluidbox[index] = nil
+            break
+        end
+        tank_entity.fluidbox[index] = {
+            name = name,
+            amount = amount0 - transfered,
+            temperature = temp0
+        }
+    end
+
+    return amount_to_transfer - amount
+end
+
 --Meant for exporting from the network. Exporting is always whitelisted
 function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, count, allowMetadata)
     allowMetadata = allowMetadata or false

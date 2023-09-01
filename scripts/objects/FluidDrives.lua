@@ -146,6 +146,7 @@ function FD:has_fluid(name)
 end
 
 function FD:insert_fluid(name, amount, temperature)
+    temperature = temperature or game.fluid_prototypes[name].default_temperature
     if self:has_room() == false then return 0 end
     if self.fluidArray[name] ~= nil then
         local tank = self.fluidArray[name]

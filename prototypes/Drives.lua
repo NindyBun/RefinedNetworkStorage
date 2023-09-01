@@ -49,7 +49,7 @@ function createDriveEntity(name, icon, entity, shadow)
 					priority = "extra-high",
 					width = 256,
 					height = 256,
-					shift = {0,-0.5},
+					shift = {0,-0.47225},
 					scale = 0.5
 				},
 				{
@@ -57,7 +57,7 @@ function createDriveEntity(name, icon, entity, shadow)
 					priority = "high",
 					width = 256,
 					height = 256,
-					shift = {1,-0.5},
+					shift = {1,-0.47225},
 					draw_as_shadow = true,
 					scale = 0.5
 				}

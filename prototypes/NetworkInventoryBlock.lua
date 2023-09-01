@@ -44,7 +44,7 @@ inventoryBlockE.picture =
                 priority = "extra-high",
                 width = 512,
                 height = 512,
-                shift = {0,-1/4},
+                shift = {0,-0.2355},
                 scale = 1/8
             },
             {
@@ -52,7 +52,7 @@ inventoryBlockE.picture =
                 priority = "high",
                 width = 512,
                 height = 512,
-                shift = {1/2,-1/4},
+                shift = {0.5,-0.2355},
                 draw_as_shadow = true,
                 scale = 1/8
             }

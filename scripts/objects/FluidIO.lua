@@ -130,44 +130,6 @@ function FIO:generateModeIcon()
     }
 end
 
-function FIO.transfer_fluid(ent, drive, tank, amount, fluid_box)
-    local count = amount
-    for i=1, 1 do
-        if tank ~= nil then
-            local temperature0 = tank.temperature
-            local amount0 = tank.amount
-            local name = tank.name
-            ent.fluidbox[fluid_box.index] = {
-                name = name,
-                amount = amount0 + math.min(drive:has_fluid(fluid_box.filter), count),
-                temperature = temperature0
-            }
-            local amount1 = tank.amount
-            local diff = amount1 - amount0
-            count = count - diff and 0 or count - diff
-            if diff <= 0 then break end
-            ent.fluidbox[fluid_box.index] = { --Need fix, temperature is nil
-                name = name,
-                amount = amount1,
-                temperature = ((drive.fluidArray[name].temperature or game.fluid_prototypes[name].default_temperature) * diff + amount0 * (temperature0 or game.fluid_prototypes[name].default_temperature)) / (amount1)
-            }
-            drive:remove_fluid(name, diff)
-        else
-            ent.fluidbox[fluid_box.index] = { --Something's wrong here
-                name = fluid_box.filter,
-                amount = math.min(drive:has_fluid(fluid_box.filter), count),
-                temperature = game.fluid_prototypes[fluid_box.filter].default_temperature
-            }
-            local inserted = tank.amount
-            count = count - inserted <= 0 and 0 or count - inserted
-            if inserted <= 0 then break end
-            drive:remove_fluid(fluid_box.filter, inserted)
-        end
-        if count <= 0 then break end
-    end
-    return amount - count
-end
-
 function FIO:IO()
     local transportCapacity = Constants.Settings.RNS_BaseFluidIO_TransferCapacity
     --#tank.fluidbox returns number of pipe connections
@@ -182,38 +144,20 @@ function FIO:IO()
         local network = self.networkController.network
         if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true then
             local fluid_box = self.focusedEntity.fluid_box
-            local tank = self.focusedEntity.thisEntity.fluidbox[fluid_box.index]
+            if self.thisEntity.position.x ~= fluid_box.target_position.x or self.thisEntity.position.y ~= fluid_box.target_position.y then break end
 
             for _, drive in pairs(BaseNet.getOperableObjects(network.FluidDriveTable)) do
-                if self.io == "input" and self.filter == fluid_box.filter and self.filter ~= "" then
+                if self.io == "input" then
                     if string.match(fluid_box.flow, "output") == nil then break end
                     if drive:has_room() == 0 then goto continue end
-
-                    if tank == nil then break end
-                    local temperature = tank.temperature
-                    local amount = tank.amount
-                    local name = tank.name
-
-                    local inserted = drive:insert_fluid(name, math.min(amount, math.min(drive:getRemainingStorageSize(), transportCapacity)), temperature)
-                    transportCapacity = transportCapacity - inserted
-                    if amount == inserted then
-                        self.focusedEntity.thisEntity.fluidbox[fluid_box.index] = nil
-                        break
+                    if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") then
+                        transportCapacity = transportCapacity - BaseNet.transfer_from_tank_to_drive(drive, self.focusedEntity.thisEntity, fluid_box.index, self.filter, math.min(transportCapacity, drive:getRemainingStorageSize()))
                     end
-                    self.focusedEntity.thisEntity.fluidbox[fluid_box.index] = {
-                        name = name,
-                        amount = amount - inserted,
-                        temperature = temperature
-                    }
                 elseif self.io == "output" then
                     if string.match(fluid_box.flow, "input") == nil then break end
                     if drive:has_fluid(self.filter) == 0 then break end
-                    if self.filter == fluid_box.filter and fluid_box.filter ~= "" then
-                        transportCapacity = transportCapacity - FIO.transfer_fluid(self.focusedEntity.thisEntity, drive, tank, math.min(drive:has_fluid(self.filter), transportCapacity), fluid_box)
-                        if transportCapacity <= 0 then break end
-                    elseif self.filter ~= "" and fluid_box.filter == "" then
-                        transportCapacity = transportCapacity - FIO.transfer_fluid(self.focusedEntity.thisEntity, drive, tank, math.min(drive:has_fluid(self.filter), transportCapacity), fluid_box)
-                        if transportCapacity <= 0 then break end
+                    if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") then
+                        transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_tank(drive, self.focusedEntity.thisEntity, fluid_box.index, self.filter, math.min(transportCapacity, drive:has_fluid(self.filter)))
                     end
                 end
                 ::continue::
