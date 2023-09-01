@@ -6,7 +6,6 @@ RNSP = {
     networkID = nil,
     GUI = nil,
     varTable = nil,
-    lastTick = 0
 }
 
 --Constructor
@@ -34,7 +33,6 @@ function RNSP:rebuild(object)
 end
 
 function RNSP:update()
-    self.lastTick = game.tick
     if self.thisEntity.selected == nil then return end
     local entity = self.thisEntity.selected
     if string.match(entity.name, "RNS_NetworkCableIO") then

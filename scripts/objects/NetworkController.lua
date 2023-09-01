@@ -2,7 +2,7 @@
 NC = {
     thisEntity = nil,
     entID = nil,
-    updateTick = 300,
+    updateTick = 600,
     lastUpdate = 0,
     stable = false,
     state = nil,
@@ -77,7 +77,7 @@ function NC:update()
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
     self:collect()
-    if game.tick % 600 == 0 or self.network.shouldRefresh == true then --Refreshes connections every 10 seconds
+    if game.tick % self.updateTick == 0 or self.network.shouldRefresh == true or game.tick > self.lastUpdate then --Refreshes connections every 10 seconds
         self.network:doRefresh(self)
     end
     local powerDraw = self.network:getTotalObjects()
@@ -118,23 +118,30 @@ function NC:updateItemIO(belt)
         end
     end
     for _, item in pairs(import) do
-        if belt then
-            --item:transportIO()
-        else
-            item:IO()
-        end
+        item:IO()
     end
     for _, item in pairs(export) do
-        if belt then
-            --item:transportIO()
-        else
-            item:IO()
-        end
+        item:IO()
     end
 end
 
 function NC:updateFluidIO()
-    for _, fluid in pairs(self.network.FluidIOTable) do
+    local import = {}
+    local export = {}
+    for _, fluid in pairs(BaseNet.getOperableObjects(self.network.FluidIOTable)) do
+        if fluid.io == "input" then table.insert(import, fluid) end
+        if fluid.io == "output" then
+            if settings.global[Constants.Settings.RNS_RoundRobin].value then
+                table.insert(export, fluid.processed == false and 1 or (Util.getTableLength(export)+1), fluid)
+            else
+                table.insert(export, fluid)
+            end
+        end
+    end
+    for _, fluid in pairs(import) do
+        fluid:IO()
+    end
+    for _, fluid in pairs(export) do
         fluid:IO()
     end
 end

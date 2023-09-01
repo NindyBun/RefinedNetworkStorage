@@ -12,7 +12,8 @@ IIO = {
     io = "output",
     ioIcon = nil,
     combinator = nil,
-    processed = false
+    processed = false,
+    priority = 1
 }
 
 function IIO:new(object)

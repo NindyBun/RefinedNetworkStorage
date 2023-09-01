@@ -8,8 +8,9 @@ EIO = {
     cardinals = nil,
     filter = nil,
     state = nil,
-    io = "both",
-    ioIcon = nil
+    io = "input/output",
+    ioIcon = nil,
+    priority = 1
 }
 
 function EIO:new(object)
@@ -118,12 +119,6 @@ function EIO:generateModeIcon()
         }
     end
     
-end
-
-function EIO:IO()
-    if self.focusedEntity ~= nil and self.focusedEntity.valid == true then
-        local foc = self.focusedEntity
-    end
 end
 
 function EIO:resetConnection()

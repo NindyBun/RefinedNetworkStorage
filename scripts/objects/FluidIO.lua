@@ -11,7 +11,8 @@ FIO = {
     io = "output",
     processed=false,
     focusedEntity=nil,
-    combinator=nil
+    combinator=nil,
+    priority = 1
 }
 
 function FIO:new(object)

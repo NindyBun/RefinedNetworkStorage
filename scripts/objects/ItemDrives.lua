@@ -6,8 +6,7 @@ ID = {
     storageArray = nil,
     connectedObjs = nil,
     cardinals = nil,
-    updateTick = 60,
-    lastUpdate = 0,
+    priority = 1
 }
 
 function ID:new(object)

@@ -4,8 +4,6 @@ NII = {
     networkController = nil,
     connectedObjs = nil,
     cardinals = nil,
-    updateTick = 60,
-    lastUpdate = 0,
 }
 
 function NII:new(object)
@@ -53,7 +51,6 @@ function NII:valid()
 end
 
 function NII:update()
-    self.lastUpdate = game.tick
     if valid(self) == false then
         self:remove()
         return
