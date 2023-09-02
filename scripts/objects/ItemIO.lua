@@ -13,7 +13,7 @@ IIO = {
     ioIcon = nil,
     combinator = nil,
     processed = false,
-    priority = 1
+    priority = 0
 }
 
 function IIO:new(object)
@@ -571,7 +571,6 @@ function IIO:getTooltips(guiTable, mainFrame, justCreated)
     if self.filters.values[2] ~= "" then
         guiTable.vars.filter2.elem_value = self.filters.values[2]
     end
-
 end
 
 function IIO.interaction(event, player)

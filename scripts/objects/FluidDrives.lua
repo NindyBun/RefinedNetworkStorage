@@ -6,7 +6,7 @@ FD = {
     fluidArray = nil,
     connectedObjs = nil,
     cardinals = nil,
-    priority = 1
+    priority = 0
 }
 
 function FD:new(object)

@@ -6,7 +6,7 @@ ID = {
     storageArray = nil,
     connectedObjs = nil,
     cardinals = nil,
-    priority = 1
+    priority = 0
 }
 
 function ID:new(object)
@@ -294,6 +294,7 @@ function ID:getTooltips(guiTable, mainFrame, justCreated)
 		infoFrame.style.left_padding = 3
 		infoFrame.style.right_padding = 3
 		GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
+        
         GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_ItemDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
     end
     local capacity = guiTable.vars.Capacity

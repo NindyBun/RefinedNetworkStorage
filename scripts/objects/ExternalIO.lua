@@ -6,11 +6,12 @@ EIO = {
     connectedObjs = nil,
     focusedEntity = nil,
     cardinals = nil,
-    filter = nil,
+    filters = nil,
     state = nil,
     io = "input/output",
+    type = "item",
     ioIcon = nil,
-    priority = 1
+    priority = 0
 }
 
 function EIO:new(object)
@@ -23,6 +24,7 @@ function EIO:new(object)
     t.entID = object.unit_number
     rendering.draw_sprite{sprite="NetworkCableDot", target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
     t:generateModeIcon()
+    --Don't really need to initialize the arrays but it makes it easier to see what's supposed to be there
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -41,7 +43,34 @@ function EIO:new(object)
         [3] = {}, --S
         [4] = {}, --W
     }
-    t.filter = {}
+    t.focusedEntity = {
+        thisEntity = nil,
+        inventory = {
+            index = 1,
+            values = nil
+        },
+        fluid_box = {
+            index = nil,
+            filter = "",
+            target_position = nil,
+            flow = ""
+        }
+    }
+    --10 filters
+    t.filters = {
+        item = {
+            index = 1,
+            values = {}
+        },
+        fluid = {
+            index = 1,
+            values = {}
+        }
+    }
+    for i=1, 10 do
+        t.filters.items.values[i] = ""
+        t.filters.fluids.values[i] = ""
+    end
     UpdateSys.addEntity(t)
     return t
 end
@@ -73,6 +102,9 @@ function EIO:update()
     end
     if valid(self.networkController) == false then
         self.networkController = nil
+    end
+    if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false then
+        self:reset_focused_entity()
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
     self:createArms()
@@ -135,6 +167,22 @@ function EIO:resetConnection()
     end
 end
 
+function EIO:reset_focused_entity()
+    self.focusedEntity = {
+        thisEntity = nil,
+        inventory = {
+            index = 1,
+            values = nil
+        },
+        fluid_box = {
+            index = nil,
+            filter = "",
+            target_position = nil,
+            flow = ""
+        }
+    }
+end
+
 function EIO:getCheckArea()
     local x = self.thisEntity.position.x
     local y = self.thisEntity.position.y
@@ -176,9 +224,45 @@ function EIO:createArms()
                         break
                     end
                 elseif ent ~= nil and self:getDirection() == area.direction then --Get entity with inventory
-                    if Constants.Settings.RNS_TypesWithContainer[ent.type] == true then
-                        self.focusedEntity = ent
-                        break
+                    if self.focusedEntity.thisEntity == nil or (self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false) then
+                        if Constants.Settings.RNS_TypesWithContainer[ent.type] == true then
+                            self:reset_focused_entity()
+                            self.focusedEntity.thisEntity = ent
+                            self.focusedEntity.inventory.values = Constants.Settings.RNS_Inventory_Types[ent.type]
+                            if #ent.fluidbox ~= 0 then
+                                for i=1, #ent.fluidbox do
+                                    for j=1, #ent.fluidbox.get_pipe_connections(i) do
+                                        local target = ent.fluidbox.get_pipe_connections(i)[j]
+                                        if target.target_position.x == self.thisEntity.position.x and target.target_position.y == self.thisEntity.position.y then
+                                            self.focusedEntity.fluid_box.index = i
+                                            self.focusedEntity.fluid_box.flow =  target.flow_direction
+                                            self.focusedEntity.fluid_box.target_position = target.target_position
+                                            self.focusedEntity.fluid_box.filter =  (ent.fluidbox.get_locked_fluid(i) ~= nil and {ent.fluidbox.get_locked_fluid(i)} or {""})[1]
+                                        end
+                                    end
+                                end
+                            end
+                            break
+                        end
+                        if #ent.fluidbox ~= 0 then
+                            self:reset_focused_entity()
+                            self.focusedEntity.thisEntity = ent
+                            for i=1, #ent.fluidbox do
+                                for j=1, #ent.fluidbox.get_pipe_connections(i) do
+                                    local target = ent.fluidbox.get_pipe_connections(i)[j]
+                                    if target.target_position.x == self.thisEntity.position.x and target.target_position.y == self.thisEntity.position.y then
+                                        self.focusedEntity.fluid_box.index = i
+                                        self.focusedEntity.fluid_box.flow =  target.flow_direction
+                                        self.focusedEntity.fluid_box.target_position = target.target_position
+                                        self.focusedEntity.fluid_box.filter =  (ent.fluidbox.get_locked_fluid(i) ~= nil and {ent.fluidbox.get_locked_fluid(i)} or {""})[1]
+                                    end
+                                end
+                            end
+                            if Constants.Settings.RNS_TypesWithContainer[ent.type] == true then
+                                self.focusedEntity.inventory.values = Constants.Settings.RNS_Inventory_Types[ent.type]
+                            end
+                            break
+                        end
                     end
                 end
             end
@@ -236,6 +320,50 @@ end
 
 function EIO:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
+		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_Item"}
+
+        --Filters 2 max
+        local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", mainFrame, "vertical", true)
+		filtersFrame.style = Constants.Settings.RNS_Gui.frame_1
+		filtersFrame.style.vertically_stretchable = true
+		filtersFrame.style.left_padding = 3
+		filtersFrame.style.right_padding = 3
+		filtersFrame.style.right_margin = 3
+		filtersFrame.style.width = 100
+
+        GuiApi.add_subtitle(guiTable, "", filtersFrame, {"gui-description.RNS_Filter"})
+
+        local filterFlow = GuiApi.add_flow(guiTable, "FilterFlow", filtersFrame, "horizontal", true)
+        filterFlow.style.horizontal_align = "center"
+
+        local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", mainFrame, "vertical", true)
+		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
+		settingsFrame.style.vertically_stretchable = true
+		settingsFrame.style.left_padding = 3
+		settingsFrame.style.right_padding = 3
+		settingsFrame.style.right_margin = 3
+		settingsFrame.style.minimal_width = 200
+
+		GuiApi.add_subtitle(guiTable, "", settingsFrame, {"gui-description.RNS_Setting"})
+
+        -- Whitelist/Blacklist mode
+        local state = "left"
+		if self.whitelist == false then state = "right" end
+		GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_Item_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
         
+        -- Match metadata mode
+        GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Item_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
+    end
+
+    local filterFlow = guiTable.vars.FilterFlow
+    filterFlow.clear()
+
+    for i=1, 10 do
+        local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_1", filterFlow, "", true, self.type, 40, {ID=self.thisEntity.unit_number})
+        guiTable.vars.filters[i].filter = filter
+        if self.filters[self.type].values[i] ~= "" then
+            filter.elem_value = self.filters[self.type].values[i]
+            guiTable.vars.filters[i].elem_value = self.filters[self.type].values[i]
+        end
     end
 end

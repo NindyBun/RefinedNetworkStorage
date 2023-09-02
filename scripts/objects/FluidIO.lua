@@ -12,7 +12,7 @@ FIO = {
     processed=false,
     focusedEntity=nil,
     combinator=nil,
-    priority = 1
+    priority = 0
 }
 
 function FIO:new(object)
