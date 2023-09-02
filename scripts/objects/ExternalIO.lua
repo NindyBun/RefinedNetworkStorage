@@ -68,8 +68,8 @@ function EIO:new(object)
         }
     }
     for i=1, 10 do
-        t.filters.items.values[i] = ""
-        t.filters.fluids.values[i] = ""
+        t.filters.item.values[i] = ""
+        t.filters.fluid.values[i] = ""
     end
     UpdateSys.addEntity(t)
     return t
@@ -131,7 +131,7 @@ function EIO:generateModeIcon()
     elseif self:getRealDirection() == 4 then
         offset = {-0.5,0}
     end
-    if self.io ~= "both" then
+    if self.io ~= "input/output" then
         self.ioIcon = rendering.draw_sprite{
             sprite=Constants.Icons.storage.name, 
             target=self.thisEntity, 
@@ -320,9 +320,8 @@ end
 
 function EIO:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
-		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_Item"}
+		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_External"}
 
-        --Filters 2 max
         local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", mainFrame, "vertical", true)
 		filtersFrame.style = Constants.Settings.RNS_Gui.frame_1
 		filtersFrame.style.vertically_stretchable = true
@@ -349,17 +348,19 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
         -- Whitelist/Blacklist mode
         local state = "left"
 		if self.whitelist == false then state = "right" end
-		GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_Item_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
-        
+		GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_External_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
+
         -- Match metadata mode
-        GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Item_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
+        GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_External_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
     end
 
     local filterFlow = guiTable.vars.FilterFlow
     filterFlow.clear()
+    guiTable.vars.filters = {}
 
     for i=1, 10 do
-        local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_1", filterFlow, "", true, self.type, 40, {ID=self.thisEntity.unit_number})
+        local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_External_Filter", filterFlow, "", true, self.type, 40, {ID=self.thisEntity.unit_number, type=self.type})
+        guiTable.vars.filters[i] = {}
         guiTable.vars.filters[i].filter = filter
         if self.filters[self.type].values[i] ~= "" then
             filter.elem_value = self.filters[self.type].values[i]

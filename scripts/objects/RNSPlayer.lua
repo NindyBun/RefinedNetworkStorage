@@ -82,12 +82,6 @@ function RNSP:get_inventory()
     return contents
 end
 
-function RNSP:insert_item(tag, count)
-    if tag.id == nil and tag.cont ~= nil then
-        return self.thisEntity.insert{name=tag.cont.name, count=count, health=tag.cont.health, durability=tag.cont.durability, ammo=tag.cont.ammo, tags=tag.cont.tags}
-    end
-end
-
 --Tooltips
 function RNSP:getTooltips(guiTable, mainFrame, justCreated)
     
