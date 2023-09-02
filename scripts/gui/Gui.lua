@@ -1,4 +1,4 @@
-function GUI.update(force)
+function GUI.update(force, reload)
     for _, player in pairs(game.connected_players) do
         local RNSPlayer = getRNSPlayer(player.name)
         if RNSPlayer ~= nil then
@@ -9,7 +9,7 @@ function GUI.update(force)
                             GUI.remove_gui(guiTable, player)
                             goto continue
                         end
-                        if Util.safeCall(GUI["update_" .. guiTable.gui.name], guiTable) == false then
+                        if Util.safeCall(GUI["update_" .. guiTable.gui.name], guiTable, reload) == false then
                             player.print({"gui-description.RNS_updating_gui_failed"})
                             Util.safeCall(Event.clear_gui, {player_index=player.index})
                             goto continue

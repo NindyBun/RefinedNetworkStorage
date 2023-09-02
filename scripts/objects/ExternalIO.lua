@@ -354,6 +354,11 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
 
 		GuiApi.add_subtitle(guiTable, "", settingsFrame, {"gui-description.RNS_Setting"})
 
+        local typeFlow = GuiApi.add_flow(guiTable, "RNS_NetworkCableIO_External_Type", settingsFrame, "horizontal", false)
+        GuiApi.add_label(guiTable, "", typeFlow, {"gui-description.RNS_Type"}, Constants.Settings.RNS_Gui.white)
+        local typeDD = GuiApi.add_dropdown(guiTable, "", typeFlow, {{"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, {"gui-description.RNS_Both"}}, 1, false)
+        typeDD.style.minimal_width = 100
+
         -- Whitelist/Blacklist mode
         local state = "left"
 		if self.whitelist == false then state = "right" end
