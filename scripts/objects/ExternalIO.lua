@@ -332,8 +332,17 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
 
         GuiApi.add_subtitle(guiTable, "", filtersFrame, {"gui-description.RNS_Filter"})
 
-        local filterFlow = GuiApi.add_flow(guiTable, "FilterFlow", filtersFrame, "horizontal", true)
-        filterFlow.style.horizontal_align = "center"
+        local filterTable = GuiApi.add_table(guiTable, "", filtersFrame, 2, false)
+
+        for i=1, 10 do
+            guiTable.vars.filters = {}
+            local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_External_Filter_"..i, filterTable, "", true, self.type, 40, {ID=self.thisEntity.unit_number, type=self.type, index=i})
+            guiTable.vars.filters[i] = {}
+            guiTable.vars.filters[i].filter = filter
+            if self.filters[self.type].values[i] ~= "" then
+                filter.elem_value = self.filters[self.type].values[i]
+            end
+        end
 
         local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", mainFrame, "vertical", true)
 		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -354,17 +363,26 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_External_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
     end
 
-    local filterFlow = guiTable.vars.FilterFlow
-    filterFlow.clear()
-    guiTable.vars.filters = {}
-
     for i=1, 10 do
-        local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_External_Filter", filterFlow, "", true, self.type, 40, {ID=self.thisEntity.unit_number, type=self.type})
-        guiTable.vars.filters[i] = {}
-        guiTable.vars.filters[i].filter = filter
         if self.filters[self.type].values[i] ~= "" then
-            filter.elem_value = self.filters[self.type].values[i]
             guiTable.vars.filters[i].elem_value = self.filters[self.type].values[i]
         end
+    end
+end
+
+function EIO:interaction(event, player)
+    if string.match(event.element.name, "RNS_NetworkCableIO_External_Filter") ~= nil then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        if event.element.elem_value ~= nil then
+            io.filters[event.element.tags.type].values[event.element.tags.index] = event.element.elem_value
+            io.combinator.get_or_create_control_behavior().set_signal(1, {signal={type=event.element.tags.type, name=event.element.elem_value}, count=1})
+        else
+            io.filters[event.element.tags.type].values[event.element.tags.index] = ""
+            io.combinator.get_or_create_control_behavior().set_signal(1, nil)
+        end
+		GUI.update(true)
+		return
     end
 end
