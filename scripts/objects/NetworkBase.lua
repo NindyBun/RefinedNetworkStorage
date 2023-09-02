@@ -112,6 +112,7 @@ function BaseNet.transfer_from_drive_to_tank(drive, tank_entity, index, name, am
             drive:remove_fluid(name, transfered)
             break
         else
+            if tank_entity.fluidbox[index].name ~= name then break end
             local amount0 = tank_entity.fluidbox[index].amount
             local temp0 = tank_entity.fluidbox[index].temperature
             tank_entity.fluidbox[index] = {
@@ -141,6 +142,7 @@ function BaseNet.transfer_from_tank_to_drive(drive, tank_entity, index, name, am
 
     for i=1, 1 do
         if tank_entity.fluidbox[index] == nil then break end
+        if tank_entity.fluidbox[index].name ~= name then break end
         local amount0 = tank_entity.fluidbox[index].amount
         local temp0 = tank_entity.fluidbox[index].temperature
         local transfered = drive:insert_fluid(name, math.min(amount0, amount), temp0)

@@ -82,6 +82,16 @@ function RNSP:get_inventory()
     return contents
 end
 
+function RNSP:pull_varTable(name)
+    local exists = self.varTable[name]
+    if exists ~= nil then self.varTable[name] = nil end
+    return exists
+end
+
+function RNSP:push_varTable(name, value)
+    self.varTable[name] = value
+end
+
 --Tooltips
 function RNSP:getTooltips(guiTable, mainFrame, justCreated)
     

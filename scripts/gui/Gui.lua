@@ -1,4 +1,4 @@
-function GUI.update(force, reload)
+function GUI.update(force)
     for _, player in pairs(game.connected_players) do
         local RNSPlayer = getRNSPlayer(player.name)
         if RNSPlayer ~= nil then
@@ -9,7 +9,7 @@ function GUI.update(force, reload)
                             GUI.remove_gui(guiTable, player)
                             goto continue
                         end
-                        if Util.safeCall(GUI["update_" .. guiTable.gui.name], guiTable, reload) == false then
+                        if Util.safeCall(GUI["update_" .. guiTable.gui.name], guiTable, RNSPlayer:pull_varTable(guiTable.gui.name)) == false then
                             player.print({"gui-description.RNS_updating_gui_failed"})
                             Util.safeCall(Event.clear_gui, {player_index=player.index})
                             goto continue
@@ -105,13 +105,19 @@ function GUI.on_gui_element_changed(event)
     if player == nil then return end
 
     if string.match(event.element.name, "RNS_NetworkCableIO_Item") then
-        IIO.interaction(event, player)
+        IIO.interaction(event, RNSPlayer)
         GUI.update(true)
         return
     end
 
     if string.match(event.element.name, "RNS_NetworkCableIO_Fluid") then
-        FIO.interaction(event, player)
+        FIO.interaction(event, RNSPlayer)
+        GUI.update(true)
+        return
+    end
+
+    if string.match(event.element.name, "RNS_NetworkCableIO_External") then
+        EIO.interaction(event, RNSPlayer)
         GUI.update(true)
         return
     end

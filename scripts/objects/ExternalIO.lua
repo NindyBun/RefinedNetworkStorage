@@ -318,6 +318,17 @@ function EIO:getRealDirection()
     end
 end
 
+local modeList = {
+    ["input"] = 1,
+    ["output"] = 2,
+    ["input/output"] = 3
+}
+
+local typeList = {
+    ["item"] = 1,
+    ["fluid"] = 2
+}
+
 function EIO:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
 		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_External"}
@@ -354,10 +365,17 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
 
 		GuiApi.add_subtitle(guiTable, "", settingsFrame, {"gui-description.RNS_Setting"})
 
+        --Fluid or Item Mode
         local typeFlow = GuiApi.add_flow(guiTable, "RNS_NetworkCableIO_External_Type", settingsFrame, "horizontal", false)
         GuiApi.add_label(guiTable, "", typeFlow, {"gui-description.RNS_Type"}, Constants.Settings.RNS_Gui.white)
-        local typeDD = GuiApi.add_dropdown(guiTable, "", typeFlow, {{"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, {"gui-description.RNS_Both"}}, 1, false)
+        local typeDD = GuiApi.add_dropdown(guiTable, "", typeFlow, {{"", {"gui-description.RNS_Item"}, "item"}, {"", {"gui-description.RNS_Fluid"}, "fluid"}}, typeList[self.type], false)
         typeDD.style.minimal_width = 100
+
+        --IO Mode
+        local modeFlow = GuiApi.add_flow(guiTable, "RNS_NetworkCableIO_External_Mode", settingsFrame, "horizontal", false)
+        GuiApi.add_label(guiTable, "", modeFlow, {"gui-description.RNS_Mode"}, Constants.Settings.RNS_Gui.white)
+        local modeDD = GuiApi.add_dropdown(guiTable, "", modeFlow, {{"", {"gui-description.RNS_Input"}, "input"}, {"", {"gui-description.RNS_Output"}, "output"}, {"", {"gui-description.RNS_Both"}, "input/output"}}, modeList[self.io], false)
+        modeDD.style.minimal_width = 100
 
         -- Whitelist/Blacklist mode
         local state = "left"
@@ -375,7 +393,7 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
     end
 end
 
-function EIO:interaction(event, player)
+function EIO:interaction(event, RNSPlayer)
     if string.match(event.element.name, "RNS_NetworkCableIO_External_Filter") ~= nil then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
@@ -388,6 +406,33 @@ function EIO:interaction(event, player)
             io.combinator.get_or_create_control_behavior().set_signal(1, nil)
         end
 		GUI.update(true)
+		return
+    end
+
+    if string.match(event.element.name, "RNS_NetworkCableIO_External_Mode") ~= nil then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local mode = event.element.items[event.element.selected_index][3]
+        if mode ~= self.type then
+            self.io = mode
+            self.processed = false
+        end
+        GUI.update(true)
+		return
+    end
+
+    if string.match(event.element.name, "RNS_NetworkCableIO_External_Type") ~= nil then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local type = event.element.items[event.element.selected_index][3]
+        if type ~= self.type then
+            self.type = type
+            RNSPlayer.push_varTable(Constants.Settings.RNS_Gui.tooltip, true)
+            self.processed = false
+        end
+        GUI.update(true)
 		return
     end
 end
