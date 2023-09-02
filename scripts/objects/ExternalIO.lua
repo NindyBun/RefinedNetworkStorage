@@ -318,6 +318,17 @@ function EIO:getRealDirection()
     end
 end
 
+local modeListN = {
+    [1] = "input",
+    [2] = "output",
+    [3] = "input/output"
+}
+
+local typeListN = {
+    [1] = "item",
+    [2] = "fluid"
+}
+
 local modeList = {
     ["input"] = 1,
     ["output"] = 2,
@@ -368,13 +379,13 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
         --Fluid or Item Mode
         local typeFlow = GuiApi.add_flow(guiTable, "RNS_NetworkCableIO_External_Type", settingsFrame, "horizontal", false)
         GuiApi.add_label(guiTable, "", typeFlow, {"gui-description.RNS_Type"}, Constants.Settings.RNS_Gui.white)
-        local typeDD = GuiApi.add_dropdown(guiTable, "", typeFlow, {{"", {"gui-description.RNS_Item"}, "item"}, {"", {"gui-description.RNS_Fluid"}, "fluid"}}, typeList[self.type], false)
+        local typeDD = GuiApi.add_dropdown(guiTable, "", typeFlow, {{"gui-description.RNS_Item"}, {"gui-description.RNS_Fluid"}}, typeList[self.type], false)
         typeDD.style.minimal_width = 100
 
         --IO Mode
         local modeFlow = GuiApi.add_flow(guiTable, "RNS_NetworkCableIO_External_Mode", settingsFrame, "horizontal", false)
         GuiApi.add_label(guiTable, "", modeFlow, {"gui-description.RNS_Mode"}, Constants.Settings.RNS_Gui.white)
-        local modeDD = GuiApi.add_dropdown(guiTable, "", modeFlow, {{"", {"gui-description.RNS_Input"}, "input"}, {"", {"gui-description.RNS_Output"}, "output"}, {"", {"gui-description.RNS_Both"}, "input/output"}}, modeList[self.io], false)
+        local modeDD = GuiApi.add_dropdown(guiTable, "", modeFlow, {{"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, {"gui-description.RNS_Both"}}, modeList[self.io], false)
         modeDD.style.minimal_width = 100
 
         -- Whitelist/Blacklist mode
@@ -413,7 +424,7 @@ function EIO:interaction(event, RNSPlayer)
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        local mode = event.element.items[event.element.selected_index][3]
+        local mode = modeListN[event.element.selected_index]
         if mode ~= self.type then
             self.io = mode
             self.processed = false
@@ -426,7 +437,7 @@ function EIO:interaction(event, RNSPlayer)
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        local type = event.element.items[event.element.selected_index][3]
+        local type = typeListN[event.element.selected_index]
         if type ~= self.type then
             self.type = type
             RNSPlayer.push_varTable(Constants.Settings.RNS_Gui.tooltip, true)
