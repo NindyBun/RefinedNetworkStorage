@@ -437,6 +437,7 @@ function EIO.interaction(event, RNSPlayer)
         if mode ~= io.io then
             io.io = mode
             io.processed = false
+            io:generateModeIcon()
         end
         GUI.update(true)
 		return
