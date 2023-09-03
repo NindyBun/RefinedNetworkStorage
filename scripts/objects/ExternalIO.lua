@@ -388,13 +388,13 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
         --Fluid or Item Mode
         local typeFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
         GuiApi.add_label(guiTable, "", typeFlow, {"gui-description.RNS_Type"}, Constants.Settings.RNS_Gui.white)
-        local typeDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Type", typeFlow, {{"gui-description.RNS_Item"}, {"gui-description.RNS_Fluid"}}, typeList[self.type], false)
+        local typeDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Type", typeFlow, {{"gui-description.RNS_Item"}, {"gui-description.RNS_Fluid"}}, typeList[self.type], false, {ID=self.thisEntity.unit_number})
         typeDD.style.minimal_width = 100
 
         --IO Mode
         local modeFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
         GuiApi.add_label(guiTable, "", modeFlow, {"gui-description.RNS_Mode"}, Constants.Settings.RNS_Gui.white)
-        local modeDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Mode", modeFlow, {{"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, {"gui-description.RNS_Both"}}, modeList[self.io], false)
+        local modeDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Mode", modeFlow, {{"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, {"gui-description.RNS_Both"}}, modeList[self.io], false, {ID=self.thisEntity.unit_number})
         modeDD.style.minimal_width = 100
 
         -- Whitelist/Blacklist mode
