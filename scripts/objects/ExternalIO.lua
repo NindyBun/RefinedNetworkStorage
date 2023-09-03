@@ -12,6 +12,8 @@ EIO = {
     type = "item",
     ioIcon = nil,
     combinator = nil,
+    metadataMode = false,
+    whitelist = true,
     priority = 0
 }
 
@@ -397,13 +399,21 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
         local modeDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Mode", modeFlow, {{"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, {"gui-description.RNS_Both"}}, modeList[self.io], false, "", {ID=self.thisEntity.unit_number})
         modeDD.style.minimal_width = 100
 
+        local priorityFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
+        GuiApi.add_label(guiTable, "", priorityFlow, {"gui-description.RNS_Priority"}, Constants.Settings.RNS_Gui.white)
+        local priorityDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Priority", priorityFlow, Constants.Settings.RNS_Priorities, ((#Constants.Settings.RNS_Priorities+1)/2)-self.priority, false, "", {ID=self.thisEntity.unit_number})
+        priorityDD.style.minimal_width = 100
+
+        GuiApi.add_line(guiTable, "", settingsFrame, "horizontal")
+
         -- Whitelist/Blacklist mode
         local state = "left"
-		if self.whitelist == false then state = "right" end
-		GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_External_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
+        if self.whitelist == false then state = "right" end
+        GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_External_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
 
         -- Match metadata mode
-        GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_External_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
+        --GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_External_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
+    
     end
 
     for i=1, 10 do
@@ -425,7 +435,6 @@ function EIO.interaction(event, RNSPlayer)
             io.filters[event.element.tags.type].values[event.element.tags.index] = ""
             io.combinator.get_or_create_control_behavior().set_signal(event.element.tags.index, nil)
         end
-		GUI.update(true)
 		return
     end
 
@@ -439,7 +448,6 @@ function EIO.interaction(event, RNSPlayer)
             io.processed = false
             io:generateModeIcon()
         end
-        GUI.update(true)
 		return
     end
 
@@ -453,7 +461,34 @@ function EIO.interaction(event, RNSPlayer)
             RNSPlayer:push_varTable(id, true)
             io.processed = false
         end
-        GUI.update(true)
+		return
+    end
+
+    if string.match(event.element.name, "RNS_NetworkCableIO_External_Priority") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local priority = Constants.Settings.RNS_Priorities[event.element.selected_index]
+        if priority ~= io.priority then
+            io.priority = priority
+            io.processed = false
+        end
+		return
+    end
+
+    if string.match(event.element.name, "RNS_NetworkCableIO_External_Whitelist") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.whitelist = event.element.switch_state == "left" and true or false
+		return
+    end
+
+    if string.match(event.element.name, "RNS_NetworkCableIO_External_Metadata") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.metadataMode = event.element.state
 		return
     end
 end

@@ -1,6 +1,7 @@
 Constants = {}
 Constants.MOD_ID = "RefinedNetworkStorage"
 Constants.Settings = {
+    RNS_Priorities = {},
     RNS_RoundRobin = "RNS_RoundRobin",
     RNS_BlankIcon = "__RefinedNetworkStorage__/graphics/blank.png",
     RNS_FR_Cable = "RNS_FR_NetworkCable",
@@ -263,6 +264,11 @@ Constants.Settings = {
         scroll_pane = "Scroll_Pane"
     }
 }
+local j = 1
+for i = 5, -5, -1 do
+    Constants.Settings.RNS_Priorities[j] = i
+    j = j + 1
+end
 Constants.ItemGroup = {
     Category = {
         group = "RefinedNetworkStorage",

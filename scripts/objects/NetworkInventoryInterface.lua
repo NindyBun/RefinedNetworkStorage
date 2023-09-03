@@ -318,7 +318,19 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 			::continue::
 		end
 	end
-
+	-----------------------------------------------------------------------------------Fluids----------------------------------------------------------------------------------------
+	if Util.getTableLength(fluid) > 0 then
+		for k, c in pairs(fluid) do
+			RNSPlayer.thisEntity.request_translation(Util.get_fluid_name(c.name))
+			if Util.get_fluid_name(c.name)[1] ~= nil then
+				local locName = Util.get_fluid_name(c.name)[1]
+				if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
+			end
+			local buttonText = {"", "[color=blue]", Util.get_fluid_name(c.name), "[/color]\n", {"gui-description.RNS_temperature"}, c.temperature or game.fluid_prototypes[c.name].default_temperature}
+			GuiApi.add_button(guiTable, "RNS_NII_FDInv_".. k, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
+			::continue::
+		end
+	end
 	-----------------------------------------------------------------------------------Items----------------------------------------------------------------------------------------
 	if Util.getTableLength(inv) > 0 then
 		for i = 1, Util.getTableLength(inv) do
@@ -360,19 +372,6 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 				table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
 			end
 			GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or item.ammo or item.durability)and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.entID, name=(item.cont.name), stack=item})
-			::continue::
-		end
-	end
-	-----------------------------------------------------------------------------------Fluids----------------------------------------------------------------------------------------
-	if Util.getTableLength(fluid) > 0 then
-		for k, c in pairs(fluid) do
-			RNSPlayer.thisEntity.request_translation(Util.get_fluid_name(c.name))
-			if Util.get_fluid_name(c.name)[1] ~= nil then
-				local locName = Util.get_fluid_name(c.name)[1]
-				if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
-			end
-			local buttonText = {"", "[color=blue]", Util.get_fluid_name(c.name), "[/color]\n", {"gui-description.RNS_temperature"}, c.temperature or game.fluid_prototypes[c.name].default_temperature}
-			GuiApi.add_button(guiTable, "RNS_NII_FDInv_".. k, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
 			::continue::
 		end
 	end

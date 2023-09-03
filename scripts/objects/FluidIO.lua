@@ -364,7 +364,6 @@ function FIO.interaction(event, player)
             io.filter = ""
             io.combinator.get_or_create_control_behavior().set_signal(1, nil)
         end
-		GUI.update(true)
 		return
 	end
 
@@ -375,7 +374,6 @@ function FIO.interaction(event, player)
         io.io = event.element.switch_state == "left" and "input" or "output"
         io.processed = false
         io:generateModeIcon()
-		GUI.update(true)
 		return
     end
 end

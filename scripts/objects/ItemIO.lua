@@ -602,7 +602,6 @@ function IIO.interaction(event, player)
 		local io = global.entityTable[id]
 		if io == nil then return end
         io.whitelist = event.element.switch_state == "left" and true or false
-		GUI.update(true)
 		return
     end
 
@@ -611,7 +610,6 @@ function IIO.interaction(event, player)
 		local io = global.entityTable[id]
 		if io == nil then return end
         io.metadataMode = event.element.state
-		GUI.update(true)
 		return
     end
 
@@ -622,7 +620,6 @@ function IIO.interaction(event, player)
         io.io = event.element.switch_state == "left" and "input" or "output"
         io.processed = false
         io:generateModeIcon()
-		GUI.update(true)
 		return
     end
 
