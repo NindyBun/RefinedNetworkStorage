@@ -11,6 +11,7 @@ EIO = {
     io = "input/output",
     type = "item",
     ioIcon = nil,
+    combinator = nil,
     priority = 0
 }
 
@@ -71,6 +72,14 @@ function EIO:new(object)
         t.filters.item.values[i] = ""
         t.filters.fluid.values[i] = ""
     end
+    t.combinator = object.surface.create_entity{
+        name="rns-combinator",
+        position=object.position,
+        force="neutral"
+    }
+    t.combinator.destructible = false
+    t.combinator.operable = false
+    t.combinator.minable = false
     UpdateSys.addEntity(t)
     return t
 end
@@ -355,12 +364,12 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_subtitle(guiTable, "", filtersFrame, {"gui-description.RNS_Filter"})
 
         local filterTable = GuiApi.add_table(guiTable, "", filtersFrame, 2, false)
-
+        guiTable.vars.filters = {}
+        guiTable.vars.filters[self.type] = {}
         for i=1, 10 do
-            guiTable.vars.filters = {}
             local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_External_Filter_"..i, filterTable, "", true, self.type, 40, {ID=self.thisEntity.unit_number, type=self.type, index=i})
-            guiTable.vars.filters[i] = {}
-            guiTable.vars.filters[i].filter = filter
+            guiTable.vars.filters[self.type][i] = {}
+            guiTable.vars.filters[self.type][i].filter = filter
             if self.filters[self.type].values[i] ~= "" then
                 filter.elem_value = self.filters[self.type].values[i]
             end
@@ -377,15 +386,15 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
 		GuiApi.add_subtitle(guiTable, "", settingsFrame, {"gui-description.RNS_Setting"})
 
         --Fluid or Item Mode
-        local typeFlow = GuiApi.add_flow(guiTable, "RNS_NetworkCableIO_External_Type", settingsFrame, "horizontal", false)
+        local typeFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
         GuiApi.add_label(guiTable, "", typeFlow, {"gui-description.RNS_Type"}, Constants.Settings.RNS_Gui.white)
-        local typeDD = GuiApi.add_dropdown(guiTable, "", typeFlow, {{"gui-description.RNS_Item"}, {"gui-description.RNS_Fluid"}}, typeList[self.type], false)
+        local typeDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Type", typeFlow, {{"gui-description.RNS_Item"}, {"gui-description.RNS_Fluid"}}, typeList[self.type], false)
         typeDD.style.minimal_width = 100
 
         --IO Mode
-        local modeFlow = GuiApi.add_flow(guiTable, "RNS_NetworkCableIO_External_Mode", settingsFrame, "horizontal", false)
+        local modeFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
         GuiApi.add_label(guiTable, "", modeFlow, {"gui-description.RNS_Mode"}, Constants.Settings.RNS_Gui.white)
-        local modeDD = GuiApi.add_dropdown(guiTable, "", modeFlow, {{"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, {"gui-description.RNS_Both"}}, modeList[self.io], false)
+        local modeDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Mode", modeFlow, {{"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, {"gui-description.RNS_Both"}}, modeList[self.io], false)
         modeDD.style.minimal_width = 100
 
         -- Whitelist/Blacklist mode
@@ -399,49 +408,51 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
 
     for i=1, 10 do
         if self.filters[self.type].values[i] ~= "" then
-            guiTable.vars.filters[i].elem_value = self.filters[self.type].values[i]
+            guiTable.vars.filters[self.type][i].elem_value = self.filters[self.type].values[i]
         end
     end
 end
 
-function EIO:interaction(event, RNSPlayer)
-    if string.match(event.element.name, "RNS_NetworkCableIO_External_Filter") ~= nil then
+function EIO.interaction(event, RNSPlayer)
+    if string.match(event.element.name, "RNS_NetworkCableIO_External_Filter") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
         if event.element.elem_value ~= nil then
             io.filters[event.element.tags.type].values[event.element.tags.index] = event.element.elem_value
-            io.combinator.get_or_create_control_behavior().set_signal(1, {signal={type=event.element.tags.type, name=event.element.elem_value}, count=1})
+            io.combinator.get_or_create_control_behavior().set_signal(event.element.tags.index, {signal={type=event.element.tags.type, name=event.element.elem_value}, count=1})
         else
             io.filters[event.element.tags.type].values[event.element.tags.index] = ""
-            io.combinator.get_or_create_control_behavior().set_signal(1, nil)
+            io.combinator.get_or_create_control_behavior().set_signal(event.element.tags.index, nil)
         end
 		GUI.update(true)
 		return
     end
 
-    if string.match(event.element.name, "RNS_NetworkCableIO_External_Mode") ~= nil then
+    if string.match(event.element.name, "RNS_NetworkCableIO_External_Mode") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
+        game.print("Mode")
 		if io == nil then return end
         local mode = modeListN[event.element.selected_index]
-        if mode ~= self.type then
-            self.io = mode
-            self.processed = false
+        if mode ~= io.io then
+            io.io = mode
+            io.processed = false
         end
         GUI.update(true)
 		return
     end
 
-    if string.match(event.element.name, "RNS_NetworkCableIO_External_Type") ~= nil then
+    if string.match(event.element.name, "RNS_NetworkCableIO_External_Type") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
+        game.print("Type")
 		if io == nil then return end
         local type = typeListN[event.element.selected_index]
-        if type ~= self.type then
-            self.type = type
+        if type ~= io.type then
+            io.type = type
             RNSPlayer.push_varTable(id, true)
-            self.processed = false
+            io.processed = false
         end
         GUI.update(true)
 		return
