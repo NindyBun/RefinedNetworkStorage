@@ -9,7 +9,7 @@ function GUI.update(force)
                             GUI.remove_gui(guiTable, player)
                             goto continue
                         end
-                        if Util.safeCall(GUI["update_" .. guiTable.gui.name], guiTable, RNSPlayer:pull_varTable(guiTable.gui.name)) == false then
+                        if Util.safeCall(GUI["update_" .. guiTable.gui.name], guiTable, RNSPlayer:pull_varTable(guiTable.vars.currentObject.entID)) == false then
                             player.print({"gui-description.RNS_updating_gui_failed"})
                             Util.safeCall(Event.clear_gui, {player_index=player.index})
                             goto continue

@@ -440,7 +440,7 @@ function EIO:interaction(event, RNSPlayer)
         local type = typeListN[event.element.selected_index]
         if type ~= self.type then
             self.type = type
-            RNSPlayer.push_varTable(Constants.Settings.RNS_Gui.tooltip, true)
+            RNSPlayer.push_varTable(id, true)
             self.processed = false
         end
         GUI.update(true)
