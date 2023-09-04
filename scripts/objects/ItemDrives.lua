@@ -286,6 +286,7 @@ end
 function ID:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
         guiTable.vars.Gui_Title.caption = {"gui-description.RNS_ItemDrive_Title"}
+
         local infoFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
 		infoFrame.style = Constants.Settings.RNS_Gui.frame_1
 		infoFrame.style.vertically_stretchable = true
@@ -294,16 +295,21 @@ function ID:getTooltips(guiTable, mainFrame, justCreated)
 		infoFrame.style.left_padding = 3
 		infoFrame.style.right_padding = 3
 		GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
+     
+        GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_ItemDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
+        GuiApi.add_progress_bar(guiTable, "CapacityBar", infoFrame, "", self:getStorageSize() .. "/" .. self.maxStorage, true, nil, self:getStorageSize()/self.maxStorage, 25, 200)
+
+        GuiApi.add_line(guiTable, "", infoFrame, "horizontal")
 
         local priorityFlow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal", false)
         GuiApi.add_label(guiTable, "", priorityFlow, {"gui-description.RNS_Priority"}, Constants.Settings.RNS_Gui.white)
         local priorityDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Priority", priorityFlow, Constants.Settings.RNS_Priorities, ((#Constants.Settings.RNS_Priorities+1)/2)-self.priority, false, "", {ID=self.thisEntity.unit_number})
         priorityDD.style.minimal_width = 100
-
-        GuiApi.add_line(guiTable, "", infoFrame, "horizontal")
-        
-        GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_ItemDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
-    end
+   end
     local capacity = guiTable.vars.Capacity
+    local capacityBar = guiTable.vars.CapacityBar
+
     capacity.caption = {"gui-description.RNS_ItemDrive_Capacity", self:getStorageSize(), self.maxStorage}
+    capacityBar.tooltip = self:getStorageSize() .. "/" .. self.maxStorage
+    capacityBar.value = self:getStorageSize()/self.maxStorage
 end
