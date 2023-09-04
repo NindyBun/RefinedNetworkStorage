@@ -97,6 +97,12 @@ function BaseNet:getTooltips()
     
 end
 
+function BaseNet.transfer_from_tank_to_tank()
+end
+
+function BaseNet.transfer_from_inv_to_inv()
+end
+
 function BaseNet.transfer_from_drive_to_tank(drive, tank_entity, index, name, amount_to_transfer)
     local amount = amount_to_transfer
 
