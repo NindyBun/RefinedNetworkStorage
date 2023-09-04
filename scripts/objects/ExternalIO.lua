@@ -357,6 +357,9 @@ local typeList = {
     ["fluid"] = 2
 }
 
+function EIO:has_room()
+end
+
 function EIO:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
 		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_External"}
