@@ -338,11 +338,19 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 		settingsFrame.style.minimal_width = 200
 
 		GuiApi.add_subtitle(guiTable, "", settingsFrame, {"gui-description.RNS_Setting"})
+    
+        local priorityFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
+        GuiApi.add_label(guiTable, "", priorityFlow, {"gui-description.RNS_Priority"}, Constants.Settings.RNS_Gui.white)
+        local priorityDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Fluid_Priority", priorityFlow, Constants.Settings.RNS_Priorities, ((#Constants.Settings.RNS_Priorities+1)/2)-self.priority, false, "", {ID=self.thisEntity.unit_number})
+        priorityDD.style.minimal_width = 100
 
         -- Input/Output mode
         local state = "left"
 		if self.io == "output" then state = "right" end
 		GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_Fluid_IO", settingsFrame, {"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, "", "", state, false, {ID=self.thisEntity.unit_number})
+
+        GuiApi.add_line(guiTable, "", settingsFrame, "horizontal")
+
     end
 
     if self.filter ~= "" then
@@ -352,7 +360,7 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 end
 
 
-function FIO.interaction(event, player)
+function FIO.interaction(event, RNSPlayer)
     if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Filter") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]
@@ -366,6 +374,18 @@ function FIO.interaction(event, player)
         end
 		return
 	end
+
+    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Priority") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local priority = Constants.Settings.RNS_Priorities[event.element.selected_index]
+        if priority ~= io.priority then
+            io.priority = priority
+            io.processed = false
+        end
+		return
+    end
 
     if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_IO") then
         local id = event.element.tags.ID

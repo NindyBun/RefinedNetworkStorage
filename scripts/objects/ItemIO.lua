@@ -551,6 +551,13 @@ function IIO:getTooltips(guiTable, mainFrame, justCreated)
 
 		GuiApi.add_subtitle(guiTable, "", settingsFrame, {"gui-description.RNS_Setting"})
 
+        local priorityFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
+        GuiApi.add_label(guiTable, "", priorityFlow, {"gui-description.RNS_Priority"}, Constants.Settings.RNS_Gui.white)
+        local priorityDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Item_Priority", priorityFlow, Constants.Settings.RNS_Priorities, ((#Constants.Settings.RNS_Priorities+1)/2)-self.priority, false, "", {ID=self.thisEntity.unit_number})
+        priorityDD.style.minimal_width = 100
+
+        GuiApi.add_line(guiTable, "", settingsFrame, "horizontal")
+
         -- Whitelist/Blacklist mode
         local state = "left"
 		if self.whitelist == false then state = "right" end
@@ -573,7 +580,7 @@ function IIO:getTooltips(guiTable, mainFrame, justCreated)
     end
 end
 
-function IIO.interaction(event, player)
+function IIO.interaction(event, RNSPlayer)
     if string.match(event.element.name, "RNS_NetworkCableIO_Item_Filter") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]
@@ -593,9 +600,20 @@ function IIO.interaction(event, player)
                 io.combinator.get_or_create_control_behavior().set_signal(index, nil)
             end
         end
-		GUI.update(true)
 		return
 	end
+
+    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Priority") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local priority = Constants.Settings.RNS_Priorities[event.element.selected_index]
+        if priority ~= io.priority then
+            io.priority = priority
+            io.processed = false
+        end
+		return
+    end
 
     if string.match(event.element.name, "RNS_NetworkCableIO_Item_Whitelist") then
         local id = event.element.tags.ID

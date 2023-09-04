@@ -212,6 +212,14 @@ function FD:getTooltips(guiTable, mainFrame, justCreated)
         infoFrame.style.left_padding = 3
         infoFrame.style.right_padding = 3
         GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
+
+        local priorityFlow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal", false)
+        GuiApi.add_label(guiTable, "", priorityFlow, {"gui-description.RNS_Priority"}, Constants.Settings.RNS_Gui.white)
+        local priorityDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Priority", priorityFlow, Constants.Settings.RNS_Priorities, ((#Constants.Settings.RNS_Priorities+1)/2)-self.priority, false, "", {ID=self.thisEntity.unit_number})
+        priorityDD.style.minimal_width = 100
+
+        GuiApi.add_line(guiTable, "", infoFrame, "horizontal")
+
         GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_FluidDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
     end
 

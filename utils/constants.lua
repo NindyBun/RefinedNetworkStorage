@@ -1,6 +1,7 @@
 Constants = {}
 Constants.MOD_ID = "RefinedNetworkStorage"
 Constants.Settings = {
+    RNS_Max_Priority = 5,
     RNS_Priorities = {},
     RNS_RoundRobin = "RNS_RoundRobin",
     RNS_BlankIcon = "__RefinedNetworkStorage__/graphics/blank.png",
@@ -265,7 +266,7 @@ Constants.Settings = {
     }
 }
 local j = 1
-for i = 5, -5, -1 do
+for i = Constants.Settings.RNS_Max_Priority, -Constants.Settings.RNS_Max_Priority, -1 do
     Constants.Settings.RNS_Priorities[j] = i
     j = j + 1
 end

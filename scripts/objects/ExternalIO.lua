@@ -1,3 +1,9 @@
+--[[
+    The External Storage Bus
+    When mode is "input," allow the network to see the contents of the entity; and pull stuff from.
+    When mode is "output," do not allow the network to see the contents of the entity; but push stuff to.
+    When mode is "input/output," allow the network to see the contents of the entity; and pull/push stuff from/to.
+]]
 EIO = {
     thisEntity = nil,
     entID = nil,
@@ -412,7 +418,7 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_External_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
 
         -- Match metadata mode
-        --GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_External_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
+        GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_External_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
     
     end
 
