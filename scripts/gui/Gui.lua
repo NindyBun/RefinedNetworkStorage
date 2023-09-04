@@ -121,4 +121,16 @@ function GUI.on_gui_element_changed(event)
         GUI.update(true)
         return
     end
+
+    if string.match(event.element.name, "RNS_ItemDrive") then
+        ID.interaction(event, RNSPlayer)
+        GUI.update(true)
+        return
+    end
+
+    if string.match(event.element.name, "RNS_FluidDrive") then
+        FD.interaction(event, RNSPlayer)
+        GUI.update(true)
+        return
+    end
 end

@@ -303,7 +303,7 @@ function ID:getTooltips(guiTable, mainFrame, justCreated)
 
         local priorityFlow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal", false)
         GuiApi.add_label(guiTable, "", priorityFlow, {"gui-description.RNS_Priority"}, Constants.Settings.RNS_Gui.white)
-        local priorityDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Priority", priorityFlow, Constants.Settings.RNS_Priorities, ((#Constants.Settings.RNS_Priorities+1)/2)-self.priority, false, "", {ID=self.thisEntity.unit_number})
+        local priorityDD = GuiApi.add_dropdown(guiTable, "RNS_ItemDrive_Priority", priorityFlow, Constants.Settings.RNS_Priorities, ((#Constants.Settings.RNS_Priorities+1)/2)-self.priority, false, "", {ID=self.thisEntity.unit_number})
         priorityDD.style.minimal_width = 100
    end
     local capacity = guiTable.vars.Capacity
@@ -312,4 +312,17 @@ function ID:getTooltips(guiTable, mainFrame, justCreated)
     capacity.caption = {"gui-description.RNS_ItemDrive_Capacity", self:getStorageSize(), self.maxStorage}
     capacityBar.tooltip = self:getStorageSize() .. "/" .. self.maxStorage
     capacityBar.value = self:getStorageSize()/self.maxStorage
+end
+
+function ID.interaction(event, RNSPlayer)
+    if string.match(event.element.name, "RNS_ItemDrive_Priority") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local priority = Constants.Settings.RNS_Priorities[event.element.selected_index]
+        if priority ~= io.priority then
+            io.priority = priority
+        end
+		return
+    end
 end
