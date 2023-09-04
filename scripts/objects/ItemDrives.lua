@@ -297,7 +297,7 @@ function ID:getTooltips(guiTable, mainFrame, justCreated)
 		GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
      
         GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_ItemDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
-        GuiApi.add_progress_bar(guiTable, "CapacityBar", infoFrame, "", self:getStorageSize() .. "/" .. self.maxStorage, true, nil, self:getStorageSize()/self.maxStorage, 25, 250)
+        GuiApi.add_progress_bar(guiTable, "CapacityBar", infoFrame, "", self:getStorageSize() .. "/" .. self.maxStorage, true, nil, self:getStorageSize()/self.maxStorage, 200, 25)
 
         GuiApi.add_line(guiTable, "", infoFrame, "horizontal")
 
@@ -322,6 +322,9 @@ function ID.interaction(event, RNSPlayer)
         local priority = Constants.Settings.RNS_Priorities[event.element.selected_index]
         if priority ~= io.priority then
             io.priority = priority
+            if io.networkController ~= nil and io.networkController.valid == true then
+                io.networkController.network:sort_by_priority(io.networkController.network.ItemDriveTable)
+            end
         end
 		return
     end

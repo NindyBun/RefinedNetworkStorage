@@ -48,10 +48,51 @@ function BaseNet:resetTables()
     self.NetworkInventoryInterfaceTable = {}
 end
 
+function quickSort(array, p, r)
+    p = p or 1
+    r = r or Util.getTableLength_non_nil(array)
+    if p < r then
+        local q = partition(array, p, r)
+        quickSort(array, p, q - 1)
+        quickSort(array, q + 1, r)
+    end
+end
+
+function partition(array, p, r)
+    local x = array[r]
+    local i = p - 1
+    for j = p, r - 1 do
+        if array[j].priority <= x.priority then --Doesn't work since the arrays are indexed by unit number
+            i = i + 1
+            local temp = array[i]
+            array[i] = array[j]
+            array[j] = temp
+        end
+    end
+    local temp = array[i + 1]
+    array[i + 1] = array[r]
+    array[r] = temp
+    return i + 1
+end
+
+function BaseNet:sort_by_priority(array)
+    if array == nil then
+        quickSort(self.ItemDriveTable)
+        quickSort(self.FluidDriveTable)
+        quickSort(self.ItemIOTable)
+        quickSort(self.FluidIOTable)
+        quickSort(self.ExternalIOTable)
+    else
+        quickSort(array)
+    end
+
+end
+
 --Refreshes laser connections
 function BaseNet:doRefresh(controller)
     self:resetTables()
     addConnectables(controller, {}, controller)
+    self:sort_by_priority()
     self.shouldRefresh = false
 end
 
@@ -436,7 +477,6 @@ function BaseNet.transfer_advanced_item(from_inv_itemstack, to_inv, itemstack_da
     return count - temp_count
 end
 ]]
-
 
 function BaseNet.getOperableObjects(array)
     local objs = {}

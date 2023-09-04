@@ -480,6 +480,9 @@ function EIO.interaction(event, RNSPlayer)
         local priority = Constants.Settings.RNS_Priorities[event.element.selected_index]
         if priority ~= io.priority then
             io.priority = priority
+            if io.networkController ~= nil and io.networkController.valid == true then
+                io.networkController.network:sort_by_priority(io.networkController.network.ExternalIOTable)
+            end
             io.processed = false
         end
 		return
