@@ -297,7 +297,7 @@ function ID:getTooltips(guiTable, mainFrame, justCreated)
 		GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
      
         GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_ItemDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
-        GuiApi.add_progress_bar(guiTable, "CapacityBar", infoFrame, "", self:getStorageSize() .. "/" .. self.maxStorage, true, nil, self:getStorageSize()/self.maxStorage, 25, 200)
+        GuiApi.add_progress_bar(guiTable, "CapacityBar", infoFrame, "", self:getStorageSize() .. "/" .. self.maxStorage, true, nil, self:getStorageSize()/self.maxStorage, 25, 250)
 
         GuiApi.add_line(guiTable, "", infoFrame, "horizontal")
 
