@@ -147,24 +147,27 @@ function FIO:IO()
             local fluid_box = self.focusedEntity.fluid_box
             if self.thisEntity.position.x ~= fluid_box.target_position.x or self.thisEntity.position.y ~= fluid_box.target_position.y then break end
 
-            for _, drive in pairs(BaseNet.getOperableObjects(network.FluidDriveTable)) do
-                if self.io == "input" then
-                    if string.match(fluid_box.flow, "output") == nil then break end
-                    if drive:has_room() == 0 then goto continue end
-                    if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") then
-                        transportCapacity = transportCapacity - BaseNet.transfer_from_tank_to_drive(drive, self.focusedEntity.thisEntity, fluid_box.index, self.filter, math.min(transportCapacity, drive:getRemainingStorageSize()))
+            for _, priority in pairs(BaseNet.getOperableObjects(network.FluidDriveTable)) do
+                for _, drive in pairs(priority) do
+                    if self.io == "input" then
+                        if string.match(fluid_box.flow, "output") == nil then goto exit end
+                        if drive:has_room() == 0 then goto continue end
+                        if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") then
+                            transportCapacity = transportCapacity - BaseNet.transfer_from_tank_to_drive(drive, self.focusedEntity.thisEntity, fluid_box.index, self.filter, math.min(transportCapacity, drive:getRemainingStorageSize()))
+                        end
+                    elseif self.io == "output" then
+                        if string.match(fluid_box.flow, "input") == nil then goto exit end
+                        if drive:has_fluid(self.filter) == 0 then goto continue end
+                        if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") then
+                            transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_tank(drive, self.focusedEntity.thisEntity, fluid_box.index, self.filter, math.min(transportCapacity, drive:has_fluid(self.filter)))
+                        end
                     end
-                elseif self.io == "output" then
-                    if string.match(fluid_box.flow, "input") == nil then break end
-                    if drive:has_fluid(self.filter) == 0 then break end
-                    if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") then
-                        transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_tank(drive, self.focusedEntity.thisEntity, fluid_box.index, self.filter, math.min(transportCapacity, drive:has_fluid(self.filter)))
-                    end
+                    ::continue::
+                    if transportCapacity <= 0 then break end
                 end
-                ::continue::
-                if transportCapacity <= 0 then break end
             end
         end
+        ::exit::
     end
     self.processed = transportCapacity < Constants.Settings.RNS_BaseFluidIO_TransferCapacity
 end

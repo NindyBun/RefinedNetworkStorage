@@ -309,14 +309,15 @@ function IIO:IO()
         local network = self.networkController.network
         if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true and self.focusedEntity.inventory.values ~= nil then
             local foc = self.focusedEntity.thisEntity
-            if self.io == "input" then
-                if Util.getTableLength_non_nil(self.filters.values) > 0 then
-                    for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                        if drive:has_room() then
+            for _, priority in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+                for _, drive in pairs(priority) do
+                    if self.io == "input" then
+                        if drive:has_room() <= 0 then goto next end
+                        if Util.getTableLength_non_nil(self.filters.values) > 0 then
                             local initialItem = self.filters.index
                             repeat
                                 local nextItem = Util.next_non_nil(self.filters)
-                                if nextItem == "" then break end
+                                if nextItem == "" then goto exit end
                                 local itemstack = Util.itemstack_template(nextItem)
             
                                 local initialIndex = self.focusedEntity.inventory.index
@@ -328,17 +329,12 @@ function IIO:IO()
                                         local has = IIO.has_item(inv, itemstack, self.metadataMode)
                                         if isOperable == true and has > 0 then
                                             transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, math.min(transportCapacity, has), self.metadataMode)
-                                            if transportCapacity <= 0 then break end
+                                            if transportCapacity <= 0 then goto exit end
                                         end
                                     end
                                 until initialIndex == self.focusedEntity.inventory.index
                             until initialItem == self.filters.index
-                        end
-                    end
-                    break
-                elseif Util.getTableLength_non_nil(self.filters.values) == 0 and self.whitelist == false then
-                    for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                        if drive:has_room() then --#kDrives have #k slots so as long as the drive has room then it also has a slot open
+                        elseif Util.getTableLength_non_nil(self.filters.values) == 0 and self.whitelist == false then
                             local initialIndex = self.focusedEntity.inventory.index
                             repeat
                                 local ii = Util.next(self.focusedEntity.inventory)
@@ -347,43 +343,41 @@ function IIO:IO()
                                     local isOperable = IIO.check_operable_mode(ii.io, "output") and not inv.is_empty()
                                     if isOperable == true then
                                         transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_drive(inv, drive, nil, math.min(transportCapacity, drive:getRemainingStorageSize()), self.metadataMode, false)
-                                        if transportCapacity <= 0 then break end
+                                        if transportCapacity <= 0 then goto exit end
                                     end
                                 end
                             until initialIndex == self.focusedEntity.inventory.index
                         end
+                    elseif self.io == "output" and self.whitelist == true and Util.getTableLength_non_nil(self.filters.values) > 0 then
+                        local initialItem = self.filters.index
+                        repeat
+                            local nextItem = Util.next_non_nil(self.filters)
+                            if nextItem == "" then goto exit end
+
+                            local itemstack = Util.itemstack_template(nextItem)
+                            local has = drive:has_item(itemstack, self.metadataMode)
+
+                            if has > 0 then
+                                local initialIndex = self.focusedEntity.inventory.index
+                                repeat
+                                    local ii = Util.next(self.focusedEntity.inventory)
+                                    local inv = foc.get_inventory(ii.slot)
+                                    if inv ~= nil then
+                                        local isOperable = IIO.check_operable_mode(ii.io, "input") and inv.can_insert(itemstack.cont)
+                                        if isOperable == true then
+                                            transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, math.min(transportCapacity, has), self.metadataMode)
+                                            if transportCapacity <= 0 then goto exit end
+                                        end
+                                    end
+                                until initialIndex == self.focusedEntity.inventory.index
+                            end
+                        until initialItem == self.filters.index
                     end
-                    break
+                    ::next::
                 end
-            elseif self.io == "output" and self.whitelist == true and Util.getTableLength_non_nil(self.filters.values) > 0 then
-                for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-                    local initialItem = self.filters.index
-                    repeat
-                        local nextItem = Util.next_non_nil(self.filters)
-                        if nextItem == "" then break end
-
-                        local itemstack = Util.itemstack_template(nextItem)
-                        local has = drive:has_item(itemstack, self.metadataMode)
-
-                        if has > 0 then
-                            local initialIndex = self.focusedEntity.inventory.index
-                            repeat
-                                local ii = Util.next(self.focusedEntity.inventory)
-                                local inv = foc.get_inventory(ii.slot)
-                                if inv ~= nil then
-                                    local isOperable = IIO.check_operable_mode(ii.io, "input") and inv.can_insert(itemstack.cont)
-                                    if isOperable == true then
-                                        transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, math.min(transportCapacity, has), self.metadataMode)
-                                        if transportCapacity <= 0 then break end
-                                    end
-                                end
-                            until initialIndex == self.focusedEntity.inventory.index
-                        end
-                    until initialItem == self.filters.index
-                end
-                break
             end
         end
+        ::exit::
     end
     self.processed = transportCapacity < Constants.Settings.RNS_BaseItemIO_TransferCapacity
 end
