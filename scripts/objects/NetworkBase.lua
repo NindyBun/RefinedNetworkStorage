@@ -57,6 +57,7 @@ function BaseNet:resetTables()
     self.ExternalIOTable = {}
     generate_priority_table(self.ExternalIOTable)
     self.NetworkInventoryInterfaceTable = {}
+    self.NetworkInventoryInterfaceTable[1] = {}
 end
 
 --Refreshes laser connections
@@ -96,7 +97,7 @@ function addConnectables(source, connections, master)
             elseif con.thisEntity.name == Constants.NetworkCables.externalIO.slateEntity.name then
                 master.network.ExternalIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
             elseif con.thisEntity.name == Constants.NetworkInventoryInterface.name then
-                master.network.NetworkInventoryInterfaceTable[con.entID] = con
+                master.network.NetworkInventoryInterfaceTable[1][con.entID] = con
             end
             addConnectables(con, connections, master)
             ::continue::
@@ -498,5 +499,5 @@ end
 function BaseNet:getTotalObjects()
     return  BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ItemDriveTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.FluidDriveTable)) 
             + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ItemIOTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.FluidIOTable))
-            + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ExternalIOTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.NetworkInventoryInterfaceTable))
+            + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ExternalIOTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.NetworkInventoryInterfaceTable))
 end
