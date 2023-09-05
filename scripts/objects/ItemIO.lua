@@ -312,7 +312,7 @@ function IIO:IO()
             for _, priority in pairs(network.getOperableObjects(network.ItemDriveTable)) do
                 for _, drive in pairs(priority) do
                     if self.io == "input" then
-                        if drive:has_room() <= 0 then goto next end
+                        if not drive:has_room() then goto next end
                         if Util.getTableLength_non_nil(self.filters.values) > 0 then
                             local initialItem = self.filters.index
                             repeat

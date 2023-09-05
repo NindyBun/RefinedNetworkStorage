@@ -151,7 +151,7 @@ function FIO:IO()
                 for _, drive in pairs(priority) do
                     if self.io == "input" then
                         if string.match(fluid_box.flow, "output") == nil then goto exit end
-                        if drive:has_room() == 0 then goto continue end
+                        if not drive:has_room() then goto continue end
                         if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") then
                             transportCapacity = transportCapacity - BaseNet.transfer_from_tank_to_drive(drive, self.focusedEntity.thisEntity, fluid_box.index, self.filter, math.min(transportCapacity, drive:getRemainingStorageSize()))
                         end
