@@ -163,7 +163,7 @@ function FIO:IO()
                         end
                     end
                     ::continue::
-                    if transportCapacity <= 0 then break end
+                    if transportCapacity <= 0 then goto exit end
                 end
             end
         end
