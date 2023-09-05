@@ -322,8 +322,11 @@ function ID.interaction(event, RNSPlayer)
         local priority = Constants.Settings.RNS_Priorities[event.element.selected_index]
         if priority ~= io.priority then
             io.priority = priority
+            local oldP = 1+Constants.Settings.RNS_Max_Priority-io.priority
+            io.priority = priority
             if io.networkController ~= nil and io.networkController.valid == true then
-                io.networkController.network:sort_by_priority(io.networkController.network.ItemDriveTable)
+                io.networkController.network.ItemDriveTable[oldP][io.entID] = nil
+                io.networkController.network.ItemDriveTable[1+Constants.Settings.RNS_Max_Priority-priority][io.entID] = io
             end
         end
 		return

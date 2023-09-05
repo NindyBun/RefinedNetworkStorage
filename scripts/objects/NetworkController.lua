@@ -104,45 +104,61 @@ function NC:update()
     if game.tick % Constants.Settings.RNS_FluidIO_Tick == 0 then self:updateFluidIO() end --Base is every 5 ticks to match offshore pump speed at 1200/s
 end
 
-function NC:updateItemIO(belt)
+function NC:updateItemIO()
     local import = {}
     local export = {}
-    for _, item in pairs(BaseNet.getOperableObjects(self.network.ItemIOTable)) do
-        if item.io == "input" then table.insert(import, item) end
-        if item.io == "output" then
-            if settings.global[Constants.Settings.RNS_RoundRobin].value then
-                table.insert(export, item.processed == false and 1 or (Util.getTableLength(export)+1), item)
-            else
-                table.insert(export, item)
+    for p, priority in pairs(BaseNet.getOperableObjects(self.network.ItemIOTable)) do
+        import[p] = {}
+        export[p] = {}
+        for _, item in pairs(priority) do
+            if item.io == "input" then table.insert(import[p], item) end
+            if item.io == "output" then
+                if settings.global[Constants.Settings.RNS_RoundRobin].value then
+                    table.insert(export[p], item.processed == false and 1 or (Util.getTableLength(export[p])+1), item)
+                else
+                    table.insert(export[p], item)
+                end
             end
         end
     end
-    for _, item in pairs(import) do
-        item:IO()
+    for _, priority in pairs(import) do
+        for _, item in pairs(priority) do
+            item:IO()
+        end
     end
-    for _, item in pairs(export) do
-        item:IO()
+    for _, priority in pairs(export) do
+        for _, item in pairs(priority) do
+            item:IO()
+        end
     end
 end
 
 function NC:updateFluidIO()
     local import = {}
     local export = {}
-    for _, fluid in pairs(BaseNet.getOperableObjects(self.network.FluidIOTable)) do
-        if fluid.io == "input" then table.insert(import, fluid) end
-        if fluid.io == "output" then
-            if settings.global[Constants.Settings.RNS_RoundRobin].value then
-                table.insert(export, fluid.processed == false and 1 or (Util.getTableLength(export)+1), fluid)
-            else
-                table.insert(export, fluid)
+    for p, priority in pairs(BaseNet.getOperableObjects(self.network.FluidIOTable)) do
+        import[p] = {}
+        export[p] = {}
+        for _, fluid in pairs(priority) do
+            if fluid.io == "input" then table.insert(import[p], fluid) end
+            if fluid.io == "output" then
+                if settings.global[Constants.Settings.RNS_RoundRobin].value then
+                    table.insert(export[p], fluid.processed == false and 1 or (Util.getTableLength(export[p])+1), fluid)
+                else
+                    table.insert(export[p], fluid)
+                end
             end
         end
     end
-    for _, fluid in pairs(import) do
-        fluid:IO()
+    for _, priority in pairs(import) do
+        for _, fluid in pairs(priority) do
+            fluid:IO()
+        end
     end
-    for _, fluid in pairs(export) do
-        fluid:IO()
+    for _, priority in pairs(export) do
+        for _, fluid in pairs(priority) do
+            fluid:IO()
+        end
     end
 end
 
@@ -237,7 +253,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
 
     for _, t in pairs(Constants.Drives.ItemDrive) do
         local name = t.name
-        local count = Util.getTableLength(self.network.getOperableObjects(self.network.filter(name, self.network.ItemDriveTable)))
+        local count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.filter(name, self.network.ItemDriveTable)))
         if count > 0 then
             GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, name, count, 64, Constants.Settings.RNS_Gui.label_font_2)
         end
@@ -245,23 +261,23 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
 
     for _, t in pairs(Constants.Drives.FluidDrive) do
         local name = t.name
-        local count = Util.getTableLength(self.network.getOperableObjects(self.network.filter(name, self.network.FluidDriveTable)))
+        local count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.filter(name, self.network.FluidDriveTable)))
         if count > 0 then
             GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, name, count, 64, Constants.Settings.RNS_Gui.label_font_2)
         end
     end
 
-    local itemIOcount = Util.getTableLength(self.network.getOperableObjects(self.network.ItemIOTable))
+    local itemIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ItemIOTable))
     if itemIOcount > 0 then
         GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.itemIO.itemEntity.name, itemIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
-    local fluidIOcount = Util.getTableLength(self.network.getOperableObjects(self.network.FluidIOTable))
+    local fluidIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.FluidIOTable))
     if fluidIOcount > 0 then
         GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.fluidIO.itemEntity.name, fluidIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
-    local externalIOcount = Util.getTableLength(self.network.getOperableObjects(self.network.ExternalIOTable))
+    local externalIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ExternalIOTable))
     if externalIOcount > 0 then
         GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.externalIO.itemEntity.name, externalIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end

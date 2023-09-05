@@ -381,9 +381,11 @@ function FIO.interaction(event, RNSPlayer)
 		if io == nil then return end
         local priority = Constants.Settings.RNS_Priorities[event.element.selected_index]
         if priority ~= io.priority then
+            local oldP = 1+Constants.Settings.RNS_Max_Priority-io.priority
             io.priority = priority
             if io.networkController ~= nil and io.networkController.valid == true then
-                io.networkController.network:sort_by_priority(io.networkController.network.FluidIOTable)
+                io.networkController.network.FluidIOTable[oldP][io.entID] = nil
+                io.networkController.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-priority][io.entID] = io
             end
             io.processed = false
         end

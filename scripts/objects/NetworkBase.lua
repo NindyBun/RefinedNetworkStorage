@@ -39,60 +39,30 @@ function BaseNet:update()
     self.lastUpdate = game.tick
 end
 
+function generate_priority_table(array)
+    for i=1, Constants.Settings.RNS_Max_Priority*2 + 1 do
+        array[i] = {}
+    end
+end
+
 function BaseNet:resetTables()
     self.ItemDriveTable = {}
+    generate_priority_table(self.ItemDriveTable)
     self.FluidDriveTable = {}
+    generate_priority_table(self.FluidDriveTable)
     self.ItemIOTable = {}
+    generate_priority_table(self.ItemIOTable)
     self.FluidIOTable = {}
+    generate_priority_table(self.FluidIOTable)
     self.ExternalIOTable = {}
+    generate_priority_table(self.ExternalIOTable)
     self.NetworkInventoryInterfaceTable = {}
-end
-
-function quickSort(array, p, r)
-    p = p or 1
-    r = r or Util.getTableLength_non_nil(array)
-    if p < r then
-        local q = partition(array, p, r)
-        quickSort(array, p, q - 1)
-        quickSort(array, q + 1, r)
-    end
-end
-
-function partition(array, p, r)
-    local x = array[r]
-    local i = p - 1
-    for j = p, r - 1 do
-        if array[j].priority <= x.priority then --Doesn't work since the arrays are indexed by unit number
-            i = i + 1
-            local temp = array[i]
-            array[i] = array[j]
-            array[j] = temp
-        end
-    end
-    local temp = array[i + 1]
-    array[i + 1] = array[r]
-    array[r] = temp
-    return i + 1
-end
-
-function BaseNet:sort_by_priority(array)
-    if array == nil then
-        quickSort(self.ItemDriveTable)
-        quickSort(self.FluidDriveTable)
-        quickSort(self.ItemIOTable)
-        quickSort(self.FluidIOTable)
-        quickSort(self.ExternalIOTable)
-    else
-        quickSort(array)
-    end
-
 end
 
 --Refreshes laser connections
 function BaseNet:doRefresh(controller)
     self:resetTables()
     addConnectables(controller, {}, controller)
-    self:sort_by_priority()
     self.shouldRefresh = false
 end
 
@@ -116,15 +86,15 @@ function addConnectables(source, connections, master)
             connections[con.entID] = con
 
             if string.match(con.thisEntity.name, "RNS_ItemDrive") ~= nil then
-                master.network.ItemDriveTable[con.entID] = con
+                master.network.ItemDriveTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
             elseif string.match(con.thisEntity.name, "RNS_FluidDrive") ~= nil then
-                master.network.FluidDriveTable[con.entID] = con
+                master.network.FluidDriveTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
             elseif con.thisEntity.name == Constants.NetworkCables.itemIO.slateEntity.name then
-                master.network.ItemIOTable[con.entID] = con
+                master.network.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
             elseif con.thisEntity.name == Constants.NetworkCables.fluidIO.slateEntity.name then
-                master.network.FluidIOTable[con.entID] = con
+                master.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
             elseif con.thisEntity.name == Constants.NetworkCables.externalIO.slateEntity.name then
-                master.network.ExternalIOTable[con.entID] = con
+                master.network.ExternalIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
             elseif con.thisEntity.name == Constants.NetworkInventoryInterface.name then
                 master.network.NetworkInventoryInterfaceTable[con.entID] = con
             end
@@ -480,37 +450,53 @@ end
 
 function BaseNet.getOperableObjects(array)
     local objs = {}
-    for _, o in pairs(array) do
-        if o.thisEntity.valid and o.thisEntity.to_be_deconstructed() == false then
-            objs[o.entID] = o
+    for p, priority in pairs(array) do
+        objs[p] = {}
+        for _, o in pairs(priority) do
+            if o.thisEntity.valid and o.thisEntity.to_be_deconstructed() == false then
+                objs[p][o.entID] = o
+            end
         end
     end
     return objs
 end
 
 function BaseNet.filter(name, array)
-    local filtered = {}
-    for _, t in pairs(array) do
-        if t.thisEntity.name == name then
-            filtered[t.entID] = t
+    local objs = {}
+    for p, priority in pairs(array) do
+        objs[p] = {}
+        for _, o in pairs(priority) do
+            if name == o.thisEntity.name then
+                objs[p][o.entID] = o
+            end
         end
     end
-    return filtered
+    return objs
 end
 
 function BaseNet:get_item_storage_size()
     local m = 0
     local t = 0
-    for _, drive in pairs(self.getOperableObjects(self.ItemDriveTable)) do
-        m = m + drive.maxStorage
-        t = t + drive:getStorageSize()
+    for _, priority in pairs(self.getOperableObjects(self.ItemDriveTable)) do
+        for _, drive in pairs(priority) do
+            m = m + drive.maxStorage
+            t = t + drive:getStorageSize()
+        end
     end
     return t, m
 end
 
+function BaseNet.get_table_length_in_priority(array)
+    local count = 0
+    for _, p in pairs(array) do
+        count = count + Util.getTableLength(p)
+    end
+    return count
+end
+
 --Get connected objects
 function BaseNet:getTotalObjects()
-    return  Util.getTableLength(BaseNet.getOperableObjects(self.ItemDriveTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.FluidDriveTable)) 
-            + Util.getTableLength(BaseNet.getOperableObjects(self.ItemIOTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.FluidIOTable))
-            + Util.getTableLength(BaseNet.getOperableObjects(self.ExternalIOTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.NetworkInventoryInterfaceTable))
+    return  BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ItemDriveTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.FluidDriveTable)) 
+            + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ItemIOTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.FluidIOTable))
+            + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ExternalIOTable)) + Util.getTableLength(BaseNet.getOperableObjects(self.NetworkInventoryInterfaceTable))
 end

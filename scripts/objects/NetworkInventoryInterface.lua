@@ -287,35 +287,39 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 	local tableList = GuiApi.add_table(guiTable, "", inventoryScrollPane, 8)
 	local inv = {}
 	local fluid = {}
-	for _, drive in pairs(BaseNet.getOperableObjects(self.networkController.network.ItemDriveTable)) do
-		local storage = drive:get_sorted_and_merged_inventory()
-		for i = 1, #storage.inventory do
-			local itemstack = storage.inventory[i]
-			if itemstack.count <= 0 then break end
-			Util.add_or_merge(itemstack, inv)
-		end
-		for _, v in pairs(storage.item_list) do
-			local c = Util.itemstack_template(v.name)
-			c.cont.count = v.count
-			if c.cont.ammo then c.cont.ammo = v.ammo end
-			if c.cont.durability then c.cont.durability = v.durability end
-			Util.add_or_merge(c, inv, true)
+	for _, priority in pairs(BaseNet.getOperableObjects(self.networkController.network.ItemDriveTable)) do
+		for _, drive in pairs(priority) do
+			local storage = drive:get_sorted_and_merged_inventory()
+			for i = 1, #storage.inventory do
+				local itemstack = storage.inventory[i]
+				if itemstack.count <= 0 then break end
+				Util.add_or_merge(itemstack, inv)
+			end
+			for _, v in pairs(storage.item_list) do
+				local c = Util.itemstack_template(v.name)
+				c.cont.count = v.count
+				if c.cont.ammo then c.cont.ammo = v.ammo end
+				if c.cont.durability then c.cont.durability = v.durability end
+				Util.add_or_merge(c, inv, true)
+			end
 		end
 	end
-	for _, drive in pairs(BaseNet.getOperableObjects(self.networkController.network.FluidDriveTable)) do
-		for k, c in pairs(drive.fluidArray) do
-			if c == nil then goto continue end
-			if fluid[k] ~= nil then
-				fluid[k].amount = fluid[k].amount + c.amount
-				fluid[k].temperature = (fluid[k].temperature * fluid[k].amount + c.amount * (c.temperature or game.fluid_prototypes[c.name].default_temperature)) / (fluid[k].amount + c.amount)
-			else
-				fluid[k] = {
-					name = c.name,
-					amount = c.amount,
-					temperature = c.temperature
-				}
+	for _, priority in pairs(BaseNet.getOperableObjects(self.networkController.network.FluidDriveTable)) do
+		for _, drive in pairs(priority) do
+			for k, c in pairs(drive.fluidArray) do
+				if c == nil then goto continue end
+				if fluid[k] ~= nil then
+					fluid[k].amount = fluid[k].amount + c.amount
+					fluid[k].temperature = (fluid[k].temperature * fluid[k].amount + c.amount * (c.temperature or game.fluid_prototypes[c.name].default_temperature)) / (fluid[k].amount + c.amount)
+				else
+					fluid[k] = {
+						name = c.name,
+						amount = c.amount,
+						temperature = c.temperature
+					}
+				end
+				::continue::
 			end
-			::continue::
 		end
 	end
 	-----------------------------------------------------------------------------------Fluids----------------------------------------------------------------------------------------
@@ -394,11 +398,13 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	local amount = math.min(itemstack.cont.count, count)
 	if amount <= 0 then return end
 
-	for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-		if drive:has_room() then
-			--local transfered = BaseNet.transfer_item(inv, drive:get_sorted_and_merged_inventory(), itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true, "inv_to_array")
-			amount = amount - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true)
-			if amount <= 0 then return end
+	for _, priority in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+		for _, drive in pairs(priority) do
+			if drive:has_room() then
+				--local transfered = BaseNet.transfer_item(inv, drive:get_sorted_and_merged_inventory(), itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true, "inv_to_array")
+				amount = amount - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true)
+				if amount <= 0 then return end
+			end
 		end
 	end
 end
@@ -419,13 +425,15 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	local amount = math.min(itemstack.cont.count, count)
 	if amount <= 0 then return end
 
-	for _, drive in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-		if RNSPlayer:has_room() then
-			--local transfered = BaseNet.transfer_item(drive:get_sorted_and_merged_inventory(), inv, itemstack, math.min(amount, drive:has_item(itemstack)), false, true, "array_to_inv")
-			amount = amount - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, math.min(amount, drive:getRemainingStorageSize()), false)
-			if amount <= 0 then return end
-		else
-			return
+	for _, priority in pairs(network.getOperableObjects(network.ItemDriveTable)) do
+		for _, drive in pairs(priority) do
+			if RNSPlayer:has_room() then
+				--local transfered = BaseNet.transfer_item(drive:get_sorted_and_merged_inventory(), inv, itemstack, math.min(amount, drive:has_item(itemstack)), false, true, "array_to_inv")
+				amount = amount - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, math.min(amount, drive:getRemainingStorageSize()), false)
+				if amount <= 0 then return end
+			else
+				return
+			end
 		end
 	end
 end
