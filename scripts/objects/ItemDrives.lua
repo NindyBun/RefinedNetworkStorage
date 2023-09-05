@@ -277,9 +277,9 @@ function ID:DataConvert_EntityToItem(item)
             if inv[i].count <= 0 then break end
             storage[i].transfer_stack(inv[i])
         end
-        global.tempInventoryTable[item.item_number] = {item_list=self.storageArray.item_list, inventory=storage}
         item.set_tag(Constants.Settings.RNS_Tag, item.item_number)
         item.custom_description = {"", item.prototype.localised_description, {"item-description.RNS_ItemDriveTag", size, self.maxStorage}}
+        global.tempInventoryTable[item.item_number] = {item_list=self.storageArray.item_list, inventory=storage, itemstack=item}
     end
 end
 
