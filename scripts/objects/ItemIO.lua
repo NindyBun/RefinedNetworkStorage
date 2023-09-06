@@ -328,12 +328,13 @@ function IIO:IO()
                                         local isOperable = IIO.check_operable_mode(ii.io, "output")
                                         local has = IIO.has_item(inv, itemstack, self.metadataMode)
                                         if isOperable == true and has > 0 then
-                                            transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, math.min(transportCapacity, has), self.metadataMode)
+                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, math.min(transportCapacity, has), self.metadataMode, self.whitelist)
                                             if transportCapacity <= 0 then goto exit end
                                         end
                                     end
                                 until initialIndex == self.focusedEntity.inventory.index
                             until initialItem == self.filters.index
+                            goto next
                         elseif Util.getTableLength_non_nil(self.filters.values) == 0 and self.whitelist == false then
                             local initialIndex = self.focusedEntity.inventory.index
                             repeat
@@ -347,6 +348,7 @@ function IIO:IO()
                                     end
                                 end
                             until initialIndex == self.focusedEntity.inventory.index
+                            goto next
                         end
                     elseif self.io == "output" and self.whitelist == true and Util.getTableLength_non_nil(self.filters.values) > 0 then
                         local initialItem = self.filters.index
@@ -372,6 +374,7 @@ function IIO:IO()
                                 until initialIndex == self.focusedEntity.inventory.index
                             end
                         until initialItem == self.filters.index
+                        goto next
                     end
                     ::next::
                 end

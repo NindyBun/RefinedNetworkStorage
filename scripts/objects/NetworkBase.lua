@@ -265,11 +265,14 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
         local item = from_inv[i]
         if item.count <= 0 then goto continue end
         local itemC = Util.itemstack_convert(item)
-        itemstack_data = itemstack_data or Util.itemstack_template(itemC.cont.name)
-        if whitelist == true then
-            if game.item_prototypes[itemC.cont.name] ~= game.item_prototypes[itemstack_data.cont.name] then goto continue end
+        if itemstack_data ~= nil then
+            if whitelist == true then
+                if game.item_prototypes[itemC.cont.name] ~= game.item_prototypes[itemstack_data.cont.name] then goto continue end
+            else
+                if game.item_prototypes[itemC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then goto continue end
+            end
         else
-            if game.item_prototypes[itemC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then goto continue end
+            itemstack_data = Util.itemstack_template(itemC.cont.name)
         end
         local min = math.min(itemC.cont.count, amount)
         --modify count if metadataMode
