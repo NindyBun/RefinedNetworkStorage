@@ -445,7 +445,7 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 		if Util.getTableLength(priorityD) > 0 then
 			for _, drive in pairs(priorityD) do
 				if drive:has_room() then
-					amount = amount - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true)
+					amount = amount - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, nil, math.min(amount, drive:getRemainingStorageSize()), false, true)
 					if amount <= 0 then return end
 				end
 			end
@@ -518,7 +518,7 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 		local priorityE = externalItems[i]
 		if Util.getTableLength(priorityD) > 0 then
 			for _, drive in pairs(priorityD) do
-				local has = drive:has_item(itemstack, false)
+				local has = drive:has_item(itemstack, true)
 				if has > 0 and RNSPlayer:has_room() == true then
 					amount = amount - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, math.min(amount, has), false)
 					if amount <= 0 then return end

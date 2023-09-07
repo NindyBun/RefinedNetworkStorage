@@ -466,9 +466,10 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
         if self.whitelist == false then state = "right" end
         GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_External_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
 
-        -- Match metadata mode
-        GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_External_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
-    
+        if self.type == "item" then
+            -- Match metadata mode
+            GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_External_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
+        end
     end
 
     for i=1, 10 do

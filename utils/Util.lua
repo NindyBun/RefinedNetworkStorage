@@ -164,13 +164,14 @@ function Util.itemstack_matches(itemstack_data, itemstack_to_be_checked, allowMe
 			if not allowMetadata then return false end
 		end
 	end
-	if itemstack_data.cont.health and itemstack_to_be_checked.cont.health and itemstack_data.cont.health ~= itemstack_to_be_checked.cont.health then
-		if not allowMetadata then return false end
-	end
+	--if itemstack_data.cont.health and itemstack_to_be_checked.cont.health and itemstack_data.cont.health ~= itemstack_to_be_checked.cont.health then
+	--	if not allowMetadata then return false end
+	--end
 	if itemstack_data.modified ~= nil and itemstack_to_be_checked.modified ~= nil then
 		if not allowMetadata then
 			if itemstack_data.modified ~= itemstack_to_be_checked.modified then return false end
 			if itemstack_data.modified == true and itemstack_to_be_checked.modified == true then
+				if itemstack_data.cont.health and itemstack_to_be_checked.cont.health and itemstack_data.cont.health ~= itemstack_to_be_checked.cont.health and not allowMetadata then return false end
 				if itemstack_data.label and itemstack_to_be_checked.label and itemstack_data.label ~= itemstack_to_be_checked.label and not allowMetadata then return false end
 				if itemstack_data.linked ~= nil and itemstack_to_be_checked.linked ~= nil then
 					if itemstack_data.linked ~= "" and itemstack_to_be_checked.linked ~= "" and itemstack_data.linked.unit_number ~= itemstack_to_be_checked.linked.unit_number then

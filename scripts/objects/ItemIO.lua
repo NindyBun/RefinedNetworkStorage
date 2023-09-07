@@ -430,7 +430,11 @@ function IIO:IO()
                                                         if inv1 ~= nil then
                                                             inv1.sort_and_merge()
                                                             if EIO.has_item_room(inv1) == true and IIO.check_operable_mode(ii1.io, "input") then
-                                                                transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, transportCapacity, self.metadataMode, self.whitelist)
+                                                                local meta = false
+                                                                if self.metadataMode == externalInv.metadataMode and self.metadataMode == true then
+                                                                    meta = true
+                                                                end
+                                                                transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, transportCapacity, meta, self.whitelist)
                                                                 if transportCapacity <= 0 then goto exit end
                                                             end
                                                         end
@@ -461,7 +465,11 @@ function IIO:IO()
                                                             if Util.getTableLength_non_nil(externalInv.filters.item.values) == 0 then
                                                                 if externalInv.whitelist == true then goto next end
                                                             end
-                                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, nil, externalInv, transportCapacity, self.metadataMode, false)
+                                                            local meta = false
+                                                            if self.metadataMode == externalInv.metadataMode and self.metadataMode == true then
+                                                                meta = true
+                                                            end
+                                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, nil, externalInv, transportCapacity, meta, false)
                                                             if transportCapacity <= 0 then goto exit end
                                                         end
                                                     end
@@ -497,7 +505,11 @@ function IIO:IO()
                                                     if inv1 ~= nil then
                                                         local isOperable = IIO.check_operable_mode(ii1.io, "input") and inv1.can_insert(itemstack.cont)
                                                         if isOperable == true then
-                                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, math.min(transportCapacity, has), self.metadataMode, true)
+                                                            local meta = false
+                                                            if self.metadataMode == externalInv.metadataMode and self.metadataMode == true then
+                                                                meta = true
+                                                            end
+                                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, math.min(transportCapacity, has), meta, true)
                                                             if transportCapacity <= 0 then goto exit end
                                                         end
                                                     end

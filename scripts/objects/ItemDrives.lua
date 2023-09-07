@@ -173,7 +173,7 @@ function ID:has_item(itemstack_data, getModified)
 
     local list = storage.item_list[itemstack_data.cont.name]
     if list ~= nil and itemstack_data.modified == false then
-        if (list.ammo == itemstack_data.cont.ammo or list.durability == itemstack_data.cont.durability) and (list.ammo == game.item_prototypes[list.name].magazine_size or list.durability == game.item_prototypes[list.name].durability) and getModified == false then
+        if (list.ammo == itemstack_data.cont.ammo or list.durability == itemstack_data.cont.durability) and (list.ammo == game.item_prototypes[list.name].magazine_size or list.durability == game.item_prototypes[list.name].durability) then
             amount = amount + list.count
         else
             if getModified == true then
