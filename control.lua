@@ -160,6 +160,7 @@ script.on_event(defines.events.on_player_mined_tile, removed)
 script.on_event(defines.events.on_robot_mined_entity, removed)
 script.on_event(defines.events.on_robot_mined_tile, removed)
 script.on_event(defines.events.script_raised_destroy, removed)
+script.on_event(defines.events.on_entity_died, removed)
 
 script.on_event(defines.events.on_player_rotated_entity , rotated)
 script.on_event(defines.events.on_selected_entity_changed, changed_selection)

@@ -29,7 +29,7 @@ networkCableE.flags = {"placeable-neutral", "player-creation"}
 networkCableE.minable = {mining_time = 0.2, result = Constants.NetworkCables.Cable.item.name}
 networkCableE.max_health = 250
 networkCableE.dying_explosion = "medium-explosion"
-networkCableE.corpse = "medium-remnants"
+networkCableE.corpse = "small-remnants"
 networkCableE.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 networkCableE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
 networkCableE.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
@@ -72,7 +72,7 @@ networkCable_E.fast_replaceable_group = Constants.Settings.RNS_FR_Cable
 networkCable_E.max_health = 250
 networkCable_E.dying_explosion = "medium-explosion"
 networkCable_E.placeable_by = {item = Constants.NetworkCables.Cable.item.name, count = 1}
-networkCable_E.corpse = "medium-remnants"
+networkCable_E.corpse = "small-remnants"
 networkCable_E.collision_box = {{-0.40, -0.40}, {0.49, 0.40}}
 networkCable_E.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
 networkCable_E.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
