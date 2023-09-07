@@ -324,22 +324,23 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 	end
 	for _, priority in pairs(BaseNet.filter_by_mode("output", BaseNet.getOperableObjects(self.networkController.network.ExternalIOTable))) do
 		for _, external in pairs(priority) do
-			if external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false and external.focusedEntity.thisEntity ~= nil then
+			if external.focusedEntity.thisEntity ~= nil and external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false then
 				if external.type == "item" and external.focusedEntity.inventory.values ~= nil then
-					local initialIndex = external.focusedEntity.inventory.index
+					local index = 0
 					repeat
 						local ii = Util.next(external.focusedEntity.inventory)
-						local inv = external.focusedEntity.thisEntity.get_inventory(ii.slot)
-						if inv ~= nil and IIO.check_operable_mode(ii.io, "output") then
-							inv.sort_and_merge()
-							for i = 1, #inv do
-								local itemstack = inv[i]
+						local inv1 = external.focusedEntity.thisEntity.get_inventory(ii.slot)
+						if inv1 ~= nil and IIO.check_operable_mode(ii.io, "output") then
+							inv1.sort_and_merge()
+							for i = 1, #inv1 do
+								local itemstack = inv1[i]
 								if itemstack.count <= 0 then goto continue end
 								Util.add_or_merge(itemstack, inv)
 								::continue::
 							end
 						end
-					until initialIndex == external.focusedEntity.inventory.index
+						index = index + 1
+					until index == Util.getTableLength(external.focusedEntity.inventory.values)
 				elseif external.type == "fluid" and external.focusedEntity.fluid_box.index ~= nil then
 					if string.match(external.focusedEntity.fluid_box.flow, "output") ~= nil then
 						if external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index] ~= nil then
@@ -451,9 +452,9 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 		end
 		if Util.getTableLength(priorityE) > 0 then
 			for _, external in pairs(priorityE) do
-				if external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false and external.focusedEntity.thisEntity ~= nil then
+				if external.focusedEntity.thisEntity ~= nil and external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false then
 					if external.type == "item" and external.focusedEntity.inventory.values ~= nil then
-						local initialIndex = external.focusedEntity.inventory.index
+						local index = 0
 						repeat
 							local ii = Util.next(external.focusedEntity.inventory)
 							local inv1 = external.focusedEntity.thisEntity.get_inventory(ii.slot)
@@ -469,11 +470,12 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 								end
 								inv1.sort_and_merge()
 								if EIO.has_item_room(inv1) == true then
-									amount = amount - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, amount, false, true)
+									amount = amount - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, amount, false, true)
 									if amount <= 0 then return end
 								end
 							end
-						until initialIndex == external.focusedEntity.inventory.index
+							index = index + 1
+						until index == Util.getTableLength(external.focusedEntity.inventory.values)
 					end
 				end
 				::next::
@@ -525,30 +527,22 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 		end
 		if Util.getTableLength(priorityE) > 0 then
 			for _, external in pairs(priorityE) do
-				if external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false and external.focusedEntity.thisEntity ~= nil then
+				if external.focusedEntity.thisEntity ~= nil and external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false then
 					if external.type == "item" and external.focusedEntity.inventory.values ~= nil then
-						local initialIndex = external.focusedEntity.inventory.index
+						local index = 0
 						repeat
 							local ii = Util.next(external.focusedEntity.inventory)
 							local inv1 = external.focusedEntity.thisEntity.get_inventory(ii.slot)
 							if inv1 ~= nil and IIO.check_operable_mode(ii.io, "output") then
-								if Util.getTableLength_non_nil(external.filters.item.values) > 0 then
-									if external:matches_filters("item", itemstack.cont.name) == true then
-										if external.whitelist == false then goto next end
-									else
-										if external.whitelist == true then goto next end
-									end
-								elseif Util.getTableLength_non_nil(external.filters.item.values) == 0 then
-									if external.whitelist == true then goto next end
-								end
 								inv1.sort_and_merge()
 								local has = EIO.has_item(inv1, itemstack, false)
 								if has > 0 and RNSPlayer:has_room() == true then
-									amount = amount - BaseNet.transfer_from_inv_to_inv(inv1, inv, itemstack, math.min(has, amount), false, true)
+									amount = amount - BaseNet.transfer_from_inv_to_inv(inv1, inv, itemstack, nil, math.min(has, amount), false, true)
 									if amount <= 0 then return end
 								end
 							end
-						until initialIndex == external.focusedEntity.inventory.index
+							index = index + 1
+						until index == Util.getTableLength(external.focusedEntity.inventory.values)
 					end
 				end
 				::next::

@@ -172,7 +172,7 @@ function FIO:IO()
                 end
                 if Util.getTableLength(priorityE) > 0 then
                     for _, externalTank in pairs(priorityE) do
-                        if externalTank.focusedEntity.thisEntity.valid and externalTank.focusedEntity.thisEntity.to_be_deconstructed() == false and externalTank.focusedEntity.thisEntity ~= nil and externalTank.focusedEntity.fluid_box.index ~= nil then
+                        if  externalTank.focusedEntity.thisEntity ~= nil and externalTank.focusedEntity.thisEntity.valid and externalTank.focusedEntity.thisEntity.to_be_deconstructed() == false and externalTank.focusedEntity.fluid_box.index ~= nil then
                             local fluid_boxE = externalTank.focusedEntity.fluid_box
                             if self.io == "input" then
                                 if string.match(fluid_box.flow, "output") == nil then goto exit end

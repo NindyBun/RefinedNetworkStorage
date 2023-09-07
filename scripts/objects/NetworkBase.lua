@@ -138,21 +138,30 @@ function BaseNet.transfer_from_tank_to_tank(from_tank, to_tank, from_index, to_i
             }
         else
             if to_tank.fluidbox[to_index].name ~= name then break end
-            local amount0 = to_tank.fluidbox[to_index].amount
-            local temp0 = to_tank.fluidbox[to_index].temperature
+            local amount1 = to_tank.fluidbox[to_index].amount
+            local temp1 = to_tank.fluidbox[to_index].temperature
             to_tank.fluidbox[to_index] = {
                 name = name,
-                amount = amount0 + amount,
-                temperature = temp0
+                amount = amount1 + amount,
+                temperature = temp1
             }
-            local amount1 = to_tank.fluidbox[to_index].amount
-            local transfered = amount1 - amount0 <= 0 and 0 or amount1 - amount0
+            local amount2 = to_tank.fluidbox[to_index].amount
+            local transfered = amount2 - amount1 <= 0 and 0 or amount2 - amount1
             amount = amount - transfered <= 0 and 0 or amount - transfered
             if transfered <= 0 then break end
             to_tank.fluidbox[to_index] = {
                 name = name,
-                amount = amount1,
-                temperature = (from_tank.fluidbox[from_index].temperature * transfered + amount0 * temp0) / (amount1)
+                amount = amount2,
+                temperature = (temp0 * transfered + amount1 * temp1) / (amount2)
+            }
+            if amount0 - transfered <= 0 then
+                from_tank.fluidbox[from_index] = nil
+                break
+            end
+            from_tank.fluidbox[from_index] = {
+                name = name,
+                amount = amount0 - transfered,
+                temperature = temp0
             }
         end
     end
@@ -301,6 +310,8 @@ end
 
 function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, external_data, count, allowMetadata, whitelist)
     local amount = count
+    allowMetadata = allowMetadata or false
+    whitelist = whitelist or false
     for i = 1, #from_inv do
         local mod = false
         local itemstack = from_inv[i]
@@ -373,7 +384,7 @@ function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, exte
 end
 
 --Meant for importing from the network. Importing always needs whitelist or blacklist or no filters
-function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data, count, allowMetadata, whitelist)
+function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data, filters, count, allowMetadata, whitelist)
     whitelist = whitelist or false
     allowMetadata = allowMetadata or false
     drive_inv:get_sorted_and_merged_inventory()
@@ -387,13 +398,15 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
             if whitelist == true then
                 if game.item_prototypes[itemC.cont.name] ~= game.item_prototypes[itemstack_data.cont.name] then goto continue end
             else
-                if game.item_prototypes[itemC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then goto continue end
+                if IIO.matches_filters(itemC.cont.name, filters) == true then
+                    goto continue
+                else
+                    itemstack_data = Util.itemstack_template(itemC.cont.name)
+                end
             end
         else
             itemstack_data = Util.itemstack_template(itemC.cont.name)
         end
-        local min = math.min(itemC.cont.count, amount)
-
         if Util.itemstack_matches(itemstack_data, itemC, allowMetadata) == false then
             if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemC.cont.name] then
                 if itemstack_data.cont.ammo and itemC.cont.ammo and itemstack_data.cont.ammo > itemC.cont.ammo and itemC.cont.count > 1 then
@@ -408,6 +421,7 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
             goto continue
         end
         ::go::
+        local min = math.min(itemC.cont.count, amount)
         if itemC.modified == false then
             local temp = {
                 name=itemstack_data.cont.name,

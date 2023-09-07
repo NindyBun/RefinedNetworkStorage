@@ -13,7 +13,6 @@ EIO = {
     focusedEntity = nil,
     cardinals = nil,
     filters = nil,
-    state = nil,
     io = "input/output",
     type = "item",
     ioIcon = nil,
@@ -100,7 +99,7 @@ function EIO:rebuild(object)
 end
 
 function EIO:remove()
-    if self.state ~= nil then self.state.destroy() end
+    if self.combinator ~= nil then self.combinator.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
         self.networkController.network.ExternalIOTable[self.entID] = nil
@@ -368,7 +367,7 @@ function EIO.has_item_room(inv)
 end
 
 function EIO:matches_filters(type, filter)
-    for _, name in pairs(self.filters[type]) do
+    for _, name in pairs(self.filters[type].values) do
         if name == filter then return true end
     end
     return false
