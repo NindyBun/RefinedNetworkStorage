@@ -426,6 +426,7 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	if network == nil then return end
 	if tags == nil then return end
 	local itemstack = tags.stack
+	if itemstack.id ~= nil and global.itemTable[itemstack.id] ~= nil and global.itemTable[itemstack.id].is_active == true then return end
 
 	if count == -1 then count = game.item_prototypes[itemstack.cont.name].stack_size end
 	if count == -2 then count = math.max(1, game.item_prototypes[itemstack.cont.name].stack_size/2) end

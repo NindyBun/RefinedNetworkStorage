@@ -9,6 +9,14 @@ require("prototypes.NetworkCableIOFluid")
 require("prototypes.NetworkCableIOExternal")
 -------------------------------------------------------------------------------------
 data:extend{
+    {
+        type = "custom-input",
+        name = "wireless_grid_key",
+        key_sequence = "SHIFT + E",
+        order = "a"
+    }
+}
+data:extend{
 	{
 		type="recipe-category",
 		name="RNS-Nothing",

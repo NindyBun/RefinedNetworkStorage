@@ -2,7 +2,8 @@ WG = {
     thisEntity = nil,
     entID = nil,
     target_position = nil,
-    is_item = true
+    is_item = true,
+    is_active = false
 }
 
 function WG:new(item)

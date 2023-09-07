@@ -167,6 +167,12 @@ script.on_event(defines.events.on_entity_died, removed)
 script.on_event(defines.events.on_player_rotated_entity , rotated)
 script.on_event(defines.events.on_selected_entity_changed, changed_selection)
 --Need copy/paste feature
+script.on_event("wireless_grid_key", function(event)
+    local RNSPlayer = getRNSPlayer(event.player_index)
+    if RNSPlayer ~= nil then
+        RNSPlayer:open_wireless_grid(event)
+    end
+end)
 
 script.on_event(defines.events.on_gui_opened, onGuiOpened)
 script.on_event(defines.events.on_gui_closed, onGuiClosed)

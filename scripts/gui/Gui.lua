@@ -103,6 +103,7 @@ function GUI.on_gui_closed(event)
     if event.element.name == Constants.Settings.RNS_Gui.tooltip then
         RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip].gui.destroy()
         RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip] = nil
+        RNSPlayer:close_wireless_grids()
         return
     end
 end
