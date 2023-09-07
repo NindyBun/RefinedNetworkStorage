@@ -535,7 +535,7 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 							local inv1 = external.focusedEntity.thisEntity.get_inventory(ii.slot)
 							if inv1 ~= nil and IIO.check_operable_mode(ii.io, "output") then
 								inv1.sort_and_merge()
-								local has = EIO.has_item(inv1, itemstack, false)
+								local has = EIO.has_item(inv1, itemstack, true)
 								if has > 0 and RNSPlayer:has_room() == true then
 									amount = amount - BaseNet.transfer_from_inv_to_inv(inv1, inv, itemstack, nil, math.min(has, amount), false, true)
 									if amount <= 0 then return end
