@@ -62,6 +62,9 @@ function RNSP:open_wireless_grid(event)
         if global.itemTable[itemstack.item_number] == nil then goto continue end
         local wirelessGrid = global.itemTable[itemstack.item_number]
         if wirelessGrid.target_position.x == nil or wirelessGrid.target_position.y == nil then goto continue end
+        if Util.distance(self.thisEntity.position, wirelessGrid.target_position) > Constants.Settings.RNS_Default_WirelessGrid_Distance then
+            goto continue
+        end
         local interface = self.thisEntity.surface.find_entity(Constants.NetworkInventoryInterface.name, wirelessGrid.target_position)
         if interface ~= nil and interface.valid == true then
             if Util.safeCall(GUI.open_tooltip_gui, self, self.thisEntity, interface) == false then
@@ -74,6 +77,7 @@ function RNSP:open_wireless_grid(event)
         end
         ::continue::
     end
+    self.thisEntity.print({"gui-description.RNS_Wireless_Grid_cant_open"})
 end
 
 function RNSP:close_wireless_grids()

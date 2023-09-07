@@ -26,6 +26,12 @@ function UpdateSys.addItem(obj)
     end
 end
 
+function UpdateSys.remove(obj)
+    if obj.entID ~= nil then
+        global.entityTable[obj.entID] = nil
+    end
+end
+
 function UpdateSys.removeItem(obj)
     if obj.entID ~= nil then
         global.itemTable[obj.entID] = nil
