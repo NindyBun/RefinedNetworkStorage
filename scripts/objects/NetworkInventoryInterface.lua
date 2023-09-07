@@ -195,12 +195,6 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		-- Add the Line --
 		GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
 
-		-- Create the Inventory Labels --
-		--GuiApi.add_label(guiTable, "RNSCapacityLabel", informationFrame, {"gui-description.Unknown"}, Constants.Settings.RNS_Gui.orange, "", true)
-
-		-- Add the Line --
-		--GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
-
 		-- Create the Help Table --
 		local helpTable = GuiApi.add_table(guiTable, "", informationFrame, 1)
 
@@ -211,6 +205,11 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText4"}, Constants.Settings.RNS_Gui.white)
 		GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText5"}, Constants.Settings.RNS_Gui.white)
 		--GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText6"}, Constants.Settings.RNS_Gui.white)
+
+		GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
+
+		GuiApi.add_label(guiTable, "", informationFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)
+
     end
 
 	local inventoryScrollPane = guiTable.vars.InventoryScrollPane

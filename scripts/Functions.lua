@@ -4,6 +4,7 @@ function createObjectTables()
     addOrCreateObjectTable{tableName="PlayerTable", tag="RNSP", objName="RNSPlayer"}
     addOrCreateObjectTable{tableName="NetworkControllerTable", tag="NC", objName=Constants.NetworkController.slateEntity.name}
     addOrCreateObjectTable{tableName="NetworkInventoryInterfaceTable", tag="NII", objName=Constants.NetworkInventoryInterface.name}
+    addOrCreateObjectTable{tableName="WirelessGridTable", tag="WG", objName=Constants.WirelessGrid.name}
 
     addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive1k.name}
     addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive4k.name}

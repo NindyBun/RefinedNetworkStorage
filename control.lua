@@ -9,6 +9,7 @@ require("scripts.Functions")
 require("scripts.updates")
 require("scripts.gui.Gui")
 require("scripts.gui.GuiApi")
+require("scripts.objects.WirelessGrid")
 require("scripts.objects.NetworkBase")
 require("scripts.objects.NetworkController")
 require("scripts.objects.RNSPlayer")
@@ -29,6 +30,7 @@ function onInit()
     end
 
 	global.entityTable = global.entityTable or {}
+    global.itemTable = global.itemTable or {}
     global.tempInventoryTable = global.tempInventoryTable or {}
     createObjectTables()
 

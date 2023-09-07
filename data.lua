@@ -1,5 +1,6 @@
 Constants = require("utils.constants")
 require("prototypes.Drives")
+require("prototypes.WirelessDevices")
 require("prototypes.NetworkController")
 require("prototypes.NetworkInventoryBlock")
 require("prototypes.NetworkCable")
