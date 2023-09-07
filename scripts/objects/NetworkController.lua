@@ -253,7 +253,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
 
     for _, t in pairs(Constants.Drives.ItemDrive) do
         local name = t.name
-        local count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.filter(name, self.network.ItemDriveTable)))
+        local count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.filter_by_name(name, self.network.ItemDriveTable)))
         if count > 0 then
             GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, name, count, 64, Constants.Settings.RNS_Gui.label_font_2)
         end
@@ -261,7 +261,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
 
     for _, t in pairs(Constants.Drives.FluidDrive) do
         local name = t.name
-        local count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.filter(name, self.network.FluidDriveTable)))
+        local count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.filter_by_name(name, self.network.FluidDriveTable)))
         if count > 0 then
             GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, name, count, 64, Constants.Settings.RNS_Gui.label_font_2)
         end

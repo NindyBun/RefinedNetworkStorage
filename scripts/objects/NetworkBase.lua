@@ -109,10 +109,55 @@ function BaseNet:getTooltips()
     
 end
 
-function BaseNet.transfer_from_tank_to_tank()
-end
+function BaseNet.transfer_from_tank_to_tank(from_tank, to_tank, from_index, to_index, name, amount_to_transfer)
+    local amount = amount_to_transfer
 
-function BaseNet.transfer_from_inv_to_inv()
+    for i=1, 1 do
+        if from_tank.fluidbox[from_index] == nil then break end
+        if from_tank.fluidbox[from_index].name ~= name then break end
+        local amount0 = from_tank.fluidbox[from_index].amount
+        amount = math.min(amount0, amount_to_transfer)
+
+        local temp0 = from_tank.fluidbox[from_index].temperature
+
+        if to_tank.fluidbox[to_index] == nil then
+            to_tank.fluidbox[to_index] = {
+                name = name,
+                amount = amount,
+                temperature = from_tank.fluidbox[from_index].temperature
+            }
+            local transfered = to_tank.fluidbox[to_index].amount
+            if amount0 - transfered <= 0 then
+                from_tank.fluidbox[from_index] = nil
+                break
+            end
+            from_tank.fluidbox[from_index] = {
+                name = name,
+                amount = amount0 - transfered,
+                temperature = temp0
+            }
+        else
+            if to_tank.fluidbox[to_index].name ~= name then break end
+            local amount0 = to_tank.fluidbox[to_index].amount
+            local temp0 = to_tank.fluidbox[to_index].temperature
+            to_tank.fluidbox[to_index] = {
+                name = name,
+                amount = amount0 + amount,
+                temperature = temp0
+            }
+            local amount1 = to_tank.fluidbox[to_index].amount
+            local transfered = amount1 - amount0 <= 0 and 0 or amount1 - amount0
+            amount = amount - transfered <= 0 and 0 or amount - transfered
+            if transfered <= 0 then break end
+            to_tank.fluidbox[to_index] = {
+                name = name,
+                amount = amount1,
+                temperature = (from_tank.fluidbox[from_index].temperature * transfered + amount0 * temp0) / (amount1)
+            }
+        end
+    end
+
+    return amount_to_transfer - amount
 end
 
 function BaseNet.transfer_from_drive_to_tank(drive, tank_entity, index, name, amount_to_transfer)
@@ -155,7 +200,7 @@ function BaseNet.transfer_from_drive_to_tank(drive, tank_entity, index, name, am
     return amount_to_transfer - amount
 end
 
-function BaseNet.transfer_from_tank_to_drive(drive, tank_entity, index, name, amount_to_transfer)
+function BaseNet.transfer_from_tank_to_drive(tank_entity, drive, index, name, amount_to_transfer)
     local amount = amount_to_transfer
 
     for i=1, 1 do
@@ -254,6 +299,79 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
     return count - amount
 end
 
+function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, external_data, count, allowMetadata, whitelist)
+    local amount = count
+    for i = 1, #from_inv do
+        local mod = false
+        local itemstack = from_inv[i]
+        if itemstack.count <= 0 then goto continue end
+        local itemstackC = Util.itemstack_convert(itemstack)
+        if itemstack_data ~= nil then
+            if whitelist == true then
+                if game.item_prototypes[itemstackC.cont.name] ~= game.item_prototypes[itemstack_data.cont.name] then goto continue end
+            else
+                if game.item_prototypes[itemstackC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then goto continue end
+            end
+        else
+            itemstack_data = Util.itemstack_template(itemstackC.cont.name)
+        end
+        if external_data ~= nil then
+            if Util.getTableLength_non_nil(external_data.filters.item.values) > 0 then
+                if external_data:matches_filters("item", itemstack_data.cont.name) == true then
+                    if external_data.whitelist == false then goto continue end
+                else
+                    if external_data.whitelist == true then goto continue end
+                end
+            end
+        end
+        local min = math.min(itemstackC.cont.count, amount)
+        if Util.itemstack_matches(itemstack_data, itemstackC, allowMetadata) == false then
+            if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
+                if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo > itemstackC.cont.ammo and itemstackC.cont.count > 1 then
+                    mod = true
+                    goto go
+                end
+                if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability > itemstackC.cont.durability and itemstackC.cont.count > 1 then
+                    mod = true
+                    goto go
+                end
+            end
+            goto continue
+        end
+        ::go::
+        if itemstackC.modified == false then
+            local temp = {
+                name = itemstackC.cont.name,
+                count = min,
+                durability = not allowMetadata and itemstack_data.cont.durability or itemstackC.cont.durability,
+                ammo = not allowMetadata and itemstack_data.cont.ammo or itemstackC.cont.ammo
+            }
+            local inserted = to_inv.insert(temp)
+            amount = amount - inserted
+            itemstack.count = itemstack.count - inserted <= 0 and 0 or itemstack.count - inserted
+            if itemstack.count > 0 and itemstackC.cont.ammo and not allowMetadata then
+                if mod then itemstack.ammo = itemstackC.cont.ammo end
+            end
+            if itemstack.count > 0 and itemstackC.cont.durability and not allowMetadata then
+                if mod then itemstack.durability = itemstackC.cont.durability end
+            end
+        else
+            for j=1, #to_inv do
+                local item1 = to_inv[j]
+                if item1.count > 0 then goto continue end
+                if item1.transfer_stack(itemstack) then
+                    amount = amount - min
+                    break
+                end
+                ::continue::
+            end
+        end
+        if amount <= 0 then break end
+        ::continue::
+    end
+    return count - amount
+end
+
 --Meant for importing from the network. Importing always needs whitelist or blacklist or no filters
 function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data, count, allowMetadata, whitelist)
     whitelist = whitelist or false
@@ -275,7 +393,6 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
             itemstack_data = Util.itemstack_template(itemC.cont.name)
         end
         local min = math.min(itemC.cont.count, amount)
-        --modify count if metadataMode
 
         if Util.itemstack_matches(itemstack_data, itemC, allowMetadata) == false then
             if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemC.cont.name] then
@@ -465,7 +582,33 @@ function BaseNet.getOperableObjects(array)
     return objs
 end
 
-function BaseNet.filter(name, array)
+function BaseNet.filter_by_mode(mode, array)
+    local objs = {}
+    for p, priority in pairs(array) do
+        objs[p] = {}
+        for _, o in pairs(priority) do
+            if string.match(o.io, mode) ~= nil then
+                objs[p][o.entID] = o
+            end
+        end
+    end
+    return objs
+end
+
+function BaseNet.filter_by_type(type, array)
+    local objs = {}
+    for p, priority in pairs(array) do
+        objs[p] = {}
+        for _, o in pairs(priority) do
+            if type == o.type then
+                objs[p][o.entID] = o
+            end
+        end
+    end
+    return objs
+end
+
+function BaseNet.filter_by_name(name, array)
     local objs = {}
     for p, priority in pairs(array) do
         objs[p] = {}

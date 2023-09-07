@@ -322,6 +322,44 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 			end
 		end
 	end
+	for _, priority in pairs(BaseNet.filter_by_mode("output", BaseNet.getOperableObjects(self.networkController.network.ExternalIOTable))) do
+		for _, external in pairs(priority) do
+			if external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false and external.focusedEntity.thisEntity ~= nil then
+				if external.type == "item" and external.focusedEntity.inventory.values ~= nil then
+					local initialIndex = external.focusedEntity.inventory.index
+					repeat
+						local ii = Util.next(external.focusedEntity.inventory)
+						local inv = external.focusedEntity.thisEntity.get_inventory(ii.slot)
+						if inv ~= nil and IIO.check_operable_mode(ii.io, "output") then
+							inv.sort_and_merge()
+							for i = 1, #inv do
+								local itemstack = inv[i]
+								if itemstack.count <= 0 then goto continue end
+								Util.add_or_merge(itemstack, inv)
+								::continue::
+							end
+						end
+					until initialIndex == external.focusedEntity.inventory.index
+				elseif external.type == "fluid" and external.focusedEntity.fluid_box.index ~= nil then
+					if string.match(external.focusedEntity.fluid_box.flow, "output") ~= nil then
+						if external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index] ~= nil then
+							local fluidbox = external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index]
+							if fluid[fluidbox.name] ~= nil then
+								fluid[fluidbox.name].amount = fluid[fluidbox.name].amount + fluidbox.amount
+								fluid[fluidbox.name].temperature = (fluid[fluidbox.name].temperature * fluid[fluidbox.name].amount + fluidbox.amount * (fluidbox.temperature or game.fluid_prototypes[c.name].default_temperature)) / (fluid[fluidbox.name].amount + fluidbox.amount)
+							else
+								fluid[fluidbox.name] = {
+									name = fluidbox.name,
+									amount = fluidbox.amount,
+									temperature = fluidbox.temperature
+								}
+							end
+						end
+					end
+				end
+			end
+		end
+	end
 	-----------------------------------------------------------------------------------Fluids----------------------------------------------------------------------------------------
 	if Util.getTableLength(fluid) > 0 then
 		for k, c in pairs(fluid) do
@@ -398,15 +436,61 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	local amount = math.min(itemstack.cont.count, count)
 	if amount <= 0 then return end
 
+	local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
+	local externalItems = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network.ExternalIOTable)))
+	for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
+		local priorityD = itemDrives[i]
+		local priorityE = externalItems[i]
+		if Util.getTableLength(priorityD) > 0 then
+			for _, drive in pairs(priorityD) do
+				if drive:has_room() then
+					amount = amount - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true)
+					if amount <= 0 then return end
+				end
+			end
+		end
+		if Util.getTableLength(priorityE) > 0 then
+			for _, external in pairs(priorityE) do
+				if external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false and external.focusedEntity.thisEntity ~= nil then
+					if external.type == "item" and external.focusedEntity.inventory.values ~= nil then
+						local initialIndex = external.focusedEntity.inventory.index
+						repeat
+							local ii = Util.next(external.focusedEntity.inventory)
+							local inv1 = external.focusedEntity.thisEntity.get_inventory(ii.slot)
+							if inv1 ~= nil and IIO.check_operable_mode(ii.io, "input") then
+								if Util.getTableLength_non_nil(external.filters.item.values) > 0 then
+									if external:matches_filters("item", itemstack.cont.name) == true then
+										if external.whitelist == false then goto next end
+									else
+										if external.whitelist == true then goto next end
+									end
+								elseif Util.getTableLength_non_nil(external.filters.item.values) == 0 then
+									if external.whitelist == true then goto next end
+								end
+								inv1.sort_and_merge()
+								if EIO.has_item_room(inv1) == true then
+									amount = amount - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, amount, false, true)
+									if amount <= 0 then return end
+								end
+							end
+						until initialIndex == external.focusedEntity.inventory.index
+					end
+				end
+				::next::
+			end
+		end
+	end
+
+	--[[
 	for _, priority in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 		for _, drive in pairs(priority) do
 			if drive:has_room() then
-				--local transfered = BaseNet.transfer_item(inv, drive:get_sorted_and_merged_inventory(), itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true, "inv_to_array")
 				amount = amount - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true)
 				if amount <= 0 then return end
 			end
 		end
 	end
+	]]
 end
 
 function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
@@ -425,10 +509,57 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	local amount = math.min(itemstack.cont.count, count)
 	if amount <= 0 then return end
 
+	local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
+	local externalItems = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network.ExternalIOTable)))
+	for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
+		local priorityD = itemDrives[i]
+		local priorityE = externalItems[i]
+		if Util.getTableLength(priorityD) > 0 then
+			for _, drive in pairs(priorityD) do
+				local has = drive:has_item(itemstack, false)
+				if has > 0 and RNSPlayer:has_room() == true then
+					amount = amount - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, math.min(amount, has), false)
+					if amount <= 0 then return end
+				end
+			end
+		end
+		if Util.getTableLength(priorityE) > 0 then
+			for _, external in pairs(priorityE) do
+				if external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false and external.focusedEntity.thisEntity ~= nil then
+					if external.type == "item" and external.focusedEntity.inventory.values ~= nil then
+						local initialIndex = external.focusedEntity.inventory.index
+						repeat
+							local ii = Util.next(external.focusedEntity.inventory)
+							local inv1 = external.focusedEntity.thisEntity.get_inventory(ii.slot)
+							if inv1 ~= nil and IIO.check_operable_mode(ii.io, "output") then
+								if Util.getTableLength_non_nil(external.filters.item.values) > 0 then
+									if external:matches_filters("item", itemstack.cont.name) == true then
+										if external.whitelist == false then goto next end
+									else
+										if external.whitelist == true then goto next end
+									end
+								elseif Util.getTableLength_non_nil(external.filters.item.values) == 0 then
+									if external.whitelist == true then goto next end
+								end
+								inv1.sort_and_merge()
+								local has = EIO.has_item(inv1, itemstack, false)
+								if has > 0 and RNSPlayer:has_room() == true then
+									amount = amount - BaseNet.transfer_from_inv_to_inv(inv1, inv, itemstack, math.min(has, amount), false, true)
+									if amount <= 0 then return end
+								end
+							end
+						until initialIndex == external.focusedEntity.inventory.index
+					end
+				end
+				::next::
+			end
+		end
+	end
+
+	--[[
 	for _, priority in pairs(network.getOperableObjects(network.ItemDriveTable)) do
 		for _, drive in pairs(priority) do
 			if RNSPlayer:has_room() then
-				--local transfered = BaseNet.transfer_item(drive:get_sorted_and_merged_inventory(), inv, itemstack, math.min(amount, drive:has_item(itemstack)), false, true, "array_to_inv")
 				amount = amount - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, math.min(amount, drive:getRemainingStorageSize()), false)
 				if amount <= 0 then return end
 			else
@@ -436,6 +567,7 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 			end
 		end
 	end
+	]]
 end
 
 function NII.transfer_from_fdinv(RNSPlayer, NII, tags, count)

@@ -59,6 +59,7 @@ function RNSP:has_room()
         if inv[i].count <= 0 then return true end
     end
     if not self.thisEntity.get_main_inventory().is_full() then return true end
+    if self.thisEntity.get_main_inventory().is_empty() then return true end
     return false
 end
 

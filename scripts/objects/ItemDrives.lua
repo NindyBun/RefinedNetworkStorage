@@ -222,12 +222,6 @@ function ID:get_sorted_and_merged_inventory()
     return self.storageArray
 end
 
-function ID:has_empty_slot()
-    for i = 1, #self.storageArray.inventory do
-        if self.storageArray.inventory[i].count <= 0 then return true end
-    end
-    return false
-end
 
 function ID:has_room()
     if self:getRemainingStorageSize() > 0 then return true end

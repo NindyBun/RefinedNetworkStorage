@@ -357,7 +357,54 @@ local typeList = {
     ["fluid"] = 2
 }
 
-function EIO:has_room()
+function EIO.has_item_room(inv)
+    inv.sort_and_merge()
+    for i=1, #inv do
+        if inv[i].count <= 0 then return true end
+    end
+    if not inv.is_full() then return true end
+    if inv.is_empty() then return true end
+    return false
+end
+
+function EIO:matches_filters(type, filter)
+    for _, name in pairs(self.filters[type]) do
+        if name == filter then return true end
+    end
+    return false
+end
+
+function EIO.has_item(inv, itemstack_data, getModified)
+    local amount = 0
+    inv.sort_and_merge()
+    for i = 1, #inv do
+        local itemstack = inv[i]
+        if itemstack.count <= 0 then break end
+        local itemstackC = Util.itemstack_convert(itemstack)
+        if Util.itemstack_matches(itemstack_data, itemstackC, getModified) then
+            if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
+                if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo < game.item_prototypes[itemstackC.cont.name].magazine_size then
+                    amount = amount + 1
+                    goto continue
+                end
+                if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability < game.item_prototypes[itemstackC.cont.name].durability then
+                    amount = amount + 1
+                    goto continue
+                end
+            end
+            amount = amount + itemstackC.cont.count
+        elseif game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
+            if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo > itemstackC.cont.ammo and itemstackC.cont.count > 1 then
+                amount = amount + itemstack.count - 1
+            end
+            if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability > itemstackC.cont.durability and itemstackC.cont.count > 1 then
+                amount = amount + itemstack.count - 1
+            end
+        end
+        ::continue::
+    end
+
+    return amount
 end
 
 function EIO:getTooltips(guiTable, mainFrame, justCreated)
