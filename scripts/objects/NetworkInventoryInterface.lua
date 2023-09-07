@@ -177,9 +177,9 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		-- Add the Title --
 		GuiApi.add_subtitle(guiTable, "", informationFrame, {"gui-description.RNS_Information"})
 
-		GuiApi.add_label(guiTable, "InventorySize", informationFrame, {"gui-description.RNS_Inventory_Size", 0, 0}, Constants.Settings.RNS_Gui.white, "", true, Constants.Settings.RNS_Gui.label_font)
-
-		GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
+		--GuiApi.add_label(guiTable, "InventorySize", informationFrame, {"gui-description.RNS_Inventory_Size", 0, 0}, Constants.Settings.RNS_Gui.white, "", true, Constants.Settings.RNS_Gui.label_font)
+--
+		--GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
 
 		-- Create the Search Flow --
 		local searchFlow = GuiApi.add_flow(guiTable, "", informationFrame, "horizontal")
@@ -215,7 +215,7 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 
 	local inventoryScrollPane = guiTable.vars.InventoryScrollPane
 	local playerInventoryScrollPane = guiTable.vars.PlayerInventoryScrollPane
-	local inventorySize = guiTable.vars.InventorySize
+	--local inventorySize = guiTable.vars.InventorySize
 	local textField = guiTable.vars.RNS_SearchTextField
 
 	inventoryScrollPane.clear()
@@ -223,8 +223,8 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 
     if self.networkController == nil or not self.networkController.stable or (self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == false) then return end
 	
-	local t, m = self.networkController.network:get_item_storage_size()
-	inventorySize.caption = {"gui-description.RNS_Inventory_Size", t, m}
+	--local t, m = self.networkController.network:get_item_storage_size()
+	--inventorySize.caption = {"gui-description.RNS_Inventory_Size", t, m}
 
 
 	self:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, textField.text)
