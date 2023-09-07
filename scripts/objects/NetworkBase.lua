@@ -367,14 +367,29 @@ function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, exte
                 if mod then itemstack.durability = itemstackC.cont.durability end
             end
         else
-            for j=1, #to_inv do
-                local item1 = to_inv[j]
-                if item1.count > 0 then goto continue end
-                if item1.transfer_stack(itemstack) then
-                    amount = amount - min
-                    break
+            if itemstackC.cont.health ~= 1 then
+                local min1 = math.min(itemstackC.cont.count, amount)
+                local temp = {
+                    name=itemstack_data.cont.name,
+                    count=min1,
+                    health=not allowMetadata and itemstack_data.cont.health or itemstackC.cont.health,
+                    durability=not allowMetadata and itemstack_data.cont.durability or itemstackC.cont.durability,
+                    ammo=not allowMetadata and itemstack_data.cont.ammo or itemstackC.cont.ammo,
+                    tags=not allowMetadata and itemstack_data.cont.tags or itemstackC.cont.tags
+                }
+                local t = to_inv.insert(temp)
+                amount = amount - t
+                itemstack.count = itemstack.count - t <= 0 and 0 or itemstack.count - t
+            else
+                for j=1, #to_inv do
+                    local item1 = to_inv[j]
+                    if item1.count > 0 then goto continue end
+                    if item1.transfer_stack(itemstack) then
+                        amount = amount - min
+                        break
+                    end
+                    ::continue::
                 end
-                ::continue::
             end
         end
         if amount <= 0 then break end
