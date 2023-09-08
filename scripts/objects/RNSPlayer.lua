@@ -32,7 +32,33 @@ function RNSP:rebuild(object)
     setmetatable(object, mt)
 end
 
+function RNSP:update_gui_distance_validity()
+    for _, guiTable in pairs(self.GUI or {}) do
+        if guiTable.gui ~= nil and guiTable.gui.valid == true then
+            local obj = guiTable.vars.currentObject
+            if Util.distance(self.thisEntity.position, obj.thisEntity.position) > Constants.Settings.RNS_Default_Gui_Distance then
+                if obj.thisEntity.name == Constants.NetworkInventoryInterface.name then
+                    local wireless = self:pull_varTable(obj.thisEntity.unit_number)
+                    if wireless ~= nil and wireless.is_active == true and Util.positions_match(wireless.target_position, obj.thisEntity.position) == true then
+                        if Util.distance(self.thisEntity.position, obj.thisEntity.position) > Constants.Settings.RNS_Default_WirelessGrid_Distance then
+                            self:remove_varTable(obj.thisEntity.unit_number)
+                            GUI.remove_gui(guiTable, self.thisEntity)
+                            goto continue
+                        else
+                            goto continue
+                        end
+                    end
+                end
+                GUI.remove_gui(guiTable, self.thisEntity)
+                goto continue
+            end
+        end
+        ::continue::
+    end
+end
+
 function RNSP:update()
+    self:update_gui_distance_validity()
     if self.thisEntity.selected == nil then return end
     local entity = self.thisEntity.selected
     if string.match(entity.name, "RNS_NetworkCableIO") then
@@ -67,12 +93,15 @@ function RNSP:open_wireless_grid(event)
         end
         local interface = self.thisEntity.surface.find_entity(Constants.NetworkInventoryInterface.name, wirelessGrid.target_position)
         if interface ~= nil and interface.valid == true then
+            wirelessGrid.is_active = true
+            self:push_varTable(interface.unit_number, wirelessGrid)
+            self.thisEntity.print({"gui-description.RNS_Wireless_Grid_open", wirelessGrid.target_position.x, wirelessGrid.target_position.y})
             if Util.safeCall(GUI.open_tooltip_gui, self, self.thisEntity, interface) == false then
+                wirelessGrid.is_active = false
+                self:remove_varTable(interface.unit_number)
                 self.thisEntity.print({"gui-description.RNS_openGui_falied"})
                 Event.clear_gui(event)
             end
-            wirelessGrid.is_active = true
-            self.thisEntity.print({"gui-description.RNS_Wireless_Grid_open", wirelessGrid.target_position.x, wirelessGrid.target_position.y})
             return
         end
         ::continue::
@@ -128,9 +157,12 @@ function RNSP:get_inventory()
 end
 
 function RNSP:pull_varTable(name)
+    return self.varTable[name]
+end
+
+function RNSP:remove_varTable(name)
     local exists = self.varTable[name]
     if exists ~= nil then self.varTable[name] = nil end
-    return exists
 end
 
 function RNSP:push_varTable(name, value)

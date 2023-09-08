@@ -17,6 +17,11 @@ function Util.safeCall(fName, ...)
 	end
 end
 
+function Util.positions_match(posA, posB)
+	if posA.x == posB.x and posA.y == posB.y then return true end
+	return false
+end
+
 function Util.distance(startP, endP)
 	local xS = startP[1] or startP.x
 	local yS = startP[2] or startP.y
