@@ -36,6 +36,7 @@ function RNSP:update_gui_distance_validity()
     for _, guiTable in pairs(self.GUI or {}) do
         if guiTable.gui ~= nil and guiTable.gui.valid == true then
             local obj = guiTable.vars.currentObject
+            if obj.is_item == true then goto continue end
             if Util.distance(self.thisEntity.position, obj.thisEntity.position) > Constants.Settings.RNS_Default_Gui_Distance then
                 if obj.thisEntity.name == Constants.NetworkInventoryInterface.name then
                     local wireless = self:pull_varTable(obj.thisEntity.unit_number)

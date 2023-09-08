@@ -81,7 +81,7 @@ function GUI.on_gui_opened(event)
             Event.clear_gui(event)
         end
     end
-    if event.item ~= nil and event.item.valid == true then
+    if event.item ~= nil and event.item.valid == true and event.item.name == Constants.WirelessGrid.name then
         if global.itemTable[event.item.item_number] == nil then
             local objInfo = global.objectTables[event.item.name]
 

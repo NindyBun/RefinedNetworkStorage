@@ -44,10 +44,11 @@ function WG:update()
         return
     end
     if self.thisEntity.valid_for_read == false then return end
-    if self.target_position.x ~= nil and self.target_position.y ~= nil then
-        self.thisEntity.label = "{" .. tostring(self.target_position.x) .. ", " .. tostring(self.target_position.y) .. "}"
-    else
+    game.print(self.thisEntity.item_number)
+    if self.target_position.x == nil and self.target_position.y == nil then
         self.thisEntity.label = ""
+    else
+        self.thisEntity.label = "{" .. tostring(self.target_position.x) .. ", " .. tostring(self.target_position.y) .. "}"
     end
 end
 
