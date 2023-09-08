@@ -44,7 +44,6 @@ function WG:update()
         return
     end
     if self.thisEntity.valid_for_read == false then return end
-    game.print(self.thisEntity.item_number)
     if self.target_position.x == nil and self.target_position.y == nil then
         self.thisEntity.label = ""
     else
@@ -86,7 +85,7 @@ function WG.interaction(event, RNSPlayer)
     if string.match(event.element.name, "xPos") then
 		local obj = global.itemTable[event.element.tags.ID]
 		if obj == nil then return end
-        if event.element.text ~= nil then
+        if event.element.text ~= "" then
             obj.target_position.x = tonumber(event.element.text)
         else
             obj.target_position.x = nil
@@ -96,7 +95,7 @@ function WG.interaction(event, RNSPlayer)
     if string.match(event.element.name, "yPos") then
 		local obj = global.itemTable[event.element.tags.ID]
 		if obj == nil then return end
-        if event.element.text ~= nil then
+        if event.element.text ~= "" then
             obj.target_position.y = tonumber(event.element.text)
         else
             obj.target_position.y = nil

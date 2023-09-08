@@ -61,10 +61,7 @@ function GUI.open_tooltip_gui(RNSPlayer, player, entity)
     RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip] = guiTable
 end
 
-function GUI.open_item_tooltip_gui(RNSPlayer, player, item)
-    if item == nil or item.valid == false then return end
-
-    local obj = global.itemTable[item.item_number]
+function GUI.open_item_tooltip_gui(RNSPlayer, player, obj)
     if valid(obj) == false or obj.getTooltips == nil then return end
 
     local guiTable = GUI.create_tooltip_gui(player, obj)
@@ -82,18 +79,19 @@ function GUI.on_gui_opened(event)
         end
     end
     if event.item ~= nil and event.item.valid == true and event.item.name == Constants.WirelessGrid.name then
-        if global.itemTable[event.item.item_number] == nil then
+        local obj = global.itemTable[event.item.item_number]
+        if obj == nil then
             local objInfo = global.objectTables[event.item.name]
 
             if objInfo ~= nil and objInfo.tag ~= nil then
-                local obj = _G[objInfo.tag]:new(event.item)
+                obj = _G[objInfo.tag]:new(event.item)
                 if objInfo.tableName ~= nil then
                     global[objInfo.tableName][event.item.item_number] = obj
                 end 
             end
         end
         
-        if Util.safeCall(GUI.open_item_tooltip_gui, RNSPlayer, player, event.item) == false then
+        if Util.safeCall(GUI.open_item_tooltip_gui, RNSPlayer, player, obj) == false then
             player.print({"gui-description.RNS_openGui_falied"})
             Event.clear_gui(event)
         end

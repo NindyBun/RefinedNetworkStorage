@@ -119,10 +119,7 @@ function RNSP:close_wireless_grids()
         if global.itemTable[itemstack.item_number] == nil then goto continue end
         local wirelessGrid = global.itemTable[itemstack.item_number]
         if wirelessGrid.target_position.x == nil or wirelessGrid.target_position.y == nil then goto continue end
-        local interface = self.thisEntity.surface.find_entity(Constants.NetworkInventoryInterface.name, wirelessGrid.target_position)
-        if interface ~= nil and interface.valid == true then
-            wirelessGrid.is_active = false
-        end
+        wirelessGrid.is_active = false
         ::continue::
     end
 end
