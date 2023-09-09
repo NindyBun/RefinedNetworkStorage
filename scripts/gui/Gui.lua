@@ -60,7 +60,7 @@ function GUI.open_tooltip_gui(RNSPlayer, player, entity)
     player.opened = guiTable.gui
     RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip] = guiTable
 end
-
+--[[
 function GUI.open_item_tooltip_gui(RNSPlayer, player, obj)
     if valid(obj) == false or obj.getTooltips == nil then return end
 
@@ -68,7 +68,7 @@ function GUI.open_item_tooltip_gui(RNSPlayer, player, obj)
     player.opened = guiTable.gui
     RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip] = guiTable
 end
-
+]]
 function GUI.on_gui_opened(event)
     local player = getPlayer(event.player_index)
     local RNSPlayer = getRNSPlayer(event.player_index)
@@ -78,6 +78,7 @@ function GUI.on_gui_opened(event)
             Event.clear_gui(event)
         end
     end
+    --[[
     if event.item ~= nil and event.item.valid == true and event.item.name == Constants.WirelessGrid.name then
         local obj = global.itemTable[event.item.item_number]
         if obj == nil then
@@ -90,12 +91,13 @@ function GUI.on_gui_opened(event)
                 end 
             end
         end
-        
+
         if Util.safeCall(GUI.open_item_tooltip_gui, RNSPlayer, player, obj) == false then
             player.print({"gui-description.RNS_openGui_falied"})
             Event.clear_gui(event)
         end
     end
+    ]]
 end
 
 function GUI.on_gui_closed(event)
@@ -107,7 +109,7 @@ function GUI.on_gui_closed(event)
     if event.element.name == Constants.Settings.RNS_Gui.tooltip then
         RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip].gui.destroy()
         RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip] = nil
-        RNSPlayer:close_wireless_grids()
+        --RNSPlayer:close_wireless_grids()
         return
     end
 end

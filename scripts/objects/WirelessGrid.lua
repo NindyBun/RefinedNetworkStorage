@@ -1,24 +1,22 @@
 WG = {
     thisEntity = nil,
     entID = nil,
-    target_position = nil,
-    is_item = true,
-    is_active = false
+    network_controller_position = nil
 }
 
-function WG:new(item)
-    if item == nil then return end
+function WG:new(object)
+    if object == nil then return end
     local t = {}
     local mt = {}
     setmetatable(t, mt)
     mt.__index = WG
-    t.thisEntity = item
-    t.entID = item.item_number
-    t.target_position = {
+    t.thisEntity = object
+    t.entID = object.unit_number
+    t.network_controller_position = {
         x = nil,
         y = nil
     }
-    UpdateSys.addItem(t)
+    UpdateSys.addEntity(t)
     return t
 end
 
@@ -31,7 +29,7 @@ end
 
 --Deconstructor
 function WG:remove()
-    UpdateSys.removeItem(self)
+    UpdateSys.remove(self)
 end
 --Is valid
 function WG:valid()
@@ -42,12 +40,6 @@ function WG:update()
     if valid(self) == false then
         self:remove()
         return
-    end
-    if self.thisEntity.valid_for_read == false then return end
-    if self.target_position.x == nil and self.target_position.y == nil then
-        self.thisEntity.label = ""
-    else
-        self.thisEntity.label = "{" .. tostring(self.target_position.x) .. ", " .. tostring(self.target_position.y) .. "}"
     end
 end
 
@@ -66,39 +58,39 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 
         GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_WirelessGrid_Target"}, Constants.Settings.RNS_Gui.white)
 
-        local flow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
-        flow.style.horizontal_align = "center"
+        local xflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
+        --xflow.style.horizontal_align = "center"
 
-        GuiApi.add_label(guiTable, "", flow, {"gui-description.RNS_xPos"}, Constants.Settings.RNS_Gui.white)
-        local xPos = GuiApi.add_text_field(guiTable, "RNS_WirelessGrid_xPos", flow, self.target_position.x == nil and "" or tostring(self.target_position.x), {"gui-description.RNS_xPos_tooltip"}, true, true, true, true, false, {ID=self.thisEntity.item_number})
+        GuiApi.add_label(guiTable, "", xflow, {"gui-description.RNS_xPos"}, Constants.Settings.RNS_Gui.white)
+        local xPos = GuiApi.add_text_field(guiTable, "RNS_WirelessGrid_xPos", xflow, self.network_controller_position.x == nil and "" or tostring(self.network_controller_position.x), {"gui-description.RNS_xPos_tooltip"}, true, true, true, true, false, {ID=self.entID})
         xPos.style.maximal_width = 50
 
-        GuiApi.add_label(guiTable, "", flow, "    ")
-
-        GuiApi.add_label(guiTable, "", flow, {"gui-description.RNS_yPos"}, Constants.Settings.RNS_Gui.white)
-        local yPos = GuiApi.add_text_field(guiTable, "RNS_WirelessGrid_yPos", flow, self.target_position.y == nil and "" or tostring(self.target_position.y), {"gui-description.RNS_yPos_tooltip"}, true, true, true, true, false, {ID=self.thisEntity.item_number})
+        --GuiApi.add_label(guiTable, "", flow, "    ")
+        local yflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
+        GuiApi.add_label(guiTable, "", yflow, {"gui-description.RNS_yPos"}, Constants.Settings.RNS_Gui.white)
+        local yPos = GuiApi.add_text_field(guiTable, "RNS_WirelessGrid_yPos", yflow, self.network_controller_position.y == nil and "" or tostring(self.network_controller_position.y), {"gui-description.RNS_yPos_tooltip"}, true, true, true, true, false, {ID=self.entID})
         yPos.style.maximal_width = 50
     end
 end
 
 function WG.interaction(event, RNSPlayer)
     if string.match(event.element.name, "xPos") then
-		local obj = global.itemTable[event.element.tags.ID]
+		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
         if event.element.text ~= "" then
-            obj.target_position.x = tonumber(event.element.text)
+            obj.network_controller_position.x = tonumber(event.element.text)
         else
-            obj.target_position.x = nil
+            obj.network_controller_position.x = nil
         end
 		return
 	end
     if string.match(event.element.name, "yPos") then
-		local obj = global.itemTable[event.element.tags.ID]
+		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
         if event.element.text ~= "" then
-            obj.target_position.y = tonumber(event.element.text)
+            obj.network_controller_position.y = tonumber(event.element.text)
         else
-            obj.target_position.y = nil
+            obj.network_controller_position.y = nil
         end
 		return
 	end

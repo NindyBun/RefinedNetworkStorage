@@ -12,7 +12,7 @@ function UpdateSys.addEntity(obj)
         end
     end
 end
-
+--[[
 function UpdateSys.addItem(obj)
     if valid(obj) == false then return end
     if global.itemTable == nil then global.itemTable = {} end
@@ -25,18 +25,20 @@ function UpdateSys.addItem(obj)
         end
     end
 end
-
+]]
 function UpdateSys.remove(obj)
     if obj.entID ~= nil then
         global.entityTable[obj.entID] = nil
     end
 end
 
+--[[
 function UpdateSys.removeItem(obj)
     if obj.entID ~= nil then
         global.itemTable[obj.entID] = nil
     end
 end
+]]
 
 function UpdateSys.update(event)
     for _, obj in pairs(global.entityTable) do
@@ -46,6 +48,7 @@ function UpdateSys.update(event)
             end
         end
     end
+    --[[
     for _, obj in pairs(global.itemTable) do
         if valid(obj) == true and obj.update ~= nil then
             if Util.safeCall(obj.update, obj, event) == false then
@@ -53,4 +56,5 @@ function UpdateSys.update(event)
             end
         end
     end
+    ]]
 end

@@ -30,7 +30,7 @@ function onInit()
     end
 
 	global.entityTable = global.entityTable or {}
-    global.itemTable = global.itemTable or {}
+    --global.itemTable = global.itemTable or {}
     global.tempInventoryTable = global.tempInventoryTable or {}
     createObjectTables()
 
@@ -170,7 +170,7 @@ script.on_event(defines.events.on_selected_entity_changed, changed_selection)
 script.on_event("wireless_grid_key", function(event)
     local RNSPlayer = getRNSPlayer(event.player_index)
     if RNSPlayer ~= nil then
-        RNSPlayer:open_wireless_grid(event)
+        --RNSPlayer:open_wireless_grid(event)
     end
 end)
 
