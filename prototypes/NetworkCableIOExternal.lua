@@ -26,6 +26,7 @@ ioE.icon = Constants.NetworkCables.externalIO.itemEntity.itemIcon
 ioE.icon_size = 512
 ioE.max_health = 350
 ioE.flags = {"placeable-neutral", "player-creation"}
+ioE.fast_replaceable_group = Constants.Settings.RNS_FR_Cable
 ioE.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 ioE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
 ioE.animation =

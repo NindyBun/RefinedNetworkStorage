@@ -72,6 +72,16 @@ function Event.placed(event)
         entity.destroy()
         entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply, direction=dir}
         entity.health = health
+    elseif entName == Constants.NetworkCables.wirelessTransmitter.itemEntity.name and type ~= "entity-ghost" then
+        entName = Constants.NetworkCables.wirelessTransmitter.slateEntity.name
+        local surf = entity.surface
+        local ply = entity.last_user
+        local pos = entity.position
+        local fr = entity.force
+        local health = entity.health
+        entity.destroy()
+        entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply}
+        entity.health = health
     end
 
     local objInfo = global.objectTables[entName]

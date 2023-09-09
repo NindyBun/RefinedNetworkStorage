@@ -8,7 +8,7 @@ Constants.Settings = {
     RNS_RoundRobin = "RNS_RoundRobin",
     RNS_BlankIcon = "__RefinedNetworkStorage__/graphics/blank.png",
     RNS_FR_Cable = "RNS_FR_NetworkCable",
-    RNS_Tag = "RNS_StorageTag",
+    RNS_Tag = "RNS_DataTag",
     RNS_BeltSides = {
         ["Right"] = 2,
         ["Left"] = 1,
@@ -336,6 +336,20 @@ Constants.NetworkCables = {
             entityS =  "__RefinedNetworkStorage__/graphics/Cables/IO/IOSheet_S.png"
         }
     },
+    wirelessTransmitter = {
+        itemEntity = {
+            name = "RNS_WirelessTransmitter_Item",
+            itemIcon = "__RefinedNetworkStorage__/graphics/Networks/Wireless/wirelessTransmitterI.png",
+            entityE =  "__RefinedNetworkStorage__/graphics/Networks/Wireless/wirelessTransmitter.png",
+            entityS =  "__RefinedNetworkStorage__/graphics/Networks/Wireless/wirelessTransmitterS.png"
+        },
+        slateEntity = {
+            name = "RNS_WirelessTransmitter",
+            itemIcon = "__RefinedNetworkStorage__/graphics/Networks/Wireless/wirelessTransmitterI.png",
+            entityE =  "__RefinedNetworkStorage__/graphics/Networks/Wireless/wirelessTransmitterE.png",
+            entityS =  "__RefinedNetworkStorage__/graphics/Networks/Wireless/wirelessTransmitterS.png"
+        }
+    },
     Cable = {
         item = {
             name = "RNS_NetworkCable_I",
@@ -415,7 +429,7 @@ Constants.NetworkInventoryInterface = {
     entityS =  "__RefinedNetworkStorage__/graphics/Networks/NetworkInventoryBlockS.png"
 }
 Constants.WirelessGrid = {
-    name = "RNS_Wireless_Grid",
+    name = "RNS_PortableWirelessGrid",
     itemIcon = "__RefinedNetworkStorage__/graphics/Networks/Wireless/WirelessGridI.png",
     entityE =  "__RefinedNetworkStorage__/graphics/Networks/Wireless/WirelessGridE.png",
     entityS =  "__RefinedNetworkStorage__/graphics/Networks/Wireless/WirelessGridS.png",
