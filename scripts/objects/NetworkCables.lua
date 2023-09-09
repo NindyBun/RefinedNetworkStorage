@@ -120,7 +120,7 @@ function NCbl:createArms()
         end
         if nearest ~= nil and global.entityTable[nearest.unit_number] ~= nil then
             local obj = global.entityTable[nearest.unit_number]
-            if string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction then
+            if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.NetworkCables.wirelessTransmitter.slateEntity.name then
                 --Do nothing
             else
                 self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
