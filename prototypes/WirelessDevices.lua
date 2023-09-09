@@ -52,9 +52,9 @@ wirelessGridE.picture =
                 priority = "high",
                 width = 512,
                 height = 512,
-                shift = {0,0},
+                shift = {0,-0.125},
                 draw_as_shadow = true,
-                scale = 1/8
+                scale = 1/4
             }
         }
     }

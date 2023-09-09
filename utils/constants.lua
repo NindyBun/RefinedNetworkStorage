@@ -416,9 +416,9 @@ Constants.NetworkInventoryInterface = {
 }
 Constants.WirelessGrid = {
     name = "RNS_Wireless_Grid",
-    itemIcon = "__RefinedNetworkStorage__/graphics/Networks/Wireless/WirelessGridE.png",
+    itemIcon = "__RefinedNetworkStorage__/graphics/Networks/Wireless/WirelessGridI.png",
     entityE =  "__RefinedNetworkStorage__/graphics/Networks/Wireless/WirelessGridE.png",
-    entityS =  "__RefinedNetworkStorage__/graphics/Networks/Wireless/WirelessGridE.png",
+    entityS =  "__RefinedNetworkStorage__/graphics/Networks/Wireless/WirelessGridS.png",
     craft_time = 1,
     enabled = true,
     ingredients = {},
