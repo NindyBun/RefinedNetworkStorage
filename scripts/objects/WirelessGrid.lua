@@ -274,7 +274,7 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 		::continue::
 	end
 
-	if close == false then
+	if close == false and justCreated == true then
 		RNSPlayer.thisEntity.print({"gui-description.RNS_NetworkController_Far"})
 		return
 	end
