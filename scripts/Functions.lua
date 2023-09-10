@@ -20,7 +20,8 @@ function createObjectTables()
     addOrCreateObjectTable{tableName="ItemIOTable", tag="IIO", objName=Constants.NetworkCables.itemIO.slateEntity.name}
     addOrCreateObjectTable{tableName="FluidIOTable", tag="FIO", objName=Constants.NetworkCables.fluidIO.slateEntity.name}
     addOrCreateObjectTable{tableName="ExternalIOTable", tag="EIO", objName=Constants.NetworkCables.externalIO.slateEntity.name}
-    addOrCreateObjectTable{tableName="NetworkCableTable", tag="NCbl", objName=Constants.NetworkCables.Cable.entity.name}
+
+    addOrCreateObjectTable{tableName="NetworkCableTable", tag="NCbl", objName=Constants.NetworkCables.Cables.RED.cable.entity.name}
 end
 
 --Adds or Create a table to store the object

@@ -2,6 +2,7 @@ NCbl = {
     thisEntity = nil,
     entID = nil,
     arms = nil,
+    color = "",
     connectedObjs = nil,
     networkController = nil,
     cardinals = nil,
@@ -17,7 +18,12 @@ function NCbl:new(object)
     mt.__index = NCbl
     t.thisEntity = object
     t.entID = object.unit_number
-    rendering.draw_sprite{sprite="NetworkCableDot", target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
+    for name, color in pairs(Constants.NetworkCables.Cables) do
+        if object.name == color.cable.entity.name then
+            rendering.draw_sprite{sprite=color.sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
+            t.color = tostring(name)
+        end
+    end
     t.arms = {
         [1] = nil, --N
         [2] = nil, --E
@@ -123,7 +129,7 @@ function NCbl:createArms()
             if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
                 --Do nothing
             else
-                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprite[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
                 self.connectedObjs[area.direction] = {obj}
             end
             if self.cardinals[area.direction] == false then
