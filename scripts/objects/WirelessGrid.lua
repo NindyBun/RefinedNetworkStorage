@@ -60,6 +60,7 @@ function WG:DataConvert_ItemToEntity(tag_contents)
 end
 
 function WG:DataConvert_EntityToItem(item)
+	item.custom_description = {"", item.prototype.localised_description, {"item-description.RNS_WirelessGrid_Tag", self.network_controller_surface, self.network_controller_position}}
     item.set_tag(Constants.Settings.RNS_Tag, {surfaceID=self.network_controller_surface, position=self.network_controller_position})
 end
 
