@@ -1,101 +1,110 @@
-local networkCableI = {}
-networkCableI.type = "item"
-networkCableI.name = Constants.NetworkCables.Cable.item.name
-networkCableI.icon = Constants.NetworkCables.Cable.item.itemIcon
-networkCableI.icon_size = 512
-networkCableI.subgroup = Constants.ItemGroup.Category.subgroup
-networkCableI.order = "i"
-networkCableI.stack_size = 10
-networkCableI.place_result = Constants.NetworkCables.Cable.item.name
-data:extend{networkCableI}
+for _, color in pairs(Constants.NetworkCables.Cables) do
+    local networkCableI = {}
+    networkCableI.type = "item"
+    networkCableI.name = color.cable.item.name
+    networkCableI.icon = color.cable.item.itemIcon
+    networkCableI.icon_size = 512
+    networkCableI.subgroup = Constants.ItemGroup.Category.Cable_subgroup
+    networkCableI.order = "a"
+    networkCableI.stack_size = 100
+    networkCableI.place_result = color.cable.item.name
+    data:extend{networkCableI}
+end
 
-local networkCableR = {}
-networkCableR.type = "recipe"
-networkCableR.name = Constants.NetworkCables.Cable.item.name
-networkCableR.energy_required = 1
-networkCableR.enabled = true
-networkCableR.ingredients = {}
-networkCableR.result = Constants.NetworkCables.Cable.item.name
-networkCableR.result_count = 1
-data:extend{networkCableR}
+for _, color in pairs(Constants.NetworkCables.Cables) do
+    local networkCableR = {}
+    networkCableR.type = "recipe"
+    networkCableR.name = color.cable.item.name
+    networkCableR.energy_required = 1
+    networkCableR.enabled = true
+    networkCableR.ingredients = {}
+    networkCableR.result = color.cable.item.name
+    networkCableR.result_count = 10
+    data:extend{networkCableR}
+end
 
-local networkCableE = {}
-networkCableE.type = "container"
-networkCableE.name = Constants.NetworkCables.Cable.item.name
-networkCableE.icon = Constants.NetworkCables.Cable.item.itemIcon
-networkCableE.icon_size = 512
-networkCableE.inventory_size = 0
-networkCableE.flags = {"placeable-neutral", "player-creation"}
-networkCableE.fast_replaceable_group = Constants.Settings.RNS_FR_Cable
-networkCableE.minable = {mining_time = 0.2, result = Constants.NetworkCables.Cable.item.name}
-networkCableE.max_health = 250
-networkCableE.dying_explosion = "medium-explosion"
-networkCableE.corpse = "small-remnants"
-networkCableE.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
-networkCableE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
-networkCableE.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
-networkCableE.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
-networkCableE.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
-networkCableE.picture =
-    {
-        layers =
+for _, color in pairs(Constants.NetworkCables.Cables) do
+    local networkCableE = {}
+    networkCableE.type = "container"
+    networkCableE.name = color.cable.item.name
+    networkCableE.icon = color.cable.item.itemIcon
+    networkCableE.icon_size = 512
+    networkCableE.inventory_size = 0
+    networkCableE.flags = {"placeable-neutral", "player-creation"}
+    networkCableE.fast_replaceable_group = Constants.Settings.RNS_FR_Cable
+    networkCableE.minable = {mining_time = 0.2, result = Constants.NetworkCables.Cables.RED.cable.item.name}
+    networkCableE.max_health = 250
+    networkCableE.dying_explosion = "medium-explosion"
+    networkCableE.corpse = "small-remnants"
+    networkCableE.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
+    networkCableE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+    networkCableE.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
+    networkCableE.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
+    networkCableE.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
+    networkCableE.picture =
         {
+            layers =
             {
-                filename = Constants.NetworkCables.Cable.item.entityE,
-                priority = "extra-high",
-                width = 512,
-                height = 512,
-                shift = {0,0},
-                scale = 1/16
-            },
-            {
-                filename = Constants.NetworkCables.Cable.item.entityS,
-                priority = "high",
-                width = 512,
-                height = 512,
-                shift = {0,0},
-                draw_as_shadow = true,
-                scale = 1/16
+                {
+                    filename = color.cable.item.entityE,
+                    priority = "extra-high",
+                    width = 512,
+                    height = 512,
+                    shift = {0,0},
+                    scale = 1/16
+                },
+                {
+                    filename = color.cable.item.entityS,
+                    priority = "high",
+                    width = 512,
+                    height = 512,
+                    shift = {0,0},
+                    draw_as_shadow = true,
+                    scale = 1/16
+                }
             }
         }
-    }
-data:extend{networkCableE}
+    data:extend{networkCableE}
+end
 
-local networkCable_E = {}
-networkCable_E.type = "container"
-networkCable_E.name = Constants.NetworkCables.Cable.entity.name
-networkCable_E.icon = Constants.NetworkCables.Cable.item.itemIcon
-networkCable_E.icon_size = 512
-networkCable_E.inventory_size = 0
-networkCable_E.flags = {"placeable-neutral", "player-creation"}
-networkCable_E.minable = {mining_time = 0.2, result = Constants.NetworkCables.Cable.item.name}
-networkCable_E.fast_replaceable_group = Constants.Settings.RNS_FR_Cable
-networkCable_E.max_health = 250
-networkCable_E.dying_explosion = "medium-explosion"
-networkCable_E.placeable_by = {item = Constants.NetworkCables.Cable.item.name, count = 1}
-networkCable_E.corpse = "small-remnants"
-networkCable_E.collision_box = {{-0.40, -0.40}, {0.49, 0.40}}
-networkCable_E.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
-networkCable_E.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
-networkCable_E.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
-networkCable_E.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
-networkCable_E.picture =
-    {
-        layers =
+for _, color in pairs(Constants.NetworkCables.Cables) do
+    local networkCable_E = {}
+    networkCable_E.type = "container"
+    networkCable_E.name = color.cable.entity.name
+    networkCable_E.icon = color.cable.item.itemIcon
+    networkCable_E.icon_size = 512
+    networkCable_E.inventory_size = 0
+    networkCable_E.flags = {"placeable-neutral", "player-creation"}
+    networkCable_E.minable = {mining_time = 0.2, result = Constants.NetworkCables.Cables.RED.item.name}
+    networkCable_E.fast_replaceable_group = Constants.Settings.RNS_FR_Cable
+    networkCable_E.max_health = 250
+    networkCable_E.dying_explosion = "medium-explosion"
+    networkCable_E.placeable_by = {item = color.cable.item.name, count = 1}
+    networkCable_E.corpse = "small-remnants"
+    networkCable_E.collision_box = {{-0.40, -0.40}, {0.49, 0.40}}
+    networkCable_E.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+    networkCable_E.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
+    networkCable_E.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
+    networkCable_E.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
+    networkCable_E.picture =
         {
+            layers =
             {
-                filename = Constants.NetworkCables.Cable.entity.entityE,
-                priority = "extra-high",
-                width = 32,
-                height = 32,
-                draw_as_shadow = true,
-                shift = {0,0},
-                scale = 1
+                {
+                    filename =color.cable.entity.entityE,
+                    priority = "extra-high",
+                    width = 32,
+                    height = 32,
+                    draw_as_shadow = true,
+                    shift = {0,0},
+                    scale = 1
+                }
             }
         }
-    }
-data:extend{networkCable_E}
+    data:extend{networkCable_E}
+end
 
+--[[
 local sprite = {}
 sprite.type = "sprite"
 sprite.name = "NetworkCableDot"
@@ -117,29 +126,32 @@ sprite.layers = {
     }
 }
 data:extend{sprite}
+]]
 
-for _, s in pairs(Constants.NetworkCables.Sprites) do
-    local sprite = {}
-    sprite.type = "sprite"
-    sprite.name = s.name
-    sprite.layers = {
-        {
-            filename = s.sprite_E,
-            priority = "extra-high",
-            size = 512,
-            shift = {0,0},
-            scale = 1/16
-        },
-        {
-            filename = s.sprite_S,
-            priority = "high",
-            size = 512,
-            shift = {0,0},
-            draw_as_shadow = true,
-            scale = 1/16
+for _, color in pairs(Constants.NetworkCables.Cables) do
+    for _, tex in pairs(color.sprites) do
+        local sprite = {}
+        sprite.type = "sprite"
+        sprite.name = tex.name
+        sprite.layers = {
+            {
+                filename = tex.sprite_E,
+                priority = "extra-high",
+                size = 512,
+                shift = {0,0},
+                scale = 1/16
+            },
+            {
+                filename = tex.sprite_S,
+                priority = "high",
+                size = 512,
+                shift = {0,0},
+                draw_as_shadow = true,
+                scale = 1/16
+            }
         }
-    }
-    data:extend{sprite}
+        data:extend{sprite}
+    end
 end
 
 --[[local ncblI = {}

@@ -55,6 +55,15 @@ data:extend{
 data:extend{
 	{
 		type="item-subgroup",
+		name=Constants.ItemGroup.Category.Cable_subgroup,
+		group=Constants.ItemGroup.Category.group,
+		order="c"
+	}
+}
+
+data:extend{
+	{
+		type="item-subgroup",
 		name=Constants.ItemGroup.Category.FluidDrive_subgroup,
 		group=Constants.ItemGroup.Category.group,
 		order="f"
