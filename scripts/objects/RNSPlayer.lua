@@ -38,7 +38,7 @@ function RNSP:update_gui_distance_validity()
             local obj = guiTable.vars.currentObject
             if obj.is_item == true then goto continue end
             if Util.distance(self.thisEntity.position, obj.thisEntity.position) > Constants.Settings.RNS_Default_Gui_Distance then
-                if obj.thisEntity.name == Constants.NetworkInventoryInterface.name then
+                --[[if obj.thisEntity.name == Constants.NetworkInventoryInterface.name then
                     local wireless = self:pull_varTable(obj.thisEntity.unit_number)
                     if wireless ~= nil and wireless.is_active == true and Util.positions_match(wireless.target_position, obj.thisEntity.position) == true then
                         if Util.distance(self.thisEntity.position, obj.thisEntity.position) > Constants.Settings.RNS_Default_WirelessGrid_Distance then
@@ -49,7 +49,7 @@ function RNSP:update_gui_distance_validity()
                             goto continue
                         end
                     end
-                end
+                end]]
                 GUI.remove_gui(guiTable, self.thisEntity)
                 goto continue
             end
@@ -80,6 +80,7 @@ function RNSP:valid()
     return true
 end
 
+--[[
 function RNSP:open_wireless_grid(event)
     local inv = self.thisEntity.get_main_inventory()
     for i = 1, #inv do
@@ -123,6 +124,8 @@ function RNSP:close_wireless_grids()
         ::continue::
     end
 end
+]]
+
 
 function RNSP:has_room()
     local inv = self.thisEntity.get_main_inventory()
