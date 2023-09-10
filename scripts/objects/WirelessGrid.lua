@@ -54,6 +54,15 @@ function WG:update()
 	end
 end
 
+function WG:DataConvert_ItemToEntity(tag_contents)
+    self.network_controller_surface = tag_contents.surfaceID
+	self.network_controller_position = tag_contents.position
+end
+
+function WG:DataConvert_EntityToItem(item)
+    item.set_tag(Constants.Settings.RNS_Tag, {surfaceID=self.network_controller_surface, position=self.network_controller_position})
+end
+
 --[[
 function WG:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
