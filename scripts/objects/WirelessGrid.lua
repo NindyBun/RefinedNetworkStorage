@@ -274,15 +274,14 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 		::continue::
 	end
 
-	if close == false and justCreated == true then
-		RNSPlayer.thisEntity.print({"gui-description.RNS_NetworkController_Far"})
+	self:createPlayerInventory(guiTable, RNSPlayer, playerInventoryScrollPane, textField.text)
+
+	if close == false then
+		if justcreated == true then RNSPlayer.thisEntity.print({"gui-description.RNS_NetworkController_Far"}) end
 		return
 	end
 
 	self:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, textField.text)
-
-	self:createPlayerInventory(guiTable, RNSPlayer, playerInventoryScrollPane, textField.text)
-
 end
 
 function WG:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
