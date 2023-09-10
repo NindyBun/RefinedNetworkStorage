@@ -7,6 +7,7 @@ BaseNet = {
     FluidIOTable = nil,
     ExternalIOTable = nil,
     NetworkInventoryInterfaceTable = nil,
+    WirelessTransmitter = nil,
     shouldRefresh = false,
     updateTick = 200,
     lastUpdate = 0
@@ -58,6 +59,8 @@ function BaseNet:resetTables()
     generate_priority_table(self.ExternalIOTable)
     self.NetworkInventoryInterfaceTable = {}
     self.NetworkInventoryInterfaceTable[1] = {}
+    self.WirelessTransmitterTable = {}
+    self.WirelessTransmitterTable[1] = {}
 end
 
 --Refreshes laser connections
@@ -98,6 +101,8 @@ function addConnectables(source, connections, master)
                 master.network.ExternalIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
             elseif con.thisEntity.name == Constants.NetworkInventoryInterface.name then
                 master.network.NetworkInventoryInterfaceTable[1][con.entID] = con
+            elseif con.thisEntity.name == Constants.NetworkCables.wirelessTransmitter.slateEntity.name then
+                master.network.WirelessTransmitterTable[1][con.entID] = con
             end
             addConnectables(con, connections, master)
             ::continue::

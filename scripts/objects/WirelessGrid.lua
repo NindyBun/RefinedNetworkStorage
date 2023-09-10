@@ -48,8 +48,8 @@ function WG:update()
 	end
 	if self.networkController == nil and self.network_controller_position.x ~= nil and self.network_controller_position.y ~= nil and self.network_controller_surface ~= nil then
 		local controller = game.surfaces[self.network_controller_surface].find_entity(Constants.NetworkController.slateEntity.name, self.network_controller_position)
-		if controller ~= nil and game.entityTable[controller.unit_number] ~= nil then
-			self.networkController = game.entityTable[controller.unit_number]
+		if controller ~= nil and global.entityTable[controller.unit_number] ~= nil then
+			self.networkController = global.entityTable[controller.unit_number]
 		end
 	end
 end
@@ -60,7 +60,7 @@ function WG:DataConvert_ItemToEntity(tag_contents)
 end
 
 function WG:DataConvert_EntityToItem(item)
-	item.custom_description = {"", item.prototype.localised_description, {"item-description.RNS_WirelessGrid_Tag", self.network_controller_surface, self.network_controller_position}}
+	item.custom_description = {"", item.prototype.localised_description, {"item-description.RNS_WirelessGrid_Tag", self.network_controller_position, self.network_controller_surface}}
     item.set_tag(Constants.Settings.RNS_Tag, {surfaceID=self.network_controller_surface, position=self.network_controller_position})
 end
 
@@ -234,9 +234,9 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 		GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText5"}, Constants.Settings.RNS_Gui.white)
 		--GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText6"}, Constants.Settings.RNS_Gui.white)
 
-		GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
+		--GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
 
-		GuiApi.add_label(guiTable, "", informationFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)
+		--GuiApi.add_label(guiTable, "", informationFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)
 
     end
 
@@ -251,6 +251,7 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 	
 	if self.network_controller_surface == nil or self.thisEntity.surface.index ~= self.network_controller_surface then return end
 	if self.network_controller_position.x == nil or self.network_controller_position.y == nil then return end
+	if game.surfaces[self.network_controller_surface].find_entity(Constants.NetworkController.slateEntity.name, self.network_controller_position) == nil then return end
 
 	local wirelessTransmitters = self.thisEntity.surface.find_entities_filtered{
 		name = Constants.NetworkCables.wirelessTransmitter.slateEntity.name,
@@ -260,9 +261,9 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 
 	local close = false
 	for _, transmitter in pairs(wirelessTransmitters) do
-		if transmitter ~= nil and transmitter.valid == false then
+		if transmitter ~= nil and transmitter.valid == true then
 			local transmitter1 = global.entityTable[transmitter.unit_number]
-			if transmitter1 == nil then goto continue end
+			if transmitter1 == nil or (transmitter1 ~= nil and transmitter1.networkController == nil) then goto continue end
 			if transmitter1.networkController.thisEntity ~= nil and transmitter1.networkController.thisEntity.valid == true then
 				if Util.positions_match(transmitter1.networkController.thisEntity.position, self.network_controller_position) == true and Util.distance(self.thisEntity.position, transmitter1.thisEntity.position) <= Constants.Settings.RNS_Default_WirelessGrid_Distance then
 					close = true

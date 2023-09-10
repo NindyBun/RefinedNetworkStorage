@@ -133,6 +133,12 @@ function GUI.on_gui_clicked(event)
         GUI.update(true)
         return
     end
+
+    if string.match(event.element.name, "RNS_WG") then
+        WG.interaction(event, event.player_index)
+        GUI.update(true)
+        return
+    end
 end
 
 function GUI.on_gui_element_changed(event)

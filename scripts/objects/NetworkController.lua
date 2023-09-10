@@ -191,7 +191,7 @@ function NC:collect()
             if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and ent.operable then
                 if global.entityTable[ent.unit_number] ~= nil then
                     local obj = global.entityTable[ent.unit_number]
-                    if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.NetworkCables.wirelessTransmitter.slateEntity.name then
+                    if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
                         --Do nothing
                     else
                         table.insert(self.connectedObjs[area.direction], obj)
@@ -288,6 +288,11 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
     local interfacecount = Util.getTableLength(self.network.getOperableObjects(self.network.NetworkInventoryInterfaceTable))
     if interfacecount > 0 then
         GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkInventoryInterface.name, interfacecount, 64, Constants.Settings.RNS_Gui.label_font_2)
+    end
+
+    local wirelessTransmittercount = Util.getTableLength(self.network.getOperableObjects(self.network.WirelessTransmitterTable))
+    if wirelessTransmittercount > 0 then
+        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.wirelessTransmitter.itemEntity.name, wirelessTransmittercount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
 end

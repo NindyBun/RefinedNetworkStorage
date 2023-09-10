@@ -91,7 +91,7 @@ function NII:collect()
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and global.entityTable[ent.unit_number] ~= nil and ent.operable then
                 local obj = global.entityTable[ent.unit_number]
-                if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.NetworkCables.wirelessTransmitter.slateEntity.name then
+                if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
                     --Do nothing
                 else
                     table.insert(self.connectedObjs[area.direction], obj)
@@ -206,9 +206,9 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText5"}, Constants.Settings.RNS_Gui.white)
 		--GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText6"}, Constants.Settings.RNS_Gui.white)
 
-		GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
+		--GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
 
-		GuiApi.add_label(guiTable, "", informationFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)
+		--GuiApi.add_label(guiTable, "", informationFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)
 
     end
 
