@@ -5,8 +5,8 @@ function GUI.update(force)
             if game.tick % Constants.Settings.RNS_Gui_Tick == 0 or force then
                 for _, guiTable in pairs(RNSPlayer.GUI or {}) do
                     if guiTable.gui ~= nil and guiTable.gui.valid == true and GUI["update_" .. guiTable.gui.name] ~= nil then
-                        if guiTable.vars.currentObject.thisEntity == nil or guiTable.vars.currentObject.thisEntity.valid == false or 
-                        (guiTable.vars.currentObject.is_item == nil and guiTable.vars.currentObject.thisEntity.to_be_deconstructed() == true) then
+                        if guiTable.vars.currentObject.thisEntity == nil or guiTable.vars.currentObject.thisEntity.valid == false or guiTable.vars.currentObject.thisEntity.to_be_deconstructed() == true
+                        --[[or (guiTable.vars.currentObject.is_item == nil and guiTable.vars.currentObject.thisEntity.to_be_deconstructed() == true)]] then
                             GUI.remove_gui(guiTable, player)
                             goto continue
                         end
