@@ -57,7 +57,7 @@ end
 function ID:remove()
     UpdateSys.remove(self)
     if self.networkController ~= nil then
-        self.networkController.network.ItemDriveTable[self.entID] = nil
+        self.networkController.network.ItemDriveTable[self.priority][self.entID] = nil
         self.networkController.network.shouldRefresh = true
     end
 end

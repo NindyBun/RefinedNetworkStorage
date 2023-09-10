@@ -54,6 +54,7 @@ function WT:remove()
     end]]
     UpdateSys.remove(self)
     if self.networkController ~= nil then
+        self.networkController.network.WirelessGrid[1][self.entID] = nil
         self.networkController.network.shouldRefresh = true
     end
 end

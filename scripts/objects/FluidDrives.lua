@@ -54,7 +54,7 @@ end
 function FD:remove()
     UpdateSys.remove(self)
     if self.networkController ~= nil then
-        self.networkController.network.FluidDriveTable[self.entID] = nil
+        self.networkController.network.FluidDriveTable[self.priority][self.entID] = nil
         self.networkController.network.shouldRefresh = true
     end
 end
