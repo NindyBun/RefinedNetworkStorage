@@ -264,7 +264,7 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 		if transmitter ~= nil and transmitter.valid == true then
 			local transmitter1 = global.entityTable[transmitter.unit_number]
 			if transmitter1 == nil or (transmitter1 ~= nil and transmitter1.networkController == nil) then goto continue end
-			if transmitter1.networkController.thisEntity ~= nil and transmitter1.networkController.thisEntity.valid == true then
+			if transmitter1.networkController.thisEntity ~= nil and transmitter1.networkController.thisEntity.valid == true and transmitter1.networkController.stable == true then
 				if Util.positions_match(transmitter1.networkController.thisEntity.position, self.network_controller_position) == true and Util.distance(self.thisEntity.position, transmitter1.thisEntity.position) <= Constants.Settings.RNS_Default_WirelessGrid_Distance then
 					close = true
 					break
