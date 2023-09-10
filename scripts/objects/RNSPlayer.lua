@@ -36,20 +36,7 @@ function RNSP:update_gui_distance_validity()
     for _, guiTable in pairs(self.GUI or {}) do
         if guiTable.gui ~= nil and guiTable.gui.valid == true then
             local obj = guiTable.vars.currentObject
-            --if obj.is_item == true then goto continue end
             if Util.distance(self.thisEntity.position, obj.thisEntity.position) > Constants.Settings.RNS_Default_Gui_Distance then
-                --[[if obj.thisEntity.name == Constants.NetworkInventoryInterface.name then
-                    local wireless = self:pull_varTable(obj.thisEntity.unit_number)
-                    if wireless ~= nil and wireless.is_active == true and Util.positions_match(wireless.target_position, obj.thisEntity.position) == true then
-                        if Util.distance(self.thisEntity.position, obj.thisEntity.position) > Constants.Settings.RNS_Default_WirelessGrid_Distance then
-                            self:remove_varTable(obj.thisEntity.unit_number)
-                            GUI.remove_gui(guiTable, self.thisEntity)
-                            goto continue
-                        else
-                            goto continue
-                        end
-                    end
-                end]]
                 GUI.remove_gui(guiTable, self.thisEntity)
                 goto continue
             end
@@ -79,53 +66,6 @@ end
 function RNSP:valid()
     return true
 end
-
---[[
-function RNSP:open_wireless_grid(event)
-    local inv = self.thisEntity.get_main_inventory()
-    for i = 1, #inv do
-        local itemstack = inv[i]
-        if itemstack.count <= 0 then goto continue end
-        if itemstack.name ~= Constants.WirelessGrid.name then goto continue end
-        if global.itemTable[itemstack.item_number] == nil then goto continue end
-        local wirelessGrid = global.itemTable[itemstack.item_number]
-        if wirelessGrid.target_position.x == nil or wirelessGrid.target_position.y == nil then goto continue end
-        if Util.distance(self.thisEntity.position, wirelessGrid.target_position) > Constants.Settings.RNS_Default_WirelessGrid_Distance then
-            goto continue
-        end
-        local interface = self.thisEntity.surface.find_entity(Constants.NetworkInventoryInterface.name, wirelessGrid.target_position)
-        if interface ~= nil and interface.valid == true then
-            wirelessGrid.is_active = true
-            self:push_varTable(interface.unit_number, wirelessGrid)
-            self.thisEntity.print({"gui-description.RNS_Wireless_Grid_open", wirelessGrid.target_position.x, wirelessGrid.target_position.y})
-            if Util.safeCall(GUI.open_tooltip_gui, self, self.thisEntity, interface) == false then
-                wirelessGrid.is_active = false
-                self:remove_varTable(interface.unit_number)
-                self.thisEntity.print({"gui-description.RNS_openGui_falied"})
-                Event.clear_gui(event)
-            end
-            return
-        end
-        ::continue::
-    end
-    self.thisEntity.print({"gui-description.RNS_Wireless_Grid_cant_open"})
-end
-
-function RNSP:close_wireless_grids()
-    local inv = self.thisEntity.get_main_inventory()
-    for i = 1, #inv do
-        local itemstack = inv[i]
-        if itemstack.count <= 0 then goto continue end
-        if itemstack.name ~= Constants.WirelessGrid.name then goto continue end
-        if global.itemTable[itemstack.item_number] == nil then goto continue end
-        local wirelessGrid = global.itemTable[itemstack.item_number]
-        if wirelessGrid.target_position.x == nil or wirelessGrid.target_position.y == nil then goto continue end
-        wirelessGrid.is_active = false
-        ::continue::
-    end
-end
-]]
-
 
 function RNSP:has_room()
     local inv = self.thisEntity.get_main_inventory()

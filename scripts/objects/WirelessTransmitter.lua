@@ -47,11 +47,6 @@ function WT:rebuild(object)
 end
 
 function WT:remove()
-    --[[for _, arm in pairs(self.arms) do
-        if arm ~= nil then
-            rendering.destroy(arm)
-        end
-    end]]
     UpdateSys.remove(self)
     if self.networkController ~= nil then
         self.networkController.network.WirelessGrid[1][self.entID] = nil
@@ -143,6 +138,20 @@ function WT:createArms()
     end
 end
 
-function WT:getTooltips()
+function WT:getTooltips(guiTable, mainFrame, justCreated)
+    if justCreated == true then
+        guiTable.vars.Gui_Title.caption = {"gui-description.RNS_WirelessTransmitter_Title"}
 
+        local infoFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
+		infoFrame.style = Constants.Settings.RNS_Gui.frame_1
+		infoFrame.style.vertically_stretchable = true
+		infoFrame.style.left_padding = 3
+		infoFrame.style.right_padding = 3
+		infoFrame.style.right_margin = 3
+		infoFrame.style.width = 100
+
+        GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
+
+        GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_WirelessTransmitterRange", Constants.Settings.RNS_Default_WirelessGrid_Distance}, Constants.Settings.RNS_Gui.white)
+    end
 end
