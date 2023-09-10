@@ -1,7 +1,9 @@
 WG = {
     thisEntity = nil,
     entID = nil,
-    network_controller_position = nil
+	networkController = nil,
+    network_controller_position = nil,
+	network_controller_surface = nil
 }
 
 function WG:new(object)
@@ -41,6 +43,15 @@ function WG:update()
         self:remove()
         return
     end
+	if self.networkController ~= nil and self.networkController.thisEntity.valid == false then
+		self.networkController = nil
+	end
+	if self.networkController == nil and self.network_controller_position.x ~= nil and self.network_controller_position.y ~= nil and self.network_controller_surface ~= nil then
+		local controller = game.surfaces[self.network_controller_surface].find_entity(Constants.NetworkController.slateEntity.name, self.network_controller_position)
+		if controller ~= nil and game.entityTable[controller.unit_number] ~= nil then
+			self.networkController = game.entityTable[controller.unit_number]
+		end
+	end
 end
 
 --[[
@@ -103,10 +114,36 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 
     if justCreated == true then
         -- Set the GUI Title --
-		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkInventoryInterface_Title"}
+		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_WirelessGrid_Title"}
 
 		-- Set the Main Frame Height --
 		mainFrame.style.height = 450
+
+		local infoFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
+		infoFrame.style = Constants.Settings.RNS_Gui.frame_1
+		infoFrame.style.vertically_stretchable = true
+		infoFrame.style.minimal_width = 200
+		infoFrame.style.left_margin = 3
+		infoFrame.style.left_padding = 3
+		infoFrame.style.right_padding = 3
+		GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
+
+        GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_WirelessGrid_Target"}, Constants.Settings.RNS_Gui.white)
+
+        local xflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
+        GuiApi.add_label(guiTable, "", xflow, {"gui-description.RNS_xPos"}, Constants.Settings.RNS_Gui.white)
+        local xPos = GuiApi.add_text_field(guiTable, "RNS_WirelessGrid_xPos", xflow, self.network_controller_position.x == nil and "" or tostring(self.network_controller_position.x), {"gui-description.RNS_xPos_tooltip"}, true, true, true, true, false, {ID=self.entID})
+        xPos.style.maximal_width = 50
+
+        local yflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
+        GuiApi.add_label(guiTable, "", yflow, {"gui-description.RNS_yPos"}, Constants.Settings.RNS_Gui.white)
+        local yPos = GuiApi.add_text_field(guiTable, "RNS_WirelessGrid_yPos", yflow, self.network_controller_position.y == nil and "" or tostring(self.network_controller_position.y), {"gui-description.RNS_yPos_tooltip"}, true, true, true, true, false, {ID=self.entID})
+        yPos.style.maximal_width = 50
+
+        local surfIDflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
+        GuiApi.add_label(guiTable, "", surfIDflow, {"gui-description.RNS_SurfaceID"}, Constants.Settings.RNS_Gui.white)
+        local surfID = GuiApi.add_text_field(guiTable, "RNS_WirelessGrid_SurfaceID", surfIDflow, self.network_controller_surface == nil and "" or tostring(self.network_controller_surface), {"gui-description.RNS_SurfaceID_tooltip"}, true, true, false, false, false, {ID=self.entID})
+        surfID.style.maximal_width = 50
 
 		-- Create the Network Inventory Frame --
 		local inventoryFrame = GuiApi.add_frame(guiTable, "InventoryFrame", mainFrame, "vertical", true)
@@ -195,7 +232,6 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 
 	local inventoryScrollPane = guiTable.vars.InventoryScrollPane
 	local playerInventoryScrollPane = guiTable.vars.PlayerInventoryScrollPane
-	--local inventorySize = guiTable.vars.InventorySize
 	local textField = guiTable.vars.RNS_SearchTextField
 
 	inventoryScrollPane.clear()
@@ -203,9 +239,27 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 
     if self.networkController == nil or not self.networkController.stable or (self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == false) then return end
 	
-	--local t, m = self.networkController.network:get_item_storage_size()
-	--inventorySize.caption = {"gui-description.RNS_Inventory_Size", t, m}
+	if self.network_controller_surface == nil or self.thisEntity.surface.index ~= self.network_controller_surface then return end
+	if self.network_controller_position.x == nil or self.network_controller_position.y == nil then return end
 
+	local wirelessTransmitters = self.thisEntity.surface.find_entities_filtered{
+		name = Constants.NetworkCables.wirelessTransmitter.slateEntity.name,
+		position = self.thisEntity.position,
+		radius = Constants.Settings.RNS_Default_WirelessGrid_Distance
+	}
+
+	for _, transmitter in pairs(wirelessTransmitters) do
+		if transmitter ~= nil and transmitter.valid == false then
+			local transmitter1 = global.entityTable[transmitter.unit_number]
+			if transmitter1 == nil then goto continue end
+			if transmitter1.networkController.thisEntity ~= nil and transmitter1.networkController.thisEntity.valid == true then
+				if Util.positions_match(transmitter1.networkController.thisEntity.position, self.network_controller_position) == true and Util.distance(self.thisEntity.position, transmitter1.thisEntity.position) <= Constants.Settings.RNS_Default_WirelessGrid_Distance then
+					break
+				end
+			end
+		end
+		::continue::
+	end
 
 	self:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, textField.text)
 
@@ -257,7 +311,7 @@ function WG:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 			table.insert(buttonText, {"gui-description.RNS_linked"})
 			table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
 		end
-		GuiApi.add_button(guiTable, "RNS_NII_PInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or item.ammo or item.durability)and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.entID, name=(item.cont.name), stack=item})
+		GuiApi.add_button(guiTable, "RNS_WG_PInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or item.ammo or item.durability)and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.entID, name=(item.cont.name), stack=item})
 		
 		::continue::
 	end
@@ -350,7 +404,7 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 				if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
 			end
 			local buttonText = {"", "[color=blue]", Util.get_fluid_name(c.name), "[/color]\n", {"gui-description.RNS_Temperature"}, c.temperature or game.fluid_prototypes[c.name].default_temperature}
-			GuiApi.add_button(guiTable, "RNS_NII_FDInv_".. k, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
+			GuiApi.add_button(guiTable, "RNS_WG_FDInv_".. k, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
 			::continue::
 		end
 	end
@@ -394,16 +448,16 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 				table.insert(buttonText, {"gui-description.RNS_linked"})
 				table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
 			end
-			GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or item.ammo or item.durability)and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.entID, name=(item.cont.name), stack=item})
+			GuiApi.add_button(guiTable, "RNS_WG_IDInv_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or item.ammo or item.durability)and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.entID, name=(item.cont.name), stack=item})
 			::continue::
 		end
 	end
 end
 
 
-function WG.transfer_from_pinv(RNSPlayer, NII, tags, count)
-	if RNSPlayer.thisEntity == nil or NII == nil then return end
-	local network = NII.networkController ~= nil and NII.networkController.network or nil
+function WG.transfer_from_pinv(RNSPlayer, WG, tags, count)
+	if RNSPlayer.thisEntity == nil or WG == nil then return end
+	local network = WG.networkController ~= nil and WG.networkController.network or nil
 	if network == nil then return end
 	if tags == nil then return end
 	local itemstack = tags.stack
@@ -476,9 +530,9 @@ function WG.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	]]
 end
 
-function WG.transfer_from_idinv(RNSPlayer, NII, tags, count)
-	if RNSPlayer.thisEntity == nil or NII == nil then return end
-	local network = NII.networkController ~= nil and NII.networkController.network or nil
+function WG.transfer_from_idinv(RNSPlayer, WG, tags, count)
+	if RNSPlayer.thisEntity == nil or WG == nil then return end
+	local network = WG.networkController ~= nil and WG.networkController.network or nil
 	if network == nil then return end
 	if tags == nil then return end
 	local itemstack = tags.stack
@@ -545,9 +599,9 @@ function WG.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	]]
 end
 
-function WG.transfer_from_fdinv(RNSPlayer, NII, tags, count)
-	if RNSPlayer.thisEntity == nil or NII == nil then return end
-	local network = NII.networkController ~= nil and NII.networkController.network or nil
+function WG.transfer_from_fdinv(RNSPlayer, WG, tags, count)
+	if RNSPlayer.thisEntity == nil or WG.networkController == nil then return end
+	local network = WG.networkController ~= nil and WG.networkController.network or nil
 	if network == nil then return end
 	if tags == nil then return end
 	local fluid = tags.name
@@ -574,6 +628,37 @@ end
 
 function WG.interaction(event, playerIndex)
 	if string.match(event.element.name, "RNS_SearchTextField") then return end
+	if string.match(event.element.name, "xPos") then
+		local obj = global.entityTable[event.element.tags.ID]
+		if obj == nil then return end
+        if event.element.text ~= "" then
+            obj.network_controller_position.x = tonumber(event.element.text)
+        else
+            obj.network_controller_position.x = nil
+        end
+		return
+	end
+    if string.match(event.element.name, "yPos") then
+		local obj = global.entityTable[event.element.tags.ID]
+		if obj == nil then return end
+        if event.element.text ~= "" then
+            obj.network_controller_position.y = tonumber(event.element.text)
+        else
+            obj.network_controller_position.y = nil
+        end
+		return
+	end
+	if string.match(event.element.name, "SurfaceID") then
+		local obj = global.entityTable[event.element.tags.ID]
+		if obj == nil then return end
+        if event.element.text ~= "" then
+            obj.network_controller_surface = tonumber(event.element.text)
+        else
+            obj.network_controller_surface = nil
+        end
+		return
+	end
+
 	local count = 0
 	if event.button == defines.mouse_button_type.left then count = 1 end --1 Item
 	if event.button == defines.mouse_button_type.left and event.shift == true then count = -1 end --1 Stack
@@ -581,21 +666,21 @@ function WG.interaction(event, playerIndex)
 	if event.button == defines.mouse_button_type.right and event.shift == true then count = -3 end --10 Stacks
 	if event.button == defines.mouse_button_type.left and event.control == true then count = -4 end --All Stacks
 
-	if string.match(event.element.name, "RNS_NII_PInv") then
+	if string.match(event.element.name, "RNS_WG_PInv") then
 		local obj = global.entityTable[event.element.tags.ID]
-		NII.transfer_from_pinv(getRNSPlayer(playerIndex), obj, event.element.tags, count)
+		WG.transfer_from_pinv(getRNSPlayer(playerIndex), obj, event.element.tags, count)
 		return
 	end
 
-	if string.match(event.element.name, "RNS_NII_IDInv") then
+	if string.match(event.element.name, "RNS_WG_IDInv") then
 		local obj = global.entityTable[event.element.tags.ID]
-		NII.transfer_from_idinv(getRNSPlayer(playerIndex), obj, event.element.tags, count)
+		WG.transfer_from_idinv(getRNSPlayer(playerIndex), obj, event.element.tags, count)
 		return
 	end
 
-	if string.match(event.element.name, "RNS_NII_FDInv") then
+	if string.match(event.element.name, "RNS_WG_FDInv") then
 		local obj = global.entityTable[event.element.tags.ID]
-		NII.transfer_from_fdinv(getRNSPlayer(playerIndex), obj, event.element.tags, count)
+		WG.transfer_from_fdinv(getRNSPlayer(playerIndex), obj, event.element.tags, count)
 		return
 	end
 
