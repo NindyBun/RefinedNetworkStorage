@@ -194,7 +194,7 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 		playerInventoryScrollPane.style.bottom_margin = 3
 
 		-- Create the Information Frame --
-		local informationFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
+		local informationFrame = GuiApi.add_frame(guiTable, "InformationFrame1", mainFrame, "vertical", true)
 		informationFrame.style = Constants.Settings.RNS_Gui.frame_1
 		informationFrame.style.vertically_stretchable = true
 		informationFrame.style.left_padding = 3
