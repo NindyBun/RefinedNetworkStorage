@@ -277,7 +277,7 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 	self:createPlayerInventory(guiTable, RNSPlayer, playerInventoryScrollPane, textField.text)
 
 	if close == false then
-		if justcreated == true then RNSPlayer.thisEntity.print({"gui-description.RNS_NetworkController_Far"}) end
+		if justCreated == true then RNSPlayer.thisEntity.print({"gui-description.RNS_NetworkController_Far"}) end
 		return
 	end
 
