@@ -285,12 +285,12 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.externalIO.itemEntity.name, externalIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
-    local interfacecount = Util.getTableLength(self.network.getOperableObjects(self.network.NetworkInventoryInterfaceTable))
+    local interfacecount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.NetworkInventoryInterfaceTable))
     if interfacecount > 0 then
         GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkInventoryInterface.name, interfacecount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
-    local wirelessTransmittercount = Util.getTableLength(self.network.getOperableObjects(self.network.WirelessTransmitterTable))
+    local wirelessTransmittercount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.WirelessTransmitterTable))
     if wirelessTransmittercount > 0 then
         GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.wirelessTransmitter.itemEntity.name, wirelessTransmittercount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end

@@ -680,4 +680,5 @@ function BaseNet:getTotalObjects()
     return  BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ItemDriveTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.FluidDriveTable)) 
             + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ItemIOTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.FluidIOTable))
             + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ExternalIOTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.NetworkInventoryInterfaceTable))
+            + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.WirelessTransmitterTable))
 end
