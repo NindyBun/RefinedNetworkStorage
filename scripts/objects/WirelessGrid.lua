@@ -257,17 +257,24 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 		radius = Constants.Settings.RNS_Default_WirelessGrid_Distance
 	}
 
+	local close = false
 	for _, transmitter in pairs(wirelessTransmitters) do
 		if transmitter ~= nil and transmitter.valid == false then
 			local transmitter1 = global.entityTable[transmitter.unit_number]
 			if transmitter1 == nil then goto continue end
 			if transmitter1.networkController.thisEntity ~= nil and transmitter1.networkController.thisEntity.valid == true then
 				if Util.positions_match(transmitter1.networkController.thisEntity.position, self.network_controller_position) == true and Util.distance(self.thisEntity.position, transmitter1.thisEntity.position) <= Constants.Settings.RNS_Default_WirelessGrid_Distance then
+					close = true
 					break
 				end
 			end
 		end
 		::continue::
+	end
+
+	if close == false then
+		RNSPlayer.thisEntity.print({"gui-description.RNS_NetworkController_Far"})
+		return
 	end
 
 	self:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, textField.text)
