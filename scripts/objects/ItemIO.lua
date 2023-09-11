@@ -2,7 +2,7 @@ IIO = {
     thisEntity = nil,
     entID = nil,
     networkController = nil,
-    color = nil,
+    color = "RED",
     arms = nil,
     connectedObjs = nil,
     focusedEntity = nil,
@@ -14,7 +14,7 @@ IIO = {
     ioIcon = nil,
     combinator = nil,
     processed = false,
-    priority = 0
+    priority = 0,
 }
 
 function IIO:new(object)
@@ -25,10 +25,12 @@ function IIO:new(object)
     mt.__index = IIO
     t.thisEntity = object
     t.entID = object.unit_number
+    --[[
     if global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)] ~= nil and global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)][tostring(object.position.y)] ~= nil then
         t.color = global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)][tostring(object.position.y)].ent.color
     end
-    rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color or "RED"].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
+    ]]
+    rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
     t:generateModeIcon()
     t.cardinals = {
         [1] = false, --N
@@ -676,6 +678,18 @@ function IIO:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
 		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_Item"}
 
+        local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", mainFrame, "vertical", true)
+		colorFrame.style = Constants.Settings.RNS_Gui.frame_1
+		colorFrame.style.vertically_stretchable = true
+		colorFrame.style.left_padding = 3
+		colorFrame.style.right_padding = 3
+		colorFrame.style.right_margin = 3
+		colorFrame.style.width = 200
+
+        GuiApi.add_subtitle(guiTable, "", colorFrame, {"gui-description.RNS_Connection_Color"})
+        local colorDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Item_Color", colorFrame, Constants.Settings.RNS_ColorN, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
+        colorDD.style.minimal_width = 200
+
         --Filters 2 max
         local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", mainFrame, "vertical", true)
 		filtersFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -756,6 +770,18 @@ function IIO.interaction(event, RNSPlayer)
                 io.filters.values[index] = ""
                 io.combinator.get_or_create_control_behavior().set_signal(index, nil)
             end
+        end
+		return
+	end
+
+    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Color") then
+		local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local color = Constants.Settings.RNS_ColorN[event.element.selected_index]
+        if color ~= io.color then
+            io.color = color
+            rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[io.color].sprites[5].name, target=io.thisEntity, surface=io.thisEntity.surface, render_layer="lower-object-above-shadow"}
         end
 		return
 	end

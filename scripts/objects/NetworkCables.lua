@@ -2,7 +2,7 @@ NCbl = {
     thisEntity = nil,
     entID = nil,
     arms = nil,
-    color = nil,
+    color = "",
     connectedObjs = nil,
     networkController = nil,
     cardinals = nil,
@@ -25,6 +25,7 @@ function NCbl:new(object)
             break
         end
     end
+    --[[
     if global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)] == nil then
         global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)] = {}
     end
@@ -34,6 +35,7 @@ function NCbl:new(object)
         ent = t,
         surf = object.surface.index
     }
+    ]]
     t.arms = {
         [1] = nil, --N
         [2] = nil, --E

@@ -33,10 +33,10 @@ function onInit()
 	global.entityTable = global.entityTable or {}
     --global.itemTable = global.itemTable or {}
     global.tempInventoryTable = {}
-    global.placedCablesTable = {}
+    --[[global.placedCablesTable = {}
     for i, s in pairs(game.surfaces) do
         global.placedCablesTable[tostring(s.index)] = {}
-    end
+    end]]
     createObjectTables()
 
     for _, obj in pairs(global.objectTables) do
@@ -72,19 +72,21 @@ function onLoad()
         end
     end
 
+    --[[
     for id, xpos in pairs(global.placedCablesTable) do
-        for xposition, ypos in pairs(xpos) do
-            local data = global.placedCablesTable[id][xpos][ypos]
+        for _, data in pairs(xpos) do
+            --local data = global.placedCablesTable[id][xpos][yposition]
             local name = data.name
             local ent = data.ent
             local pos = data.pos
             local surf = data.surf
 
-            if (ent.thisEntity ~= nil and ent.thisEntity.valid == false) or game.surfaced[surf].find_entity(name, pos) == nil then
+            if (ent ~= nil and ent.thisEntity ~= nil and ent.thisEntity.valid == false) then
                 global.placedCablesTable[id][xpos][ypos] = nil
             end
         end
     end
+    ]]
 end
 
 --When a player is created
