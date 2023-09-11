@@ -8,6 +8,7 @@ FIO = {
     filter = nil,
     whitelist = false,
     ioIcon = nil,
+    color = "RED",
     io = "output",
     processed=false,
     focusedEntity=nil,
@@ -23,7 +24,7 @@ function FIO:new(object)
     mt.__index = FIO
     t.thisEntity = object
     t.entID = object.unit_number
-    rendering.draw_sprite{sprite=Constants.NetworkCables.Cables.RED.sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
+    rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
     t:generateModeIcon()
     t.cardinals = {
         [1] = false, --N

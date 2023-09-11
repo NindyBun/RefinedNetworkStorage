@@ -13,6 +13,7 @@ EIO = {
     focusedEntity = nil,
     cardinals = nil,
     filters = nil,
+    color = "RED",
     io = "input/output",
     type = "item",
     ioIcon = nil,
@@ -30,7 +31,7 @@ function EIO:new(object)
     mt.__index = EIO
     t.thisEntity = object
     t.entID = object.unit_number
-    rendering.draw_sprite{sprite=Constants.NetworkCables.Cables.RED.sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
+    rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
     t:generateModeIcon()
     --Don't really need to initialize the arrays but it makes it easier to see what's supposed to be there
     t.cardinals = {
