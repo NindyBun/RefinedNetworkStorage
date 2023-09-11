@@ -91,7 +91,6 @@ function Event.placed(event)
 
     local objInfo = global.objectTables[entName]
 
-    game.print(serpent.block(event.tags))
     if type == "entity-ghost" then return end
 
     if objInfo ~= nil and objInfo.tag ~= nil then
