@@ -30,7 +30,7 @@ function EIO:new(object)
     mt.__index = EIO
     t.thisEntity = object
     t.entID = object.unit_number
-    rendering.draw_sprite{sprite="NetworkCableDot", target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
+    rendering.draw_sprite{sprite=Constants.NetworkCables.Cables.RED.sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
     t:generateModeIcon()
     --Don't really need to initialize the arrays but it makes it easier to see what's supposed to be there
     t.cardinals = {
@@ -224,8 +224,13 @@ function EIO:createArms()
                         if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
                             --Do nothing
                         else
-                            self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
-                            self.connectedObjs[area.direction] = {obj}
+                            if obj.color == nil then
+                                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables.RED.sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                                self.connectedObjs[area.direction] = {obj}
+                            elseif obj.color ~= "" then
+                                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[obj.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                                self.connectedObjs[area.direction] = {obj}
+                            end
                             enti = enti + 1
                         end
                         --Update network connections if necessary
