@@ -6,7 +6,7 @@ for _, color in pairs(Constants.NetworkCables.Cables) do
     networkCableI.icon_size = 512
     networkCableI.subgroup = Constants.ItemGroup.Category.Cable_subgroup
     networkCableI.order = "a"
-    networkCableI.stack_size = 100
+    networkCableI.stack_size = 200
     networkCableI.place_result = color.cable.item.name
     data:extend{networkCableI}
 end
@@ -32,7 +32,7 @@ for _, color in pairs(Constants.NetworkCables.Cables) do
     networkCableE.inventory_size = 0
     networkCableE.flags = {"placeable-neutral", "player-creation"}
     networkCableE.fast_replaceable_group = Constants.Settings.RNS_FR_Cable
-    networkCableE.minable = {mining_time = 0.2, result = Constants.NetworkCables.Cables.RED.cable.item.name}
+    networkCableE.minable = {mining_time = 0.2, result = color.cable.item.name}
     networkCableE.max_health = 250
     networkCableE.dying_explosion = "medium-explosion"
     networkCableE.corpse = "small-remnants"
@@ -75,7 +75,7 @@ for _, color in pairs(Constants.NetworkCables.Cables) do
     networkCable_E.icon_size = 512
     networkCable_E.inventory_size = 0
     networkCable_E.flags = {"placeable-neutral", "player-creation"}
-    networkCable_E.minable = {mining_time = 0.2, result = Constants.NetworkCables.Cables.RED.cable.item.name}
+    networkCable_E.minable = {mining_time = 0.2, result = color.cable.item.name}
     networkCable_E.fast_replaceable_group = Constants.Settings.RNS_FR_Cable
     networkCable_E.max_health = 250
     networkCable_E.dying_explosion = "medium-explosion"

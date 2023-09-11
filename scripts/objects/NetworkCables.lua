@@ -126,11 +126,16 @@ function NCbl:createArms()
         end
         if nearest ~= nil and global.entityTable[nearest.unit_number] ~= nil then
             local obj = global.entityTable[nearest.unit_number]
-            if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
+            if self.entID == obj.entID or (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
                 --Do nothing
             else
-                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
-                self.connectedObjs[area.direction] = {obj}
+                if obj.color == nil then
+                    self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                    self.connectedObjs[area.direction] = {obj}
+                elseif obj.color ~= "" and obj.color == self.color then
+                    self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                    self.connectedObjs[area.direction] = {obj}
+                end
             end
             if self.cardinals[area.direction] == false then
                 self.cardinals[area.direction] = true
