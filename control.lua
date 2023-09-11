@@ -32,7 +32,11 @@ function onInit()
 
 	global.entityTable = global.entityTable or {}
     --global.itemTable = global.itemTable or {}
-    global.tempInventoryTable = global.tempInventoryTable or {}
+    global.tempInventoryTable = {}
+    global.placedCablesTable = {}
+    for i, s in pairs(game.surfaces) do
+        global.placedCablesTable[tostring(s.index)] = {}
+    end
     createObjectTables()
 
     for _, obj in pairs(global.objectTables) do
@@ -65,6 +69,20 @@ function onLoad()
     for id, obj in pairs(global.tempInventoryTable) do
         if not obj.itemstack.valid or obj.itemstack == nil then
             global.tempInventoryTable[id] = nil
+        end
+    end
+
+    for id, xpos in pairs(global.placedCablesTable) do
+        for xposition, ypos in pairs(xpos) do
+            local data = global.placedCablesTable[id][xpos][ypos]
+            local name = data.name
+            local ent = data.ent
+            local pos = data.pos
+            local surf = data.surf
+
+            if (ent.thisEntity ~= nil and ent.thisEntity.valid == false) or game.surfaced[surf].find_entity(name, pos) == nil then
+                global.placedCablesTable[id][xpos][ypos] = nil
+            end
         end
     end
 end

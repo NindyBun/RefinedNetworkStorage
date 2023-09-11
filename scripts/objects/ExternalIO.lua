@@ -227,11 +227,12 @@ function EIO:createArms()
                             if obj.color == nil then
                                 self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables.RED.sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
                                 self.connectedObjs[area.direction] = {obj}
+                                enti = enti + 1
                             elseif obj.color ~= "" then
                                 self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[obj.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
                                 self.connectedObjs[area.direction] = {obj}
+                                enti = enti + 1
                             end
-                            enti = enti + 1
                         end
                         --Update network connections if necessary
                         if self.cardinals[area.direction] == false then

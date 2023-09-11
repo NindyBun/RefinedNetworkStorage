@@ -2,6 +2,7 @@ IIO = {
     thisEntity = nil,
     entID = nil,
     networkController = nil,
+    color = nil,
     arms = nil,
     connectedObjs = nil,
     focusedEntity = nil,
@@ -24,7 +25,10 @@ function IIO:new(object)
     mt.__index = IIO
     t.thisEntity = object
     t.entID = object.unit_number
-    rendering.draw_sprite{sprite=Constants.NetworkCables.Cables.RED.sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
+    if global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)] ~= nil and global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)][tostring(object.position.y)] ~= nil then
+        t.color = global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)][tostring(object.position.y)].ent.color
+    end
+    rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color or "RED"].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
     t:generateModeIcon()
     t.cardinals = {
         [1] = false, --N
@@ -78,6 +82,7 @@ function IIO:rebuild(object)
 end
 
 function IIO:remove()
+    --global.placedCablesTable[self.thisEntity.surface.index][tostring(self.thisEntity.position)] = nil
     if self.combinator ~= nil then self.combinator.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
@@ -584,13 +589,14 @@ function IIO:createArms()
                             --Do nothing
                         else
                             if obj.color == nil then
-                                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables.RED.sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
                                 self.connectedObjs[area.direction] = {obj}
-                            elseif obj.color ~= "" then
-                                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[obj.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                                enti = enti + 1
+                            elseif obj.color ~= "" and obj.color == self.color then
+                                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
                                 self.connectedObjs[area.direction] = {obj}
+                                enti = enti + 1
                             end
-                            enti = enti + 1
                         end
                         --Update network connections if necessary
                         if self.cardinals[area.direction] == false then

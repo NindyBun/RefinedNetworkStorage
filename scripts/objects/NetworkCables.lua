@@ -2,7 +2,7 @@ NCbl = {
     thisEntity = nil,
     entID = nil,
     arms = nil,
-    color = "",
+    color = nil,
     connectedObjs = nil,
     networkController = nil,
     cardinals = nil,
@@ -22,8 +22,18 @@ function NCbl:new(object)
         if object.name == color.cable.entity.name then
             rendering.draw_sprite{sprite=color.sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
             t.color = tostring(name)
+            break
         end
     end
+    if global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)] == nil then
+        global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)] = {}
+    end
+    global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)][tostring(object.position.y)] = {
+        name = object.name,
+        pos = object.position,
+        ent = t,
+        surf = object.surface.index
+    }
     t.arms = {
         [1] = nil, --N
         [2] = nil, --E
@@ -60,6 +70,7 @@ function NCbl:remove()
             rendering.destroy(arm)
         end
     end]]
+    --global.placedCablesTable[self.thisEntity.surface.index][tostring(self.thisEntity.position)] = nil
     UpdateSys.remove(self)
     if self.networkController ~= nil then
         self.networkController.network.shouldRefresh = true
