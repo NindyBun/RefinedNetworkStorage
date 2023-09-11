@@ -396,11 +396,11 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 		colorFrame.style.left_padding = 3
 		colorFrame.style.right_padding = 3
 		colorFrame.style.right_margin = 3
-		colorFrame.style.width = 200
+		colorFrame.style.width = 150
 
         GuiApi.add_subtitle(guiTable, "", colorFrame, {"gui-description.RNS_Connection_Color"})
-        local colorDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Fluid_Color", colorFrame, Constants.Settings.RNS_ColorN, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
-        colorDD.style.minimal_width = 200
+        local colorDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Fluid_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
+        colorDD.style.minimal_width = 100
 
         local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", mainFrame, "vertical", true)
 		filtersFrame.style = Constants.Settings.RNS_Gui.frame_1

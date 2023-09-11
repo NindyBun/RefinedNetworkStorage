@@ -3,6 +3,7 @@ WT = {
     entID = nil,
     arms = nil,
     connectedObjs = nil,
+    color = "RED",
     networkController = nil,
     cardinals = nil,
 }
@@ -15,7 +16,7 @@ function WT:new(object)
     mt.__index = WT
     t.thisEntity = object
     t.entID = object.unit_number
-    rendering.draw_sprite{sprite="NetworkCableDot", target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
+    rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
     t.arms = {
         [1] = nil, --N
         [2] = nil, --E
@@ -116,8 +117,13 @@ function WT:createArms()
             if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
                 --Do nothing
             else
-                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
-                self.connectedObjs[area.direction] = {obj}
+                if obj.color == nil then
+                    self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                    self.connectedObjs[area.direction] = {obj}
+                elseif obj.color ~= "" and obj.color == self.color then
+                    self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                    self.connectedObjs[area.direction] = {obj}
+                end
             end
             if self.cardinals[area.direction] == false then
                 self.cardinals[area.direction] = true
@@ -142,6 +148,18 @@ function WT:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
         guiTable.vars.Gui_Title.caption = {"gui-description.RNS_WirelessTransmitter_Title"}
 
+        local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", mainFrame, "vertical", true)
+		colorFrame.style = Constants.Settings.RNS_Gui.frame_1
+		colorFrame.style.vertically_stretchable = true
+		colorFrame.style.left_padding = 3
+		colorFrame.style.right_padding = 3
+		colorFrame.style.right_margin = 3
+		colorFrame.style.width = 150
+
+        GuiApi.add_subtitle(guiTable, "", colorFrame, {"gui-description.RNS_Connection_Color"})
+        local colorDD = GuiApi.add_dropdown(guiTable, "RNS_WirelessTransmitter_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
+        colorDD.style.minimal_width = 100
+
         local infoFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
 		infoFrame.style = Constants.Settings.RNS_Gui.frame_1
 		infoFrame.style.vertically_stretchable = true
@@ -154,4 +172,18 @@ function WT:getTooltips(guiTable, mainFrame, justCreated)
 
         GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_WirelessTransmitterRange", Constants.Settings.RNS_Default_WirelessGrid_Distance}, Constants.Settings.RNS_Gui.white)
     end
+end
+
+function WT.interaction(event, RNSPlayer)
+    if string.match(event.element.name, "RNS_WirelessTransmitter_Color") then
+		local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local color = Constants.Settings.RNS_ColorN[event.element.selected_index]
+        if color ~= io.color then
+            io.color = color
+            rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[io.color].sprites[5].name, target=io.thisEntity, surface=io.thisEntity.surface, render_layer="lower-object-above-shadow"}
+        end
+		return
+	end
 end
