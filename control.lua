@@ -162,6 +162,14 @@ function onGuiElemChanged(event)
 	end
 end
 
+function onBlueprint(event)
+	Util.safeCall(Event.onBlueprint, event)
+end
+
+function onSettingsPasted(event)
+    Util.safeCall(Event.onSettingsPasted, event)
+end
+
 script.on_init(onInit)
 script.on_configuration_changed(onInit)
 script.on_load(onLoad)
@@ -205,3 +213,6 @@ script.on_event(defines.events.on_gui_selection_state_changed, onGuiElemChanged)
 script.on_event(defines.events.on_gui_text_changed, onGuiElemChanged)
 script.on_event(defines.events.on_gui_switch_state_changed, onGuiElemChanged)
 script.on_event(defines.events.on_gui_selected_tab_changed, onGuiElemChanged)
+
+script.on_event(defines.events.on_player_setup_blueprint, onBlueprint)
+script.on_event(defines.events.on_entity_settings_pasted, onSettingsPasted)

@@ -91,6 +91,7 @@ function Event.placed(event)
 
     local objInfo = global.objectTables[entName]
 
+    game.print(serpent.block(event.tags))
     if type == "entity-ghost" then return end
 
     if objInfo ~= nil and objInfo.tag ~= nil then
@@ -98,6 +99,9 @@ function Event.placed(event)
         if objInfo.tableName ~= nil then
             global[objInfo.tableName][entity.unit_number] = obj
         end
+        if event.tags and obj.deserialize_settings then
+			obj:deserialize_settings(event.tags)
+		end
         if event.stack ~= nil and event.stack.valid_for_read == true and event.stack.type == "item-with-tags" then
 			local contents = event.stack.get_tag(Constants.Settings.RNS_Tag)
 			if contents ~= nil then
@@ -153,10 +157,6 @@ function Event.changed_selection(event)
     end
 end
 
-function Event.ghost(event)
-
-end
-
 function Event.clear_gui(event)
     local player = getPlayer(event.player_index)
     for _, gui in pairs(player.gui.screen.children) do
@@ -168,3 +168,41 @@ function Event.clear_gui(event)
     player.opened = nil
 end
 
+function Event.onBlueprint(event)
+    local player = game.players[event.player_index]
+	local mapping = event.mapping.get()
+	local blueprint = player.blueprint_to_setup
+	if blueprint.valid_for_read == false then
+		local cursor = player.cursor_stack
+		if cursor and cursor.valid_for_read and cursor.name == "blueprint" then
+			blueprint = cursor
+			--return
+		end
+	end
+	if blueprint == nil or blueprint.valid_for_read == false then return end
+
+	for index, ent in pairs(mapping) do
+		local tags = ((global.entityTable[ent.unit_number] ~= nil and global.entityTable[ent.unit_number].serialize_settings ~= nil) and {global.entityTable[ent.unit_number]:serialize_settings()} or {nil})[1]
+        if tags ~= nil then
+			for tag, value in pairs(tags) do
+				blueprint.set_blueprint_entity_tag(index, tag, value)
+			end
+		end
+	end
+end
+
+function Event.onSettingsPasted(event)
+    if event.source == nil or event.source.valid == false then return end
+	if event.destination == nil or event.destination.valid == false then return end
+
+	local o1 = global.entityTable[event.source.unit_number]
+	local o2 = global.entityTable[event.destination.unit_number]
+
+	if o1 == nil then return end
+	if o2 == nil then return end
+	if o1.thisEntity.name ~= o2.thisEntity.name then return end
+
+	if o2.copy_settings ~= nil then
+		o2:copy_settings(o1)
+	end
+end

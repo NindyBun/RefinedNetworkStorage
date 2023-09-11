@@ -97,6 +97,47 @@ function IIO:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
+function IIO:copy_settings(obj)
+    self.color = obj.color
+    self.metadataMode = obj.metadataMode
+    self.whitelist = obj.whitelist
+    self.io = obj.io
+
+    self.filters = obj.filters
+    self:set_icons(1, self.filters.values[1] ~= "" and self.filters.values[1] or nil)
+    self:set_icons(2, self.filters.values[2] ~= "" and self.filters.values[2] or nil)
+
+    self.priority = obj.priority
+    self:generateModeIcon()
+end
+
+function IIO:serialize_settings()
+    local tags = {}
+
+    tags["color"] = self.color
+    tags["filters"] = self.filters
+    tags["metadataMode"] = self.metadataMode
+    tags["whitelist"] = self.whitelist
+    tags["io"] = self.io
+    tags["priority"] = self.priority
+
+    return tags
+end
+
+function IIO:deserialize_settings(tags)
+    self.color = tags["color"]
+    self.metadataMode = tags["metadataMode"]
+    self.whitelist = tags["whitelist"]
+    self.io = tags["io"]
+
+    self.filters = tags["filters"]
+    self:set_icons(1, self.filters.values[1] ~= "" and self.filters.values[1] or nil)
+    self:set_icons(2, self.filters.values[2] ~= "" and self.filters.values[2] or nil)
+
+    self.priority = tags["priority"]
+    self:generateModeIcon()
+end
+
 function IIO:update()
     if valid(self) == false then
         self:remove()
@@ -751,6 +792,10 @@ function IIO:getTooltips(guiTable, mainFrame, justCreated)
     end
 end
 
+function IIO:set_icons(index, name)
+    self.combinator.get_or_create_control_behavior().set_signal(index, name ~= nil and {signal={type="item", name=name}, count=1} or nil)
+end
+
 function IIO.interaction(event, RNSPlayer)
     if string.match(event.element.name, "RNS_NetworkCableIO_Item_Filter") then
 		local id = event.element.tags.ID
@@ -765,10 +810,12 @@ function IIO.interaction(event, RNSPlayer)
         if index ~= 0 then
             if event.element.elem_value ~= nil then
                 io.filters.values[index] = event.element.elem_value
-                io.combinator.get_or_create_control_behavior().set_signal(index, {signal={type="item", name=event.element.elem_value}, count=1})
+                --io.combinator.get_or_create_control_behavior().set_signal(index, {signal={type="item", name=event.element.elem_value}, count=1})
+                io:set_icons(index, event.element.elem_value)
             else
                 io.filters.values[index] = ""
-                io.combinator.get_or_create_control_behavior().set_signal(index, nil)
+                --io.combinator.get_or_create_control_behavior().set_signal(index, nil)
+                io:set_icons(index, nil)
             end
         end
 		return
