@@ -1,21 +1,21 @@
 local ioI = {}
 ioI.type = "item"
-ioI.name = Constants.NetworkCables.itemIO.itemEntity.name
+ioI.name = Constants.NetworkCables.itemIO.slateEntity.name
 ioI.icon = Constants.NetworkCables.itemIO.itemEntity.itemIcon
 ioI.icon_size = 512
 ioI.subgroup = Constants.ItemGroup.Category.subgroup
 ioI.order = "i"
-ioI.place_result = Constants.NetworkCables.itemIO.itemEntity.name
+ioI.place_result = Constants.NetworkCables.itemIO.slateEntity.name
 ioI.stack_size = 25
 data:extend{ioI}
 
 local ioR = {}
 ioR.type = "recipe"
-ioR.name = Constants.NetworkCables.itemIO.itemEntity.name
+ioR.name = Constants.NetworkCables.itemIO.slateEntity.name
 ioR.energy_required = 1
 ioR.enabled = true
 ioR.ingredients = {}
-ioR.result = Constants.NetworkCables.itemIO.itemEntity.name
+ioR.result = Constants.NetworkCables.itemIO.slateEntity.name
 ioR.result_count = 1
 data:extend{ioR}
 
@@ -80,7 +80,7 @@ ioE.fluid_boxes = {
         production_type = "output"
     }
 }
-data:extend{ioE}
+--data:extend{ioE}
 
 local io = {}
 io.type = "assembling-machine"
@@ -90,7 +90,7 @@ io.icon_size = 512
 io.flags = {"placeable-neutral", "player-creation"}
 io.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 io.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
-io.placeable_by = {item=Constants.NetworkCables.itemIO.itemEntity.name, count=1}
+--io.placeable_by = {item=Constants.NetworkCables.itemIO.slateEntity.name, count=1}
 io.fast_replaceable_group = Constants.Settings.RNS_FR_Cable
 io.max_health = 350
 io.dying_explosion = "medium-explosion"
@@ -98,7 +98,7 @@ io.corpse = "small-remnants"
 io.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
 io.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
 io.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
-io.minable = {mining_time = 0.2, result = Constants.NetworkCables.itemIO.itemEntity.name}
+io.minable = {mining_time = 0.2, result = Constants.NetworkCables.itemIO.slateEntity.name}
 io.animation =
     {
         north = {

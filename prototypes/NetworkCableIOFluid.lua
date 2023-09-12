@@ -16,22 +16,22 @@ data:extend
 
 local ioI = {}
 ioI.type = "item"
-ioI.name = Constants.NetworkCables.fluidIO.itemEntity.name
+ioI.name = Constants.NetworkCables.fluidIO.slateEntity.name
 ioI.icon = Constants.NetworkCables.fluidIO.itemEntity.itemIcon
 ioI.icon_size = 512
 ioI.subgroup = Constants.ItemGroup.Category.subgroup
 ioI.order = "i"
-ioI.place_result = Constants.NetworkCables.fluidIO.itemEntity.name
+ioI.place_result = Constants.NetworkCables.fluidIO.slateEntity.name
 ioI.stack_size = 25
 data:extend{ioI}
 
 local ioR = {}
 ioR.type = "recipe"
-ioR.name = Constants.NetworkCables.fluidIO.itemEntity.name
+ioR.name = Constants.NetworkCables.fluidIO.slateEntity.name
 ioR.energy_required = 1
 ioR.enabled = true
 ioR.ingredients = {}
-ioR.result = Constants.NetworkCables.fluidIO.itemEntity.name
+ioR.result = Constants.NetworkCables.fluidIO.slateEntity.name
 ioR.result_count = 1
 data:extend{ioR}
 
@@ -98,12 +98,12 @@ ioE.fluid_boxes = {
         production_type = "output"
     }
 }
-data:extend{ioE}
+--data:extend{ioE}
 
 local io = {}
 io.type = "storage-tank"
 io.name = Constants.NetworkCables.fluidIO.slateEntity.name
-io.icon = Constants.NetworkCables.fluidIO.slateEntity.itemIcon
+io.icon = Constants.NetworkCables.fluidIO.itemEntity.itemIcon
 io.icon_size = 512
 io.flags = {"placeable-neutral", "player-creation"}
 io.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
@@ -118,7 +118,7 @@ io.fluid_box = {
         {position = {0, -1}}
     }
 }
-io.placeable_by = {item=Constants.NetworkCables.fluidIO.itemEntity.name, count=1}
+--io.placeable_by = {item=Constants.NetworkCables.fluidIO.itemEntity.name, count=1}
 io.fast_replaceable_group = Constants.Settings.RNS_FR_Cable
 io.max_health = 350
 io.dying_explosion = "medium-explosion"
@@ -126,7 +126,7 @@ io.corpse = "small-remnants"
 io.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
 io.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
 io.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
-io.minable = {mining_time = 0.2, result = Constants.NetworkCables.fluidIO.itemEntity.name}
+io.minable = {mining_time = 0.2, result = Constants.NetworkCables.fluidIO.slateEntity.name}
 io.pictures =
     {
         picture = {

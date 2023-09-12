@@ -63,22 +63,22 @@ data:extend{wirelessGridE}
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 local wirelessTransmitterI = {}
 wirelessTransmitterI.type = "item"
-wirelessTransmitterI.name = Constants.NetworkCables.wirelessTransmitter.itemEntity.name
+wirelessTransmitterI.name = Constants.NetworkCables.wirelessTransmitter.slateEntity.name
 wirelessTransmitterI.icon = Constants.NetworkCables.wirelessTransmitter.itemEntity.itemIcon
 wirelessTransmitterI.icon_size = 512
 wirelessTransmitterI.subgroup = Constants.ItemGroup.Category.subgroup
 wirelessTransmitterI.order = "i"
 wirelessTransmitterI.stack_size = 10
-wirelessTransmitterI.place_result = Constants.NetworkCables.wirelessTransmitter.itemEntity.name
+wirelessTransmitterI.place_result = Constants.NetworkCables.wirelessTransmitter.slateEntity.name
 data:extend{wirelessTransmitterI}
 
 local wirelessTransmitterR = {}
 wirelessTransmitterR.type = "recipe"
-wirelessTransmitterR.name = Constants.NetworkCables.wirelessTransmitter.itemEntity.name
+wirelessTransmitterR.name = Constants.NetworkCables.wirelessTransmitter.slateEntity.name
 wirelessTransmitterR.energy_required = 1
 wirelessTransmitterR.enabled = true
 wirelessTransmitterR.ingredients = {}
-wirelessTransmitterR.result = Constants.NetworkCables.wirelessTransmitter.itemEntity.name
+wirelessTransmitterR.result = Constants.NetworkCables.wirelessTransmitter.slateEntity.name
 wirelessTransmitterR.result_count = 1
 data:extend{wirelessTransmitterR}
 
@@ -122,20 +122,20 @@ wirelessTransmitterE.picture =
             }
         }
     }
-data:extend{wirelessTransmitterE}
+--data:extend{wirelessTransmitterE}
 
 local wirelessTransmitter_E = {}
 wirelessTransmitter_E.type = "container"
 wirelessTransmitter_E.name = Constants.NetworkCables.wirelessTransmitter.slateEntity.name
-wirelessTransmitter_E.icon = Constants.NetworkCables.wirelessTransmitter.slateEntity.itemIcon
+wirelessTransmitter_E.icon = Constants.NetworkCables.wirelessTransmitter.itemEntity.itemIcon
 wirelessTransmitter_E.icon_size = 512
 wirelessTransmitter_E.inventory_size = 0
 wirelessTransmitter_E.flags = {"placeable-neutral", "player-creation"}
-wirelessTransmitter_E.minable = {mining_time = 0.2, result = Constants.NetworkCables.wirelessTransmitter.itemEntity.name}
+wirelessTransmitter_E.minable = {mining_time = 0.2, result = Constants.NetworkCables.wirelessTransmitter.slateEntity.name}
 wirelessTransmitter_E.fast_replaceable_group = Constants.Settings.RNS_FR_Cable
 wirelessTransmitter_E.max_health = 250
 wirelessTransmitter_E.dying_explosion = "medium-explosion"
-wirelessTransmitter_E.placeable_by = {item = Constants.NetworkCables.wirelessTransmitter.itemEntity.name, count = 1}
+--wirelessTransmitter_E.placeable_by = {item = Constants.NetworkCables.wirelessTransmitter.itemEntity.name, count = 1}
 wirelessTransmitter_E.corpse = "small-remnants"
 wirelessTransmitter_E.collision_box = {{-0.40, -0.40}, {0.49, 0.40}}
 wirelessTransmitter_E.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}

@@ -1,21 +1,21 @@
 local controllerI = {}
 controllerI.type = "item"
-controllerI.name = Constants.NetworkController.itemEntity.name
+controllerI.name = Constants.NetworkController.slateEntity.name
 controllerI.icon = Constants.NetworkController.itemEntity.itemIcon
 controllerI.icon_size = 256
 controllerI.subgroup = Constants.ItemGroup.Category.subgroup
 controllerI.order = "n"
 controllerI.stack_size = 20
-controllerI.place_result = Constants.NetworkController.itemEntity.name
+controllerI.place_result = Constants.NetworkController.slateEntity.name
 data:extend{controllerI}
 
 local controllerR = {}
 controllerR.type = "recipe"
-controllerR.name = Constants.NetworkController.itemEntity.name
+controllerR.name = Constants.NetworkController.slateEntity.name
 controllerR.energy_required = 1
 controllerR.enabled = true
 controllerR.ingredients = {}
-controllerR.result = Constants.NetworkController.itemEntity.name
+controllerR.result = Constants.NetworkController.slateEntity.name
 controllerR.result_count = 1
 data:extend{controllerR}
 
@@ -59,21 +59,21 @@ controllerE.picture =
             }
         }
     }
-data:extend{controllerE}
+--data:extend{controllerE}
 
 local cE0 = {}
 cE0.type = "electric-energy-interface"
 cE0.name = Constants.NetworkController.slateEntity.name
-cE0.icon = Constants.NetworkController.slateEntity.itemIcon
+cE0.icon = Constants.NetworkController.itemEntity.itemIcon
 cE0.icon_size = 256
 cE0.flags = {"placeable-neutral", "player-creation"}
-cE0.minable = {mining_time = 0.2, result = Constants.NetworkController.itemEntity.name}
+cE0.minable = {mining_time = 0.2, result = Constants.NetworkController.slateEntity.name}
 cE0.max_health = 350
 cE0.dying_explosion = "medium-explosion"
 cE0.corpse = "medium-remnants"
 cE0.collision_box = {{-1.40, -1.40}, {1.40, 1.40}}
 cE0.selection_box = {{-1.5, -1.5}, {1.5, 1.5}}
-cE0.placeable_by = {item=Constants.NetworkController.itemEntity.name, count=1}
+--cE0.placeable_by = {item=Constants.NetworkController.itemEntity.name, count=1}
 cE0.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
 cE0.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
 cE0.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
@@ -90,15 +90,15 @@ cE0.picture =
             {
                 filename = Constants.NetworkController.slateEntity.entityE,
                 priority = "extra-high",
-                size = 32,
-                scale = 1
+                size = 512,
+                scale = 192/512
             },
             {
-                filename = Constants.NetworkController.slateEntity.entityS,
+                filename = Constants.NetworkController.statesEntity.shadow,
                 priority = "extra-high",
                 draw_as_shadow = true,
-                size = 32,
-                scale = 1
+                size = 512,
+                scale = (96 * 3)/512
             }
         }
     }

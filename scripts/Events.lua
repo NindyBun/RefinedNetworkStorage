@@ -167,7 +167,7 @@ function Event.clear_gui(event)
     player.opened = nil
 end
 
-function Event.onBlueprint(event)
+function Event.onBlueprintSetup(event)
     local player = game.players[event.player_index]
 	local mapping = event.mapping.get()
 	local blueprint = player.blueprint_to_setup
@@ -183,11 +183,35 @@ function Event.onBlueprint(event)
 	for index, ent in pairs(mapping) do
 		local tags = ((global.entityTable[ent.unit_number] ~= nil and global.entityTable[ent.unit_number].serialize_settings ~= nil) and {global.entityTable[ent.unit_number]:serialize_settings()} or {nil})[1]
         if tags ~= nil then
+            getRNSPlayer(event.player_index):push_varTable("BlueprintTags", tags)
 			for tag, value in pairs(tags) do
 				blueprint.set_blueprint_entity_tag(index, tag, value)
 			end
 		end
 	end
+end
+
+function Event.onBlueprintConfigured(event)
+    local player = game.players[event.player_index]
+	local blueprint = player.blueprint_to_setup
+	if blueprint.valid_for_read == false then
+		local cursor = player.cursor_stack
+		if cursor and cursor.valid_for_read and cursor.name == "blueprint" then
+			blueprint = cursor
+			--return
+		end
+	end
+	if blueprint == nil or blueprint.valid_for_read == false then return end
+
+	for index, ent in pairs(getRNSPlayer(event.player_index):pull_varTable("BlueprintTags")) do
+		local tags = ((global.entityTable[ent.unit_number] ~= nil and global.entityTable[ent.unit_number].serialize_settings ~= nil) and {global.entityTable[ent.unit_number]:serialize_settings()} or {nil})[1]
+        if tags ~= nil then
+			for tag, value in pairs(tags) do
+				blueprint.set_blueprint_entity_tag(index, tag, value)
+			end
+		end
+	end
+    getRNSPlayer(event.player_index):remove_varTable("BlueprintTags")
 end
 
 function Event.onSettingsPasted(event)
