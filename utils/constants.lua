@@ -1,6 +1,7 @@
 Constants = {}
 Constants.MOD_ID = "RefinedNetworkStorage"
 Constants.Settings = {
+    RNS_WirelessTransmitter_Tick = 30,
     RNS_Default_WirelessGrid_Distance = 32*3,
     RNS_Default_Gui_Distance = 11.5,
     RNS_Max_Priority = 5,

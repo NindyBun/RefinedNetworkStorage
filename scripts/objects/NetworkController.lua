@@ -102,6 +102,58 @@ function NC:update()
     --if tickItemBeltIO >= 0.0 and tickItemBeltIO < 1.0 then self:updateItemIO(true) end
 
     if game.tick % Constants.Settings.RNS_FluidIO_Tick == 0 then self:updateFluidIO() end --Base is every 5 ticks to match offshore pump speed at 1200/s
+
+    --if game.tick % Constants.Settings.RNS_WirelessTransmitter_Tick == 0 then self:find_players_with_wirelessTransmitter() end --Updates every 30 ticks
+end
+
+function NC:find_players_with_wirelessTransmitter()
+    local processed_players = {}
+    for _, transmitter in pairs(BaseNet.getOperableObjects(self.network.WirelessTransmitterTable)[1]) do
+        --For Players
+        local characters = self.thisEntity.surface.find_entities_filtered{
+            type = "character",
+            area = {
+                {transmitter.thisEntity.position.x-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance, transmitter.thisEntity.position.y-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance}, --top left
+                {transmitter.thisEntity.position.x+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance, transmitter.thisEntity.position.y+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance} --bottom right
+            }
+        }
+        for _, character in pairs(characters) do
+            if character.player ~= nil then
+                local RNSPlayer = getRNSPlayer(character.player.index)
+                if RNSPlayer ~= nil and RNSPlayer.thisEntity ~= nil and RNSPlayer.thisEntity.valid == true and processed_players[character.player.index] == nil then
+                    RNSPlayer:process_logistic_slots()
+                    processed_players[character.player.index] = RNSPlayer
+                end
+            end
+        end
+    end
+
+end
+
+function NC:find_wirelessgrid_with_wirelessTransmitter(id)
+    for _, transmitter in pairs(BaseNet.getOperableObjects(self.network.WirelessTransmitterTable)[1]) do
+        --For Portable Wireless Grids
+        local interfaces = self.thisEntity.surface.find_entities_filtered{
+                name = Constants.WirelessGrid.name,
+                area = {
+                    {transmitter.thisEntity.position.x-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance, transmitter.thisEntity.position.y-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance}, --top left
+                    {transmitter.thisEntity.position.x+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance, transmitter.thisEntity.position.y+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance} --bottom right
+                }
+            }
+        for _, interface in pairs(interfaces) do
+            if interface.unit_number == id then
+                local inter = global.entityTable[interface.unit_number]
+                if inter ~= nil and inter.thisEntity ~= nil and inter.thisEntity.valid == true then
+                    if inter.network_controller_position.x ~= nil and inter.network_controller_position.y ~= nil and inter.network_controller_surface ~= nil then
+                        if inter.network_controller_surface == self.thisEntity.surface.index and Util.positions_match(inter.network_controller_position, self.thisEntity.position) == true then
+                            return true
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return false
 end
 
 function NC:updateItemIO()
@@ -272,17 +324,17 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
 
     local itemIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ItemIOTable))
     if itemIOcount > 0 then
-        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.itemIO.itemEntity.name, itemIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.itemIO.slateEntity.name, itemIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local fluidIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.FluidIOTable))
     if fluidIOcount > 0 then
-        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.fluidIO.itemEntity.name, fluidIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.fluidIO.slateEntity.name, fluidIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local externalIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ExternalIOTable))
     if externalIOcount > 0 then
-        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.externalIO.itemEntity.name, externalIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.externalIO.slateEntity.name, externalIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local interfacecount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.NetworkInventoryInterfaceTable))
@@ -292,7 +344,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
 
     local wirelessTransmittercount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.WirelessTransmitterTable))
     if wirelessTransmittercount > 0 then
-        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.wirelessTransmitter.itemEntity.name, wirelessTransmittercount, 64, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.wirelessTransmitter.slateEntity.name, wirelessTransmittercount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
 end

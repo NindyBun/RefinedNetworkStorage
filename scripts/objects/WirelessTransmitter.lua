@@ -73,6 +73,10 @@ function WT:update()
     --end
 end
 
+function WT:locate_and_inject()
+
+end
+
 function WT:resetConnection()
     self.connectedObjs = {
         [1] = {}, --N

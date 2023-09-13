@@ -64,61 +64,6 @@ function WG:DataConvert_EntityToItem(item)
     item.set_tag(Constants.Settings.RNS_Tag, {surfaceID=self.network_controller_surface, position=self.network_controller_position})
 end
 
---[[
-function WG:getTooltips(guiTable, mainFrame, justCreated)
-    if justCreated == true then
-        guiTable.vars.Gui_Title.caption = {"gui-description.RNS_WirelessGrid_Title"}
-
-        local infoFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
-		infoFrame.style = Constants.Settings.RNS_Gui.frame_1
-		infoFrame.style.vertically_stretchable = true
-		infoFrame.style.minimal_width = 200
-		infoFrame.style.left_margin = 3
-		infoFrame.style.left_padding = 3
-		infoFrame.style.right_padding = 3
-		GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
-
-        GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_WirelessGrid_Target"}, Constants.Settings.RNS_Gui.white)
-
-        local xflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
-        --xflow.style.horizontal_align = "center"
-
-        GuiApi.add_label(guiTable, "", xflow, {"gui-description.RNS_xPos"}, Constants.Settings.RNS_Gui.white)
-        local xPos = GuiApi.add_text_field(guiTable, "RNS_WirelessGrid_xPos", xflow, self.network_controller_position.x == nil and "" or tostring(self.network_controller_position.x), {"gui-description.RNS_xPos_tooltip"}, true, true, true, true, false, {ID=self.entID})
-        xPos.style.maximal_width = 50
-
-        --GuiApi.add_label(guiTable, "", flow, "    ")
-        local yflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
-        GuiApi.add_label(guiTable, "", yflow, {"gui-description.RNS_yPos"}, Constants.Settings.RNS_Gui.white)
-        local yPos = GuiApi.add_text_field(guiTable, "RNS_WirelessGrid_yPos", yflow, self.network_controller_position.y == nil and "" or tostring(self.network_controller_position.y), {"gui-description.RNS_yPos_tooltip"}, true, true, true, true, false, {ID=self.entID})
-        yPos.style.maximal_width = 50
-    end
-end
-
-function WG.interaction(event, RNSPlayer)
-    if string.match(event.element.name, "xPos") then
-		local obj = global.entityTable[event.element.tags.ID]
-		if obj == nil then return end
-        if event.element.text ~= "" then
-            obj.network_controller_position.x = tonumber(event.element.text)
-        else
-            obj.network_controller_position.x = nil
-        end
-		return
-	end
-    if string.match(event.element.name, "yPos") then
-		local obj = global.entityTable[event.element.tags.ID]
-		if obj == nil then return end
-        if event.element.text ~= "" then
-            obj.network_controller_position.y = tonumber(event.element.text)
-        else
-            obj.network_controller_position.y = nil
-        end
-		return
-	end
-end
-]]
-
 function WG:getTooltips(guiTable, mainFrame, justCreated)
     local RNSPlayer = guiTable.RNSPlayer
 
@@ -253,30 +198,9 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 	if self.network_controller_position.x == nil or self.network_controller_position.y == nil then return end
 	if game.surfaces[self.network_controller_surface].find_entity(Constants.NetworkController.slateEntity.name, self.network_controller_position) == nil then return end
 
-	local wirelessTransmitters = self.thisEntity.surface.find_entities_filtered{
-		name = Constants.NetworkCables.wirelessTransmitter.slateEntity.name,
-		position = self.thisEntity.position,
-		radius = Constants.Settings.RNS_Default_WirelessGrid_Distance
-	}
-
-	local close = false
-	for _, transmitter in pairs(wirelessTransmitters) do
-		if transmitter ~= nil and transmitter.valid == true then
-			local transmitter1 = global.entityTable[transmitter.unit_number]
-			if transmitter1 == nil or (transmitter1 ~= nil and transmitter1.networkController == nil) then goto continue end
-			if transmitter1.networkController.thisEntity ~= nil and transmitter1.networkController.thisEntity.valid == true and transmitter1.networkController.stable == true then
-				if Util.positions_match(transmitter1.networkController.thisEntity.position, self.network_controller_position) == true and Util.distance(self.thisEntity.position, transmitter1.thisEntity.position) <= Constants.Settings.RNS_Default_WirelessGrid_Distance then
-					close = true
-					break
-				end
-			end
-		end
-		::continue::
-	end
-
 	self:createPlayerInventory(guiTable, RNSPlayer, playerInventoryScrollPane, textField.text)
 
-	if close == false then
+	if self.networkController:find_wirelessgrid_with_wirelessTransmitter(self.thisEntity.unit_number) == false then
 		if justCreated == true then RNSPlayer.thisEntity.print({"gui-description.RNS_NetworkController_Far"}) end
 		return
 	end
