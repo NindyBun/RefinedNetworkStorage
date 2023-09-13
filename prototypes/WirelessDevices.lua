@@ -166,3 +166,45 @@ wirelessTransmitter_E.picture =
         }
     }
 data:extend{wirelessTransmitter_E}
+
+local playerportI = {}
+playerportI.type = "item"
+playerportI.name = Constants.PlayerPort.name
+playerportI.icon = Constants.PlayerPort.icon
+playerportI.icon_size = 256
+playerportI.subgroup = Constants.ItemGroup.Category.subgroup
+playerportI.order = "i"
+playerportI.stack_size = 1
+playerportI.placed_as_equipment_result = Constants.PlayerPort.name
+data:extend{playerportI}
+
+local playerportR = {}
+playerportR.type = "recipe"
+playerportR.name = Constants.PlayerPort.name
+playerportR.energy_required = 1
+playerportR.enabled = true
+playerportR.ingredients = {}
+playerportR.result = Constants.PlayerPort.name
+playerportR.result_count = 1
+data:extend{playerportR}
+
+local playerportE = {}
+playerportE.type = "battery-equipment"
+playerportE.name = Constants.PlayerPort.name
+playerportE.sprite = {
+    filename = Constants.PlayerPort.icon,
+    priority = "extra-high",
+    size = 256,
+}
+playerportE.shape = {
+    width = 2,
+    height = 2,
+    type = "full"
+}
+playerportE.categories = {"armor"}
+playerportE.energy_source = {
+    type = "energy",
+    buffer_capacity = "10000MJ",
+    usage_priority = "secondary-input"
+}
+data:extend{playerportE}

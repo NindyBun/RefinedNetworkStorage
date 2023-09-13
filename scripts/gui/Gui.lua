@@ -129,13 +129,19 @@ function GUI.on_gui_clicked(event)
     end
 
     if string.match(event.element.name, "RNS_NII") then
-        NII.interaction(event, event.player_index)
+        NII.interaction(event, RNSPlayer)
         GUI.update(true)
         return
     end
 
     if string.match(event.element.name, "RNS_WG") then
-        WG.interaction(event, event.player_index)
+        WG.interaction(event, RNSPlayer)
+        GUI.update(true)
+        return
+    end
+
+    if string.match(event.element.name, "RNS_WT") then
+        WT.interaction(event, RNSPlayer)
         GUI.update(true)
         return
     end

@@ -68,6 +68,15 @@ function RNSP:valid()
     return true
 end
 
+function RNSP:process_logistic_slots()
+    if self.thisEntity == nil or self.thisEntity.valid == false then return end
+    if self.thisEntity.get_inventory(defines.inventory.character_armor) == nil then return end
+    local armorSlot = self.thisEntity.get_inventory(defines.inventory.character_armor)
+    if armorSlot[1].count <= 0 then return end
+    if armorSlot[1].grid == nil then return end
+    
+end
+
 function RNSP:has_room()
     local inv = self.thisEntity.get_main_inventory()
     for i = 1, #inv do

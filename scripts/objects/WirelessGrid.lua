@@ -567,7 +567,7 @@ function WG.transfer_from_fdinv(RNSPlayer, WG, tags, count)
 	--end
 end
 
-function WG.interaction(event, playerIndex)
+function WG.interaction(event, RNSPlayer)
 	if string.match(event.element.name, "RNS_SearchTextField") then return end
 	if string.match(event.element.name, "xPos") then
 		local obj = global.entityTable[event.element.tags.ID]
@@ -609,19 +609,19 @@ function WG.interaction(event, playerIndex)
 
 	if string.match(event.element.name, "RNS_WG_PInv") then
 		local obj = global.entityTable[event.element.tags.ID]
-		WG.transfer_from_pinv(getRNSPlayer(playerIndex), obj, event.element.tags, count)
+		WG.transfer_from_pinv(RNSPlayer, obj, event.element.tags, count)
 		return
 	end
 
 	if string.match(event.element.name, "RNS_WG_IDInv") then
 		local obj = global.entityTable[event.element.tags.ID]
-		WG.transfer_from_idinv(getRNSPlayer(playerIndex), obj, event.element.tags, count)
+		WG.transfer_from_idinv(RNSPlayer, obj, event.element.tags, count)
 		return
 	end
 
 	if string.match(event.element.name, "RNS_WG_FDInv") then
 		local obj = global.entityTable[event.element.tags.ID]
-		WG.transfer_from_fdinv(getRNSPlayer(playerIndex), obj, event.element.tags, count)
+		WG.transfer_from_fdinv(RNSPlayer, obj, event.element.tags, count)
 		return
 	end
 

@@ -109,6 +109,17 @@ function GuiApi.add_button(guiTable, name, gui, sprite, hoverSprite, clickedSpri
     return button
 end
 
+function GuiApi.add_simple_button(guiTable, name, gui, text, tooltip, save, tags)
+    -- Check if this Element doesn't exist --
+    if name ~= nil and name ~= "" and gui[name] ~= nil then gui[name].destroy() end
+    local button = gui.add{type="button", name=name, caption=text, tooltip=tooltip, tags=tags}
+
+    if guiTable ~= nil and save == true then
+        guiTable.vars[name] = button
+    end
+    return button
+end
+
 function GuiApi.add_label(guiTable, name, gui, text, color, tooltip, save, font, style)
     if name ~= nil and name ~= "" and gui[name] ~= nil then gui[name].destroy() end
 

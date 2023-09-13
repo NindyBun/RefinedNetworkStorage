@@ -50,7 +50,7 @@ end
 function WT:remove()
     UpdateSys.remove(self)
     if self.networkController ~= nil then
-        self.networkController.network.WirelessGrid[1][self.entID] = nil
+        self.networkController.network.WirelessTransmitterTable[1][self.entID] = nil
         self.networkController.network.shouldRefresh = true
     end
 end
@@ -151,6 +151,7 @@ end
 function WT:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
         guiTable.vars.Gui_Title.caption = {"gui-description.RNS_WirelessTransmitter_Title"}
+        mainFrame.style.height = 250
 
         local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", mainFrame, "vertical", true)
 		colorFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -170,12 +171,47 @@ function WT:getTooltips(guiTable, mainFrame, justCreated)
 		infoFrame.style.left_padding = 3
 		infoFrame.style.right_padding = 3
 		infoFrame.style.right_margin = 3
-		infoFrame.style.width = 100
+		infoFrame.style.width = 150
 
         GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
 
         GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_WirelessTransmitterRange", Constants.Settings.RNS_Default_WirelessGrid_Distance}, Constants.Settings.RNS_Gui.white)
+    
+        local playerFrame = GuiApi.add_frame(guiTable, "PlayerFrame", mainFrame, "vertical", true)
+		playerFrame.style = Constants.Settings.RNS_Gui.frame_1
+		playerFrame.style.vertically_stretchable = true
+		playerFrame.style.left_padding = 3
+		playerFrame.style.right_padding = 3
+		playerFrame.style.right_margin = 3
+        GuiApi.add_subtitle(guiTable, "", playerFrame, {"gui-description.RNS_Connected_Players"})
+
+		local flow = GuiApi.add_flow(guiTable, "", playerFrame, "horizontal")
+		flow.style.vertical_align = "center"
+    
+		local textField = GuiApi.add_text_field(guiTable, "RNS_PlayerField", flow, "", "", true, false, false, false, false)
+		textField.style.maximal_width = 140
+        --GuiApi.add_label(guiTable, "", flow, "  ")
+        local checkMark = GuiApi.add_button(guiTable, "RNS_WT_Checkmark", flow, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, {"gui-description.RNS_Add"}, 30, false, true, nil, nil, {ID=self.thisEntity.unit_number})
+        --GuiApi.add_label(guiTable, "", flow, "  ")
+        local xMark = GuiApi.add_button(guiTable, "RNS_WT_Xmark", flow, Constants.Icons.x_mark.name, Constants.Icons.x_mark.name, Constants.Icons.x_mark.name, {"gui-description.RNS_Remove"}, 30, false, true, nil, nil, {ID=self.thisEntity.unit_number})
+
+        GuiApi.add_line(guiTable, "", playerFrame, "horizontal")
+        local playerScrollPane = GuiApi.add_scroll_pane(guiTable, "PlayerScrollPane", playerFrame, 300, true)
+		playerScrollPane.style = Constants.Settings.RNS_Gui.scroll_pane
+		playerScrollPane.style.minimal_width = 208
+		playerScrollPane.style.vertically_stretchable = true
+		playerScrollPane.style.bottom_margin = 3
     end
+    local playerPane = guiTable.vars.PlayerScrollPane
+    playerPane.clear()
+
+    if self.networkController == nil or not self.networkController.stable or (self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == false) then return end
+
+    for name, rnsplayer in pairs(self.networkController.network.PlayerPorts) do
+        local button = GuiApi.add_simple_button(guiTable, "", playerPane, name, nil)
+        button.style.minimal_width = 200-4
+    end
+
 end
 
 function WT.interaction(event, RNSPlayer)
@@ -190,4 +226,36 @@ function WT.interaction(event, RNSPlayer)
         end
 		return
 	end
+    if string.match(event.element.name, "RNS_WT_Checkmark") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        for _, guiTable in pairs(RNSPlayer.GUI or {}) do
+            if guiTable.gui ~= nil and guiTable.gui.valid == true then
+                if guiTable.vars.currentObject.thisEntity ~= nil and guiTable.vars.currentObject.thisEntity.valid == true and guiTable.vars.currentObject.thisEntity.unit_number == id then
+                    local text = guiTable.vars.RNS_PlayerField.text
+                    if game.players[text] ~= nil and io.networkController ~= nil and io.networkController.thisEntity ~= nil and io.networkController.thisEntity.valid == true and io.networkController.network.PlayerPorts[text] == nil then
+                        io.networkController.network.PlayerPorts[text] = RNSPlayer
+                        return
+                    end
+                end
+            end
+        end
+    end
+    if string.match(event.element.name, "RNS_WT_Xmark") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        for _, guiTable in pairs(RNSPlayer.GUI or {}) do
+            if guiTable.gui ~= nil and guiTable.gui.valid == true then
+                if guiTable.vars.currentObject.thisEntity ~= nil and guiTable.vars.currentObject.thisEntity.valid == true and guiTable.vars.currentObject.thisEntity.unit_number == id then
+                    local text = guiTable.vars.RNS_PlayerField.text
+                    if game.players[text] ~= nil and io.networkController ~= nil and io.networkController.thisEntity ~= nil and io.networkController.thisEntity.valid == true and io.networkController.network.PlayerPorts[text] ~= nil then
+                        io.networkController.network.PlayerPorts[text] = nil
+                        return
+                    end
+                end
+            end
+        end
+    end
 end

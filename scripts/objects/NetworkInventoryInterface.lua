@@ -591,7 +591,7 @@ function NII.transfer_from_fdinv(RNSPlayer, NII, tags, count)
 	--end
 end
 
-function NII.interaction(event, playerIndex)
+function NII.interaction(event, RNSPlayer)
 	if string.match(event.element.name, "RNS_SearchTextField") then return end
 	local count = 0
 	if event.button == defines.mouse_button_type.left then count = 1 end --1 Item
@@ -602,19 +602,19 @@ function NII.interaction(event, playerIndex)
 
 	if string.match(event.element.name, "RNS_NII_PInv") then
 		local obj = global.entityTable[event.element.tags.ID]
-		NII.transfer_from_pinv(getRNSPlayer(playerIndex), obj, event.element.tags, count)
+		NII.transfer_from_pinv(RNSPlayer, obj, event.element.tags, count)
 		return
 	end
 
 	if string.match(event.element.name, "RNS_NII_IDInv") then
 		local obj = global.entityTable[event.element.tags.ID]
-		NII.transfer_from_idinv(getRNSPlayer(playerIndex), obj, event.element.tags, count)
+		NII.transfer_from_idinv(RNSPlayer, obj, event.element.tags, count)
 		return
 	end
 
 	if string.match(event.element.name, "RNS_NII_FDInv") then
 		local obj = global.entityTable[event.element.tags.ID]
-		NII.transfer_from_fdinv(getRNSPlayer(playerIndex), obj, event.element.tags, count)
+		NII.transfer_from_fdinv(RNSPlayer, obj, event.element.tags, count)
 		return
 	end
 

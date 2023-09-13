@@ -7,7 +7,8 @@ BaseNet = {
     FluidIOTable = nil,
     ExternalIOTable = nil,
     NetworkInventoryInterfaceTable = nil,
-    WirelessTransmitter = nil,
+    WirelessTransmitterTable = nil,
+    PlayerPorts = nil,
     shouldRefresh = false,
     updateTick = 200,
     lastUpdate = 0
@@ -18,6 +19,7 @@ function BaseNet:new()
     local mt = {}
     setmetatable(t, mt)
     mt.__index = BaseNet
+    self.PlayerPorts = {}
     t:resetTables()
     UpdateSys.addEntity(t)
     return t

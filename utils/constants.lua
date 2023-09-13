@@ -330,6 +330,18 @@ Constants.Icons = {
         name = "RNS_storage_indication_arrow_bothways",
         sprite = "__RefinedNetworkStorage__/graphics/Cables/IO/storage-indication-arrow-both-ways.png"
     },
+    check_mark = {
+        name = "RNS_check_mark_icon",
+        sprite = "__RefinedNetworkStorage__/graphics/check-mark.png"
+    },
+    x_mark = {
+        name = "RNS_x_mark_icon",
+        sprite = "__RefinedNetworkStorage__/graphics/x-mark.png"
+    },
+}
+Constants.PlayerPort = {
+    name = "RNS_PlayerPort",
+    icon = "__RefinedNetworkStorage__/graphics/personalPlayerPort.png",
 }
 Constants.NetworkCables = {
     itemIO = {
