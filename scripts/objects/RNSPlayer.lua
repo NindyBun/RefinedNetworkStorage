@@ -74,7 +74,9 @@ function RNSP:process_logistic_slots()
     local armorSlot = self.thisEntity.get_inventory(defines.inventory.character_armor)
     if armorSlot[1].count <= 0 then return end
     if armorSlot[1].grid == nil then return end
-    
+    if armorSlot[1].grid.find(Constants.PlayerPort.name) == nil then return end
+    local port = armorSlot[1].grid.find(Constants.PlayerPort.name)
+    game.print(port.energy .. " >> " .. port.max_energy)
 end
 
 function RNSP:has_room()
