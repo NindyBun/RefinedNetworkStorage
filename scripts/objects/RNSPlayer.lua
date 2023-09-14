@@ -68,7 +68,7 @@ function RNSP:valid()
     return true
 end
 
-function RNSP:process_logistic_slots()
+function RNSP:process_logistic_slots(network)
     if self.thisEntity == nil or self.thisEntity.valid == false then return end
     if self.thisEntity.get_inventory(defines.inventory.character_armor) == nil then return end
     local armorSlot = self.thisEntity.get_inventory(defines.inventory.character_armor)
@@ -76,7 +76,118 @@ function RNSP:process_logistic_slots()
     if armorSlot[1].grid == nil then return end
     if armorSlot[1].grid.find(Constants.PlayerPort.name) == nil then return end
     local port = armorSlot[1].grid.find(Constants.PlayerPort.name)
-    game.print(port.energy .. " >> " .. port.max_energy)
+    if port == nil then return end
+    if port.energy <= 0 then return end
+    local player_inv = self.thisEntity.get_main_inventory()
+    local player_contents = player_inv.get_contents()
+    for i=1, self.thisEntity.character.request_slot_count do
+        local slot = self.thisEntity.character.get_personal_logistic_slot(i)
+        if slot ~= nil and slot.name ~= nil then
+            local min = slot.min
+            local max = slot.max
+            local name = slot.name
+            local amount = (player_contents[name] or 0) + ((self.thisEntity.cursor_stack and self.thisEntity.cursor_stack.valid_for_read and self.thisEntity.cursor_stack.name == name) and self.thisEntity.cursor_stack.count or 0)
+            amount = math.min(amount*100, port.energy)
+            local add = (amount <= min) and min-amount or 0
+            local remove = (amount > max) and amount-max or 0
+            local itemstack = Util.itemstack_template(name)
+            if add > 0 then
+                local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
+                local externalItems = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network.ExternalIOTable)))
+                for a = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
+                    local priorityD = itemDrives[a]
+                    local priorityE = externalItems[a]
+                    if Util.getTableLength(priorityD) > 0 then
+                        for _, drive in pairs(priorityD) do
+                            local has = drive:has_item(itemstack, true)
+                            if has > 0 and self:has_room() == true then
+                                local added = BaseNet.transfer_from_drive_to_inv(drive, player_inv, itemstack, math.min(add, has), true)
+                                add = add - added
+                                port.energy = port.energy - added*100
+                                if add <= 0 or port.energy <= 0 then goto next end
+                            end
+                        end
+                    end
+                    if Util.getTableLength(priorityE) > 0 then
+                        for _, external in pairs(priorityE) do
+                            if external.focusedEntity.thisEntity ~= nil and external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false then
+                                if external.type == "item" and external.focusedEntity.inventory.values ~= nil then
+                                    local index = 0
+                                    repeat
+                                        local ii = Util.next(external.focusedEntity.inventory)
+                                        local inv1 = external.focusedEntity.thisEntity.get_inventory(ii.slot)
+                                        if inv1 ~= nil and IIO.check_operable_mode(ii.io, "output") then
+                                            inv1.sort_and_merge()
+                                            local has = EIO.has_item(inv1, itemstack, true)
+                                            if has > 0 and self:has_room() == true then
+                                                local added = BaseNet.transfer_from_inv_to_inv(inv1, player_inv, itemstack, nil, math.min(has, add), true, true)
+                                                add = add - added
+                                                port.energy = port.energy - added*100
+                                                if add <= 0 or port.energy <= 0 then goto next end
+                                            end
+                                        end
+                                        index = index + 1
+                                    until index == Util.getTableLength(external.focusedEntity.inventory.values)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            if remove > 0 then
+                local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
+                local externalItems = BaseNet.filter_by_mode("input", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network.ExternalIOTable)))
+                for r = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
+                    local priorityD = itemDrives[r]
+                    local priorityE = externalItems[r]
+                    if Util.getTableLength(priorityD) > 0 then
+                        for _, drive in pairs(priorityD) do
+                            if drive:has_room() then
+                                local removed = BaseNet.transfer_from_inv_to_drive(player_inv, drive, itemstack, nil, math.min(remove, drive:getRemainingStorageSize()), true, true)
+                                remove = remove - removed
+                                port.energy = port.energy - removed*100
+                                if remove <= 0 or port.energy <= 0 then goto next end
+                            end
+                        end
+                    end
+                    if Util.getTableLength(priorityE) > 0 then
+                        for _, external in pairs(priorityE) do
+                            if external.focusedEntity.thisEntity ~= nil and external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false then
+                                if external.type == "item" and external.focusedEntity.inventory.values ~= nil then
+                                    local index = 0
+                                    repeat
+                                        local ii = Util.next(external.focusedEntity.inventory)
+                                        local inv1 = external.focusedEntity.thisEntity.get_inventory(ii.slot)
+                                        if inv1 ~= nil and IIO.check_operable_mode(ii.io, "input") then
+                                            if Util.getTableLength_non_nil(external.filters.item.values) > 0 then
+                                                if external:matches_filters("item", itemstack.cont.name) == true then
+                                                    if external.whitelist == false then goto continue end
+                                                else
+                                                    if external.whitelist == true then goto continue end
+                                                end
+                                            elseif Util.getTableLength_non_nil(external.filters.item.values) == 0 then
+                                                if external.whitelist == true then goto continue end
+                                            end
+                                            inv1.sort_and_merge()
+                                            if EIO.has_item_room(inv1) == true then
+                                                local removed = BaseNet.transfer_from_inv_to_inv(player_inv, inv1, itemstack, nil, remove, true, true)
+                                                remove = remove - removed
+                                                port.energy = port.energy - removed*100
+                                                if remove <= 0 or port.energy <= 0 then goto next end
+                                            end
+                                        end
+                                        index = index + 1
+                                    until index == Util.getTableLength(external.focusedEntity.inventory.values)
+                                end
+                            end
+                            ::continue::
+                        end
+                    end
+                end
+            end
+        end
+        ::next::
+    end
 end
 
 function RNSP:has_room()

@@ -121,7 +121,7 @@ function NC:find_players_with_wirelessTransmitter()
             if character.player ~= nil and self.network.PlayerPorts[character.player.name] ~= nil then
                 local RNSPlayer = getRNSPlayer(character.player.index)
                 if RNSPlayer ~= nil and RNSPlayer.thisEntity ~= nil and RNSPlayer.thisEntity.valid == true and processed_players[character.player.index] == nil then
-                    RNSPlayer:process_logistic_slots()
+                    RNSPlayer:process_logistic_slots(self.network)
                     processed_players[character.player.index] = RNSPlayer
                 end
             end

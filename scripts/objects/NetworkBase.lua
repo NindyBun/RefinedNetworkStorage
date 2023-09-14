@@ -19,7 +19,7 @@ function BaseNet:new()
     local mt = {}
     setmetatable(t, mt)
     mt.__index = BaseNet
-    self.PlayerPorts = {}
+    t.PlayerPorts = {}
     t:resetTables()
     UpdateSys.addEntity(t)
     return t

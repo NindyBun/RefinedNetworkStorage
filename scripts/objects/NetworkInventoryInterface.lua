@@ -438,7 +438,7 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	if amount <= 0 then return end
 
 	local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
-	local externalItems = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network.ExternalIOTable)))
+	local externalItems = BaseNet.filter_by_mode("input", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network.ExternalIOTable)))
 	for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
 		local priorityD = itemDrives[i]
 		local priorityE = externalItems[i]
