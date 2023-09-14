@@ -51,6 +51,7 @@ end
 function DT:remove()
     UpdateSys.remove(self)
     if self.networkController ~= nil then
+        self.networkController.network.DetectorTable[1][self.entID] = nil
         self.networkController.network.shouldRefresh = true
     end
 end

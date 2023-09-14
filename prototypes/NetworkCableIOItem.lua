@@ -161,7 +161,7 @@ combinator.circuit_wire_connection_points = {
 	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}},
 	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}}
 }
-combinator.circuit_wire_max_distance = 0
+combinator.circuit_wire_max_distance = 6
 combinator.collision_box = {{-0.5, -0.5}, {0.5, 0.5}}
 combinator.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
 combinator.flags = {'placeable-neutral', 'not-upgradable', 'not-rotatable'}
@@ -182,11 +182,13 @@ combinator.activity_led_sprites = {
 	priority = 'extra-high',
 	size = 32
 }
-combinator.draw_copper_wires = false
-combinator.draw_circuit_wires = false
+combinator.selection_priority = 51
+--combinator.draw_copper_wires = false
+--combinator.draw_circuit_wires = false
 combinator.activity_led_light_offsets = {{0, 0}, {0, 0}, {0, 0}, {0, 0}}
-combinator.selectable_in_game = false
+--combinator.selectable_in_game = false
 data:extend{combinator}
+
 --[[function createItemIO(id)
     local io1 = {}
 	io1.type = "container"

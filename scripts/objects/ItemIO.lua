@@ -88,7 +88,7 @@ function IIO:remove()
     if self.combinator ~= nil then self.combinator.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
-        self.networkController.network.ItemIOTable[self.priority][self.entID] = nil
+        self.networkController.network.ItemIOTable[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil
         self.networkController.network.shouldRefresh = true
     end
 end

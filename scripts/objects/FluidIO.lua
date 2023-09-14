@@ -77,7 +77,7 @@ function FIO:remove()
     if self.combinator ~= nil then self.combinator.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
-        self.networkController.network.FluidIOTable[self.priority][self.entID] = nil
+        self.networkController.network.FluidIOTable[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil
         self.networkController.network.shouldRefresh = true
     end
 end
