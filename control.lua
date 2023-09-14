@@ -200,17 +200,11 @@ script.on_event(defines.events.on_entity_died, removed)
 script.on_event(defines.events.on_player_rotated_entity , rotated)
 script.on_event(defines.events.on_selected_entity_changed, changed_selection)
 
-script.on_event("rns_wireless_grid_key", function(event)
-    local RNSPlayer = getRNSPlayer(event.player_index)
-    if RNSPlayer ~= nil then
-        --RNSPlayer:open_wireless_grid(event)
-    end
-end)
-
 script.on_event(defines.events.on_lua_shortcut, function(event)
-    if event.prototype_name ~= Constants.Settings.RNS_Player_Port_Shortcut then return end
     local player = getPlayer(event.player_index)
-    player.set_shortcut_toggled(Constants.Settings.RNS_Player_Port_Shortcut, not player.is_shortcut_toggled(Constants.Settings.RNS_Player_Port_Shortcut))
+    if event.prototype_name == Constants.Settings.RNS_Player_Port_Shortcut then
+        player.set_shortcut_toggled(Constants.Settings.RNS_Player_Port_Shortcut, not player.is_shortcut_toggled(Constants.Settings.RNS_Player_Port_Shortcut))
+    end
 end)
 
 script.on_event(defines.events.on_gui_opened, onGuiOpened)

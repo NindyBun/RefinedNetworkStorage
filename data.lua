@@ -10,15 +10,6 @@ require("prototypes.NetworkCableIOFluid")
 require("prototypes.NetworkCableIOExternal")
 -------------------------------------------------------------------------------------
 data:extend{
-    {
-        type = "custom-input",
-        name = "rns_wireless_grid_key",
-        key_sequence = "SHIFT + E",
-        order = "a"
-    }
-}
-
-data:extend{
 	{
 		type = "shortcut",
 		name = Constants.Settings.RNS_Player_Port_Shortcut,
