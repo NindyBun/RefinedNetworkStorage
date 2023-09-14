@@ -204,7 +204,7 @@ playerportE.shape = {
 playerportE.categories = {"armor"}
 playerportE.energy_source = {
     type = "energy",
-    buffer_capacity = "250MJ",
+    buffer_capacity = "5MJ",
     usage_priority = "secondary-input"
 }
 data:extend{playerportE}

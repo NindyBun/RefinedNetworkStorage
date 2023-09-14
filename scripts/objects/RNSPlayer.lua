@@ -77,7 +77,7 @@ function RNSP:process_logistic_slots(network)
     if armorSlot[1].grid.find(Constants.PlayerPort.name) == nil then return end
     local port = armorSlot[1].grid.find(Constants.PlayerPort.name)
     if port == nil then return end
-    if port.energy <= 0 then return end
+    if port.energy < Constants.Settings.RNS_PlayerPort_Consumption then return end
     local player_inv = self.thisEntity.get_main_inventory()
     local player_contents = player_inv.get_contents()
     for i=1, self.thisEntity.character.request_slot_count do
@@ -87,9 +87,10 @@ function RNSP:process_logistic_slots(network)
             local max = slot.max
             local name = slot.name
             local amount = (player_contents[name] or 0) + ((self.thisEntity.cursor_stack and self.thisEntity.cursor_stack.valid_for_read and self.thisEntity.cursor_stack.name == name) and self.thisEntity.cursor_stack.count or 0)
-            amount = math.min(amount*100, port.energy)
             local add = (amount <= min) and min-amount or 0
+            add = math.min(add*Constants.Settings.RNS_PlayerPort_Consumption, port.energy)/Constants.Settings.RNS_PlayerPort_Consumption
             local remove = (amount > max) and amount-max or 0
+            remove = math.min(remove*Constants.Settings.RNS_PlayerPort_Consumption, port.energy)/Constants.Settings.RNS_PlayerPort_Consumption
             local itemstack = Util.itemstack_template(name)
             if add > 0 then
                 local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
@@ -103,7 +104,7 @@ function RNSP:process_logistic_slots(network)
                             if has > 0 and self:has_room() == true then
                                 local added = BaseNet.transfer_from_drive_to_inv(drive, player_inv, itemstack, math.min(add, has), true)
                                 add = add - added
-                                port.energy = port.energy - added*100
+                                port.energy = port.energy - added*Constants.Settings.RNS_PlayerPort_Consumption
                                 if add <= 0 or port.energy <= 0 then goto next end
                             end
                         end
@@ -122,7 +123,7 @@ function RNSP:process_logistic_slots(network)
                                             if has > 0 and self:has_room() == true then
                                                 local added = BaseNet.transfer_from_inv_to_inv(inv1, player_inv, itemstack, nil, math.min(has, add), true, true)
                                                 add = add - added
-                                                port.energy = port.energy - added*100
+                                                port.energy = port.energy - added*Constants.Settings.RNS_PlayerPort_Consumption
                                                 if add <= 0 or port.energy <= 0 then goto next end
                                             end
                                         end
@@ -145,7 +146,7 @@ function RNSP:process_logistic_slots(network)
                             if drive:has_room() then
                                 local removed = BaseNet.transfer_from_inv_to_drive(player_inv, drive, itemstack, nil, math.min(remove, drive:getRemainingStorageSize()), true, true)
                                 remove = remove - removed
-                                port.energy = port.energy - removed*100
+                                port.energy = port.energy - removed*Constants.Settings.RNS_PlayerPort_Consumption
                                 if remove <= 0 or port.energy <= 0 then goto next end
                             end
                         end
@@ -172,7 +173,7 @@ function RNSP:process_logistic_slots(network)
                                             if EIO.has_item_room(inv1) == true then
                                                 local removed = BaseNet.transfer_from_inv_to_inv(player_inv, inv1, itemstack, nil, remove, true, true)
                                                 remove = remove - removed
-                                                port.energy = port.energy - removed*100
+                                                port.energy = port.energy - removed*Constants.Settings.RNS_PlayerPort_Consumption
                                                 if remove <= 0 or port.energy <= 0 then goto next end
                                             end
                                         end
