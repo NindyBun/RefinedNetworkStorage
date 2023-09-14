@@ -210,7 +210,8 @@ function RNSP:process_logistic_slots(network)
                 if Util.getTableLength(priorityD) > 0 then
                     for _, drive in pairs(priorityD) do
                         if drive:has_room() then
-                            local removed = BaseNet.transfer_from_inv_to_drive(player_trash, drive, itemstack, nil, drive:getRemainingStorageSize(), true, true)
+                            local removed = BaseNet.transfer_from_inv_to_drive(player_trash, drive, itemstack, nil, math.min(remove, drive:getRemainingStorageSize()), true, true)
+                            remove = remove - removed
                             port.energy = port.energy - removed*Constants.Settings.RNS_PlayerPort_Consumption
                             if port.energy < Constants.Settings.RNS_PlayerPort_Consumption then return end
                             if remove <= 0 then goto next end
@@ -237,7 +238,8 @@ function RNSP:process_logistic_slots(network)
                                         end
                                         inv1.sort_and_merge()
                                         if EIO.has_item_room(inv1) == true then
-                                            local removed = BaseNet.transfer_from_inv_to_inv(player_trash, inv1, itemstack, nil, drive:getRemainingStorageSize(), true, true)
+                                            local removed = BaseNet.transfer_from_inv_to_inv(player_trash, inv1, itemstack, nil, remove, true, true)
+                                            remove = remove - removed
                                             port.energy = port.energy - removed*Constants.Settings.RNS_PlayerPort_Consumption
                                             if port.energy < Constants.Settings.RNS_PlayerPort_Consumption then return end
                                             if remove <= 0 then goto next end
