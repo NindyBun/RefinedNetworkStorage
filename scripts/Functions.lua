@@ -7,6 +7,7 @@ function createObjectTables()
 
     addOrCreateObjectTable{tableName="WirelessGridTable", tag="WG", objName=Constants.WirelessGrid.name}
     addOrCreateObjectTable{tableName="WirelessTransmitterTable", tag="WT", objName=Constants.NetworkCables.wirelessTransmitter.slateEntity.name}
+    addOrCreateObjectTable{tableName="DetectorTable", tag="DT", objName=Constants.Detector.name}
 
     addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive1k.name}
     addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive4k.name}

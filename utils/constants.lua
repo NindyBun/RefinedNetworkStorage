@@ -56,6 +56,7 @@ Constants.Settings = {
     RNS_ItemIO_Tick = 4,
     RNS_BaseItemIO_TransferCapacity = 1,
     RNS_FluidIO_Tick = 5,
+    RNS_CollectContents_Tick = 2,
     RNS_BaseFluidIO_TransferCapacity = 100,
     RNS_TypesWithContainer = {
         ["ammo-turret"] = true,
@@ -164,7 +165,15 @@ Constants.Settings = {
             [1] = {
                 slot = defines.inventory.lab_input,
                 io = "input"
-            }
+            },
+            [2] = {
+                slot = defines.inventory.fuel,
+                io = "input"
+            },
+            [3] = {
+                slot = defines.inventory.burnt_result,
+                io = "output"
+            },
         },
         ["cargo-wagon"] = {
             [1] = {
@@ -344,6 +353,12 @@ Constants.Icons = {
 Constants.PlayerPort = {
     name = "RNS_PlayerPort",
     icon = "__RefinedNetworkStorage__/graphics/personalPlayerPort.png",
+}
+Constants.Detector = {
+    name = "RNS_Detector",
+    itemIcon = "__RefinedNetworkStorage__/graphics/Networks/Detector/DetectorI.png",
+    entityE =  "__RefinedNetworkStorage__/graphics/Networks/Detector/DetectorE.png",
+    entityS =  "__RefinedNetworkStorage__/graphics/Networks/Detector/DetectorS.png",
 }
 Constants.NetworkCables = {
     itemIO = {

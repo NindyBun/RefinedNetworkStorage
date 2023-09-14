@@ -19,6 +19,7 @@ function Event.placed(event)
     local type = entity.type
     local entName = type == "entity-ghost" and entity.ghost_name or entity.name
     
+    --[[
     if string.match(entName, "RNS_NetworkCable_I") ~= nil and type ~= "entity-ghost" then
         --entName = Constants.NetworkCables.Cable.entity.name
         for _, color in pairs(Constants.NetworkCables.Cables) do
@@ -87,7 +88,7 @@ function Event.placed(event)
         entity.destroy()
         entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply}
         entity.health = health
-    end
+    end]]
 
     local objInfo = global.objectTables[entName]
 

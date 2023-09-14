@@ -97,6 +97,8 @@ function NC:update()
 
     if not self.stable then return end
 
+    if game.tick % Constants.Settings.RNS_CollectContents_Tick == 0 then self:collectContents() end
+
     if game.tick % Constants.Settings.RNS_ItemIO_Tick == 0 then self:updateItemIO() end --Base is every 4 ticks to match yellow belt speed at 15/s
     --local tickItemBeltIO = game.tick % (120/Constants.Settings.RNS_BaseItemIO_TickSpeed) --speed based on 1 side of a belt
     --if tickItemBeltIO >= 0.0 and tickItemBeltIO < 1.0 then self:updateItemIO(true) end
@@ -104,6 +106,71 @@ function NC:update()
     if game.tick % Constants.Settings.RNS_FluidIO_Tick == 0 then self:updateFluidIO() end --Base is every 5 ticks to match offshore pump speed at 1200/s
 
     if game.tick % Constants.Settings.RNS_WirelessTransmitter_Tick == 0 then self:find_players_with_wirelessTransmitter() end --Updates every 30 ticks
+end
+
+function NC:collectContents()
+    self.network.ItemContents = {}
+    self.network.FluidContents = {}
+    local itemDrives = BaseNet.getOperableObjects(self.network.ItemDriveTable)
+    local fluidDrives = BaseNet.getOperableObjects(self.network.FluidDriveTable)
+    local externalInvs = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(self.network.ExternalIOTable)))
+    local externalTanks = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("fluid", BaseNet.getOperableObjects(self.network.ExternalIOTable)))
+
+    for i = 1, Constants.Settings.RNS_Max_Priority*2+1 do
+        local priorityItems = itemDrives[i]
+        local priorityFluids = fluidDrives[i]
+        local priorityInvs = externalInvs[i]
+        local priorityTanks = externalTanks[i]
+
+        if Util.getTableLength(priorityItems) > 0 then
+            for _, drive in pairs(priorityItems) do
+                for name, content in pairs(drive.storageArray.item_list) do
+                    self.network.ItemContents[name] = (self.network.ItemContents[name] or 0) + content.count
+                end
+                for name, count in pairs(drive.storageArray.inventory.get_contents()) do
+                    self.network.ItemContents[name] = (self.network.ItemContents[name] or 0) + count
+                end
+            end
+        end
+        if Util.getTableLength(priorityFluids) > 0 then
+            for _, drive in pairs(priorityFluids) do
+                for name, content in pairs(drive.fluidArray) do
+                    self.network.FluidContents[name] = (self.network.FluidContents[name] or 0) + content.amount
+                end
+            end
+        end
+        if Util.getTableLength(priorityInvs) > 0 then
+            for _, eInv in pairs(priorityInvs) do
+                if string.match(eInv.io, "output") == nil then goto next end
+                if eInv.focusedEntity.thisEntity ~= nil and eInv.focusedEntity.thisEntity.valid == true and eInv.focusedEntity.thisEntity.to_be_deconstructed() == false and eInv.focusedEntity.inventory.values ~= nil then
+                    local index = 0
+                    repeat
+                        local ii = Util.next(eInv.focusedEntity.inventory)
+                        local inv = eInv.focusedEntity.thisEntity.get_inventory(ii.slot)
+                        if inv ~= nil and IIO.check_operable_mode(ii.io, "output") then
+                            for name, count in pairs(inv.get_contents()) do
+                                self.network.ItemContents[name] = (self.network.ItemContents[name] or 0) + count
+                            end
+                        end
+                        index = index + 1
+                    until index == Util.getTableLength(eInv.focusedEntity.inventory.values)
+                end
+                ::next::
+            end
+        end
+        if Util.getTableLength(priorityTanks) > 0 then
+            for _, eTank in pairs(priorityTanks) do
+                local fluid_box = eTank.focusedEntity.fluid_box
+                if string.match(fluid_box.flow, "output") == nil then goto next end
+                if eTank.focusedEntity.thisEntity ~= nil and eTank.focusedEntity.thisEntity.valid == true and eTank.focusedEntity.thisEntity.to_be_deconstructed() == false and eTank.focusedEntity.fluid_box.index ~= nil then
+                    local tank = eTank.focusedEntity.thisEntity.fluidbox[fluid_box.index]
+                    if tank == nil then goto next end
+                    self.network.FluidContents[tank.name] = (self.network.FluidContents[tank.name] or 0) + tank.amount
+                end
+                ::next::
+            end
+        end
+    end
 end
 
 function NC:find_players_with_wirelessTransmitter()
@@ -345,6 +412,11 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
     local wirelessTransmittercount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.WirelessTransmitterTable))
     if wirelessTransmittercount > 0 then
         GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.wirelessTransmitter.slateEntity.name, wirelessTransmittercount, 64, Constants.Settings.RNS_Gui.label_font_2)
+    end
+
+    local detectorcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.DetectorTable))
+    if detectorcount > 0 then
+        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.Detector.name, detectorcount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
 end
