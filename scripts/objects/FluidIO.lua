@@ -101,6 +101,46 @@ function FIO:update()
     self:createArms()
 end
 
+function FIO:copy_settings(obj)
+    self.color = obj.color
+    self.whitelist = obj.whitelist
+    self.io = obj.io
+
+    self.filter = obj.filter
+    self:set_icons(1, self.filter ~= "" and self.filter or nil)
+
+    self.priority = obj.priority
+    self:generateModeIcon()
+end
+
+function FIO:serialize_settings()
+    local tags = {}
+
+    tags["color"] = self.color
+    tags["filter"] = self.filter
+    tags["whitelist"] = self.whitelist
+    tags["io"] = self.io
+    tags["priority"] = self.priority
+
+    return tags
+end
+
+function FIO:deserialize_settings(tags)
+    self.color = tags["color"]
+    self.whitelist = tags["whitelist"]
+    self.io = tags["io"]
+
+    self.filter = tags["filter"]
+    self:set_icons(1, self.filter ~= "" and self.filter or nil)
+
+    self.priority = tags["priority"]
+    self:generateModeIcon()
+end
+
+function FIO:set_icons(index, name)
+    self.combinator.get_or_create_control_behavior().set_signal(index, name ~= nil and {signal={type="fluid", name=name}, count=1} or nil)
+end
+
 function FIO:toggleHoverIcon(hovering)
     if self.ioIcon == nil then return end
     if hovering and rendering.get_only_in_alt_mode(self.ioIcon) then

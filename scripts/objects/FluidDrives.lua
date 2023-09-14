@@ -76,6 +76,20 @@ function FD:update()
     self:collect()
 end
 
+function FD:copy_settings(obj)
+    self.priority = obj.priority
+end
+
+function FD:serialize_settings()
+    local tags = {}
+    tags["priority"] = self.priority
+    return tags
+end
+
+function FD:deserialize_settings(tags)
+    self.priority = tags["priority"]
+end
+
 function FD:resetCollection()
     self.connectedObjs = {
         [1] = {}, --N

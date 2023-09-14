@@ -54,6 +54,23 @@ function WG:update()
 	end
 end
 
+function WG:copy_settings(obj)
+    self.network_controller_position = obj.network_controller_position
+	self.network_controller_surface = obj.network_controller_surface
+end
+
+function WG:serialize_settings()
+    local tags = {}
+    tags["surface"] = self.self.network_controller_surface
+	tags["position"] = self.network_controller_position
+    return tags
+end
+
+function WG:deserialize_settings(tags)
+    self.network_controller_surface = tags["surface"]
+	self.network_controller_position = tags["position"]
+end
+
 function WG:DataConvert_ItemToEntity(tag_contents)
     self.network_controller_surface = tag_contents.surfaceID
 	self.network_controller_position = tag_contents.position

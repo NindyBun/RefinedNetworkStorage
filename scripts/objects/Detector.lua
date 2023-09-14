@@ -74,6 +74,20 @@ function DT:update()
     --end
 end
 
+function DT:copy_settings(obj)
+    self.color = obj.color
+end
+
+function DT:serialize_settings()
+    local tags = {}
+    tags["color"] = self.color
+    return tags
+end
+
+function DT:deserialize_settings(tags)
+    self.color = tags["color"]
+end
+
 function DT:resetConnection()
     self.connectedObjs = {
         [1] = {}, --N

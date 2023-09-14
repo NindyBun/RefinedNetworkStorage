@@ -127,6 +127,56 @@ function EIO:update()
     self:createArms()
 end
 
+function EIO:copy_settings(obj)
+    self.color = obj.color
+    self.metadataMode = obj.metadataMode
+    self.whitelist = obj.whitelist
+    self.io = obj.io
+    self.type = obj.type
+
+    self.filters = obj.filters
+    for i=1, 10 do
+        self:set_icons(i, self.filters[self.type].values[i] ~= "" and self.filters[self.type].values[i] or nil, self.type)
+    end
+
+    self.priority = obj.priority
+    self:generateModeIcon()
+end
+
+function EIO:set_icons(index, name, type)
+    self.combinator.get_or_create_control_behavior().set_signal(index, name ~= nil and {signal={type=type, name=name}, count=1} or nil)
+end
+
+function EIO:serialize_settings()
+    local tags = {}
+
+    tags["color"] = self.color
+    tags["filters"] = self.filters
+    tags["metadataMode"] = self.metadataMode
+    tags["whitelist"] = self.whitelist
+    tags["io"] = self.io
+    tags["priority"] = self.priority
+    tags["type"] = self.type
+
+    return tags
+end
+
+function EIO:deserialize_settings(tags)
+    self.color = tags["color"]
+    self.metadataMode = tags["metadataMode"]
+    self.whitelist = tags["whitelist"]
+    self.io = tags["io"]
+    self.type = tags["type"]
+
+    self.filters = tags["filters"]
+    for i=1, 10 do
+        self:set_icons(i, self.filters[self.type].values[i] ~= "" and self.filters[self.type].values[i] or nil, self.type)
+    end
+
+    self.priority = tags["priority"]
+    self:generateModeIcon()
+end
+
 function EIO:toggleHoverIcon(hovering)
     if self.ioIcon == nil then return end
     if hovering and rendering.get_only_in_alt_mode(self.ioIcon) then

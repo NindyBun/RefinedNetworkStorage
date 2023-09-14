@@ -73,8 +73,18 @@ function WT:update()
     --end
 end
 
-function WT:locate_and_inject()
+function WT:copy_settings(obj)
+    self.color = obj.color
+end
 
+function WT:serialize_settings()
+    local tags = {}
+    tags["color"] = self.color
+    return tags
+end
+
+function WT:deserialize_settings(tags)
+    self.color = tags["color"]
 end
 
 function WT:resetConnection()

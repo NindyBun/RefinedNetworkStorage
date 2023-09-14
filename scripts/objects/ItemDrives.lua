@@ -79,6 +79,20 @@ function ID:update()
     self:collect()
 end
 
+function ID:copy_settings(obj)
+    self.priority = obj.priority
+end
+
+function ID:serialize_settings()
+    local tags = {}
+    tags["priority"] = self.priority
+    return tags
+end
+
+function ID:deserialize_settings(tags)
+    self.priority = tags["priority"]
+end
+
 function ID:resetCollection()
     self.connectedObjs = {
         [1] = {}, --N
