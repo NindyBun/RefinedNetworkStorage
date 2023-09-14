@@ -70,6 +70,7 @@ end
 
 function RNSP:process_logistic_slots(network)
     if self.thisEntity == nil or self.thisEntity.valid == false then return end
+    if not self.thisEntity.is_shortcut_toggled(Constants.Settings.RNS_Player_Port_Shortcut) then return end
     if self.thisEntity.get_inventory(defines.inventory.character_armor) == nil then return end
     local armorSlot = self.thisEntity.get_inventory(defines.inventory.character_armor)
     if armorSlot[1].count <= 0 then return end

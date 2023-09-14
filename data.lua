@@ -12,11 +12,29 @@ require("prototypes.NetworkCableIOExternal")
 data:extend{
     {
         type = "custom-input",
-        name = "wireless_grid_key",
+        name = "rns_wireless_grid_key",
         key_sequence = "SHIFT + E",
         order = "a"
     }
 }
+
+data:extend{
+	{
+		type = "shortcut",
+		name = Constants.Settings.RNS_Player_Port_Shortcut,
+		order = "p",
+		toggleable=true,
+		action = "lua",
+		icon =
+		{
+		  filename = "__RefinedNetworkStorage__/graphics/playerportIcon.png",
+		  priority = "extra-high-no-scale",
+		  size = 40,
+		  flags = {"gui-icon"}
+		},
+	  }
+}
+
 data:extend{
 	{
 		type="recipe-category",
