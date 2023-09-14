@@ -341,28 +341,6 @@ function EIO:getRealDirection()
     end
 end
 
-local modeListN = {
-    [1] = "input",
-    [2] = "output",
-    [3] = "input/output"
-}
-
-local typeListN = {
-    [1] = "item",
-    [2] = "fluid"
-}
-
-local modeList = {
-    ["input"] = 1,
-    ["output"] = 2,
-    ["input/output"] = 3
-}
-
-local typeList = {
-    ["item"] = 1,
-    ["fluid"] = 2
-}
-
 function EIO.has_item_room(inv)
     inv.sort_and_merge()
     for i=1, #inv do
@@ -415,7 +393,7 @@ end
 
 function EIO:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
-		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_External"}
+		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_External_Title"}
 
         local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", mainFrame, "vertical", true)
 		colorFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -464,13 +442,13 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
         --Fluid or Item Mode
         local typeFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
         GuiApi.add_label(guiTable, "", typeFlow, {"gui-description.RNS_Type"}, Constants.Settings.RNS_Gui.white)
-        local typeDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Type", typeFlow, {{"gui-description.RNS_Item"}, {"gui-description.RNS_Fluid"}}, typeList[self.type], false, "", {ID=self.thisEntity.unit_number})
+        local typeDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Type", typeFlow, {{"gui-description.RNS_Item"}, {"gui-description.RNS_Fluid"}}, Constants.Settings.RNS_Types[self.type], false, "", {ID=self.thisEntity.unit_number})
         typeDD.style.minimal_width = 100
 
         --IO Mode
         local modeFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
         GuiApi.add_label(guiTable, "", modeFlow, {"gui-description.RNS_Mode"}, Constants.Settings.RNS_Gui.white)
-        local modeDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Mode", modeFlow, {{"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, {"gui-description.RNS_Both"}}, modeList[self.io], false, "", {ID=self.thisEntity.unit_number})
+        local modeDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Mode", modeFlow, {{"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, {"gui-description.RNS_Both"}}, Constants.Settings.RNS_Modes[self.io], false, "", {ID=self.thisEntity.unit_number})
         modeDD.style.minimal_width = 100
 
         local priorityFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
@@ -529,7 +507,7 @@ function EIO.interaction(event, RNSPlayer)
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        local mode = modeListN[event.element.selected_index]
+        local mode = Constants.Settings.RNS_ModeN[event.element.selected_index]
         if mode ~= io.io then
             io.io = mode
             io.processed = false
@@ -542,7 +520,7 @@ function EIO.interaction(event, RNSPlayer)
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        local type = typeListN[event.element.selected_index]
+        local type = Constants.Settings.RNS_TypeN[event.element.selected_index]
         if type ~= io.type then
             io.type = type
             RNSPlayer:push_varTable(id, true)

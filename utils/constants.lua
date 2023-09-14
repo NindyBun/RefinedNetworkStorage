@@ -20,6 +20,24 @@ Constants.Settings = {
         [9] = {"gui-description.RNS_GREEN"},
         [10] ={"gui-description.RNS_BROWN"},
     },
+    RNS_ModeN = {
+        [1] = "input",
+        [2] = "output",
+        [3] = "input/output"
+    },
+    RNS_TypeN = {
+        [1] = "item",
+        [2] = "fluid"
+    },
+    RNS_Modes = {
+        ["input"] = 1,
+        ["output"] = 2,
+        ["input/output"] = 3
+    },
+    RNS_Types = {
+        ["item"] = 1,
+        ["fluid"] = 2
+    },
     RNS_ColorN = {
         [1] = "RED",
         [2] = "WHITE",

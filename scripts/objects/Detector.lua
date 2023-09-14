@@ -5,9 +5,8 @@ DT = {
     color = "RED",
     connectedObjs = nil,
     networkController = nil,
+    type = "item",
     cardinals = nil,
-    updateTick = 60,
-    lastUpdate = 0,
 }
 
 function DT:new(object)
@@ -146,6 +145,47 @@ function DT:createArms()
     end
 end
 
-function DT:getTooltips()
+function DT:getTooltips(guiTable, mainFrame, justCreated)
+    if justCreated == true then
+		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_Detector_Title"}
 
+        local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", mainFrame, "vertical", true)
+		colorFrame.style = Constants.Settings.RNS_Gui.frame_1
+		colorFrame.style.vertically_stretchable = true
+		colorFrame.style.left_padding = 3
+		colorFrame.style.right_padding = 3
+		colorFrame.style.right_margin = 3
+		colorFrame.style.width = 150
+
+        GuiApi.add_subtitle(guiTable, "", colorFrame, {"gui-description.RNS_Connection_Color"})
+        local colorDD = GuiApi.add_dropdown(guiTable, "RNS_Detector_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
+        colorDD.style.minimal_width = 100
+
+        --Add the RNS_Detector
+        local conditionFrame = GuiApi.add_frame(guiTable, "ConditionFrame", mainFrame, "vertical", true)
+		conditionFrame.style = Constants.Settings.RNS_Gui.frame_1
+		conditionFrame.style.vertically_stretchable = true
+		conditionFrame.style.left_padding = 3
+		conditionFrame.style.right_padding = 3
+		conditionFrame.style.right_margin = 3
+		conditionFrame.style.minimal_width = 300
+		GuiApi.add_subtitle(guiTable, "", conditionFrame, {"gui-description.RNS_Condition"})
+
+        --Add Item/Fluid Type
+        local typeFrame = GuiApi.add_frame(guiTable, "TypeFrame", mainFrame, "vertical", true)
+		typeFrame.style = Constants.Settings.RNS_Gui.frame_1
+		typeFrame.style.vertically_stretchable = true
+		typeFrame.style.left_padding = 3
+		typeFrame.style.right_padding = 3
+		typeFrame.style.right_margin = 3
+		typeFrame.style.minimal_width = 200
+
+		GuiApi.add_subtitle(guiTable, "", typeFrame, {"gui-description.RNS_Setting"})
+
+        --Fluid or Item Mode
+        local typeFlow = GuiApi.add_flow(guiTable, "", typeFrame, "horizontal", false)
+        GuiApi.add_label(guiTable, "", typeFlow, {"gui-description.RNS_Type"}, Constants.Settings.RNS_Gui.white)
+        local typeDD = GuiApi.add_dropdown(guiTable, "RNS_Detector_Type", typeFlow, {{"gui-description.RNS_Item"}, {"gui-description.RNS_Fluid"}}, Constants.Settings.RNS_Types[self.type], false, "", {ID=self.thisEntity.unit_number})
+        typeDD.style.minimal_width = 100
+    end
 end

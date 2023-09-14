@@ -388,7 +388,7 @@ end
 
 function FIO:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
-		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_Fluid"}
+		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_Fluid_Title"}
 
         local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", mainFrame, "vertical", true)
 		colorFrame.style = Constants.Settings.RNS_Gui.frame_1

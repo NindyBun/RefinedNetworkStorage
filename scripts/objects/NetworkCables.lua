@@ -6,8 +6,6 @@ NCbl = {
     connectedObjs = nil,
     networkController = nil,
     cardinals = nil,
-    updateTick = 60,
-    lastUpdate = 0,
 }
 
 function NCbl:new(object)
@@ -169,6 +167,18 @@ function NCbl:createArms()
     end
 end
 
-function NCbl:getTooltips()
+function NCbl:getTooltips(guiTable, mainFrame, justCreated)
+    if justCreated == true then
+        guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCable_Title"}
 
+        local infoFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
+		infoFrame.style = Constants.Settings.RNS_Gui.frame_1
+		infoFrame.style.vertically_stretchable = true
+		infoFrame.style.left_padding = 3
+		infoFrame.style.right_padding = 3
+		infoFrame.style.right_margin = 3
+
+        GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
+        GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_NetworkCable"}, Constants.Settings.RNS_Gui.white)
+    end
 end
