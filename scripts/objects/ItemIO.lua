@@ -817,6 +817,7 @@ function IIO.interaction(event, RNSPlayer)
                 --io.combinator.get_or_create_control_behavior().set_signal(index, nil)
                 io:set_icons(index, nil)
             end
+            io.processed = false
         end
 		return
 	end
@@ -829,6 +830,7 @@ function IIO.interaction(event, RNSPlayer)
         if color ~= io.color then
             io.color = color
             rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[io.color].sprites[5].name, target=io.thisEntity, surface=io.thisEntity.surface, render_layer="lower-object-above-shadow"}
+            io.processed = false
         end
 		return
 	end
@@ -856,6 +858,7 @@ function IIO.interaction(event, RNSPlayer)
 		local io = global.entityTable[id]
 		if io == nil then return end
         io.whitelist = event.element.switch_state == "left" and true or false
+        io.processed = false
 		return
     end
 
@@ -864,6 +867,7 @@ function IIO.interaction(event, RNSPlayer)
 		local io = global.entityTable[id]
 		if io == nil then return end
         io.metadataMode = event.element.state
+        io.processed = false
 		return
     end
 

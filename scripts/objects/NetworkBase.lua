@@ -10,8 +10,7 @@ BaseNet = {
     WirelessTransmitterTable = nil,
     DetectorTable = nil,
     PlayerPorts = nil,
-    ItemContents = nil,
-    FluidContents = nil,
+    Contents = nil,
     shouldRefresh = false,
     updateTick = 200,
     lastUpdate = 0
@@ -23,8 +22,10 @@ function BaseNet:new()
     setmetatable(t, mt)
     mt.__index = BaseNet
     t.PlayerPorts = {}
-    t.ItemContents = {}
-    t.FluidContents = {}
+    t.Contents = {
+        item = {},
+        fluid = {}
+    }
     t:resetTables()
     UpdateSys.addEntity(t)
     return t

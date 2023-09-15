@@ -60,3 +60,35 @@ detector_E.picture =
         }
     }
 data:extend{detector_E}
+
+local combinator1 = {}
+combinator1.circuit_wire_connection_points = {
+	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}},
+	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}},
+	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}},
+	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}}
+}
+combinator1.circuit_wire_max_distance = 6
+combinator1.collision_box = {{-0.25, -0.25}, {0.25, 0.25}}
+combinator1.selection_box = {{-0.25, -0.25}, {0.25, 0.25}}
+combinator1.flags = {'placeable-neutral', 'hidden', 'not-upgradable', 'not-rotatable', 'hide-alt-info'}
+combinator1.icon = Constants.Settings.RNS_BlankIcon
+combinator1.icon_size = 32
+combinator1.item_slot_count = 1
+combinator1.name = 'RNS_Combinator_1'
+combinator1.type = 'constant-combinator'
+combinator1.collision_mask = {}
+combinator1.remove_decoratives = 'false'
+combinator1.sprites = {
+	filename = Constants.Settings.RNS_BlankIcon,
+	priority = 'extra-high',
+	size = 32
+}
+combinator1.activity_led_sprites = {
+	filename = Constants.Settings.RNS_BlankIcon,
+	priority = 'extra-high',
+	size = 32
+}
+combinator1.selection_priority = 51
+combinator1.activity_led_light_offsets = {{0, 0}, {0, 0}, {0, 0}, {0, 0}}
+data:extend{combinator1}

@@ -11,7 +11,8 @@ function GUI.update(force)
                             goto continue
                         end
                         local playerVars = false
-                        if guiTable.vars.currentObject.thisEntity.name == Constants.NetworkCables.externalIO.slateEntity.name then
+                        if guiTable.vars.currentObject.thisEntity.name == Constants.NetworkCables.externalIO.slateEntity.name 
+                        or guiTable.vars.currentObject.thisEntity.name == Constants.Detector.name then
                             playerVars = RNSPlayer:pull_varTable(guiTable.vars.currentObject.entID)
                             RNSPlayer:remove_varTable(guiTable.vars.currentObject.entID)
                         end
@@ -197,6 +198,12 @@ function GUI.on_gui_element_changed(event)
 
     if string.match(event.element.name, "RNS_WirelessTransmitter") then
         WT.interaction(event, RNSPlayer)
+        GUI.update(true)
+        return
+    end
+
+    if string.match(event.element.name, "RNS_Detector") then
+        DT.interaction(event, RNSPlayer)
         GUI.update(true)
         return
     end

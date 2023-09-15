@@ -6,7 +6,12 @@ DT = {
     connectedObjs = nil,
     networkController = nil,
     type = "item",
+    filters = nil,
+    operator = "<",
+    number = 0,
     cardinals = nil,
+    combinator = nil,
+    combinator1 = nil
 }
 
 function DT:new(object)
@@ -36,6 +41,26 @@ function DT:new(object)
         [3] = false, --S
         [4] = false, --W
     }
+    t.filters = {
+        item = "",
+        fluid = ""
+    }
+    t.combinator = object.surface.create_entity{
+        name="rns-combinator",
+        position=object.position,
+        force="neutral"
+    }
+    t.combinator.destructible = false
+    t.combinator.operable = false
+    t.combinator.minable = false
+    t.combinator1 = object.surface.create_entity{
+        name="RNS_Combinator_1",
+        position=object.position,
+        force="neutral"
+    }
+    t.combinator1.destructible = false
+    t.combinator1.operable = false
+    t.combinator1.minable = false
     t:createArms()
     UpdateSys.addEntity(t)
     return t
@@ -49,6 +74,8 @@ function DT:rebuild(object)
 end
 
 function DT:remove()
+    if self.combinator ~= nil then self.combinator.destroy() end
+    if self.combinator1 ~= nil then self.combinator1.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
         self.networkController.network.DetectorTable[1][self.entID] = nil
@@ -73,6 +100,39 @@ function DT:update()
         if self.thisEntity.to_be_deconstructed() == true then return end
         self:createArms()
     --end
+end
+
+local operatorFunctions = {
+    [">"] = function (filter, number)
+        return (filter > number and {true} or {false})[1]
+    end,
+    ["<"] = function (filter, number)
+        return (filter < number and {true} or {false})[1]
+    end,
+    ["="] = function (filter, number)
+        return (filter == number and {true} or {false})[1]
+    end,
+    [">="] = function (filter, number)
+        return (filter >= number and {true} or {false})[1]
+    end,
+    ["<="] = function (filter, number)
+        return (filter <= number and {true} or {false})[1]
+    end,
+    ["!="] = function (filter, number)
+        return (filter ~= number and {true} or {false})[1]
+    end
+}
+
+function DT:update_signal()
+    if self.filters[self.type] == "" then return end
+    if self.networkController ~= nil and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true and self.networkController.thisEntity.to_be_deconstructed() == false then
+        local amount = self.networkController.network.Contents[self.type][self.filters[self.type]] or 0
+        self.combinator.get_or_create_control_behavior().set_signal(2,  (operatorFunctions[self.operator](amount, self.number) and {{signal={type="virtual", name="signal-red"}, count=1}} or {nil})[1])
+        self.combinator1.get_or_create_control_behavior().set_signal(1, (operatorFunctions[self.operator](amount, self.number) and {{signal={type="virtual", name="signal-red"}, count=1}} or {nil})[1])
+    else
+        self.combinator.get_or_create_control_behavior().set_signal(2,  nil)
+        self.combinator1.get_or_create_control_behavior().set_signal(1, nil)
+    end
 end
 
 function DT:copy_settings(obj)
@@ -186,6 +246,29 @@ function DT:getTooltips(guiTable, mainFrame, justCreated)
 		conditionFrame.style.minimal_width = 300
 		GuiApi.add_subtitle(guiTable, "", conditionFrame, {"gui-description.RNS_Condition"})
 
+        GuiApi.add_label(guiTable, "", conditionFrame, {"gui-description.RNS_Condition"}, Constants.Settings.RNS_Gui.white)
+        local cFlow = GuiApi.add_flow(guiTable, "", conditionFrame, "horizontal")
+        cFlow.style.vertical_align = "center"
+        local filter = GuiApi.add_filter(guiTable, "RNS_Detector_Filter", cFlow, "", true, self.type, 40, {ID=self.thisEntity.unit_number})
+        guiTable.vars.filters = {}
+        guiTable.vars.filters[self.type] = filter
+        if self.filters[self.type] ~= "" then
+            filter.elem_value = self.filters[self.type]
+        end
+        local opDD = GuiApi.add_dropdown(guiTable, "RNS_Detector_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.operator], false, "", {ID=self.thisEntity.unit_number})
+        opDD.style.minimal_width = 50
+        --local number = GuiApi.add_filter(guiTable, "RNS_Detector_Number", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+        --number.elem_value = {type="virtual", name="constant-number"}
+        local number = GuiApi.add_text_field(guiTable, "RNS_Detector_Number", cFlow, tostring(self.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
+        number.style.minimal_width = 100
+
+        GuiApi.add_line(guiTable, "", conditionFrame, "horizontal")
+        GuiApi.add_label(guiTable, "", conditionFrame, {"gui-description.RNS_Output"}, Constants.Settings.RNS_Gui.white)
+        local oFlow = GuiApi.add_flow(guiTable, "", conditionFrame, "horizontal")
+        local output = GuiApi.add_filter(guiTable, "", oFlow, "", false, "signal", 40, {ID=self.thisEntity.unit_number})
+        output.elem_value = {type="virtual", name="signal-red"}
+        output.enabled = false
+
         --Add Item/Fluid Type
         local typeFrame = GuiApi.add_frame(guiTable, "TypeFrame", mainFrame, "vertical", true)
 		typeFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -202,5 +285,66 @@ function DT:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_label(guiTable, "", typeFlow, {"gui-description.RNS_Type"}, Constants.Settings.RNS_Gui.white)
         local typeDD = GuiApi.add_dropdown(guiTable, "RNS_Detector_Type", typeFlow, {{"gui-description.RNS_Item"}, {"gui-description.RNS_Fluid"}}, Constants.Settings.RNS_Types[self.type], false, "", {ID=self.thisEntity.unit_number})
         typeDD.style.minimal_width = 100
+    end
+end
+
+function DT.interaction(event, RNSPlayer)
+    if string.match(event.element.name, "RNS_Detector_Number") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local num = math.min(2^32, tonumber(event.element.text ~= "" and event.element.text or "0"))
+        io.number = num
+        event.element.text = tostring(num)
+        return
+    end
+    if string.match(event.element.name, "RNS_Detector_Filter") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        if event.element.elem_value ~= nil then
+            io.filters[io.type] = event.element.elem_value
+            io.combinator.get_or_create_control_behavior().set_signal(1, {signal={type=io.type, name=event.element.elem_value}, count=1})
+        else
+            io.filters[io.type] = ""
+            io.combinator.get_or_create_control_behavior().set_signal(1, nil)
+        end
+		return
+    end
+    if string.match(event.element.name, "RNS_Detector_Color") then
+		local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local color = Constants.Settings.RNS_ColorN[event.element.selected_index]
+        if color ~= io.color then
+            io.color = color
+            rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[io.color].sprites[5].name, target=io.thisEntity, surface=io.thisEntity.surface, render_layer="lower-object-above-shadow"}
+        end
+		return
+	end
+    if string.match(event.element.name, "RNS_Detector_Type") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local type = Constants.Settings.RNS_TypeN[event.element.selected_index]
+        if type ~= io.type then
+            io.type = type
+            RNSPlayer:push_varTable(id, true)
+            local filter = io.filters[io.type]
+            io.combinator.get_or_create_control_behavior().set_signal(1, filter ~= "" and {signal={type=io.type, name=filter}, count=1} or nil)
+            io.combinator.get_or_create_control_behavior().set_signal(2,  nil)
+            io.combinator1.get_or_create_control_behavior().set_signal(1, nil)
+        end
+		return
+    end
+    if string.match(event.element.name, "RNS_Detector_Operator") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local operator = Constants.Settings.RNS_OperatorN[event.element.selected_index]
+        if operator ~= io.operator then
+            io.operator = operator
+        end
+		return
     end
 end

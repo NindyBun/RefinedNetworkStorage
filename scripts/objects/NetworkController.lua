@@ -98,6 +98,7 @@ function NC:update()
     if not self.stable then return end
 
     if game.tick % Constants.Settings.RNS_CollectContents_Tick == 0 then self:collectContents() end
+    if game.tick % Constants.Settings.RNS_Detector_Tick == 0 then self:updateDetectors() end
 
     if game.tick % Constants.Settings.RNS_ItemIO_Tick == 0 then self:updateItemIO() end --Base is every 4 ticks to match yellow belt speed at 15/s
     --local tickItemBeltIO = game.tick % (120/Constants.Settings.RNS_BaseItemIO_TickSpeed) --speed based on 1 side of a belt
@@ -108,9 +109,19 @@ function NC:update()
     if game.tick % Constants.Settings.RNS_WirelessTransmitter_Tick == 0 then self:find_players_with_wirelessTransmitter() end --Updates every 30 ticks
 end
 
+function NC:updateDetectors()
+    for _, detector in pairs(BaseNet.getOperableObjects(self.network.DetectorTable)[1]) do
+        if detector.thisEntity ~= nil and detector.thisEntity.valid == true and detector.thisEntity.to_be_deconstructed() == false then
+            detector:update_signal()
+        end
+    end
+end
+
 function NC:collectContents()
-    self.network.ItemContents = {}
-    self.network.FluidContents = {}
+    self.network.Contents = {
+        item = {},
+        fluid = {}
+    }
     local itemDrives = BaseNet.getOperableObjects(self.network.ItemDriveTable)
     local fluidDrives = BaseNet.getOperableObjects(self.network.FluidDriveTable)
     local externalInvs = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(self.network.ExternalIOTable)))
@@ -125,17 +136,17 @@ function NC:collectContents()
         if Util.getTableLength(priorityItems) > 0 then
             for _, drive in pairs(priorityItems) do
                 for name, content in pairs(drive.storageArray.item_list) do
-                    self.network.ItemContents[name] = (self.network.ItemContents[name] or 0) + content.count
+                    self.network.Contents.item[name] = (self.network.Contents.item[name] or 0) + content.count
                 end
                 for name, count in pairs(drive.storageArray.inventory.get_contents()) do
-                    self.network.ItemContents[name] = (self.network.ItemContents[name] or 0) + count
+                    self.network.Contents.item[name] = (self.network.Contents.item[name] or 0) + count
                 end
             end
         end
         if Util.getTableLength(priorityFluids) > 0 then
             for _, drive in pairs(priorityFluids) do
                 for name, content in pairs(drive.fluidArray) do
-                    self.network.FluidContents[name] = (self.network.FluidContents[name] or 0) + content.amount
+                    self.network.Contents.fluid[name] = (self.network.Contents.fluid[name] or 0) + content.amount
                 end
             end
         end
@@ -149,7 +160,7 @@ function NC:collectContents()
                         local inv = eInv.focusedEntity.thisEntity.get_inventory(ii.slot)
                         if inv ~= nil and IIO.check_operable_mode(ii.io, "output") then
                             for name, count in pairs(inv.get_contents()) do
-                                self.network.ItemContents[name] = (self.network.ItemContents[name] or 0) + count
+                                self.network.Contents.item[name] = (self.network.Contents.item[name] or 0) + count
                             end
                         end
                         index = index + 1
@@ -165,7 +176,7 @@ function NC:collectContents()
                 if eTank.focusedEntity.thisEntity ~= nil and eTank.focusedEntity.thisEntity.valid == true and eTank.focusedEntity.thisEntity.to_be_deconstructed() == false and eTank.focusedEntity.fluid_box.index ~= nil then
                     local tank = eTank.focusedEntity.thisEntity.fluidbox[fluid_box.index]
                     if tank == nil then goto next end
-                    self.network.FluidContents[tank.name] = (self.network.FluidContents[tank.name] or 0) + tank.amount
+                    self.network.Contents.fluid[tank.name] = (self.network.Contents.fluid[tank.name] or 0) + tank.amount
                 end
                 ::next::
             end

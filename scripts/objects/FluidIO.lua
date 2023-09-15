@@ -502,6 +502,7 @@ function FIO.interaction(event, RNSPlayer)
             io.filter = ""
             io.combinator.get_or_create_control_behavior().set_signal(1, nil)
         end
+        io.processed = false
 		return
 	end
 
@@ -513,6 +514,7 @@ function FIO.interaction(event, RNSPlayer)
         if color ~= io.color then
             io.color = color
             rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[io.color].sprites[5].name, target=io.thisEntity, surface=io.thisEntity.surface, render_layer="lower-object-above-shadow"}
+            io.processed = false
         end
 		return
 	end

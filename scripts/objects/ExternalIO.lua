@@ -538,6 +538,7 @@ function EIO.interaction(event, RNSPlayer)
             io.filters[event.element.tags.type].values[event.element.tags.index] = ""
             io.combinator.get_or_create_control_behavior().set_signal(event.element.tags.index, nil)
         end
+        io.processed = false
 		return
     end
 
@@ -549,6 +550,7 @@ function EIO.interaction(event, RNSPlayer)
         if color ~= io.color then
             io.color = color
             rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[io.color].sprites[5].name, target=io.thisEntity, surface=io.thisEntity.surface, render_layer="lower-object-above-shadow"}
+            io.processed = false
         end
 		return
 	end
@@ -575,6 +577,10 @@ function EIO.interaction(event, RNSPlayer)
             io.type = type
             RNSPlayer:push_varTable(id, true)
             io.processed = false
+            for i=1, 10 do
+                local filter = io.filters[io.type].values[i]
+                io.combinator.get_or_create_control_behavior().set_signal(i, filter ~= "" and {signal={type=io.type, name=filter}, count=1} or nil)
+            end
         end
 		return
     end
@@ -601,6 +607,7 @@ function EIO.interaction(event, RNSPlayer)
 		local io = global.entityTable[id]
 		if io == nil then return end
         io.whitelist = event.element.switch_state == "left" and true or false
+        io.processed = false
 		return
     end
 
@@ -609,6 +616,7 @@ function EIO.interaction(event, RNSPlayer)
 		local io = global.entityTable[id]
 		if io == nil then return end
         io.metadataMode = event.element.state
+        io.processed = false
 		return
     end
 end
