@@ -9,6 +9,8 @@ DT = {
     filters = nil,
     operator = "<",
     number = 0,
+    output = nil,
+    numberOutput = 1,
     cardinals = nil,
     combinator = nil,
     combinator1 = nil
@@ -45,6 +47,7 @@ function DT:new(object)
         item = "",
         fluid = ""
     }
+    t.output = ""
     t.combinator = object.surface.create_entity{
         name="rns-combinator",
         position=object.position,
@@ -124,13 +127,13 @@ local operatorFunctions = {
 }
 
 function DT:update_signal()
-    if self.filters[self.type] == "" then return end
+    if self.filters[self.type] == "" or self.output == "" then return end
     if self.networkController ~= nil and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true and self.networkController.thisEntity.to_be_deconstructed() == false then
         local amount = self.networkController.network.Contents[self.type][self.filters[self.type]] or 0
-        self.combinator.get_or_create_control_behavior().set_signal(2,  (operatorFunctions[self.operator](amount, self.number) and {{signal={type="virtual", name="signal-red"}, count=1}} or {nil})[1])
-        self.combinator1.get_or_create_control_behavior().set_signal(1, (operatorFunctions[self.operator](amount, self.number) and {{signal={type="virtual", name="signal-red"}, count=1}} or {nil})[1])
+        --self.combinator.get_or_create_control_behavior().set_signal(2,  (operatorFunctions[self.operator](amount, self.number) and {{signal={type="virtual", name="signal-red"}, count=1}} or {nil})[1])
+        self.combinator1.get_or_create_control_behavior().set_signal(1, (operatorFunctions[self.operator](amount, self.number) and {{signal={type=self.output.type, name=self.output.name}, count=self.numberOutput == 1 and 1 or amount}} or {nil})[1])
     else
-        self.combinator.get_or_create_control_behavior().set_signal(2,  nil)
+        --self.combinator.get_or_create_control_behavior().set_signal(2,  nil)
         self.combinator1.get_or_create_control_behavior().set_signal(1, nil)
     end
 end
@@ -265,10 +268,19 @@ function DT:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_line(guiTable, "", conditionFrame, "horizontal")
         GuiApi.add_label(guiTable, "", conditionFrame, {"gui-description.RNS_Output"}, Constants.Settings.RNS_Gui.white)
         local oFlow = GuiApi.add_flow(guiTable, "", conditionFrame, "horizontal")
-        local output = GuiApi.add_filter(guiTable, "", oFlow, "", false, "signal", 40, {ID=self.thisEntity.unit_number})
-        output.elem_value = {type="virtual", name="signal-red"}
-        output.enabled = false
-
+        oFlow.style.vertical_align = "center"
+        local output = GuiApi.add_filter(guiTable, "RNS_Detector_Output", oFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+        --output.elem_value = {type="virtual", name="signal-red"}
+        --output.enabled = false
+        guiTable.vars.output = output
+        if self.output ~= "" then
+            output.elem_value = self.output
+        end
+        GuiApi.add_label(guiTable, "", oFlow, "   ")
+        local state = "left"
+		if self.numberOutput == 2 then state = "right" end
+		GuiApi.add_switch(guiTable, "RNS_Detector_Switch", oFlow, {"gui-description.RNS_Output1"}, {"gui-description.RNS_OutputN"}, {"gui-description.RNS_Output1_tooltip"}, {"gui-description.RNS_OutputN_tooltip"}, state, false, {ID=self.thisEntity.unit_number})
+        
         --Add Item/Fluid Type
         local typeFrame = GuiApi.add_frame(guiTable, "TypeFrame", mainFrame, "vertical", true)
 		typeFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -309,6 +321,26 @@ function DT.interaction(event, RNSPlayer)
             io.filters[io.type] = ""
             io.combinator.get_or_create_control_behavior().set_signal(1, nil)
         end
+		return
+    end
+    if string.match(event.element.name, "RNS_Detector_Output") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        if event.element.elem_value ~= nil then
+            io.output = event.element.elem_value
+            io.combinator.get_or_create_control_behavior().set_signal(2, {signal={type=event.element.elem_value.type, name=event.element.elem_value.name}, count=1})
+        else
+            io.output = ""
+            io.combinator.get_or_create_control_behavior().set_signal(2, nil)
+        end
+		return
+    end
+    if string.match(event.element.name, "RNS_Detector_Switch") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.numberOutput = event.element.switch_state == "left" and 1 or 2
 		return
     end
     if string.match(event.element.name, "RNS_Detector_Color") then

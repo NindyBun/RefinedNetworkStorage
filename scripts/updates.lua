@@ -44,7 +44,7 @@ function UpdateSys.update(event)
     for _, obj in pairs(global.entityTable) do
         if valid(obj) == true and obj.update ~= nil then
             if Util.safeCall(obj.update, obj, event) == false then
-                game.print({"gui-description.UpdateSysEntity_Failed", obj.thisEntity.name})
+                game.print({"gui-description.RNS_UpdateSysEntity_Failed", obj.thisEntity.name})
             end
         end
     end

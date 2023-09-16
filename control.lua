@@ -158,7 +158,7 @@ function onGuiElemChanged(event)
     if event.element.get_mod() ~= Constants.MOD_ID then return end
     if event.element == nil or event.element.valid == false then return end
 	if Util.safeCall(GUI.on_gui_element_changed, event) == false then
-		getPlayer(event.player_index).print({"gui-description.NS_update_gui_failed"})
+		getPlayer(event.player_index).print({"gui-description.RNS_update_gui_failed"})
 		Util.safeCall(Event.clear_gui, event)
 	end
 end

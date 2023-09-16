@@ -136,17 +136,17 @@ function NC:collectContents()
         if Util.getTableLength(priorityItems) > 0 then
             for _, drive in pairs(priorityItems) do
                 for name, content in pairs(drive.storageArray.item_list) do
-                    self.network.Contents.item[name] = (self.network.Contents.item[name] or 0) + content.count
+                    self.network.Contents.item[name] = math.min((self.network.Contents.item[name] or 0) + content.count, 2^32)
                 end
                 for name, count in pairs(drive.storageArray.inventory.get_contents()) do
-                    self.network.Contents.item[name] = (self.network.Contents.item[name] or 0) + count
+                    self.network.Contents.item[name] = math.min((self.network.Contents.item[name] or 0) + count, 2^32)
                 end
             end
         end
         if Util.getTableLength(priorityFluids) > 0 then
             for _, drive in pairs(priorityFluids) do
                 for name, content in pairs(drive.fluidArray) do
-                    self.network.Contents.fluid[name] = (self.network.Contents.fluid[name] or 0) + content.amount
+                    self.network.Contents.fluid[name] = math.min((self.network.Contents.fluid[name] or 0) + content.amount, 2^32)
                 end
             end
         end
@@ -160,7 +160,7 @@ function NC:collectContents()
                         local inv = eInv.focusedEntity.thisEntity.get_inventory(ii.slot)
                         if inv ~= nil and IIO.check_operable_mode(ii.io, "output") then
                             for name, count in pairs(inv.get_contents()) do
-                                self.network.Contents.item[name] = (self.network.Contents.item[name] or 0) + count
+                                self.network.Contents.item[name] = math.min((self.network.Contents.item[name] or 0) + count, 2^32)
                             end
                         end
                         index = index + 1
@@ -176,7 +176,7 @@ function NC:collectContents()
                 if eTank.focusedEntity.thisEntity ~= nil and eTank.focusedEntity.thisEntity.valid == true and eTank.focusedEntity.thisEntity.to_be_deconstructed() == false and eTank.focusedEntity.fluid_box.index ~= nil then
                     local tank = eTank.focusedEntity.thisEntity.fluidbox[fluid_box.index]
                     if tank == nil then goto next end
-                    self.network.Contents.fluid[tank.name] = (self.network.Contents.fluid[tank.name] or 0) + tank.amount
+                    self.network.Contents.fluid[tank.name] = math.min((self.network.Contents.fluid[tank.name] or 0) + tank.amount, 2^32)
                 end
                 ::next::
             end
