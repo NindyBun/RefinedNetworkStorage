@@ -1,5 +1,5 @@
 Constants = require("utils.constants")
-require("prototypes.sprites")
+require("prototypes.others")
 require("prototypes.Drives")
 require("prototypes.WirelessDevices")
 require("prototypes.Detector")

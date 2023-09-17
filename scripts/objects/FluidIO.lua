@@ -12,6 +12,7 @@ FIO = {
     io = "output",
     processed=false,
     focusedEntity=nil,
+    input = nil,
     combinator=nil,
     priority = 0
 }
@@ -55,13 +56,22 @@ function FIO:new(object)
         }
     }
     t.combinator = object.surface.create_entity{
-        name="rns-combinator",
+        name="RNS_Combinator",
         position=object.position,
         force="neutral"
     }
     t.combinator.destructible = false
     t.combinator.operable = false
     t.combinator.minable = false
+    t.input = object.surface.create_entity{
+        name="RNS_Pole",
+        position=object.position,
+        force="neutral"
+    }
+    t.input.destructible = false
+    t.input.operable = false
+    t.input.minable = false
+    t.input.minable = false
     UpdateSys.addEntity(t)
     return t
 end
@@ -75,6 +85,7 @@ end
 
 function FIO:remove()
     if self.combinator ~= nil then self.combinator.destroy() end
+    if self.input ~= nil then self.input.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
         self.networkController.network.FluidIOTable[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil

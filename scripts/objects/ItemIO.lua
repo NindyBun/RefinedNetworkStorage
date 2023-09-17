@@ -12,6 +12,8 @@ IIO = {
     whitelist = true,
     io = "output",
     ioIcon = nil,
+    input = nil,
+    inputFilter = nil,
     combinator = nil,
     processed = false,
     priority = 0,
@@ -65,13 +67,21 @@ function IIO:new(object)
         }
     }
     t.combinator = object.surface.create_entity{
-        name="rns-combinator",
+        name="RNS_Combinator",
         position=object.position,
         force="neutral"
     }
     t.combinator.destructible = false
     t.combinator.operable = false
-    t.combinator.minable = false
+    t.input = object.surface.create_entity{
+        name="RNS_Pole",
+        position=object.position,
+        force="neutral"
+    }
+    t.input.destructible = false
+    t.input.operable = false
+    t.input.minable = false
+    t.input.minable = false
     UpdateSys.addEntity(t)
     return t
 end
@@ -86,6 +96,7 @@ end
 function IIO:remove()
     --global.placedCablesTable[self.thisEntity.surface.index][tostring(self.thisEntity.position)] = nil
     if self.combinator ~= nil then self.combinator.destroy() end
+    if self.input ~= nil then self.input.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
         self.networkController.network.ItemIOTable[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil
@@ -359,6 +370,9 @@ end
 
 function IIO:IO()
     local transportCapacity = Constants.Settings.RNS_BaseItemIO_TransferCapacity
+    if self.inputFilter ~= nil then
+        
+    end
     for k=1, 1 do
         if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
         local network = self.networkController.network

@@ -49,7 +49,7 @@ function DT:new(object)
     }
     t.output = ""
     t.combinator = object.surface.create_entity{
-        name="rns-combinator",
+        name="RNS_Combinator",
         position=object.position,
         force="neutral"
     }
