@@ -81,7 +81,7 @@ function IIO:new(object)
         numberOutput = 1
     }
     t.enablerCombinator = object.surface.create_entity{
-        name="RNS_Combinator_1",
+        name="RNS_Combinator_2",
         position=object.position,
         force="neutral"
     }
@@ -382,10 +382,15 @@ function IIO:IO()
     for k=1, 1 do
         if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
         local network = self.networkController.network
+        if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
+            if self.enabler.filter == nil then break end
+            local amount = self.enablerCombinator.get_merged_signal({type=self.enabler.filter.type, name=self.enabler.filter.name}, defines.circuit_connector_id.constant_combinator)
+            if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then break end
+        end
         if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true and self.focusedEntity.inventory.values ~= nil then
             local foc = self.focusedEntity.thisEntity
             local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
-            local externalInvs = BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network.ExternalIOTable))
+            local externalInvs = BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal()))
             for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
                 local priorityD = itemDrives[i]
                 local priorityE = externalInvs[i]
@@ -741,7 +746,7 @@ function IIO:getTooltips(guiTable, mainFrame, justCreated)
         local mainFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
 
         local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
-        GuiApi.add_flow(guiTable, "bottomFrame", mainFlow, "horizontal", true)
+        local bottomFrame = GuiApi.add_flow(guiTable, "bottomFrame", mainFlow, "horizontal", true)
 
         local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", topFrame, "vertical", true)
 		colorFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -806,6 +811,30 @@ function IIO:getTooltips(guiTable, mainFrame, justCreated)
 
         -- Match metadata mode
         GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Item_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
+    
+        if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
+            local enableFrame = GuiApi.add_frame(guiTable, "EnableFrame", guiTable.vars.bottomFrame, "vertical")
+            enableFrame.style = Constants.Settings.RNS_Gui.frame_1
+            enableFrame.style.vertically_stretchable = true
+            enableFrame.style.left_padding = 3
+            enableFrame.style.right_padding = 3
+            enableFrame.style.right_margin = 3
+    
+            GuiApi.add_subtitle(guiTable, "ConditionSub", enableFrame, {"gui-description.RNS_Condition"})
+            local cFlow = GuiApi.add_flow(guiTable, "", enableFrame, "horizontal")
+            cFlow.style.vertical_align = "center"
+            local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Enabler", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+            guiTable.vars.enabler = filter
+            if self.enabler.filter ~= nil then
+                filter.elem_value = self.enabler.filter
+            end
+            local opDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Item_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.enabler.operator], false, "", {ID=self.thisEntity.unit_number})
+            opDD.style.minimal_width = 50
+            --local number = GuiApi.add_filter(guiTable, "RNS_Detector_Number", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+            --number.elem_value = {type="virtual", name="constant-number"}
+            local number = GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Item_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
+            number.style.minimal_width = 100
+        end
     end
 
     if self.filters.values[1] ~= "" then
@@ -814,36 +843,9 @@ function IIO:getTooltips(guiTable, mainFrame, justCreated)
     if self.filters.values[2] ~= "" then
         guiTable.vars.filter2.elem_value = self.filters.values[2]
     end
-
-    if self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil then
-        local enableFrame = GuiApi.add_frame(guiTable, "EnableFrame", guiTable.vars.bottomFrame, "vertical")
-        enableFrame.style = Constants.Settings.RNS_Gui.frame_1
-        enableFrame.style.vertically_stretchable = true
-        enableFrame.style.left_padding = 3
-        enableFrame.style.right_padding = 3
-        enableFrame.style.right_margin = 3
-
-        GuiApi.add_subtitle(guiTable, "ConditionSub", enableFrame, {"gui-description.RNS_Condition"})
-        local cFlow = GuiApi.add_flow(guiTable, "", enableFrame, "horizontal")
-        cFlow.style.vertical_align = "center"
-        local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Enabler", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
-        guiTable.vars.enabler = filter
-        if self.enabler.filter ~= nil then
-            filter.elem_value = self.enabler.filter
-        end
-        local opDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Item_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.operator], false, "", {ID=self.thisEntity.unit_number})
-        opDD.style.minimal_width = 50
-        --local number = GuiApi.add_filter(guiTable, "RNS_Detector_Number", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
-        --number.elem_value = {type="virtual", name="constant-number"}
-        local number = GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Item_Number", cFlow, tostring(self.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
-        number.style.minimal_width = 100
-    end
-
-    if self.enabler.filter ~= nil then
+    if self.enabler.filter ~= nil and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
         guiTable.vars.enabler.elem_value = self.enabler.filter
     end
-
-
 end
 
 function IIO:set_icons(index, name)

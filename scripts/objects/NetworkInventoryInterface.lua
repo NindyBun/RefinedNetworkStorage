@@ -321,7 +321,7 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 			end
 		end
 	end
-	for _, priority in pairs(BaseNet.filter_by_mode("output", BaseNet.getOperableObjects(self.networkController.network.ExternalIOTable))) do
+	for _, priority in pairs(BaseNet.filter_by_mode("output", BaseNet.getOperableObjects(self.networkController.network:filter_externalIO_by_valid_signal()))) do
 		for _, external in pairs(priority) do
 			if external.focusedEntity.thisEntity ~= nil and external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false then
 				if external.type == "item" and external.focusedEntity.inventory.values ~= nil then
@@ -438,7 +438,7 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	if amount <= 0 then return end
 
 	local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
-	local externalItems = BaseNet.filter_by_mode("input", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network.ExternalIOTable)))
+	local externalItems = BaseNet.filter_by_mode("input", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal())))
 	for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
 		local priorityD = itemDrives[i]
 		local priorityE = externalItems[i]
@@ -512,7 +512,7 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	if amount <= 0 then return end
 
 	local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
-	local externalItems = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network.ExternalIOTable)))
+	local externalItems = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal())))
 	for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
 		local priorityD = itemDrives[i]
 		local priorityE = externalItems[i]

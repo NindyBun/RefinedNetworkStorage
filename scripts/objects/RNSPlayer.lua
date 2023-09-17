@@ -96,7 +96,7 @@ function RNSP:process_logistic_slots(network)
                 local itemstack = Util.itemstack_template(name)
                 if add > 0 then
                     local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
-                    local externalItems = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network.ExternalIOTable)))
+                    local externalItems = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal())))
                     for a = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
                         local priorityD = itemDrives[a]
                         local priorityE = externalItems[a]
@@ -141,7 +141,7 @@ function RNSP:process_logistic_slots(network)
                 end
                 if remove > 0 then
                     local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
-                    local externalItems = BaseNet.filter_by_mode("input", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network.ExternalIOTable)))
+                    local externalItems = BaseNet.filter_by_mode("input", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal())))
                     for r = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
                         local priorityD = itemDrives[r]
                         local priorityE = externalItems[r]
@@ -201,7 +201,7 @@ function RNSP:process_logistic_slots(network)
     if player_trash ~= nil and not player_trash.is_empty() then
         local player_trash_contents = player_trash.get_contents()
         local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
-        local externalItems = BaseNet.filter_by_mode("input", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network.ExternalIOTable)))
+        local externalItems = BaseNet.filter_by_mode("input", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal())))
         for name, count in pairs(player_trash_contents) do
             local itemstack = Util.itemstack_template(name)
             local remove = count

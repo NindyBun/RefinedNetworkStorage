@@ -124,8 +124,9 @@ function NC:collectContents()
     }
     local itemDrives = BaseNet.getOperableObjects(self.network.ItemDriveTable)
     local fluidDrives = BaseNet.getOperableObjects(self.network.FluidDriveTable)
-    local externalInvs = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(self.network.ExternalIOTable)))
-    local externalTanks = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("fluid", BaseNet.getOperableObjects(self.network.ExternalIOTable)))
+    local validExternals = self.network:filter_externalIO_by_valid_signal()
+    local externalInvs = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(validExternals)))
+    local externalTanks = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("fluid", BaseNet.getOperableObjects(validExternals)))
 
     for i = 1, Constants.Settings.RNS_Max_Priority*2+1 do
         local priorityItems = itemDrives[i]

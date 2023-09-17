@@ -76,9 +76,9 @@ function GUI.on_gui_opened(event)
     local cursorStack = player.cursor_stack
 
     -- Do not open custom GUI if player is connecting wires --
-    if cursorStack and cursorStack.valid_for_read then
-        if cursorStack.name == "green-wire" or cursorStack.name == "red-wire" or cursorStack.type == "repair-tool" then return end
-    end
+    --if cursorStack and cursorStack.valid_for_read then
+    --    if cursorStack.name == "green-wire" or cursorStack.name == "red-wire" or cursorStack.type == "repair-tool" then return end
+    --end
 
     if event.entity ~= nil and event.entity.valid == true then
         if Util.safeCall(GUI.open_tooltip_gui, RNSPlayer, player, player.selected) == false then

@@ -67,11 +67,11 @@ function FIO:new(object)
     t.enabler = {
         operator = "<",
         number = 0,
-        filter = "",
+        filter = nil,
         numberOutput = 1
     }
     t.enablerCombinator = object.surface.create_entity{
-        name="RNS_Combinator_1",
+        name="RNS_Combinator_2",
         position=object.position,
         force="neutral"
     }
@@ -204,11 +204,16 @@ function FIO:IO()
     for i=1, 1 do
         if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
         local network = self.networkController.network
+        if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
+            if self.enabler.filter == nil then break end
+            local amount = self.enablerCombinator.get_merged_signal({type=self.enabler.filter.type, name=self.enabler.filter.name}, defines.circuit_connector_id.constant_combinator)
+            if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then break end
+        end
         if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true then
             local fluid_box = self.focusedEntity.fluid_box
             if self.thisEntity.position.x ~= fluid_box.target_position.x or self.thisEntity.position.y ~= fluid_box.target_position.y then break end
             local fluidDrives = BaseNet.getOperableObjects(network.FluidDriveTable)
-            local externalTanks = BaseNet.filter_by_type("fluid", BaseNet.getOperableObjects(network.ExternalIOTable))
+            local externalTanks = BaseNet.filter_by_type("fluid", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal()))
             for p = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
                 local priorityF = fluidDrives[p]
                 local priorityE = externalTanks[p]
@@ -449,8 +454,12 @@ end
 function FIO:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
 		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_Fluid_Title"}
+        local mainFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
 
-        local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", mainFrame, "vertical", true)
+        local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
+        local bottomFrame = GuiApi.add_flow(guiTable, "bottomFrame", mainFlow, "horizontal", true)
+
+        local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", topFrame, "vertical", true)
 		colorFrame.style = Constants.Settings.RNS_Gui.frame_1
 		colorFrame.style.vertically_stretchable = true
 		colorFrame.style.left_padding = 3
@@ -501,16 +510,72 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 
         GuiApi.add_line(guiTable, "", settingsFrame, "horizontal")
 
+        if self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil then
+            local enableFrame = GuiApi.add_frame(guiTable, "EnableFrame", guiTable.vars.bottomFrame, "vertical")
+            enableFrame.style = Constants.Settings.RNS_Gui.frame_1
+            enableFrame.style.vertically_stretchable = true
+            enableFrame.style.left_padding = 3
+            enableFrame.style.right_padding = 3
+            enableFrame.style.right_margin = 3
+    
+            GuiApi.add_subtitle(guiTable, "ConditionSub", enableFrame, {"gui-description.RNS_Condition"})
+            local cFlow = GuiApi.add_flow(guiTable, "", enableFrame, "horizontal")
+            cFlow.style.vertical_align = "center"
+            local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Fluid_Enabler", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+            guiTable.vars.enabler = filter
+            if self.enabler.filter ~= nil then
+                filter.elem_value = self.enabler.filter
+            end
+            local opDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Fluid_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.enabler.operator], false, "", {ID=self.thisEntity.unit_number})
+            opDD.style.minimal_width = 50
+            --local number = GuiApi.add_filter(guiTable, "RNS_Detector_Number", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+            --number.elem_value = {type="virtual", name="constant-number"}
+            local number = GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Fluid_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
+            number.style.minimal_width = 100
+        end
     end
 
     if self.filter ~= "" then
         guiTable.vars.filter.elem_value = self.filter
+    end
+    if self.enabler.filter ~= nil and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
+        guiTable.vars.enabler.elem_value = self.enabler.filter
     end
     
 end
 
 
 function FIO.interaction(event, RNSPlayer)
+    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Number") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local num = math.min(2^32, tonumber(event.element.text ~= "" and event.element.text or "0"))
+        io.enabler.number = num
+        event.element.text = tostring(num)
+        return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Operator") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local operator = Constants.Settings.RNS_OperatorN[event.element.selected_index]
+        if operator ~= io.enabler.operator then
+            io.enabler.operator = operator
+        end
+		return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Enabler") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        if event.element.elem_value ~= nil then
+            io.enabler.filter = event.element.elem_value
+        else
+            io.enabler.filter = nil
+        end
+		return
+    end
     if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Filter") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]

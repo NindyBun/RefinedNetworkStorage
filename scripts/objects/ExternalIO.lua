@@ -17,7 +17,8 @@ EIO = {
     io = "input/output",
     type = "item",
     ioIcon = nil,
-    input = nil,
+    enabler = nil,
+    enablerCombinator = nil,
     combinator = nil,
     metadataMode = false,
     whitelist = true,
@@ -88,16 +89,21 @@ function EIO:new(object)
     }
     t.combinator.destructible = false
     t.combinator.operable = false
-    t.input = object.surface.create_entity{
+    t.combinator.minable = false
+    t.enabler = {
+        operator = "<",
+        number = 0,
+        filter = nil,
+        numberOutput = 1
+    }
+    t.enablerCombinator = object.surface.create_entity{
         name="RNS_Combinator_2",
         position=object.position,
         force="neutral"
     }
-    t.input.destructible = false
-    t.input.operable = false
-    t.input.minable = false
-    t.input.minable = false
-    t.combinator.minable = false
+    t.enablerCombinator.destructible = false
+    t.enablerCombinator.operable = false
+    t.enablerCombinator.minable = false
     UpdateSys.addEntity(t)
     return t
 end
@@ -111,7 +117,7 @@ end
 
 function EIO:remove()
     if self.combinator ~= nil then self.combinator.destroy() end
-    if self.input ~= nil then self.input.destroy() end
+    if self.enablerCombinator ~= nil then self.enablerCombinator.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
         self.networkController.network.ExternalIOTable[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil
@@ -144,6 +150,7 @@ function EIO:copy_settings(obj)
     self.whitelist = obj.whitelist
     self.io = obj.io
     self.type = obj.type
+    self.enabler = obj.enabler
 
     self.filters = obj.filters
     for i=1, 10 do
@@ -168,6 +175,7 @@ function EIO:serialize_settings()
     tags["io"] = self.io
     tags["priority"] = self.priority
     tags["type"] = self.type
+    tags["enabler"] = self.enabler
 
     return tags
 end
@@ -178,6 +186,7 @@ function EIO:deserialize_settings(tags)
     self.whitelist = tags["whitelist"]
     self.io = tags["io"]
     self.type = tags["type"]
+    self.enabler = tags["enabler"]
 
     self.filters = tags["filters"]
     for i=1, 10 do
@@ -363,6 +372,15 @@ function EIO:createArms()
     end
 end
 
+function EIO:signal_valid()
+    if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
+        if self.enabler.filter == nil then return false end
+        local amount = self.enablerCombinator.get_merged_signal({type=self.enabler.filter.type, name=self.enabler.filter.name}, defines.circuit_connector_id.constant_combinator)
+        if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then return false end
+    end
+    return true
+end
+
 function EIO:getDirection()
     local dir = self.thisEntity.direction
     if dir == defines.direction.north then
@@ -455,8 +473,12 @@ end
 function EIO:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
 		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_External_Title"}
+        local mainFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
 
-        local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", mainFrame, "vertical", true)
+        local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
+        local bottomFrame = GuiApi.add_flow(guiTable, "bottomFrame", mainFlow, "horizontal", true)
+
+        local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", topFrame, "vertical", true)
 		colorFrame.style = Constants.Settings.RNS_Gui.frame_1
 		colorFrame.style.vertically_stretchable = true
 		colorFrame.style.left_padding = 3
@@ -468,7 +490,7 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
         local colorDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
         colorDD.style.minimal_width = 100
 
-        local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", mainFrame, "vertical", true)
+        local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", topFrame, "vertical", true)
 		filtersFrame.style = Constants.Settings.RNS_Gui.frame_1
 		filtersFrame.style.vertically_stretchable = true
 		filtersFrame.style.left_padding = 3
@@ -490,7 +512,7 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
             end
         end
 
-        local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", mainFrame, "vertical", true)
+        local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", topFrame, "vertical", true)
 		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
 		settingsFrame.style.vertically_stretchable = true
 		settingsFrame.style.left_padding = 3
@@ -528,6 +550,30 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
             -- Match metadata mode
             GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_External_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
         end
+
+        if self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil then
+            local enableFrame = GuiApi.add_frame(guiTable, "EnableFrame", guiTable.vars.bottomFrame, "vertical")
+            enableFrame.style = Constants.Settings.RNS_Gui.frame_1
+            enableFrame.style.vertically_stretchable = true
+            enableFrame.style.left_padding = 3
+            enableFrame.style.right_padding = 3
+            enableFrame.style.right_margin = 3
+    
+            GuiApi.add_subtitle(guiTable, "ConditionSub", enableFrame, {"gui-description.RNS_Condition"})
+            local cFlow = GuiApi.add_flow(guiTable, "", enableFrame, "horizontal")
+            cFlow.style.vertical_align = "center"
+            local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_External_Enabler", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+            guiTable.vars.enabler = filter
+            if self.enabler.filter ~= nil then
+                filter.elem_value = self.enabler.filter
+            end
+            local opDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.enabler.operator], false, "", {ID=self.thisEntity.unit_number})
+            opDD.style.minimal_width = 50
+            --local number = GuiApi.add_filter(guiTable, "RNS_Detector_Number", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+            --number.elem_value = {type="virtual", name="constant-number"}
+            local number = GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_External_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
+            number.style.minimal_width = 100
+        end
     end
 
     for i=1, 10 do
@@ -535,9 +581,43 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
             guiTable.vars.filters[self.type][i].elem_value = self.filters[self.type].values[i]
         end
     end
+    if self.enabler.filter ~= nil and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
+        guiTable.vars.enabler.elem_value = self.enabler.filter
+    end
 end
 
 function EIO.interaction(event, RNSPlayer)
+    if string.match(event.element.name, "RNS_NetworkCableIO_External_Number") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local num = math.min(2^32, tonumber(event.element.text ~= "" and event.element.text or "0"))
+        io.enabler.number = num
+        event.element.text = tostring(num)
+        return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_External_Operator") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local operator = Constants.Settings.RNS_OperatorN[event.element.selected_index]
+        if operator ~= io.enabler.operator then
+            io.enabler.operator = operator
+        end
+		return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_External_Enabler") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        if event.element.elem_value ~= nil then
+            io.enabler.filter = event.element.elem_value
+        else
+            io.enabler.filter = nil
+        end
+		return
+    end
+    
     if string.match(event.element.name, "RNS_NetworkCableIO_External_Filter") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]

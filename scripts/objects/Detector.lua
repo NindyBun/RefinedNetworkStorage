@@ -111,7 +111,7 @@ function DT:update_signal()
     if self.networkController ~= nil and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true and self.networkController.thisEntity.to_be_deconstructed() == false then
         local amount = self.networkController.network.Contents[self.type][self.filters[self.type]] or 0
         --self.combinator.get_or_create_control_behavior().set_signal(2,  (operatorFunctions[self.operator](amount, self.number) and {{signal={type="virtual", name="signal-red"}, count=1}} or {nil})[1])
-        self.enablerCombinator.get_or_create_control_behavior().set_signal(1, (Util.operatorFunctions[self.enabler.operator](amount, self.enabler.number) and {{signal={type=self.output.type, name=self.enabler.filter.name}, count=self.enabler.numberOutput == 1 and 1 or amount}} or {nil})[1])
+        self.enablerCombinator.get_or_create_control_behavior().set_signal(1, (Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) and {{signal={type=self.enabler.filter.type, name=self.enabler.filter.name}, count=self.enabler.numberOutput == 1 and 1 or amount}} or {nil})[1])
     else
         --self.combinator.get_or_create_control_behavior().set_signal(2,  nil)
         self.enablerCombinator.get_or_create_control_behavior().set_signal(1, nil)
@@ -255,11 +255,11 @@ function DT:getTooltips(guiTable, mainFrame, justCreated)
         if self.filters[self.type] ~= "" then
             filter.elem_value = self.filters[self.type]
         end
-        local opDD = GuiApi.add_dropdown(guiTable, "RNS_Detector_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.operator], false, "", {ID=self.thisEntity.unit_number})
+        local opDD = GuiApi.add_dropdown(guiTable, "RNS_Detector_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.enabler.operator], false, "", {ID=self.thisEntity.unit_number})
         opDD.style.minimal_width = 50
         --local number = GuiApi.add_filter(guiTable, "RNS_Detector_Number", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
         --number.elem_value = {type="virtual", name="constant-number"}
-        local number = GuiApi.add_text_field(guiTable, "RNS_Detector_Number", cFlow, tostring(self.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
+        local number = GuiApi.add_text_field(guiTable, "RNS_Detector_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
         number.style.minimal_width = 100
 
         GuiApi.add_line(guiTable, "", conditionFrame, "horizontal")

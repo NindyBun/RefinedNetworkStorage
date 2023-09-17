@@ -628,6 +628,19 @@ function BaseNet.getOperableObjects(array)
     return objs
 end
 
+function BaseNet:filter_externalIO_by_valid_signal()
+    local objs = {}
+    for p, priority in pairs(self.ExternalIOTable) do
+        objs[p] = {}
+        for _, o in pairs(priority) do
+            if o:signal_valid() == true then
+                objs[p][o.entID] = o
+            end
+        end
+    end
+    return objs
+end
+
 function BaseNet.filter_by_mode(mode, array)
     local objs = {}
     for p, priority in pairs(array) do
