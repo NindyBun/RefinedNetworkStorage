@@ -7,13 +7,9 @@ DT = {
     networkController = nil,
     type = "item",
     filters = nil,
-    operator = "<",
-    number = 0,
-    output = nil,
-    numberOutput = 1,
+    enabler = nil,
     cardinals = nil,
-    combinator = nil,
-    combinator1 = nil
+    combinator = nil
 }
 
 function DT:new(object)
@@ -47,7 +43,6 @@ function DT:new(object)
         item = "",
         fluid = ""
     }
-    t.output = ""
     t.combinator = object.surface.create_entity{
         name="RNS_Combinator",
         position=object.position,
@@ -56,14 +51,20 @@ function DT:new(object)
     t.combinator.destructible = false
     t.combinator.operable = false
     t.combinator.minable = false
-    t.combinator1 = object.surface.create_entity{
+    t.enabler = {
+        operator = "<",
+        number = 0,
+        filter = "",
+        numberOutput = 1
+    }
+    t.enablerCombinator = object.surface.create_entity{
         name="RNS_Combinator_1",
         position=object.position,
         force="neutral"
     }
-    t.combinator1.destructible = false
-    t.combinator1.operable = false
-    t.combinator1.minable = false
+    t.enablerCombinator.destructible = false
+    t.enablerCombinator.operable = false
+    t.enablerCombinator.minable = false
     t:createArms()
     UpdateSys.addEntity(t)
     return t
@@ -78,7 +79,7 @@ end
 
 function DT:remove()
     if self.combinator ~= nil then self.combinator.destroy() end
-    if self.combinator1 ~= nil then self.combinator1.destroy() end
+    if self.enablerCombinator ~= nil then self.enablerCombinator.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
         self.networkController.network.DetectorTable[1][self.entID] = nil
@@ -105,51 +106,47 @@ function DT:update()
     --end
 end
 
-local operatorFunctions = {
-    [">"] = function (filter, number)
-        return (filter > number and {true} or {false})[1]
-    end,
-    ["<"] = function (filter, number)
-        return (filter < number and {true} or {false})[1]
-    end,
-    ["="] = function (filter, number)
-        return (filter == number and {true} or {false})[1]
-    end,
-    [">="] = function (filter, number)
-        return (filter >= number and {true} or {false})[1]
-    end,
-    ["<="] = function (filter, number)
-        return (filter <= number and {true} or {false})[1]
-    end,
-    ["!="] = function (filter, number)
-        return (filter ~= number and {true} or {false})[1]
-    end
-}
-
 function DT:update_signal()
     if self.filters[self.type] == "" or self.output == "" then return end
     if self.networkController ~= nil and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true and self.networkController.thisEntity.to_be_deconstructed() == false then
         local amount = self.networkController.network.Contents[self.type][self.filters[self.type]] or 0
         --self.combinator.get_or_create_control_behavior().set_signal(2,  (operatorFunctions[self.operator](amount, self.number) and {{signal={type="virtual", name="signal-red"}, count=1}} or {nil})[1])
-        self.combinator1.get_or_create_control_behavior().set_signal(1, (operatorFunctions[self.operator](amount, self.number) and {{signal={type=self.output.type, name=self.output.name}, count=self.numberOutput == 1 and 1 or amount}} or {nil})[1])
+        self.enablerCombinator.get_or_create_control_behavior().set_signal(1, (Util.operatorFunctions[self.enabler.operator](amount, self.enabler.number) and {{signal={type=self.output.type, name=self.enabler.filter.name}, count=self.enabler.numberOutput == 1 and 1 or amount}} or {nil})[1])
     else
         --self.combinator.get_or_create_control_behavior().set_signal(2,  nil)
-        self.combinator1.get_or_create_control_behavior().set_signal(1, nil)
+        self.enablerCombinator.get_or_create_control_behavior().set_signal(1, nil)
     end
+end
+
+function DT:set_icons(index, name, type)
+    self.combinator.get_or_create_control_behavior().set_signal(index, name ~= nil and {signal={type=type, name=name}, count=1} or nil)
 end
 
 function DT:copy_settings(obj)
     self.color = obj.color
+    self.enabler = obj.enabler
+    self.type = obj.type
+    self.filters = obj.filters
+    self:set_icons(1, self.filters[self.type], self.type)
+    self:set_icons(2, self.enabler.filter.name, self.enabler.filter.type)
 end
 
 function DT:serialize_settings()
     local tags = {}
     tags["color"] = self.color
+    tags["enabler"] = self.enabler
+    tags["filters"] = self.filters
+    tags["type"] = self.type
     return tags
 end
 
 function DT:deserialize_settings(tags)
     self.color = tags["color"]
+    self.type = tags["type"]
+    self.enabler = tags["enabler"]
+    self.filters = tags["filters"]
+    self:set_icons(1, self.filters[self.type], self.type)
+    self:set_icons(2, self.enabler.filter.name, self.enabler.filter.type)
 end
 
 function DT:resetConnection()
@@ -273,12 +270,12 @@ function DT:getTooltips(guiTable, mainFrame, justCreated)
         --output.elem_value = {type="virtual", name="signal-red"}
         --output.enabled = false
         guiTable.vars.output = output
-        if self.output ~= "" then
-            output.elem_value = self.output
+        if self.enabler.filter ~= "" then
+            output.elem_value = self.enabler.filter
         end
         GuiApi.add_label(guiTable, "", oFlow, "   ")
         local state = "left"
-		if self.numberOutput == 2 then state = "right" end
+		if self.enabler.numberOutput == 2 then state = "right" end
 		GuiApi.add_switch(guiTable, "RNS_Detector_Switch", oFlow, {"gui-description.RNS_Output1"}, {"gui-description.RNS_OutputN"}, {"gui-description.RNS_Output1_tooltip"}, {"gui-description.RNS_OutputN_tooltip"}, state, false, {ID=self.thisEntity.unit_number})
         
         --Add Item/Fluid Type
@@ -306,7 +303,7 @@ function DT.interaction(event, RNSPlayer)
 		local io = global.entityTable[id]
 		if io == nil then return end
         local num = math.min(2^32, tonumber(event.element.text ~= "" and event.element.text or "0"))
-        io.number = num
+        io.enabler.number = num
         event.element.text = tostring(num)
         return
     end
@@ -328,10 +325,10 @@ function DT.interaction(event, RNSPlayer)
 		local io = global.entityTable[id]
 		if io == nil then return end
         if event.element.elem_value ~= nil then
-            io.output = event.element.elem_value
+            io.enabler.filter = event.element.elem_value
             io.combinator.get_or_create_control_behavior().set_signal(2, {signal={type=event.element.elem_value.type, name=event.element.elem_value.name}, count=1})
         else
-            io.output = ""
+            io.enabler.filter = ""
             io.combinator.get_or_create_control_behavior().set_signal(2, nil)
         end
 		return
@@ -340,7 +337,7 @@ function DT.interaction(event, RNSPlayer)
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        io.numberOutput = event.element.switch_state == "left" and 1 or 2
+        io.enabler.numberOutput = event.element.switch_state == "left" and 1 or 2
 		return
     end
     if string.match(event.element.name, "RNS_Detector_Color") then
@@ -374,8 +371,8 @@ function DT.interaction(event, RNSPlayer)
 		local io = global.entityTable[id]
 		if io == nil then return end
         local operator = Constants.Settings.RNS_OperatorN[event.element.selected_index]
-        if operator ~= io.operator then
-            io.operator = operator
+        if operator ~= io.enabler.operator then
+            io.enabler.operator = operator
         end
 		return
     end

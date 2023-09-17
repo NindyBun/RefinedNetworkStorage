@@ -12,7 +12,8 @@ FIO = {
     io = "output",
     processed=false,
     focusedEntity=nil,
-    input = nil,
+    enabler = nil,
+    enablerCombinator = nil,
     combinator=nil,
     priority = 0
 }
@@ -63,15 +64,20 @@ function FIO:new(object)
     t.combinator.destructible = false
     t.combinator.operable = false
     t.combinator.minable = false
-    t.input = object.surface.create_entity{
-        name="RNS_Pole",
+    t.enabler = {
+        operator = "<",
+        number = 0,
+        filter = "",
+        numberOutput = 1
+    }
+    t.enablerCombinator = object.surface.create_entity{
+        name="RNS_Combinator_1",
         position=object.position,
         force="neutral"
     }
-    t.input.destructible = false
-    t.input.operable = false
-    t.input.minable = false
-    t.input.minable = false
+    t.enablerCombinator.destructible = false
+    t.enablerCombinator.operable = false
+    t.enablerCombinator.minable = false
     UpdateSys.addEntity(t)
     return t
 end
@@ -85,7 +91,7 @@ end
 
 function FIO:remove()
     if self.combinator ~= nil then self.combinator.destroy() end
-    if self.input ~= nil then self.input.destroy() end
+    if self.enablerCombinator ~= nil then self.enablerCombinator.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
         self.networkController.network.FluidIOTable[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil
@@ -116,6 +122,7 @@ function FIO:copy_settings(obj)
     self.color = obj.color
     self.whitelist = obj.whitelist
     self.io = obj.io
+    self.enabler = obj.enabler
 
     self.filter = obj.filter
     self:set_icons(1, self.filter ~= "" and self.filter or nil)
@@ -132,6 +139,7 @@ function FIO:serialize_settings()
     tags["whitelist"] = self.whitelist
     tags["io"] = self.io
     tags["priority"] = self.priority
+    tags["enabler"] = self.enabler
 
     return tags
 end
@@ -140,6 +148,7 @@ function FIO:deserialize_settings(tags)
     self.color = tags["color"]
     self.whitelist = tags["whitelist"]
     self.io = tags["io"]
+    self.enabler = tags["enabler"]
 
     self.filter = tags["filter"]
     self:set_icons(1, self.filter ~= "" and self.filter or nil)

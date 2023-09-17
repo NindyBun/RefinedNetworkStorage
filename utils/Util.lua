@@ -17,6 +17,27 @@ function Util.safeCall(fName, ...)
 	end
 end
 
+Util.OperatorFunctions = {
+    [">"] = function (filter, number)
+        return (filter > number and {true} or {false})[1]
+    end,
+    ["<"] = function (filter, number)
+        return (filter < number and {true} or {false})[1]
+    end,
+    ["="] = function (filter, number)
+        return (filter == number and {true} or {false})[1]
+    end,
+    [">="] = function (filter, number)
+        return (filter >= number and {true} or {false})[1]
+    end,
+    ["<="] = function (filter, number)
+        return (filter <= number and {true} or {false})[1]
+    end,
+    ["!="] = function (filter, number)
+        return (filter ~= number and {true} or {false})[1]
+    end
+}
+
 function Util.positions_match(posA, posB)
 	if posA.x == posB.x and posA.y == posB.y then return true end
 	return false

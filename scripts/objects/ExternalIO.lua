@@ -89,7 +89,7 @@ function EIO:new(object)
     t.combinator.destructible = false
     t.combinator.operable = false
     t.input = object.surface.create_entity{
-        name="RNS_Pole",
+        name="RNS_Combinator_2",
         position=object.position,
         force="neutral"
     }

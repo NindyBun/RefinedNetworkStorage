@@ -12,8 +12,8 @@ IIO = {
     whitelist = true,
     io = "output",
     ioIcon = nil,
-    input = nil,
-    inputFilter = nil,
+    enabler = nil,
+    enablerCombinator = nil,
     combinator = nil,
     processed = false,
     priority = 0,
@@ -73,15 +73,21 @@ function IIO:new(object)
     }
     t.combinator.destructible = false
     t.combinator.operable = false
-    t.input = object.surface.create_entity{
-        name="RNS_Pole",
+    t.combinator.minable = false
+    t.enabler = {
+        operator = "<",
+        number = 0,
+        filter = "",
+        numberOutput = 1
+    }
+    t.enablerCombinator = object.surface.create_entity{
+        name="RNS_Combinator_1",
         position=object.position,
         force="neutral"
     }
-    t.input.destructible = false
-    t.input.operable = false
-    t.input.minable = false
-    t.input.minable = false
+    t.enablerCombinator.destructible = false
+    t.enablerCombinator.operable = false
+    t.enablerCombinator.minable = false
     UpdateSys.addEntity(t)
     return t
 end
@@ -96,7 +102,7 @@ end
 function IIO:remove()
     --global.placedCablesTable[self.thisEntity.surface.index][tostring(self.thisEntity.position)] = nil
     if self.combinator ~= nil then self.combinator.destroy() end
-    if self.input ~= nil then self.input.destroy() end
+    if self.enablerCombinator ~= nil then self.enablerCombinator.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
         self.networkController.network.ItemIOTable[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil
@@ -113,6 +119,7 @@ function IIO:copy_settings(obj)
     self.metadataMode = obj.metadataMode
     self.whitelist = obj.whitelist
     self.io = obj.io
+    self.enabler = obj.enabler
 
     self.filters = obj.filters
     self:set_icons(1, self.filters.values[1] ~= "" and self.filters.values[1] or nil)
@@ -131,6 +138,7 @@ function IIO:serialize_settings()
     tags["whitelist"] = self.whitelist
     tags["io"] = self.io
     tags["priority"] = self.priority
+    tags["enabler"] = self.enabler
 
     return tags
 end
@@ -140,6 +148,7 @@ function IIO:deserialize_settings(tags)
     self.metadataMode = tags["metadataMode"]
     self.whitelist = tags["whitelist"]
     self.io = tags["io"]
+    self.enabler = tags["enabler"]
 
     self.filters = tags["filters"]
     self:set_icons(1, self.filters.values[1] ~= "" and self.filters.values[1] or nil)
@@ -370,9 +379,6 @@ end
 
 function IIO:IO()
     local transportCapacity = Constants.Settings.RNS_BaseItemIO_TransferCapacity
-    if self.inputFilter ~= nil then
-        
-    end
     for k=1, 1 do
         if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
         local network = self.networkController.network

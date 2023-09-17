@@ -88,25 +88,29 @@ combinator1.selection_priority = 51
 combinator1.activity_led_light_offsets = {{0, 0}, {0, 0}, {0, 0}, {0, 0}}
 data:extend{combinator1}
 
-local pole = {}
-pole.connection_points = {connection_points[1]}
-pole.maximum_wire_distance = 6
-pole.draw_copper_wires = false
-pole.supply_area_distance = 0
-pole.collision_box = {{-0.25, -0.25}, {0.25, 0.25}}
-pole.selection_box = {{-0.25, -0.25}, {0.25, 0.25}}
-pole.flags = {'placeable-neutral', 'hidden', 'not-upgradable', 'not-rotatable', 'hide-alt-info'}
-pole.icon = Constants.Settings.RNS_BlankIcon
-pole.icon_size = 32
-pole.name = 'RNS_Pole'
-pole.type = 'electric-pole'
-pole.collision_mask = {}
-pole.remove_decoratives = 'false'
-pole.pictures = {
+local combinator1 = {}
+combinator1.circuit_wire_connection_points = connection_points
+combinator1.circuit_wire_max_distance = 6
+combinator1.collision_box = {{-0.25, -0.25}, {0.25, 0.25}}
+combinator1.selection_box = {{-0.25, -0.25}, {0.25, 0.25}}
+combinator1.flags = {'placeable-neutral', 'hidden', 'not-upgradable', 'not-rotatable', 'hide-alt-info'}
+combinator1.icon = Constants.Settings.RNS_BlankIcon
+combinator1.icon_size = 32
+combinator1.item_slot_count = 1
+combinator1.name = 'RNS_Combinator_2'
+combinator1.type = 'constant-combinator'
+combinator1.collision_mask = {}
+combinator1.remove_decoratives = 'false'
+combinator1.sprites = {
 	filename = Constants.Settings.RNS_BlankIcon,
 	priority = 'extra-high',
-	size = 32,
-    direction_count = 1
+	size = 32
 }
-pole.selection_priority = 51
-data:extend{pole}
+combinator1.activity_led_sprites = {
+	filename = Constants.Settings.RNS_BlankIcon,
+	priority = 'extra-high',
+	size = 32
+}
+combinator1.selection_priority = 51
+combinator1.activity_led_light_offsets = {{0, 0}, {0, 0}, {0, 0}, {0, 0}}
+data:extend{combinator1}
