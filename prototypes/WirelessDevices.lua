@@ -30,8 +30,8 @@ wirelessGridE.minable = {mining_time = 0.2, result = Constants.WirelessGrid.name
 wirelessGridE.max_health = 250
 wirelessGridE.dying_explosion = "medium-explosion"
 wirelessGridE.corpse = "small-remnants"
-wirelessGridE.collision_box = {{-0.49, -0.49}, {0.49, 0.49}}
-wirelessGridE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+wirelessGridE.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
+wirelessGridE.selection_box = {{-0.50, -0.50}, {0.50, 0.50}}
 wirelessGridE.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
 wirelessGridE.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
 wirelessGridE.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
@@ -95,7 +95,7 @@ wirelessTransmitterE.max_health = 250
 wirelessTransmitterE.dying_explosion = "medium-explosion"
 wirelessTransmitterE.corpse = "small-remnants"
 wirelessTransmitterE.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
-wirelessTransmitterE.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+wirelessTransmitterE.selection_box = {{-0.50, -0.50}, {0.50, 0.50}}
 wirelessTransmitterE.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
 wirelessTransmitterE.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
 wirelessTransmitterE.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
@@ -137,8 +137,8 @@ wirelessTransmitter_E.max_health = 250
 wirelessTransmitter_E.dying_explosion = "medium-explosion"
 --wirelessTransmitter_E.placeable_by = {item = Constants.NetworkCables.wirelessTransmitter.itemEntity.name, count = 1}
 wirelessTransmitter_E.corpse = "small-remnants"
-wirelessTransmitter_E.collision_box = {{-0.40, -0.40}, {0.49, 0.40}}
-wirelessTransmitter_E.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+wirelessTransmitter_E.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
+wirelessTransmitter_E.selection_box = {{-0.50, -0.50}, {0.50, 0.50}}
 wirelessTransmitter_E.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
 wirelessTransmitter_E.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
 wirelessTransmitter_E.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
@@ -208,3 +208,71 @@ playerportE.energy_source = {
     usage_priority = "secondary-input"
 }
 data:extend{playerportE}
+
+for _, tr in pairs(Constants.NetworkTransReceiver) do
+    local I = {}
+    I.type = "item"
+    I.name = tr.name
+    I.icon = tr.itemIcon
+    I.icon_size = 512
+    I.subgroup = Constants.ItemGroup.Category.subgroup
+    I.order = "i"
+    I.stack_size = 10
+    I.place_result = tr.name
+    data:extend{I}
+end
+
+for _, tr in pairs(Constants.NetworkTransReceiver) do
+    local R = {}
+    R.type = "recipe"
+    R.name = tr.name
+    R.energy_required = 1
+    R.enabled = true
+    R.ingredients = {}
+    R.result = tr.name
+    R.result_count = 1
+    data:extend{R}
+end
+
+for _, tr in pairs(Constants.NetworkTransReceiver) do
+    local E = {}
+    E.type = "container"
+    E.name = tr.name
+    E.icon = tr.itemIcon
+    E.icon_size = 512
+    E.inventory_size = 0
+    E.flags = {"placeable-neutral", "player-creation"}
+    E.minable = {mining_time = 0.2, result = tr.name}
+    E.max_health = 250
+    E.dying_explosion = "medium-explosion"
+    E.corpse = "small-remnants"
+    E.collision_box = {{-0.90, -0.90}, {0.90, 0.90}}
+    E.selection_box = {{-1.0, -1.0}, {1.0, 1.0}}
+    E.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
+    E.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
+    E.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
+    E.picture =
+        {
+            layers =
+            {
+                {
+                    filename = tr.entityE,
+                    priority = "extra-high",
+                    width = 512,
+                    height = 512,
+                    shift = {0,-13/32},
+                    scale = 190/512
+                },
+                {
+                    filename = tr.entityS,
+                    priority = "high",
+                    width = 512,
+                    height = 512,
+                    shift = {0,-13/32},
+                    draw_as_shadow = true,
+                    scale = 190/512
+                }
+            }
+        }
+    data:extend{E}
+end

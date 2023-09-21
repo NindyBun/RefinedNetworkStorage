@@ -25,6 +25,9 @@ function createObjectTables()
         addOrCreateObjectTable{tableName="NetworkCableTable", tag="NCbl", objName=color.cable.entity.name}
         addOrCreateObjectTable{tableName="NetworkCableRampTable", tag="NCug", objName=color.underground.name}
     end
+    for _, tr in pairs(Constants.NetworkTransReceiver) do
+        addOrCreateObjectTable{tableName="TransReceiverTable", tag="TR", objName=tr.name}
+    end
 end
 
 --Adds or Create a table to store the object

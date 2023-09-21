@@ -956,18 +956,7 @@ Constants.NetworkCables = {
         },
     }
 }
-Constants.Beams = {
-    ConnectedBeam = {
-        name = "RNS_ConnectedBeam",
-        entityE = "__RefinedNetworkStorage__/graphics/Beams/ConnectedBeam.png",
-        entityL = "__RefinedNetworkStorage__/graphics/Beams/ConnectedBeamLight.png"
-    },
-    IddleBeam = {
-        name = "RNS_IddleBeam",
-        entityE = "__RefinedNetworkStorage__/graphics/Beams/IddleBeam.png",
-        entityL = "__RefinedNetworkStorage__/graphics/Beams/IddleBeamLight.png"
-    },
-}
+
 Constants.NetworkController = {
     itemEntity = {
         name = "RNS_NetworkController_Item",
@@ -990,7 +979,20 @@ Constants.NetworkController = {
         shadow =  "__RefinedNetworkStorage__/graphics/Networks/NetworkController/NetworkControllerE_S2.png"
     }
 }
-    
+Constants.NetworkTransReceiver = {
+    transmitter = {
+        name = "RNS_NetworkTransmitter",
+        itemIcon = "__RefinedNetworkStorage__/graphics/Networks/TransReceiver/NetworkTransmitterI.png",
+        entityE =  "__RefinedNetworkStorage__/graphics/Networks/TransReceiver/NetworkTransmitterE.png",
+        entityS =  "__RefinedNetworkStorage__/graphics/Networks/TransReceiver/NetworkTransReceiverS.png"
+    },
+    receiver = {
+        name = "RNS_NetworkReceiver",
+        itemIcon = "__RefinedNetworkStorage__/graphics/Networks/TransReceiver/NetworkReceiverI.png",
+        entityE =  "__RefinedNetworkStorage__/graphics/Networks/TransReceiver/NetworkReceiverE.png",
+        entityS =  "__RefinedNetworkStorage__/graphics/Networks/TransReceiver/NetworkTransReceiverS.png"
+    }
+}
 Constants.NetworkInventoryInterface = {
     name = "RNS_NetworkInventoryInterface",
     itemIcon = "__RefinedNetworkStorage__/graphics/Networks/NetworkInterface/NetworkInventoryBlockI.png",
