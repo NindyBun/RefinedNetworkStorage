@@ -23,6 +23,7 @@ function createObjectTables()
     addOrCreateObjectTable{tableName="ExternalIOTable", tag="EIO", objName=Constants.NetworkCables.externalIO.slateEntity.name}
     for _, color in pairs(Constants.NetworkCables.Cables) do
         addOrCreateObjectTable{tableName="NetworkCableTable", tag="NCbl", objName=color.cable.entity.name}
+        addOrCreateObjectTable{tableName="NetworkCableRampTable", tag="NCug", objName=color.underground.name}
     end
 end
 

@@ -24,6 +24,34 @@ sprite2.layers = {
 }
 data:extend{sprite2}
 
+local sprite3 = {}
+sprite3.type = "sprite"
+sprite3.name = Constants.Icons.underground.target.name
+sprite3.layers = {
+    {
+        filename = Constants.Icons.underground.target.sprite,
+        priority = "high",
+        size = 64,
+        scale = 0.5,
+        x=192
+    }
+}
+data:extend{sprite3}
+
+local sprite4 = {}
+sprite4.type = "sprite"
+sprite4.name = Constants.Icons.underground.gap.name
+sprite4.layers = {
+    {
+        filename = Constants.Icons.underground.gap.sprite,
+        priority = "high",
+        size = 64,
+        scale = 0.5,
+        x=0
+    }
+}
+data:extend{sprite4}
+
 local connection_points  = {
 	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}},
 	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}},

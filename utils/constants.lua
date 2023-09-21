@@ -5,7 +5,8 @@ Constants.Settings = {
     RNS_PlayerPort_Consumption = 100,
     RNS_WirelessTransmitter_Tick = 30,
     RNS_Default_WirelessGrid_Distance = 32*3,
-    RNS_Default_Gui_Distance = 11.5,
+    RNS_Default_Gui_Distance = 10,
+    RNS_CableUnderground_Reach = 4,
     RNS_Max_Priority = 5,
     RNS_Priorities = {},
     RNS_ColorG = {
@@ -368,6 +369,16 @@ Constants.ItemGroup = {
 Constants.Icons = {
     item = 'utility.indication_arrow',
     fluid = 'utility.fluid_indication_arrow',
+    underground = {
+        target = {
+            name = "RNS_underground_target",
+            sprite = "__core__/graphics/cursor-boxes-32x32.png"
+        },
+        gap = {
+            name = "RNS_underground_gap",
+            sprite = "__core__/graphics/arrows/underground-lines.png"
+        }
+    },
     storage = {
         name = "RNS_storage_indication_arrow",
         sprite = "__RefinedNetworkStorage__/graphics/Cables/IO/storage-indication-arrow.png"
@@ -452,42 +463,6 @@ Constants.NetworkCables = {
             entityS =  "__RefinedNetworkStorage__/graphics/Networks/Wireless/wirelessTransmitterS.png"
         }
     },
-    Cable = {
-        item = {
-            name = "RNS_NetworkCable_I",
-            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/NetworkCable.png",
-            entityE =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCable.png",
-            entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCable_S.png",
-        },
-        entity = {
-            name = "RNS_NetworkCable",
-            itemIcon = "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank.png",
-            entityE =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank.png",
-            entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank_S.png",
-        }
-    },
-    Sprites = {
-        [1] = {
-            name = "RNS_NetworkCableNorth",
-            sprite_E =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableN.png",
-            sprite_S =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableN_S.png",
-        },
-        [2] = {
-            name = "RNS_NetworkCableEast",
-            sprite_E =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableE.png",
-            sprite_S =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableE_S.png",
-        },
-        [4] = {
-            name = "RNS_NetworkCableSouth",
-            sprite_E =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableS.png",
-            sprite_S =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableS_S.png",
-        },
-        [3] = {
-            name = "RNS_NetworkCableWest",
-            sprite_E =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableW.png",
-            sprite_S =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableW_S.png",
-        }
-    },
     Cables = {
         RED = {
             cable = {
@@ -503,6 +478,12 @@ Constants.NetworkCables = {
                     entityE =  "__RefinedNetworkStorage__/graphics/Cables/Red/NetworkCableRedPlate.png",
                     entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank_S.png",
                 }
+            },
+            underground = {
+                name = "RNS_NetworkCableRamp_RED",
+                itemIcon = "__RefinedNetworkStorage__/graphics/Cables/Red/NetworkCableRedRamp.png",
+                entityE =  "__RefinedNetworkStorage__/graphics/Cables/Red/NetworkCableRedRamps.png",
+                entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableRampS.png",
             },
             sprites = {
                 [1] = {
@@ -547,6 +528,12 @@ Constants.NetworkCables = {
                     entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank_S.png",
                 }
             },
+            underground = {
+                name = "RNS_NetworkCableRamp_WHITE",
+                itemIcon = "__RefinedNetworkStorage__/graphics/Cables/White/NetworkCableWhiteRamp.png",
+                entityE =  "__RefinedNetworkStorage__/graphics/Cables/White/NetworkCableWhiteRamps.png",
+                entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableRampS.png",
+            },
             sprites = {
                 [1] = {
                     name = "RNS_NetworkCableNorth_WHITE",
@@ -589,6 +576,12 @@ Constants.NetworkCables = {
                     entityE =  "__RefinedNetworkStorage__/graphics/Cables/Purple/NetworkCablePurplePlate.png",
                     entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank_S.png",
                 }
+            },
+            underground = {
+                name = "RNS_NetworkCableRamp_PURPLE",
+                itemIcon = "__RefinedNetworkStorage__/graphics/Cables/Purple/NetworkCablePurpleRamp.png",
+                entityE =  "__RefinedNetworkStorage__/graphics/Cables/Purple/NetworkCablePurpleRamps.png",
+                entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableRampS.png",
             },
             sprites = {
                 [1] = {
@@ -633,6 +626,12 @@ Constants.NetworkCables = {
                     entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank_S.png",
                 }
             },
+            underground = {
+                name = "RNS_NetworkCableRamp_PINK",
+                itemIcon = "__RefinedNetworkStorage__/graphics/Cables/Pink/NetworkCablePinkRamp.png",
+                entityE =  "__RefinedNetworkStorage__/graphics/Cables/Pink/NetworkCablePinkRamps.png",
+                entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableRampS.png",
+            },
             sprites = {
                 [1] = {
                     name = "RNS_NetworkCableNorth_PINK",
@@ -675,6 +674,12 @@ Constants.NetworkCables = {
                     entityE =  "__RefinedNetworkStorage__/graphics/Cables/Orange/NetworkCableOrangePlate.png",
                     entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank_S.png",
                 }
+            },
+            underground = {
+                name = "RNS_NetworkCableRamp_ORANGE",
+                itemIcon = "__RefinedNetworkStorage__/graphics/Cables/Orange/NetworkCableOrangeRamp.png",
+                entityE =  "__RefinedNetworkStorage__/graphics/Cables/Orange/NetworkCableOrangeRamps.png",
+                entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableRampS.png",
             },
             sprites = {
                 [1] = {
@@ -719,6 +724,12 @@ Constants.NetworkCables = {
                     entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank_S.png",
                 }
             },
+            underground = {
+                name = "RNS_NetworkCableRamp_LIGHTGREEN",
+                itemIcon = "__RefinedNetworkStorage__/graphics/Cables/LightGreen/NetworkCableLightGreenRamp.png",
+                entityE =  "__RefinedNetworkStorage__/graphics/Cables/LightGreen/NetworkCableLightGreenRamps.png",
+                entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableRampS.png",
+            },
             sprites = {
                 [1] = {
                     name = "RNS_NetworkCableNorth_LIGHTGREEN",
@@ -761,6 +772,12 @@ Constants.NetworkCables = {
                     entityE =  "__RefinedNetworkStorage__/graphics/Cables/LightBlue/NetworkCableLightBluePlate.png",
                     entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank_S.png",
                 }
+            },
+            underground = {
+                name = "RNS_NetworkCableRamp_LIGHTBLUE",
+                itemIcon = "__RefinedNetworkStorage__/graphics/Cables/LightBlue/NetworkCableLightBlueRamp.png",
+                entityE =  "__RefinedNetworkStorage__/graphics/Cables/LightBlue/NetworkCableLightBlueRamps.png",
+                entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableRampS.png",
             },
             sprites = {
                 [1] = {
@@ -805,6 +822,12 @@ Constants.NetworkCables = {
                     entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank_S.png",
                 }
             },
+            underground = {
+                name = "RNS_NetworkCableRamp_GREY",
+                itemIcon = "__RefinedNetworkStorage__/graphics/Cables/Grey/NetworkCableGreyRamp.png",
+                entityE =  "__RefinedNetworkStorage__/graphics/Cables/Grey/NetworkCableGreyRamps.png",
+                entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableRampS.png",
+            },
             sprites = {
                 [1] = {
                     name = "RNS_NetworkCableNorth_GREY",
@@ -848,6 +871,12 @@ Constants.NetworkCables = {
                     entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank_S.png",
                 }
             },
+            underground = {
+                name = "RNS_NetworkCableRamp_GREEN",
+                itemIcon = "__RefinedNetworkStorage__/graphics/Cables/Green/NetworkCableGreenRamp.png",
+                entityE =  "__RefinedNetworkStorage__/graphics/Cables/Green/NetworkCableGreenRamps.png",
+                entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableRampS.png",
+            },
             sprites = {
                 [1] = {
                     name = "RNS_NetworkCableNorth_GREEN",
@@ -890,6 +919,12 @@ Constants.NetworkCables = {
                     entityE =  "__RefinedNetworkStorage__/graphics/Cables/Brown/NetworkCableBrownPlate.png",
                     entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableBlank_S.png",
                 }
+            },
+            underground = {
+                name = "RNS_NetworkCableRamp_BROWN",
+                itemIcon = "__RefinedNetworkStorage__/graphics/Cables/Brown/NetworkCableBrownRamp.png",
+                entityE =  "__RefinedNetworkStorage__/graphics/Cables/Brown/NetworkCableBrownRamps.png",
+                entityS =  "__RefinedNetworkStorage__/graphics/Cables/NetworkCableRampS.png",
             },
             sprites = {
                 [1] = {

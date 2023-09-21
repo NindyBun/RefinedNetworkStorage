@@ -36,12 +36,25 @@ function RNSP:update_gui_distance_validity()
     for _, guiTable in pairs(self.GUI or {}) do
         if guiTable.gui ~= nil and guiTable.gui.valid == true then
             local obj = guiTable.vars.currentObject
-            if Util.distance(self.thisEntity.position, obj.thisEntity.position) > Constants.Settings.RNS_Default_Gui_Distance then
+            local characters = obj.thisEntity.surface.find_entities_filtered{
+                type = "character",
+                area = {
+                    {obj.thisEntity.bounding_box.left_top.x-Constants.Settings.RNS_Default_Gui_Distance, obj.thisEntity.bounding_box.left_top.y-Constants.Settings.RNS_Default_Gui_Distance}, --top left
+                    {obj.thisEntity.bounding_box.right_bottom.x+Constants.Settings.RNS_Default_Gui_Distance, obj.thisEntity.bounding_box.right_bottom.y+Constants.Settings.RNS_Default_Gui_Distance} --bottom right
+                }
+            }
+            local found = false
+            for _, character in pairs(characters) do
+                if character.player ~= nil and character.player.name == self.thisEntity.name then
+                    found = true
+                    break
+                end
+            end
+            if not found then
                 GUI.remove_gui(guiTable, self.thisEntity)
-                goto continue
+                return
             end
         end
-        ::continue::
     end
 end
 
@@ -49,7 +62,7 @@ function RNSP:update()
     self:update_gui_distance_validity()
     if self.thisEntity.selected ~= nil then
         local entity = self.thisEntity.selected
-        if string.match(entity.name, "RNS_NetworkCableIO") then
+        if string.match(entity.name, "RNS_NetworkCableIO") or string.match(entity.name, "RNS_NetworkCableRamp") then
             local obj = global.entityTable[entity.unit_number]
             if obj.valid and obj ~= nil and obj.toggleHoverIcon then
                 obj:toggleHoverIcon(true)
