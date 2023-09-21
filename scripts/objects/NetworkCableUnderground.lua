@@ -178,9 +178,9 @@ function NCug:createArms()
                 local obj = global.entityTable[ent.unit_number]
                 if area.direction == self:getDirection() then
                     if string.match(ent.name, "RNS_NetworkCableRamp") ~= nil and obj.color == self.color and (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then
-                        
-                        nearest = ent --Need to find a way to isolate ramps from other ramps on the same line
-
+                        if self:getDirection() == obj:getConnectionDirection() or self:getDirection() == obj:getDirection() then
+                            nearest = ent --Need to find a way to isolate ramps from other ramps on the same line
+                        end
                     end
                 elseif (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then
                     nearest = ent
@@ -197,8 +197,13 @@ function NCug:createArms()
                     self.connectedObjs[area.direction] = {obj}
                 elseif obj.color ~= "" and obj.color == self.color then
                     if string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil then
-                        if  self:getDirection() == obj:getConnectionDirection() and self:getDirection() == area.direction then
-                            self.targetEntity = obj
+                        if self:getDirection() == area.direction then
+                            if self:getDirection() == obj:getConnectionDirection() then
+                                self.targetEntity = obj
+                                self.connectedObjs[area.direction] = {obj}
+                            end
+                        elseif area.direction ~= obj:getConnectionDirection() then
+                            self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
                             self.connectedObjs[area.direction] = {obj}
                         end
                     else
