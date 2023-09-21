@@ -98,12 +98,12 @@ function NCug:toggleHoverIcon(hovering)
 end
 
 function NCug:generateModeIcon()
-    if self.targetEntity == nil then return end
-    if self.targetEntity ~= nil and self.targetEntity.thisEntity ~= nil and self.targetEntity.thisEntity.valid == false then return end
     if self.targetIcon ~= nil then rendering.destroy(self.targetIcon) end
     for _, gap in pairs(self.gapIcons) do
         if gap ~= nil then rendering.destroy(gap) end
     end
+    if self.targetEntity == nil then return end
+    if self.targetEntity ~= nil and self.targetEntity.thisEntity ~= nil and self.targetEntity.thisEntity.valid == false then return end
     self.targetIcon = rendering.draw_sprite{
         sprite=Constants.Icons.underground.target.name, 
         target=self.targetEntity.thisEntity, 
@@ -137,7 +137,6 @@ function NCug:generateModeIcon()
 end
 
 function NCug:resetConnection()
-    self.targetEntity = nil
     self.connectedObjs = {
         [1] = {}, --N
         [2] = {}, --E
@@ -149,6 +148,11 @@ function NCug:resetConnection()
             rendering.destroy(arm)
         end
     end
+    self.targetEntity = nil
+    --if self.targetIcon ~= nil then rendering.destroy(self.targetIcon) end
+    --for _, gap in pairs(self.gapIcons) do
+    --    if gap ~= nil then rendering.destroy(gap) end
+    --end
 end
 
 function NCug:getCheckArea()
@@ -156,9 +160,9 @@ function NCug:getCheckArea()
     local y = self.thisEntity.position.y
     return {
         [1] = {direction = 1, startP = {x-0.5, y-1.5-(self:getDirection() == 1 and Constants.Settings.RNS_CableUnderground_Reach or 0)}, endP = {x+0.5, y-0.5}}, --North
-        [2] = {direction = 2, startP = {x+0.5, y-0.5}, endP = {x+1.5+(self:getDirection() == 1 and Constants.Settings.RNS_CableUnderground_Reach or 0), y+0.5}}, --East
-        [4] = {direction = 4, startP = {x-0.5, y+0.5}, endP = {x+0.5, y+1.5+(self:getDirection() == 1 and Constants.Settings.RNS_CableUnderground_Reach or 0)}}, --South
-        [3] = {direction = 3, startP = {x-1.5-(self:getDirection() == 1 and Constants.Settings.RNS_CableUnderground_Reach or 0), y-0.5}, endP = {x-0.5, y+0.5}}, --West
+        [2] = {direction = 2, startP = {x+0.5, y-0.5}, endP = {x+1.5+(self:getDirection() == 2 and Constants.Settings.RNS_CableUnderground_Reach or 0), y+0.5}}, --East
+        [4] = {direction = 4, startP = {x-0.5, y+0.5}, endP = {x+0.5, y+1.5+(self:getDirection() == 4 and Constants.Settings.RNS_CableUnderground_Reach or 0)}}, --South
+        [3] = {direction = 3, startP = {x-1.5-(self:getDirection() == 3 and Constants.Settings.RNS_CableUnderground_Reach or 0), y-0.5}, endP = {x-0.5, y+0.5}}, --West
     }
 end
 
@@ -170,14 +174,16 @@ function NCug:createArms()
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         local nearest = nil
         for _, ent in pairs(ents) do
-            if ent ~= nil and ent.valid == true then
-                if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) and string.match(ent.name, "RNS_") ~= nil and ent.operable then
-                    local obj = global.entityTable[ent.unit_number]
-                    if string.match(ent.name, "RNS_NetworkCableRamp") ~= nil and obj ~= nil and obj.color == self.color and self:getDirection() == obj:getConnectionDirection() then
-                        nearest = ent
-                    elseif string.match(ent.name, "RNS_NetworkCableRamp") == nil then
-                        nearest = ent
+            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and ent.operable then
+                local obj = global.entityTable[ent.unit_number]
+                if area.direction == self:getDirection() then
+                    if string.match(ent.name, "RNS_NetworkCableRamp") ~= nil and obj.color == self.color and (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then
+                        
+                        nearest = ent --Need to find a way to isolate ramps from other ramps on the same line
+
                     end
+                elseif (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then
+                    nearest = ent
                 end
             end
         end
@@ -190,12 +196,15 @@ function NCug:createArms()
                     self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
                     self.connectedObjs[area.direction] = {obj}
                 elseif obj.color ~= "" and obj.color == self.color then
-                    if string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and self:getDirection() == obj:getConnectionDirection() then
-                        self.targetEntity = obj
+                    if string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil then
+                        if  self:getDirection() == obj:getConnectionDirection() and self:getDirection() == area.direction then
+                            self.targetEntity = obj
+                            self.connectedObjs[area.direction] = {obj}
+                        end
                     else
                         self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                        self.connectedObjs[area.direction] = {obj}
                     end
-                    self.connectedObjs[area.direction] = {obj}
                 end
             end
             if self.cardinals[area.direction] == false then
