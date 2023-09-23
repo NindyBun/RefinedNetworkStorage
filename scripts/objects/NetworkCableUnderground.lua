@@ -90,10 +90,10 @@ function NCug:toggleHoverIcon(hovering)
     if hovering then
         self:generateModeIcon()
     elseif not hovering then
-        if self.targetIcon ~= nil then rendering.destroy(self.targetIcon) end
-        for _, gap in pairs(self.gapIcons) do
-            if gap ~= nil then rendering.destroy(gap) end
-        end
+        --if self.targetIcon ~= nil then rendering.destroy(self.targetIcon) end
+        --for _, gap in pairs(self.gapIcons) do
+        --    if gap ~= nil then rendering.destroy(gap) end
+        --end
     end
 end
 
@@ -113,7 +113,7 @@ function NCug:generateModeIcon()
         sprite=Constants.Icons.underground.target.name, 
         target=self.targetEntity.thisEntity, 
         surface=self.thisEntity.surface,
-        time_to_live=1
+        time_to_live=2
     }
     local dist = math.floor(Util.distance(self.targetEntity.thisEntity.position, self.thisEntity.position))-1
     local xO = 0
@@ -148,7 +148,7 @@ function NCug:generateModeIcon()
             },
             surface=self.thisEntity.surface,
             orientation=self:getRealDirection()%2 == 0 and 0.25 or 0,
-            time_to_live=1
+            time_to_live=2
         }
     end
 end
