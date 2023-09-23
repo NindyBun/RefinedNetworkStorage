@@ -181,12 +181,12 @@ function TR:getTooltips(guiTable, mainFrame, justCreated)
             yPos.style.maximal_width = 50
 
             local surfIDflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
-            GuiApi.add_label(guiTable, "", surfIDflow, {"gui-description.RNS_SurfaceID"}, Constants.Settings.RNS_Gui.white)
+            GuiApi.add_label(guiTable, "", surfIDflow, {"gui-description.RNS_RecieverSurfaceID"}, Constants.Settings.RNS_Gui.white)
             local surfID = GuiApi.add_text_field(guiTable, "RNS_TransReceiver_SurfaceID", surfIDflow, self.receiver.surface == nil and "" or tostring(self.receiver.surface), {"gui-description.RNS_ReceiverSurfaceID_tooltip"}, true, true, false, false, false, {ID=self.entID})
             surfID.style.maximal_width = 50
         else
             GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)
-            GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_ReceiverSurface", self.thisEntity.surface.index}, Constants.Settings.RNS_Gui.white, "", false)
+            GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_Surface", self.thisEntity.surface.index}, Constants.Settings.RNS_Gui.white, "", false)
         end
     end
 end
