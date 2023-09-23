@@ -18,77 +18,6 @@ function Event.placed(event)
     
     local type = entity.type
     local entName = type == "entity-ghost" and entity.ghost_name or entity.name
-    
-    --[[
-    if string.match(entName, "RNS_NetworkCable_I") ~= nil and type ~= "entity-ghost" then
-        --entName = Constants.NetworkCables.Cable.entity.name
-        for _, color in pairs(Constants.NetworkCables.Cables) do
-            if entName == color.cable.item.name then
-                entName = color.cable.entity.name
-            end
-        end
-        local surf = entity.surface
-        local ply = entity.last_user
-        local pos = entity.position
-        local fr = entity.force
-        local health = entity.health
-        entity.destroy()
-        entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply}
-        entity.health = health
-    elseif entName == Constants.NetworkController.itemEntity.name and type ~= "entity-ghost" then
-        entName =  Constants.NetworkController.slateEntity.name
-        local surf = entity.surface
-        local ply = entity.last_user
-        local pos = entity.position
-        local fr = entity.force
-        local health = entity.health
-        entity.destroy()
-        entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply}
-        entity.health = health
-    elseif entName == Constants.NetworkCables.itemIO.itemEntity.name and type ~= "entity-ghost" then
-        entName = Constants.NetworkCables.itemIO.slateEntity.name
-        local surf = entity.surface
-        local ply = entity.last_user
-        local pos = entity.position
-        local fr = entity.force
-        local dir = entity.direction
-        local health = entity.health
-        entity.destroy()
-        entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply, direction=dir}
-        entity.health = health
-    elseif entName == Constants.NetworkCables.fluidIO.itemEntity.name and type ~= "entity-ghost" then
-        entName = Constants.NetworkCables.fluidIO.slateEntity.name
-        local surf = entity.surface
-        local ply = entity.last_user
-        local pos = entity.position
-        local fr = entity.force
-        local dir = entity.direction
-        local health = entity.health
-        entity.destroy()
-        entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply, direction=dir}
-        entity.health = health
-    elseif entName == Constants.NetworkCables.externalIO.itemEntity.name and type ~= "entity-ghost" then
-        entName = Constants.NetworkCables.externalIO.slateEntity.name
-        local surf = entity.surface
-        local ply = entity.last_user
-        local pos = entity.position
-        local fr = entity.force
-        local dir = entity.direction
-        local health = entity.health
-        entity.destroy()
-        entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply, direction=dir}
-        entity.health = health
-    elseif entName == Constants.NetworkCables.wirelessTransmitter.itemEntity.name and type ~= "entity-ghost" then
-        entName = Constants.NetworkCables.wirelessTransmitter.slateEntity.name
-        local surf = entity.surface
-        local ply = entity.last_user
-        local pos = entity.position
-        local fr = entity.force
-        local health = entity.health
-        entity.destroy()
-        entity = surf.create_entity{name=entName, position=pos, force=fr, player=ply}
-        entity.health = health
-    end]]
 
     local objInfo = global.objectTables[entName]
 
@@ -102,7 +31,7 @@ function Event.placed(event)
         if event.tags and obj.deserialize_settings then
 			obj:deserialize_settings(event.tags)
 		end
-        if event.stack ~= nil and event.stack.valid_for_read == true and event.stack.type == "item-with-tags" then
+        if event.stack ~= nil and event.stack.valid_for_read == true and event.stack.type == "item-with-tags" and obj.DataConvert_ItemToEntity ~= nil then
 			local contents = event.stack.get_tag(Constants.Settings.RNS_Tag)
 			if contents ~= nil then
 				obj:DataConvert_ItemToEntity(contents)
@@ -224,9 +153,9 @@ function Event.onSettingsPasted(event)
 
 	if o1 == nil then return end
 	if o2 == nil then return end
-	if o1.thisEntity.name ~= o2.thisEntity.name then return end
 
-	if o2.copy_settings ~= nil then
+	if o2.copy_settings == nil then return end
+    if o1.thisEntity.name == o2.thisEntity.name then
 		o2:copy_settings(o1)
-	end
+    end
 end

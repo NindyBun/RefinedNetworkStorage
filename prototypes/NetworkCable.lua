@@ -259,6 +259,7 @@ for _, color in pairs(Constants.NetworkCables.Cables) do
     networkCable_E.name = color.underground.name
     networkCable_E.icon = color.underground.itemIcon
     networkCable_E.icon_size = 512
+    networkCable_E.localised_description = {"entity-description.RNS_NetworkCableRamp", Constants.Settings.RNS_CableUnderground_Reach+1}
     networkCable_E.flags = {"placeable-neutral", "player-creation"}
     networkCable_E.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
     networkCable_E.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}

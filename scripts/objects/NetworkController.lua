@@ -431,4 +431,14 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.Detector.name, detectorcount, 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
+    local transmittercount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.TransmitterTable))
+    if transmittercount > 0 then
+        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkTransReceiver.transmitter.name, transmittercount, 64, Constants.Settings.RNS_Gui.label_font_2)
+    end
+
+    local receivercount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ReceiverTable))
+    if receivercount > 0 then
+        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkTransReceiver.receiver.name, receivercount, 64, Constants.Settings.RNS_Gui.label_font_2)
+    end
+
 end

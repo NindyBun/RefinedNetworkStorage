@@ -11,6 +11,7 @@ require("scripts.gui.Gui")
 require("scripts.gui.GuiApi")
 require("scripts.objects.WirelessGrid")
 require("scripts.objects.WirelessTransmitter")
+require("scripts.objects.TransReceiver")
 require("scripts.objects.Detector")
 require("scripts.objects.NetworkBase")
 require("scripts.objects.NetworkController")
@@ -34,7 +35,7 @@ function onInit()
 
 	global.entityTable = global.entityTable or {}
     --global.itemTable = global.itemTable or {}
-    global.tempInventoryTable = {}
+    global.tempInventoryTable = global.tempInventoryTable or {}
     --[[global.placedCablesTable = {}
     for i, s in pairs(game.surfaces) do
         global.placedCablesTable[tostring(s.index)] = {}
@@ -73,22 +74,6 @@ function onLoad()
             global.tempInventoryTable[id] = nil
         end
     end
-
-    --[[
-    for id, xpos in pairs(global.placedCablesTable) do
-        for _, data in pairs(xpos) do
-            --local data = global.placedCablesTable[id][xpos][yposition]
-            local name = data.name
-            local ent = data.ent
-            local pos = data.pos
-            local surf = data.surf
-
-            if (ent ~= nil and ent.thisEntity ~= nil and ent.thisEntity.valid == false) then
-                global.placedCablesTable[id][xpos][ypos] = nil
-            end
-        end
-    end
-    ]]
 end
 
 --When a player is created

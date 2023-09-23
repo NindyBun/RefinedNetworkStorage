@@ -122,6 +122,7 @@ function GUI.on_gui_closed(event)
     end
 end
 
+--Mainly used for buttons
 function GUI.on_gui_clicked(event)
     local playerIndex = event.player_index
     local player = getPlayer(playerIndex)
@@ -204,6 +205,12 @@ function GUI.on_gui_element_changed(event)
 
     if string.match(event.element.name, "RNS_Detector") then
         DT.interaction(event, RNSPlayer)
+        GUI.update(true)
+        return
+    end
+
+    if string.match(event.element.name, "RNS_TransReceiver") then
+        TR.interaction(event, RNSPlayer)
         GUI.update(true)
         return
     end

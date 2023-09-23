@@ -376,7 +376,7 @@ Constants.Icons = {
         },
         gap = {
             name = "RNS_underground_gap",
-            sprite = "__core__/graphics/arrows/underground-lines.png"
+            sprite = "__RefinedNetworkStorage__/graphics/underground-line.png"
         }
     },
     storage = {

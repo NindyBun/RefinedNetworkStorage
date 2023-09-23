@@ -3,7 +3,9 @@ TR = {
     entID = nil,
     networkController = nil,
     connectedObjs = nil,
-    type = ""
+    cardinals = nil,
+    type = "",
+    receiver = nil
 }
 --Constructor
 function TR:new(object)
@@ -20,7 +22,18 @@ function TR:new(object)
         [2] = {}, --E
         [3] = {}, --S
         [4] = {}, --W
-        [5] = {}  --Reciever
+        [5] = {}  --Receiver
+    }
+    t.receiver = {
+        position = {x=nil, y=nil},
+        surface = nil
+    }
+    t.cardinals = {
+        [1] = false, --N
+        [2] = false, --E
+        [3] = false, --S
+        [4] = false, --W
+        [5] = false  --Receiver
     }
     t:collect()
     UpdateSys.addEntity(t)
@@ -39,7 +52,11 @@ end
 function TR:remove()
     UpdateSys.remove(self)
     if self.networkController ~= nil then
-        self.networkController.network.TransReceiverTable[1][self.entID] = nil
+        if self.type == "transmitter" then
+            self.networkController.network.TransmitterTable[1][self.entID] = nil
+        else
+            self.networkController.network.ReceiverTable[1][self.entID] = nil
+        end
         self.networkController.network.shouldRefresh = true
     end
 end
@@ -82,6 +99,7 @@ function TR:collect()
     local areas = self:getCheckArea()
     self:resetCollection()
     for _, area in pairs(areas) do
+        local enti = 0
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and ent.operable then
@@ -91,18 +109,55 @@ function TR:collect()
                         --Do nothing
                     else
                         table.insert(self.connectedObjs[area.direction], obj)
+                        enti = enti + 1
+
+                        if self.cardinals[area.direction] == false then
+                            self.cardinals[area.direction] = true
+                            if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
+                                self.networkController.network.shouldRefresh = true
+                            elseif obj.thisEntity.name == Constants.NetworkController.slateEntity.name then
+                                obj.network.shouldRefresh = true
+                            end
+                        end
                     end
                 end
             end
         end
+        if self.cardinals[area.direction] == true and enti == 0 then
+            self.cardinals[area.direction] = false
+            if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
+                self.networkController.network.shouldRefresh = true
+            end
+        end
     end
+    if self.type ~= "transmitter" then return end
+    if self.receiver.surface == nil or (self.receiver.surface ~= nil and game.surfaces[self.receiver.surface] == nil) then return end
+    if self.receiver.position.x == nil or self.receiver.position.y == nil then return end
+
+    local rec = game.surfaces[self.receiver.surface].find_entity(Constants.NetworkTransReceiver.receiver.name, self.receiver.position)
+    if rec ~= nil and global.entityTable[rec.unit_number] ~= nil then
+        self.connectedObjs[5] = {global.entityTable[rec.unit_number]}
+        if self.cardinals[5] == false then
+            self.cardinals[5] = true
+            if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
+                self.networkController.network.shouldRefresh = true
+            end
+        end
+    else
+        if self.cardinals[5] == true then
+            self.cardinals[5] = false
+            if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
+                self.networkController.network.shouldRefresh = true
+            end
+        end
+    end
+    
 end
 
 --Tooltips
 function TR:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
-        guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkTransReceiver_Title"}
-        mainFrame.style.height = 450
+        guiTable.vars.Gui_Title.caption = self.type == "transmitter" and {"gui-description.RNS_NetworkTransmitter_Title"} or {"gui-description.RNS_NetworkReceiver_Title"}
 
         local infoFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
 		infoFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -113,6 +168,67 @@ function TR:getTooltips(guiTable, mainFrame, justCreated)
 		infoFrame.style.right_padding = 3
 
         GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
-    end
 
+        if self.type == "transmitter" then
+            local xflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
+            GuiApi.add_label(guiTable, "", xflow, {"gui-description.RNS_xPos"}, Constants.Settings.RNS_Gui.white)
+            local xPos = GuiApi.add_text_field(guiTable, "RNS_TransReceiver_xPos", xflow, self.receiver.position.x == nil and "" or tostring(self.receiver.position.x), {"gui-description.RNS_xPos_tooltip"}, true, true, true, true, false, {ID=self.entID})
+            xPos.style.maximal_width = 50
+
+            local yflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
+            GuiApi.add_label(guiTable, "", yflow, {"gui-description.RNS_yPos"}, Constants.Settings.RNS_Gui.white)
+            local yPos = GuiApi.add_text_field(guiTable, "RNS_TransReceiver_yPos", yflow, self.receiver.position.y == nil and "" or tostring(self.receiver.position.y), {"gui-description.RNS_yPos_tooltip"}, true, true, true, true, false, {ID=self.entID})
+            yPos.style.maximal_width = 50
+
+            local surfIDflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
+            GuiApi.add_label(guiTable, "", surfIDflow, {"gui-description.RNS_SurfaceID"}, Constants.Settings.RNS_Gui.white)
+            local surfID = GuiApi.add_text_field(guiTable, "RNS_TransReceiver_SurfaceID", surfIDflow, self.receiver.surface == nil and "" or tostring(self.receiver.surface), {"gui-description.RNS_SurfaceID_tooltip"}, true, true, false, false, false, {ID=self.entID})
+            surfID.style.maximal_width = 50
+        else
+            GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)
+            GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_Surface", self.thisEntity.surface.index}, Constants.Settings.RNS_Gui.white, "", false)
+        end
+    end
+end
+
+function TR:force_controller_update()
+    if self.networkController ~= nil then
+        self.networkController.network.shouldRefresh = true
+    end
+end
+
+function TR.interaction(event, RNSPlayer)
+    if string.match(event.element.name, "xPos") then
+		local obj = global.entityTable[event.element.tags.ID]
+		if obj == nil then return end
+        if event.element.text ~= "" then
+            obj.receiver.position.x = tonumber(event.element.text)
+        else
+            obj.receiver.position.x = nil
+        end
+        obj:force_controller_update()
+		return
+	end
+    if string.match(event.element.name, "yPos") then
+		local obj = global.entityTable[event.element.tags.ID]
+		if obj == nil then return end
+        if event.element.text ~= "" then
+            obj.receiver.position.y = tonumber(event.element.text)
+        else
+            obj.receiver.position.y = nil
+        end
+        obj:force_controller_update()
+		return
+	end
+	if string.match(event.element.name, "SurfaceID") then
+		local obj = global.entityTable[event.element.tags.ID]
+		if obj == nil then return end
+        if event.element.text ~= "" then
+            obj.receiver.surface = tonumber(event.element.text)
+        else
+            obj.receiver.surface = nil
+        end
+        obj:force_controller_update()
+		return
+	end
 end

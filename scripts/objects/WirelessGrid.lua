@@ -55,7 +55,7 @@ function WG:update()
 end
 
 function WG:copy_settings(obj)
-    self.network_controller_position = obj.network_controller_position
+	self.network_controller_position = obj.network_controller_position
 	self.network_controller_surface = obj.network_controller_surface
 end
 
@@ -77,7 +77,9 @@ function WG:DataConvert_ItemToEntity(tag_contents)
 end
 
 function WG:DataConvert_EntityToItem(item)
-	item.custom_description = {"", item.prototype.localised_description, {"item-description.RNS_WirelessGrid_Tag", self.network_controller_position, self.network_controller_surface}}
+	local pos = "{" .. (self.network_controller_position.x or " ") .. "," .. (self.network_controller_position.y or " ") .. "}"
+	local surf = self.network_controller_surface ~= nil and game.surfaces[self.network_controller_surface].name or "_"
+	item.custom_description = {"", item.prototype.localised_description, {"item-description.RNS_WirelessGrid_Tag", pos, surf}}
     item.set_tag(Constants.Settings.RNS_Tag, {surfaceID=self.network_controller_surface, position=self.network_controller_position})
 end
 
@@ -209,13 +211,12 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 	inventoryScrollPane.clear()
 	playerInventoryScrollPane.clear()
 
+	self:createPlayerInventory(guiTable, RNSPlayer, playerInventoryScrollPane, textField.text)
+
     if self.networkController == nil or not self.networkController.stable or (self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == false) then return end
-	
 	if self.network_controller_surface == nil or self.thisEntity.surface.index ~= self.network_controller_surface then return end
 	if self.network_controller_position.x == nil or self.network_controller_position.y == nil then return end
 	if game.surfaces[self.network_controller_surface].find_entity(Constants.NetworkController.slateEntity.name, self.network_controller_position) == nil then return end
-
-	self:createPlayerInventory(guiTable, RNSPlayer, playerInventoryScrollPane, textField.text)
 
 	if self.networkController:find_wirelessgrid_with_wirelessTransmitter(self.thisEntity.unit_number) == false then
 		if justCreated == true then RNSPlayer.thisEntity.print({"gui-description.RNS_NetworkController_Far"}) end

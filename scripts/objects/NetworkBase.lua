@@ -9,11 +9,11 @@ BaseNet = {
     NetworkInventoryInterfaceTable = nil,
     WirelessTransmitterTable = nil,
     DetectorTable = nil,
+    TransmitterTable = nil,
+    ReceiverTable = nil,
     PlayerPorts = nil,
     Contents = nil,
     shouldRefresh = false,
-    updateTick = 200,
-    lastUpdate = 0
 }
 
 function BaseNet:new()
@@ -71,6 +71,10 @@ function BaseNet:resetTables()
     self.WirelessTransmitterTable[1] = {}
     self.DetectorTable = {}
     self.DetectorTable[1] = {}
+    self.TransmitterTable = {}
+    self.TransmitterTable[1] = {}
+    self.ReceiverTable = {}
+    self.ReceiverTable[1] = {}
 end
 
 --Refreshes laser connections
@@ -115,6 +119,10 @@ function addConnectables(source, connections, master)
                 master.network.WirelessTransmitterTable[1][con.entID] = con
             elseif con.thisEntity.name == Constants.Detector.name then
                 master.network.DetectorTable[1][con.entID] = con
+            elseif con.thisEntity.name == Constants.NetworkTransReceiver.transmitter.name then
+                master.network.TransmitterTable[1][con.entID] = con
+            elseif con.thisEntity.name == Constants.NetworkTransReceiver.receiver.name then
+                master.network.ReceiverTable[1][con.entID] = con
             end
             addConnectables(con, connections, master)
             ::continue::
@@ -706,4 +714,5 @@ function BaseNet:getTotalObjects()
             + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ItemIOTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.FluidIOTable))
             + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ExternalIOTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.NetworkInventoryInterfaceTable))
             + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.WirelessTransmitterTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.DetectorTable))
+            + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.TransmitterTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ReceiverTable))
 end
