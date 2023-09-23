@@ -139,7 +139,7 @@ function NCug:generateModeIcon()
         --    surface=self.thisEntity.surface,
         --    orientation=self:getRealDirection()%2 == 0 and 0.25 or 0,
         --}
-        self.gapIcons[i] = rendering.draw_sprite{
+        rendering.draw_sprite{
             sprite=Constants.Icons.underground.gap.name, 
             target=self.thisEntity,
             target_offset = {
