@@ -69,11 +69,11 @@ function onLoad()
 			end
 		end
     end
-    for id, obj in pairs(global.tempInventoryTable) do
-        if not obj.itemstack.valid or obj.itemstack == nil then
-            global.tempInventoryTable[id] = nil
-        end
-    end
+    --for id, obj in pairs(global.tempInventoryTable) do
+    --    if not obj.itemstack.valid or obj.itemstack == nil then
+    --        global.tempInventoryTable[id] = nil
+    --    end
+    --end
 end
 
 --When a player is created

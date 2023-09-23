@@ -277,7 +277,7 @@ end
 
 function ID:DataConvert_EntityToItem(item)
     if self.storageArray ~= nil then
-        global.tempInventoryTable[item.item_number] = {item_list=self.storageArray.item_list, inventory=game.create_inventory(self.maxStorage), itemstack=item}
+        global.tempInventoryTable[item.item_number] = {item_list=self.storageArray.item_list, inventory=game.create_inventory(self.maxStorage)}
         local size = self:getStorageSize()
         if size == 0 then return end
         local storage = global.tempInventoryTable[item.item_number].inventory
