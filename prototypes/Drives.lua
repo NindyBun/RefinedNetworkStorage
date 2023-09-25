@@ -3,7 +3,7 @@ function createDriveItem(name, icon, stack_size, subgroup, order)
 	driveI.type = "item-with-tags"
 	driveI.name = name
 	driveI.icon = icon
-	driveI.icon_size = 256
+	driveI.icon_size = 512
 	driveI.subgroup = subgroup
 	driveI.order = order
 	driveI.place_result = name
@@ -28,7 +28,7 @@ function createDriveEntity(name, icon, entity, shadow)
 	driveE.type = "container"
 	driveE.name = name
 	driveE.icon = icon
-	driveE.icon_size = 256
+	driveE.icon_size = 512
 	driveE.flags = {"placeable-neutral", "player-creation"}
 	driveE.minable = {mining_time = 0.2, result = name}
 	driveE.max_health = 350
@@ -47,10 +47,10 @@ function createDriveEntity(name, icon, entity, shadow)
 				{
 					filename = entity,
 					priority = "extra-high",
-					width = 256,
-					height = 256,
-					shift = {0,-0.47225},
-					scale = 0.5
+					width = 512,
+					height = 512,
+					shift = {0,-148/512},
+					scale = 1/4
 				},
 				{
 					filename = shadow,
@@ -59,7 +59,7 @@ function createDriveEntity(name, icon, entity, shadow)
 					height = 256,
 					shift = {1,-0.47225},
 					draw_as_shadow = true,
-					scale = 0.5
+					scale = 1/2
 				}
 			}
 		}
@@ -73,7 +73,7 @@ for _, drive in pairs(Constants.Drives.ItemDrive) do
 end
 
 for _, drive in pairs(Constants.Drives.FluidDrive) do
-	createDriveItem(drive.name, drive.itemIcon, drive.stack_size, drive.subgroup, drive.order)
-	createDriveRecipe(drive.name, drive.craft_time, drive.enabled, drive.ingredients)
-	createDriveEntity(drive.name, drive.itemIcon, drive.entityE, drive.entityS)
+	--createDriveItem(drive.name, drive.itemIcon, drive.stack_size, drive.subgroup, drive.order)
+	--createDriveRecipe(drive.name, drive.craft_time, drive.enabled, drive.ingredients)
+	--createDriveEntity(drive.name, drive.itemIcon, drive.entityE, drive.entityS)
 end
