@@ -90,24 +90,30 @@ function NCug:toggleHoverIcon(hovering)
     if hovering then
         self:generateModeIcon()
     elseif not hovering then
-        if self.targetIcon ~= nil then rendering.destroy(self.targetIcon) end
-        for _, gap in pairs(self.gapIcons) do
-            if gap ~= nil then rendering.destroy(gap) end
-        end
+        --if self.targetIcon ~= nil then rendering.destroy(self.targetIcon) end
+        --for _, gap in pairs(self.gapIcons) do
+        --    if gap ~= nil then rendering.destroy(gap) end
+        --end
     end
 end
 
 function NCug:generateModeIcon()
-    if self.targetIcon ~= nil then rendering.destroy(self.targetIcon) end
-    for _, gap in pairs(self.gapIcons) do
-        if gap ~= nil then rendering.destroy(gap) end
-    end
+    --if self.targetIcon ~= nil then rendering.destroy(self.targetIcon) end
+    --for _, gap in pairs(self.gapIcons) do
+    --    if gap ~= nil then rendering.destroy(gap) end
+    --end
     if self.targetEntity == nil then return end
     if self.targetEntity ~= nil and self.targetEntity.thisEntity ~= nil and self.targetEntity.thisEntity.valid == false then return end
-    self.targetIcon = rendering.draw_sprite{
+    --self.targetIcon = rendering.draw_sprite{
+    --    sprite=Constants.Icons.underground.target.name, 
+    --    target=self.targetEntity.thisEntity, 
+    --    surface=self.thisEntity.surface,
+    --}
+    rendering.draw_sprite{
         sprite=Constants.Icons.underground.target.name, 
         target=self.targetEntity.thisEntity, 
         surface=self.thisEntity.surface,
+        time_to_live=2
     }
     local dist = math.floor(Util.distance(self.targetEntity.thisEntity.position, self.thisEntity.position))-1
     local xO = 0
@@ -123,7 +129,17 @@ function NCug:generateModeIcon()
     end
     if dist <= 0 then return end
     for i=1, dist do
-        self.gapIcons[i] = rendering.draw_sprite{
+        --self.gapIcons[i] = rendering.draw_sprite{
+        --    sprite=Constants.Icons.underground.gap.name, 
+        --    target=self.thisEntity,
+        --    target_offset = {
+        --        xO*i,
+        --        yO*i
+        --    },
+        --    surface=self.thisEntity.surface,
+        --    orientation=self:getRealDirection()%2 == 0 and 0.25 or 0,
+        --}
+        rendering.draw_sprite{
             sprite=Constants.Icons.underground.gap.name, 
             target=self.thisEntity,
             target_offset = {
@@ -131,7 +147,8 @@ function NCug:generateModeIcon()
                 yO*i
             },
             surface=self.thisEntity.surface,
-            orientation=self:getRealDirection()%2 == 0 and 0.25 or 0
+            orientation=self:getRealDirection()%2 == 0 and 0.25 or 0,
+            time_to_live=2
         }
     end
 end
