@@ -73,7 +73,7 @@ for _, drive in pairs(Constants.Drives.ItemDrive) do
 end
 
 for _, drive in pairs(Constants.Drives.FluidDrive) do
-	--createDriveItem(drive.name, drive.itemIcon, drive.stack_size, drive.subgroup, drive.order)
-	--createDriveRecipe(drive.name, drive.craft_time, drive.enabled, drive.ingredients)
-	--createDriveEntity(drive.name, drive.itemIcon, drive.entityE, drive.entityS)
+	createDriveItem(drive.name, drive.itemIcon, drive.stack_size, drive.subgroup, drive.order)
+	createDriveRecipe(drive.name, drive.craft_time, drive.enabled, drive.ingredients)
+	createDriveEntity(drive.name, drive.itemIcon, drive.entityE, drive.entityS)
 end
