@@ -47,7 +47,7 @@ function WG:update()
 		self.networkController = nil
 	end
 	if self.networkController == nil and self.network_controller_position.x ~= nil and self.network_controller_position.y ~= nil and self.network_controller_surface ~= nil then
-		local controller = game.surfaces[self.network_controller_surface].find_entity(Constants.NetworkController.slateEntity.name, self.network_controller_position)
+		local controller = game.surfaces[self.network_controller_surface].find_entity(Constants.NetworkController.main.name, self.network_controller_position)
 		if controller ~= nil and global.entityTable[controller.unit_number] ~= nil then
 			self.networkController = global.entityTable[controller.unit_number]
 		end
@@ -216,7 +216,7 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
     if self.networkController == nil or not self.networkController.stable or (self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == false) then return end
 	if self.network_controller_surface == nil or self.thisEntity.surface.index ~= self.network_controller_surface then return end
 	if self.network_controller_position.x == nil or self.network_controller_position.y == nil then return end
-	if game.surfaces[self.network_controller_surface].find_entity(Constants.NetworkController.slateEntity.name, self.network_controller_position) == nil then return end
+	if game.surfaces[self.network_controller_surface].find_entity(Constants.NetworkController.main.name, self.network_controller_position) == nil then return end
 
 	if self.networkController:find_wirelessgrid_with_wirelessTransmitter(self.thisEntity.unit_number) == false then
 		if justCreated == true then RNSPlayer.thisEntity.print({"gui-description.RNS_NetworkController_Far"}) end

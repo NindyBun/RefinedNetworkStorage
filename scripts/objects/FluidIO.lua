@@ -280,27 +280,6 @@ function FIO:IO()
                     end
                 end
             end
-            --[[
-            for _, priority in pairs(BaseNet.getOperableObjects(network.FluidDriveTable)) do
-                for _, drive in pairs(priority) do
-                    if self.io == "input" then
-                        if string.match(fluid_box.flow, "output") == nil then goto exit end
-                        if not drive:has_room() then goto continue end
-                        if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") then
-                            transportCapacity = transportCapacity - BaseNet.transfer_from_tank_to_drive(self.focusedEntity.thisEntity, drive, fluid_box.index, self.filter, math.min(transportCapacity, drive:getRemainingStorageSize()))
-                        end
-                    elseif self.io == "output" then
-                        if string.match(fluid_box.flow, "input") == nil then goto exit end
-                        if drive:has_fluid(self.filter) == 0 then goto continue end
-                        if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") then
-                            transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_tank(drive, self.focusedEntity.thisEntity, fluid_box.index, self.filter, math.min(transportCapacity, drive:has_fluid(self.filter)))
-                        end
-                    end
-                    ::continue::
-                    if transportCapacity <= 0 then goto exit end
-                end
-            end
-            ]]
         end
         ::exit::
     end
@@ -373,7 +352,7 @@ function FIO:createArms()
                             self.cardinals[area.direction] = true
                             if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
                                 self.networkController.network.shouldRefresh = true
-                            elseif obj.thisEntity.name == Constants.NetworkController.slateEntity.name then
+                            elseif obj.thisEntity.name == Constants.NetworkController.main.name then
                                 obj.network.shouldRefresh = true
                             end
                         end

@@ -101,7 +101,6 @@ function IIO:rebuild(object)
 end
 
 function IIO:remove()
-    --global.placedCablesTable[self.thisEntity.surface.index][tostring(self.thisEntity.position)] = nil
     if self.combinator ~= nil then self.combinator.destroy() end
     if self.enablerCombinator ~= nil then self.enablerCombinator.destroy() end
     UpdateSys.remove(self)
@@ -672,7 +671,7 @@ function IIO:createArms()
                             self.cardinals[area.direction] = true
                             if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
                                 self.networkController.network.shouldRefresh = true
-                            elseif obj.thisEntity.name == Constants.NetworkController.slateEntity.name then
+                            elseif obj.thisEntity.name == Constants.NetworkController.main.name then
                                 obj.network.shouldRefresh = true
                             end
                         end

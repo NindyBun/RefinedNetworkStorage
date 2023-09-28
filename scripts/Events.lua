@@ -89,7 +89,7 @@ end
 function Event.clear_gui(event)
     local player = getPlayer(event.player_index)
     for _, gui in pairs(player.gui.screen.children) do
-		if gui ~= nil and gui.valid == true and gui.get_mod() == "RefinedNetworkStorage" then
+		if gui ~= nil and gui.valid == true and "__" .. gui.get_mod() .. "__" == Constants.MOD_ID then
 			gui.destroy()
 		end
 	end

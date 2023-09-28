@@ -20,7 +20,7 @@ function NC:new(object)
     t.entID = object.unit_number
     t.network = t.network or BaseNet:new()
     t.network.networkController = t
-    t:setState(Constants.NetworkController.statesEntity.unstable)
+    t:setState(Constants.NetworkController.states.unstable)
     t.connectedObjs = {
         [1] = {}, --N
         [2] = {}, --E
@@ -44,7 +44,7 @@ end
 
 --Deconstructor
 function NC:remove()
-    if self.state ~= nil then self.state.destroy() end
+    if self.state ~= nil then rendering.destroy(self.state) end
     UpdateSys.remove(self)
 end
 --Is valid
@@ -53,19 +53,16 @@ function NC:valid()
 end
 
 function NC:setState(state)
-    if self.state ~= nil then self.state.destroy() end
-    self.state = self.thisEntity.surface.create_entity{name=state, position=self.thisEntity.position, force="neutral"}
-    self.state.destructible = false
-    self.state.operable = false
-    self.state.minable = false
+    if self.state ~= nil then rendering.destroy(self.state) end
+    self.state = rendering.draw_sprite{sprite=state, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
 end
 
 function NC:setActive(set)
     self.stable = set
     if set == true then
-        self:setState(Constants.NetworkController.statesEntity.stable)
+        self:setState(Constants.NetworkController.states.stable)
     elseif set == false then
-        self:setState(Constants.NetworkController.statesEntity.unstable)
+        self:setState(Constants.NetworkController.states.unstable)
     end
 end
 
@@ -395,7 +392,8 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         if count > 0 then
             local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
             section.style = Constants.Settings.RNS_Gui.frame_1
-            GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+            section.style.minimal_width = 200
+            GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
             GuiApi.add_item_frame(guiTable, "", section, t.powerUsage .. "/t", name, count .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
         end
     end
@@ -406,35 +404,39 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         if count > 0 then
             local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
             section.style = Constants.Settings.RNS_Gui.frame_1
-            GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+            section.style.minimal_width = 200
+            GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
             GuiApi.add_item_frame(guiTable, "", section, t.powerUsage .. "/t", name, count .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
         end
     end
 
     local itemIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ItemIOTable))
     if itemIOcount > 0 then
-        local name = Constants.NetworkCables.itemIO.slateEntity.name
+        local name = Constants.NetworkCables.itemIO.name
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
         section.style = Constants.Settings.RNS_Gui.frame_1
-        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+        section.style.minimal_width = 200
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
         GuiApi.add_item_frame(guiTable, "", section, _G.IIO.powerUsage*global.IIOMultiplier .. "/t", name, itemIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local fluidIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.FluidIOTable))
     if fluidIOcount > 0 then
-        local name = Constants.NetworkCables.fluidIO.slateEntity.name
+        local name = Constants.NetworkCables.fluidIO.name
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
         section.style = Constants.Settings.RNS_Gui.frame_1
-        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+        section.style.minimal_width = 200
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
         GuiApi.add_item_frame(guiTable, "", section, _G.FIO.powerUsage*global.FIOMultiplier .. "/t", name, fluidIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local externalIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ExternalIOTable))
     if externalIOcount > 0 then
-        local name = Constants.NetworkCables.externalIO.slateEntity.name
+        local name = Constants.NetworkCables.externalIO.name
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
         section.style = Constants.Settings.RNS_Gui.frame_1
-        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+        section.style.minimal_width = 200
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
         GuiApi.add_item_frame(guiTable, "", section, _G.EIO.powerUsage .. "/t", name, externalIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
@@ -443,16 +445,18 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         local name = Constants.NetworkInventoryInterface.name
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
         section.style = Constants.Settings.RNS_Gui.frame_1
-        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+        section.style.minimal_width = 200
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
         GuiApi.add_item_frame(guiTable, "", section, _G.NII.powerUsage .. "/t", name, interfacecount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local wirelessTransmittercount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.WirelessTransmitterTable))
     if wirelessTransmittercount > 0 then
-        local name = Constants.NetworkCables.wirelessTransmitter.slateEntity.name
+        local name = Constants.NetworkCables.wirelessTransmitter.name
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
         section.style = Constants.Settings.RNS_Gui.frame_1
-        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+        section.style.minimal_width = 200
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
         GuiApi.add_item_frame(guiTable, "", section, _G.WT.powerUsage*global.WTRangeMultiplier .. "/t", name, wirelessTransmittercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
@@ -461,7 +465,8 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         local name = Constants.Detector.name
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
         section.style = Constants.Settings.RNS_Gui.frame_1
-        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+        section.style.minimal_width = 200
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
         GuiApi.add_item_frame(guiTable, "", section, _G.DT.powerUsage .. "/t", name, detectorcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
@@ -470,7 +475,8 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         local name = Constants.NetworkTransReceiver.transmitter.name
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
         section.style = Constants.Settings.RNS_Gui.frame_1
-        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+        section.style.minimal_width = 200
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
         GuiApi.add_item_frame(guiTable, "", section, Constants.NetworkTransReceiver.transmitter.powerUsage .. "/t", name, transmittercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
@@ -479,7 +485,8 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         local name = Constants.NetworkTransReceiver.receiver.name
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
         section.style = Constants.Settings.RNS_Gui.frame_1
-        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+        section.style.minimal_width = 200
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
         GuiApi.add_item_frame(guiTable, "", section, "0/t", name, receivercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 

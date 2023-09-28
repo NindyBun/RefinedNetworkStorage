@@ -18,17 +18,6 @@ function ID:new(object)
     mt.__index = ID
     t.thisEntity = object
     t.entID = object.unit_number
-    --[[
-    if object.name == Constants.Drives.ItemDrive.ItemDrive4k.name then
-        t.maxStorage = Constants.Drives.ItemDrive.ItemDrive1k.max_size
-    elseif object.name == Constants.Drives.ItemDrive.ItemDrive4k.name then
-        t.maxStorage = Constants.Drives.ItemDrive.ItemDrive4k.max_size
-    elseif object.name == Constants.Drives.ItemDrive.ItemDrive16k.name then
-        t.maxStorage = Constants.Drives.ItemDrive.ItemDrive16k.max_size
-    elseif object.name == Constants.Drives.ItemDrive.ItemDrive64k.name then
-        t.maxStorage = Constants.Drives.ItemDrive.ItemDrive64k.max_size
-    end
-    ]]
     t.maxStorage = Constants.Drives.ItemDrive[string.sub(object.name, 5)].max_size
     t.powerUsage = Constants.Drives.ItemDrive[string.sub(object.name, 5)].powerUsage
     t.storageArray = {}
@@ -134,7 +123,7 @@ function ID:collect()
                         self.cardinals[area.direction] = true
                         if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
                             self.networkController.network.shouldRefresh = true
-                        elseif obj.thisEntity.name == Constants.NetworkController.slateEntity.name then
+                        elseif obj.thisEntity.name == Constants.NetworkController.main.name then
                             obj.network.shouldRefresh = true
                         end
                     end

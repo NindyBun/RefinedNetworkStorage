@@ -17,23 +17,12 @@ function NCbl:new(object)
     t.thisEntity = object
     t.entID = object.unit_number
     for name, color in pairs(Constants.NetworkCables.Cables) do
-        if object.name == color.cable.entity.name then
+        if object.name == color.cable.name then
             rendering.draw_sprite{sprite=color.sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
             t.color = tostring(name)
             break
         end
     end
-    --[[
-    if global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)] == nil then
-        global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)] = {}
-    end
-    global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)][tostring(object.position.y)] = {
-        name = object.name,
-        pos = object.position,
-        ent = t,
-        surf = object.surface.index
-    }
-    ]]
     t.arms = {
         [1] = nil, --N
         [2] = nil, --E
@@ -152,7 +141,7 @@ function NCbl:createArms()
                 self.cardinals[area.direction] = true
                 if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
                     self.networkController.network.shouldRefresh = true
-                elseif obj.thisEntity.name == Constants.NetworkController.slateEntity.name then
+                elseif obj.thisEntity.name == Constants.NetworkController.main.name then
                     obj.network.shouldRefresh = true
                 end
             end

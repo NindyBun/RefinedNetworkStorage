@@ -89,26 +89,12 @@ end
 function NCug:toggleHoverIcon(hovering)
     if hovering then
         self:generateModeIcon()
-    elseif not hovering then
-        --if self.targetIcon ~= nil then rendering.destroy(self.targetIcon) end
-        --for _, gap in pairs(self.gapIcons) do
-        --    if gap ~= nil then rendering.destroy(gap) end
-        --end
     end
 end
 
 function NCug:generateModeIcon()
-    --if self.targetIcon ~= nil then rendering.destroy(self.targetIcon) end
-    --for _, gap in pairs(self.gapIcons) do
-    --    if gap ~= nil then rendering.destroy(gap) end
-    --end
     if self.targetEntity == nil then return end
     if self.targetEntity ~= nil and self.targetEntity.thisEntity ~= nil and self.targetEntity.thisEntity.valid == false then return end
-    --self.targetIcon = rendering.draw_sprite{
-    --    sprite=Constants.Icons.underground.target.name, 
-    --    target=self.targetEntity.thisEntity, 
-    --    surface=self.thisEntity.surface,
-    --}
     rendering.draw_sprite{
         sprite=Constants.Icons.underground.target.name, 
         target=self.targetEntity.thisEntity, 
@@ -129,16 +115,6 @@ function NCug:generateModeIcon()
     end
     if dist <= 0 then return end
     for i=1, dist do
-        --self.gapIcons[i] = rendering.draw_sprite{
-        --    sprite=Constants.Icons.underground.gap.name, 
-        --    target=self.thisEntity,
-        --    target_offset = {
-        --        xO*i,
-        --        yO*i
-        --    },
-        --    surface=self.thisEntity.surface,
-        --    orientation=self:getRealDirection()%2 == 0 and 0.25 or 0,
-        --}
         rendering.draw_sprite{
             sprite=Constants.Icons.underground.gap.name, 
             target=self.thisEntity,
@@ -166,10 +142,6 @@ function NCug:resetConnection()
         end
     end
     self.targetEntity = nil
-    --if self.targetIcon ~= nil then rendering.destroy(self.targetIcon) end
-    --for _, gap in pairs(self.gapIcons) do
-    --    if gap ~= nil then rendering.destroy(gap) end
-    --end
 end
 
 function NCug:getCheckArea()
@@ -233,7 +205,7 @@ function NCug:createArms()
                 self.cardinals[area.direction] = true
                 if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
                     self.networkController.network.shouldRefresh = true
-                elseif obj.thisEntity.name == Constants.NetworkController.slateEntity.name then
+                elseif obj.thisEntity.name == Constants.NetworkController.main.name then
                     obj.network.shouldRefresh = true
                 end
             end

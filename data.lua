@@ -19,7 +19,7 @@ data:extend{
 		action = "lua",
 		icon =
 		{
-		  filename = "__RefinedNetworkStorage__/graphics/playerportIcon.png",
+		  filename = Constants.MOD_ID.."/graphics/playerportIcon.png",
 		  priority = "extra-high-no-scale",
 		  size = 40,
 		  flags = {"gui-icon"}

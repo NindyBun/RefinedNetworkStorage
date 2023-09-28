@@ -95,7 +95,7 @@ function addConnectables(source, connections, master)
             if con.thisEntity == nil and con.thisEntity.valid == false then goto continue end
             if connections[con.entID] ~= nil then goto continue end
 
-            if con.thisEntity.name == Constants.NetworkController.slateEntity.name and con.entID ~= master.entID then
+            if con.thisEntity.name == Constants.NetworkController.main.name and con.entID ~= master.entID then
                 con.thisEntity.order_deconstruction("player")
                 goto continue
             end
@@ -107,15 +107,15 @@ function addConnectables(source, connections, master)
                 master.network.ItemDriveTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
             elseif string.match(con.thisEntity.name, "RNS_FluidDrive") ~= nil then
                 master.network.FluidDriveTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
-            elseif con.thisEntity.name == Constants.NetworkCables.itemIO.slateEntity.name then
+            elseif con.thisEntity.name == Constants.NetworkCables.itemIO.name then
                 master.network.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
-            elseif con.thisEntity.name == Constants.NetworkCables.fluidIO.slateEntity.name then
+            elseif con.thisEntity.name == Constants.NetworkCables.fluidIO.name then
                 master.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
-            elseif con.thisEntity.name == Constants.NetworkCables.externalIO.slateEntity.name then
+            elseif con.thisEntity.name == Constants.NetworkCables.externalIO.name then
                 master.network.ExternalIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
             elseif con.thisEntity.name == Constants.NetworkInventoryInterface.name then
                 master.network.NetworkInventoryInterfaceTable[1][con.entID] = con
-            elseif con.thisEntity.name == Constants.NetworkCables.wirelessTransmitter.slateEntity.name then
+            elseif con.thisEntity.name == Constants.NetworkCables.wirelessTransmitter.name then
                 master.network.WirelessTransmitterTable[1][con.entID] = con
             elseif con.thisEntity.name == Constants.Detector.name then
                 master.network.DetectorTable[1][con.entID] = con

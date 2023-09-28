@@ -2,11 +2,11 @@
 function createObjectTables()
     global.objectTables = {}
     addOrCreateObjectTable{tableName="PlayerTable", tag="RNSP", objName="RNSPlayer"}
-    addOrCreateObjectTable{tableName="NetworkControllerTable", tag="NC", objName=Constants.NetworkController.slateEntity.name}
+    addOrCreateObjectTable{tableName="NetworkControllerTable", tag="NC", objName=Constants.NetworkController.main.name}
     addOrCreateObjectTable{tableName="NetworkInventoryInterfaceTable", tag="NII", objName=Constants.NetworkInventoryInterface.name}
 
     addOrCreateObjectTable{tableName="WirelessGridTable", tag="WG", objName=Constants.WirelessGrid.name}
-    addOrCreateObjectTable{tableName="WirelessTransmitterTable", tag="WT", objName=Constants.NetworkCables.wirelessTransmitter.slateEntity.name}
+    addOrCreateObjectTable{tableName="WirelessTransmitterTable", tag="WT", objName=Constants.NetworkCables.wirelessTransmitter.name}
     addOrCreateObjectTable{tableName="DetectorTable", tag="DT", objName=Constants.Detector.name}
 
     for _, iD in pairs(Constants.Drives.ItemDrive) do
@@ -25,11 +25,11 @@ function createObjectTables()
     --addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive64k.name}
     --addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive256k.name}
 
-    addOrCreateObjectTable{tableName="ItemIOTable", tag="IIO", objName=Constants.NetworkCables.itemIO.slateEntity.name}
-    addOrCreateObjectTable{tableName="FluidIOTable", tag="FIO", objName=Constants.NetworkCables.fluidIO.slateEntity.name}
-    addOrCreateObjectTable{tableName="ExternalIOTable", tag="EIO", objName=Constants.NetworkCables.externalIO.slateEntity.name}
+    addOrCreateObjectTable{tableName="ItemIOTable", tag="IIO", objName=Constants.NetworkCables.itemIO.name}
+    addOrCreateObjectTable{tableName="FluidIOTable", tag="FIO", objName=Constants.NetworkCables.fluidIO.name}
+    addOrCreateObjectTable{tableName="ExternalIOTable", tag="EIO", objName=Constants.NetworkCables.externalIO.name}
     for _, color in pairs(Constants.NetworkCables.Cables) do
-        addOrCreateObjectTable{tableName="NetworkCableTable", tag="NCbl", objName=color.cable.entity.name}
+        addOrCreateObjectTable{tableName="NetworkCableTable", tag="NCbl", objName=color.cable.name}
         addOrCreateObjectTable{tableName="NetworkCableRampTable", tag="NCug", objName=color.underground.name}
     end
     for _, tr in pairs(Constants.NetworkTransReceiver) do

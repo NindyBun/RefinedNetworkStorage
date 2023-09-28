@@ -18,17 +18,6 @@ function FD:new(object)
     mt.__index = FD
     t.thisEntity = object
     t.entID = object.unit_number
-    --[[
-    if object.name == Constants.Drives.FluidDrive.FluidDrive4k.name then
-        t.maxStorage = Constants.Drives.FluidDrive.FluidDrive4k.max_size
-    elseif object.name == Constants.Drives.FluidDrive.FluidDrive16k.name then
-        t.maxStorage = Constants.Drives.FluidDrive.FluidDrive16k.max_size
-    elseif object.name == Constants.Drives.FluidDrive.FluidDrive64k.name then
-        t.maxStorage = Constants.Drives.FluidDrive.FluidDrive64k.max_size
-    elseif object.name == Constants.Drives.FluidDrive.FluidDrive256k.name then
-        t.maxStorage = Constants.Drives.FluidDrive.FluidDrive256k.max_size
-    end
-    ]]
     t.maxStorage = Constants.Drives.FluidDrive[string.sub(object.name, 5)].max_size
     t.powerUsage = Constants.Drives.FluidDrive[string.sub(object.name, 5)].powerUsage
     t.fluidArray = {}
@@ -134,7 +123,7 @@ function FD:collect()
                         self.cardinals[area.direction] = true
                         if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
                             self.networkController.network.shouldRefresh = true
-                        elseif obj.thisEntity.name == Constants.NetworkController.slateEntity.name then
+                        elseif obj.thisEntity.name == Constants.NetworkController.main.name then
                             obj.network.shouldRefresh = true
                         end
                     end

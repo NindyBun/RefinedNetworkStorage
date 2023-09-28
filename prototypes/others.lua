@@ -52,6 +52,85 @@ sprite4.layers = {
 }
 data:extend{sprite4}
 
+local sprite5 = {}
+sprite5.type = "sprite"
+sprite5.name = Constants.Icons.storage.name
+sprite5.layers = {
+    {
+        filename = Constants.Icons.storage.sprite,
+        priority = "high",
+        size = 48,
+        scale = 24/48
+    }
+}
+data:extend{sprite5}
+
+local sprite6 = {}
+sprite6.type = "sprite"
+sprite6.name = Constants.Icons.storage_bothways.name
+sprite6.layers = {
+    {
+        filename = Constants.Icons.storage_bothways.sprite,
+        priority = "high",
+        size = 48,
+        scale = 24/48
+    }
+}
+data:extend{sprite6}
+
+
+local sprite7 = {}
+sprite7.type = "sprite"
+sprite7.name = Constants.NetworkController.states.stable
+sprite7.layers = {
+    {
+        filename = Constants.NetworkController.states.stableE,
+        priority = "extra-high",
+        size = 512,
+        scale = (96 * 3)/512
+    }
+}
+data:extend{sprite7}
+
+local sprite8 = {}
+sprite8.type = "sprite"
+sprite8.name = Constants.NetworkController.states.unstable
+sprite8.layers = {
+    {
+        filename = Constants.NetworkController.states.unstableE,
+        priority = "extra-high",
+        size = 512,
+        scale = (96 * 3)/512
+    }
+}
+data:extend{sprite8}
+
+for _, color in pairs(Constants.NetworkCables.Cables) do
+    for _, tex in pairs(color.sprites) do
+        local sprite9 = {}
+        sprite9.type = "sprite"
+        sprite9.name = tex.name
+        sprite9.layers = {
+            {
+                filename = tex.sprite_E,
+                priority = "extra-high",
+                size = 512,
+                shift = {0,0},
+                scale = 1/16
+            },
+            {
+                filename = tex.sprite_S,
+                priority = "high",
+                size = 512,
+                shift = {0,0},
+                draw_as_shadow = true,
+                scale = 1/16
+            }
+        }
+        data:extend{sprite9}
+    end
+end
+
 local connection_points  = {
 	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}},
 	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}},

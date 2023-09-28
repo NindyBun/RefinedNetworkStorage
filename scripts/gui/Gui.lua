@@ -5,13 +5,12 @@ function GUI.update(force)
             if game.tick % Constants.Settings.RNS_Gui_Tick == 0 or force then
                 for _, guiTable in pairs(RNSPlayer.GUI or {}) do
                     if guiTable.gui ~= nil and guiTable.gui.valid == true and GUI["update_" .. guiTable.gui.name] ~= nil then
-                        if guiTable.vars.currentObject.thisEntity == nil or guiTable.vars.currentObject.thisEntity.valid == false or guiTable.vars.currentObject.thisEntity.to_be_deconstructed() == true
-                        --[[or (guiTable.vars.currentObject.is_item == nil and guiTable.vars.currentObject.thisEntity.to_be_deconstructed() == true)]] then
+                        if guiTable.vars.currentObject.thisEntity == nil or guiTable.vars.currentObject.thisEntity.valid == false or guiTable.vars.currentObject.thisEntity.to_be_deconstructed() == true then
                             GUI.remove_gui(guiTable, player)
                             goto continue
                         end
                         local playerVars = false
-                        if guiTable.vars.currentObject.thisEntity.name == Constants.NetworkCables.externalIO.slateEntity.name 
+                        if guiTable.vars.currentObject.thisEntity.name == Constants.NetworkCables.externalIO.name 
                         or guiTable.vars.currentObject.thisEntity.name == Constants.Detector.name then
                             playerVars = RNSPlayer:pull_varTable(guiTable.vars.currentObject.entID)
                             RNSPlayer:remove_varTable(guiTable.vars.currentObject.entID)
@@ -61,24 +60,10 @@ function GUI.open_tooltip_gui(RNSPlayer, player, entity)
     player.opened = guiTable.gui
     RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip] = guiTable
 end
---[[
-function GUI.open_item_tooltip_gui(RNSPlayer, player, obj)
-    if valid(obj) == false or obj.getTooltips == nil then return end
 
-    local guiTable = GUI.create_tooltip_gui(player, obj)
-    player.opened = guiTable.gui
-    RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip] = guiTable
-end
-]]
 function GUI.on_gui_opened(event)
     local player = getPlayer(event.player_index)
     local RNSPlayer = getRNSPlayer(event.player_index)
-    local cursorStack = player.cursor_stack
-
-    -- Do not open custom GUI if player is connecting wires --
-    --if cursorStack and cursorStack.valid_for_read then
-    --    if cursorStack.name == "green-wire" or cursorStack.name == "red-wire" or cursorStack.type == "repair-tool" then return end
-    --end
 
     if event.entity ~= nil and event.entity.valid == true then
         if Util.safeCall(GUI.open_tooltip_gui, RNSPlayer, player, player.selected) == false then
@@ -86,26 +71,6 @@ function GUI.on_gui_opened(event)
             Event.clear_gui(event)
         end
     end
-    --[[
-    if event.item ~= nil and event.item.valid == true and event.item.name == Constants.WirelessGrid.name then
-        local obj = global.itemTable[event.item.item_number]
-        if obj == nil then
-            local objInfo = global.objectTables[event.item.name]
-
-            if objInfo ~= nil and objInfo.tag ~= nil then
-                obj = _G[objInfo.tag]:new(event.item)
-                if objInfo.tableName ~= nil then
-                    global[objInfo.tableName][event.item.item_number] = obj
-                end 
-            end
-        end
-
-        if Util.safeCall(GUI.open_item_tooltip_gui, RNSPlayer, player, obj) == false then
-            player.print({"gui-description.RNS_openGui_falied"})
-            Event.clear_gui(event)
-        end
-    end
-    ]]
 end
 
 function GUI.on_gui_closed(event)
@@ -117,7 +82,6 @@ function GUI.on_gui_closed(event)
     if event.element.name == Constants.Settings.RNS_Gui.tooltip then
         RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip].gui.destroy()
         RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip] = nil
-        --RNSPlayer:close_wireless_grids()
         return
     end
 end
