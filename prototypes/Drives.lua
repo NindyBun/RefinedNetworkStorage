@@ -1,36 +1,50 @@
-function createDriveItem(name, icon, stack_size, subgroup, order)
+function createDriveItem(drive)
 	local driveI = {}
 	driveI.type = "item-with-tags"
-	driveI.name = name
-	driveI.icon = icon
+	driveI.name = drive.name
+	if string.match(drive.name, "RNS_ItemDrive") then
+		driveI.localised_name = {"item-name.RNS_ItemDrive", drive.size}
+		driveI.localised_description = {"item-description.RNS_ItemDrive", drive.size}
+	else
+		driveI.localised_name = {"item-name.RNS_FluidDrive", drive.size}
+		driveI.localised_description = {"item-description.RNS_FluidDrive", drive.size}
+	end
+	driveI.icon = drive.itemIcon
 	driveI.icon_size = 512
-	driveI.subgroup = subgroup
-	driveI.order = order
-	driveI.place_result = name
-	driveI.stack_size = stack_size
+	driveI.subgroup = drive.subgroup
+	driveI.order = drive.order
+	driveI.place_result = drive.name
+	driveI.stack_size = drive.stack_size
 	data:extend{driveI}
 end
 
-function createDriveRecipe(name, craft_time, enabled, ingredients)
+function createDriveRecipe(drive)
 	local driveR = {}
 	driveR.type = "recipe"
-	driveR.name = name
-	driveR.energy_required = craft_time
-	driveR.enabled = enabled
-	driveR.ingredients = ingredients
-	driveR.result = name
+	driveR.name = drive.name
+	driveR.energy_required = drive.craft_time
+	driveR.enabled = drive.enabled
+	driveR.ingredients = drive.ingredients
+	driveR.result = drive.name
 	driveR.result_count = 1
 	data:extend{driveR}
 end
 
-function createDriveEntity(name, icon, entity, shadow)
+function createDriveEntity(drive)
 	local driveE = {}
 	driveE.type = "container"
-	driveE.name = name
-	driveE.icon = icon
+	driveE.name = drive.name
+	driveE.icon = drive.itemIcon
 	driveE.icon_size = 512
 	driveE.flags = {"placeable-neutral", "player-creation"}
-	driveE.minable = {mining_time = 0.2, result = name}
+	if string.match(drive.name, "RNS_ItemDrive") then
+		driveE.localised_name = {"entity-name.RNS_ItemDrive", drive.size}
+		driveE.localised_description = {"entity-description.RNS_ItemDrive", drive.size}
+	else
+		driveE.localised_name = {"entity-name.RNS_FluidDrive", drive.size}
+		driveE.localised_description = {"entity-description.RNS_FluidDrive", drive.size}
+	end
+	driveE.minable = {mining_time = 0.2, result = drive.name}
 	driveE.max_health = 350
 	driveE.dying_explosion = "medium-explosion"
 	driveE.corpse = "medium-remnants"
@@ -45,7 +59,7 @@ function createDriveEntity(name, icon, entity, shadow)
 			layers =
 			{
 				{
-					filename = entity,
+					filename = drive.entityE,
 					priority = "extra-high",
 					width = 512,
 					height = 512,
@@ -53,7 +67,7 @@ function createDriveEntity(name, icon, entity, shadow)
 					scale = 1/4
 				},
 				{
-					filename = shadow,
+					filename = drive.entityS,
 					priority = "high",
 					width = 256,
 					height = 256,
@@ -67,13 +81,13 @@ function createDriveEntity(name, icon, entity, shadow)
 end
 --------------------------------------------------------------------------------
 for _, drive in pairs(Constants.Drives.ItemDrive) do
-	createDriveItem(drive.name, drive.itemIcon, drive.stack_size, drive.subgroup, drive.order)
-	createDriveRecipe(drive.name, drive.craft_time, drive.enabled, drive.ingredients)
-	createDriveEntity(drive.name, drive.itemIcon, drive.entityE, drive.entityS)
+	createDriveItem(drive)
+	createDriveRecipe(drive)
+	createDriveEntity(drive)
 end
 
 for _, drive in pairs(Constants.Drives.FluidDrive) do
-	createDriveItem(drive.name, drive.itemIcon, drive.stack_size, drive.subgroup, drive.order)
-	createDriveRecipe(drive.name, drive.craft_time, drive.enabled, drive.ingredients)
-	createDriveEntity(drive.name, drive.itemIcon, drive.entityE, drive.entityS)
+	createDriveItem(drive)
+	createDriveRecipe(drive)
+	createDriveEntity(drive)
 end

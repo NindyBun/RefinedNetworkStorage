@@ -134,12 +134,12 @@ io.crafting_categories = {"RNS-Nothing"}
 io.crafting_speed = 1
 io.energy_source =
 {
-    type = "electric",
-    usage_priority = "secondary-input",
-    buffer_capacity = "0J",
-	drain = "0J",
-    render_no_power_icon = false,
-    render_no_network_icon = false
+    type = "void",
+    --usage_priority = "secondary-input",
+    --buffer_capacity = "0J",
+	--drain = "0J",
+    --render_no_power_icon = false,
+    --render_no_network_icon = false
 }
 io.energy_usage = "1J"
 io.fluid_boxes = {

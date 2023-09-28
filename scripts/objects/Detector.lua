@@ -9,7 +9,8 @@ DT = {
     filters = nil,
     enabler = nil,
     cardinals = nil,
-    combinator = nil
+    combinator = nil,
+    powerUsage = 2,
 }
 
 function DT:new(object)

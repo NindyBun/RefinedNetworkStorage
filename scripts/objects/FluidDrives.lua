@@ -3,6 +3,7 @@ FD = {
     entID = nil,
     networkController = nil,
     maxStorage = 0,
+    powerUsage = 2,
     fluidArray = nil,
     connectedObjs = nil,
     cardinals = nil,
@@ -17,6 +18,7 @@ function FD:new(object)
     mt.__index = FD
     t.thisEntity = object
     t.entID = object.unit_number
+    --[[
     if object.name == Constants.Drives.FluidDrive.FluidDrive4k.name then
         t.maxStorage = Constants.Drives.FluidDrive.FluidDrive4k.max_size
     elseif object.name == Constants.Drives.FluidDrive.FluidDrive16k.name then
@@ -26,6 +28,9 @@ function FD:new(object)
     elseif object.name == Constants.Drives.FluidDrive.FluidDrive256k.name then
         t.maxStorage = Constants.Drives.FluidDrive.FluidDrive256k.max_size
     end
+    ]]
+    t.maxStorage = Constants.Drives.FluidDrive[string.sub(object.name, 5)].max_size
+    t.powerUsage = Constants.Drives.FluidDrive[string.sub(object.name, 5)].powerUsage
     t.fluidArray = {}
     t.cardinals = {
         [1] = false, --N

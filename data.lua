@@ -39,8 +39,8 @@ data:extend{
 	{
 		type="item-group",
 		name=Constants.ItemGroup.Category.group,
-		icon=Constants.Drives.ItemDrive.ItemDrive1k.itemIcon,
-		icon_size=256,
+		icon=Constants.Drives.ItemDrive.ItemDrive4k.itemIcon,
+		icon_size=512,
 		order="x"
 	}
 }

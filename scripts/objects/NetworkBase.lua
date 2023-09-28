@@ -262,41 +262,40 @@ end
 --Meant for exporting from the network. Exporting is always whitelisted
 function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, count, allowMetadata)
     allowMetadata = allowMetadata or false
-    drive_inv:get_sorted_and_merged_inventory()
+    --drive_inv:get_sorted_and_merged_inventory()
     local amount = count
-    local list = drive_inv.storageArray.item_list
-    local inventory = drive_inv.storageArray.inventory
+    local list = drive_inv.storageArray
+    --local inventory = drive_inv.storageArray.inventory
     for i=1, 1 do
-        for j=1, 1 do
-            if list[itemstack_data.cont.name] ~= nil and itemstack_data.modified == false then
-                local item = list[itemstack_data.cont.name]
-                local min = math.min(item.count, amount)
-                if item.count <= 1 and allowMetadata == false then
-                    if item.ammo ~= nil and item.ammo ~= itemstack_data.cont.ammo then break end
-                    if item.durability ~= nil and item.durability ~= itemstack_data.cont.durability then break end
-                --elseif item.count > 1 and allowMetadata == false then
-                    --if item.ammo ~= nil and item.ammo ~= itemstack_data.cont.ammo then min = min - 1 end
-                    --if item.durability ~= nil and item.durability ~= itemstack_data.cont.durability then min = min - 1 end
-                end
-                local temp = {
-                    name=itemstack_data.cont.name,
-                    count=min,
-                    durability=not allowMetadata and itemstack_data.cont.durability or item.durability,
-                    ammo=not allowMetadata and itemstack_data.cont.ammo or item.ammo
-                }
-                local t = to_inv.insert(temp)
-                amount = amount - t
-                item.count = item.count - t
-                if allowMetadata == false and t > 0 then
-                    if item.ammo ~= nil and itemstack_data.cont.ammo == item.ammo then item.ammo = game.item_prototypes[item.name].magazine_size end
-                    if item.durability ~= nil and itemstack_data.cont.durability == item.durability then item.durability = game.item_prototypes[item.name].durability end
-                end
-                if item.count <= 0 then
-                    list[itemstack_data.cont.name] = nil
-                end
+        if list[itemstack_data.cont.name] ~= nil and itemstack_data.modified == false then
+            local item = list[itemstack_data.cont.name]
+            local min = math.min(item.count, amount)
+            if item.count <= 1 and allowMetadata == false then
+                if item.ammo ~= nil and item.ammo ~= itemstack_data.cont.ammo then break end
+                if item.durability ~= nil and item.durability ~= itemstack_data.cont.durability then break end
+            --elseif item.count > 1 and allowMetadata == false then
+                --if item.ammo ~= nil and item.ammo ~= itemstack_data.cont.ammo then min = min - 1 end
+                --if item.durability ~= nil and item.durability ~= itemstack_data.cont.durability then min = min - 1 end
+            end
+            local temp = {
+                name=itemstack_data.cont.name,
+                count=min,
+                durability=not allowMetadata and itemstack_data.cont.durability or item.durability,
+                ammo=not allowMetadata and itemstack_data.cont.ammo or item.ammo
+            }
+            local t = to_inv.insert(temp)
+            amount = amount - t
+            item.count = item.count - t
+            if allowMetadata == false and t > 0 then
+                if item.ammo ~= nil and itemstack_data.cont.ammo == item.ammo then item.ammo = game.item_prototypes[item.name].magazine_size end
+                if item.durability ~= nil and itemstack_data.cont.durability == item.durability then item.durability = game.item_prototypes[item.name].durability end
+            end
+            if item.count <= 0 then
+                list[itemstack_data.cont.name] = nil
             end
         end
         if amount <= 0 then break end
+        --[[
         for k=1, #inventory do
             local item1 = inventory[k]
             if item1.count <= 0 then break end
@@ -329,6 +328,7 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
             end
             if amount <= 0 then break end
         end
+        ]]
     end
     return count - amount
 end
@@ -427,7 +427,7 @@ end
 function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data, filters, count, allowMetadata, whitelist)
     whitelist = whitelist or false
     allowMetadata = allowMetadata or false
-    drive_inv:get_sorted_and_merged_inventory()
+    --drive_inv:get_sorted_and_merged_inventory()
     local amount = count
     for i=1, #from_inv do
         local mod = false
@@ -478,7 +478,8 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
             if item.count > 0 and itemC.cont.durability and not allowMetadata then
                 if mod then item.durability = itemC.cont.durability end
             end
-        elseif itemC.modified == true then
+        --[[
+            elseif itemC.modified == true then
             local inv = drive_inv.storageArray.inventory
             if item.item_number == nil then
                 local temp1 = {
@@ -503,6 +504,7 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
                     ::continue::
                 end
             end
+        ]]
         end
         if amount <= 0 then break end
         ::continue::
@@ -708,11 +710,21 @@ function BaseNet.get_table_length_in_priority(array)
     return count
 end
 
+function BaseNet.get_powerusage(array)
+    local power = 0
+    for _, p in pairs(array) do
+        for _, o in pairs(p) do
+            power = power + o.powerUsage
+        end
+    end
+    return power
+end
+
 --Get connected objects
 function BaseNet:getTotalObjects()
-    return  BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ItemDriveTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.FluidDriveTable)) 
-            + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ItemIOTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.FluidIOTable))
-            + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ExternalIOTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.NetworkInventoryInterfaceTable))
-            + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.WirelessTransmitterTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.DetectorTable))
+    return  BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ItemDriveTable)) + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.FluidDriveTable))
+            + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ItemIOTable))*global.IIOMultiplier + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.FluidIOTable))*global.FIOMultiplier
+            + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ExternalIOTable)) + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.NetworkInventoryInterfaceTable))
+            + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.WirelessTransmitterTable))*global.WTRangeMultiplier + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.DetectorTable))
             + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.TransmitterTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ReceiverTable))
 end

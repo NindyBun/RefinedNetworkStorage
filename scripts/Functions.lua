@@ -9,14 +9,21 @@ function createObjectTables()
     addOrCreateObjectTable{tableName="WirelessTransmitterTable", tag="WT", objName=Constants.NetworkCables.wirelessTransmitter.slateEntity.name}
     addOrCreateObjectTable{tableName="DetectorTable", tag="DT", objName=Constants.Detector.name}
 
-    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive1k.name}
-    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive4k.name}
-    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive16k.name}
-    addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive64k.name}
-    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive4k.name}
-    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive16k.name}
-    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive64k.name}
-    addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive256k.name}
+    for _, iD in pairs(Constants.Drives.ItemDrive) do
+        addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=iD.name}
+    end
+    for _, iF in pairs(Constants.Drives.FluidDrive) do
+        addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=iF.name}
+    end
+
+    --addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive1k.name}
+    --addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive4k.name}
+    --addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive16k.name}
+    --addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive64k.name}
+    --addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive4k.name}
+    --addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive16k.name}
+    --addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive64k.name}
+    --addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive256k.name}
 
     addOrCreateObjectTable{tableName="ItemIOTable", tag="IIO", objName=Constants.NetworkCables.itemIO.slateEntity.name}
     addOrCreateObjectTable{tableName="FluidIOTable", tag="FIO", objName=Constants.NetworkCables.fluidIO.slateEntity.name}

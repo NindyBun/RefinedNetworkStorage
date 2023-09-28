@@ -34,8 +34,11 @@ function onInit()
     end
 
 	global.entityTable = global.entityTable or {}
+    global.IIOMultiplier = global.IIOMultiplier or 1
+    global.FIOMultiplier = global.FIOMultiplier or 1
+    global.WTRangeMultiplier = global.WTRangeMultiplier or 1
     --global.itemTable = global.itemTable or {}
-    global.tempInventoryTable = global.tempInventoryTable or {}
+    --global.tempInventoryTable = global.tempInventoryTable or {}
     --[[global.placedCablesTable = {}
     for i, s in pairs(game.surfaces) do
         global.placedCablesTable[tostring(s.index)] = {}

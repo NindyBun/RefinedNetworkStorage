@@ -137,7 +137,11 @@ function RNSP:process_logistic_slots(network)
                                                 inv1.sort_and_merge()
                                                 local has = EIO.has_item(inv1, itemstack, true)
                                                 if has > 0 and self:has_room() == true then
-                                                    local added = BaseNet.transfer_from_inv_to_inv(inv1, player_inv, itemstack, nil, math.min(has, add), true, true)
+                                                    local meta = false
+                                                    if external.metadataMode == true then
+                                                        meta = true
+                                                    end
+                                                    local added = BaseNet.transfer_from_inv_to_inv(inv1, player_inv, itemstack, nil, math.min(has, add), meta, true)
                                                     add = add - added
                                                     port.energy = port.energy - added*Constants.Settings.RNS_PlayerPort_Consumption
                                                     if port.energy < Constants.Settings.RNS_PlayerPort_Consumption then return end
@@ -189,7 +193,11 @@ function RNSP:process_logistic_slots(network)
                                                 end
                                                 inv1.sort_and_merge()
                                                 if EIO.has_item_room(inv1) == true then
-                                                    local removed = BaseNet.transfer_from_inv_to_inv(player_inv, inv1, itemstack, nil, remove, true, true)
+                                                    local meta = false
+                                                    if external.metadataMode == true then
+                                                        meta = true
+                                                    end
+                                                    local removed = BaseNet.transfer_from_inv_to_inv(player_inv, inv1, itemstack, nil, remove, meta, true)
                                                     remove = remove - removed
                                                     port.energy = port.energy - removed*Constants.Settings.RNS_PlayerPort_Consumption
                                                     if port.energy < Constants.Settings.RNS_PlayerPort_Consumption then return end
@@ -252,7 +260,11 @@ function RNSP:process_logistic_slots(network)
                                         end
                                         inv1.sort_and_merge()
                                         if EIO.has_item_room(inv1) == true then
-                                            local removed = BaseNet.transfer_from_inv_to_inv(player_trash, inv1, itemstack, nil, remove, true, true)
+                                            local meta = false
+                                            if external.metadataMode == true then
+                                                meta = true
+                                            end
+                                            local removed = BaseNet.transfer_from_inv_to_inv(player_trash, inv1, itemstack, nil, remove, meta, true)
                                             remove = remove - removed
                                             port.energy = port.energy - removed*Constants.Settings.RNS_PlayerPort_Consumption
                                             if port.energy < Constants.Settings.RNS_PlayerPort_Consumption then return end

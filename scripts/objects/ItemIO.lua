@@ -17,6 +17,7 @@ IIO = {
     combinator = nil,
     processed = false,
     priority = 0,
+    powerUsage = 4,
 }
 
 function IIO:new(object)
@@ -378,7 +379,7 @@ function IIO.matches_filters(name, filter)
 end
 
 function IIO:IO()
-    local transportCapacity = Constants.Settings.RNS_BaseItemIO_TransferCapacity
+    local transportCapacity = Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier
     for k=1, 1 do
         if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
         local network = self.networkController.network
@@ -745,16 +746,25 @@ function IIO:getTooltips(guiTable, mainFrame, justCreated)
 		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_Item_Title"}
         local mainFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
 
-        local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
-        local bottomFrame = GuiApi.add_flow(guiTable, "bottomFrame", mainFlow, "horizontal", true)
+        local rateFlow = GuiApi.add_flow(guiTable, "", mainFlow, "vertical")
+        local rateFrame = GuiApi.add_frame(guiTable, "", rateFlow, "vertical")
+		rateFrame.style = Constants.Settings.RNS_Gui.frame_1
+		rateFrame.style.vertically_stretchable = true
+		rateFrame.style.left_padding = 3
+		rateFrame.style.right_padding = 3
+		rateFrame.style.right_margin = 3
+        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_ItemTransferRate", Constants.Settings.RNS_BaseItemIO_TransferCapacity*15*global.IIOMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
 
+        local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
+        local bottomFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
+        
         local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", topFrame, "vertical", true)
 		colorFrame.style = Constants.Settings.RNS_Gui.frame_1
 		colorFrame.style.vertically_stretchable = true
 		colorFrame.style.left_padding = 3
 		colorFrame.style.right_padding = 3
 		colorFrame.style.right_margin = 3
-		colorFrame.style.width = 150
+		colorFrame.style.minimal_width = 150
 
         GuiApi.add_subtitle(guiTable, "", colorFrame, {"gui-description.RNS_Connection_Color"})
         local colorDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Item_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
@@ -767,7 +777,7 @@ function IIO:getTooltips(guiTable, mainFrame, justCreated)
 		filtersFrame.style.left_padding = 3
 		filtersFrame.style.right_padding = 3
 		filtersFrame.style.right_margin = 3
-		filtersFrame.style.width = 100
+		filtersFrame.style.minimal_width = 100
 
         GuiApi.add_subtitle(guiTable, "", filtersFrame, {"gui-description.RNS_Filter"})
 
@@ -813,7 +823,7 @@ function IIO:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Item_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
     
         if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
-            local enableFrame = GuiApi.add_frame(guiTable, "EnableFrame", guiTable.vars.bottomFrame, "vertical")
+            local enableFrame = GuiApi.add_frame(guiTable, "EnableFrame", bottomFrame, "vertical")
             enableFrame.style = Constants.Settings.RNS_Gui.frame_1
             enableFrame.style.vertically_stretchable = true
             enableFrame.style.left_padding = 3
@@ -836,6 +846,8 @@ function IIO:getTooltips(guiTable, mainFrame, justCreated)
             number.style.minimal_width = 100
         end
     end
+
+    guiTable.vars.TransferRate.caption = {"gui-description.RNS_ItemTransferRate", Constants.Settings.RNS_BaseItemIO_TransferCapacity*15*global.IIOMultiplier}
 
     if self.filters.values[1] ~= "" then
         guiTable.vars.filter1.elem_value = self.filters.values[1]

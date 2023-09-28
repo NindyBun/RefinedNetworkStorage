@@ -15,7 +15,8 @@ FIO = {
     enabler = nil,
     enablerCombinator = nil,
     combinator=nil,
-    priority = 0
+    priority = 0,
+    powerUsage = 4,
 }
 
 function FIO:new(object)
@@ -193,7 +194,7 @@ function FIO:generateModeIcon()
 end
 
 function FIO:IO()
-    local transportCapacity = Constants.Settings.RNS_BaseFluidIO_TransferCapacity
+    local transportCapacity = Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier
     --#tank.fluidbox returns number of pipe connections
     --tank.fluidbox.get_locked_fluid(index) returns filtered fluid at an index
     --tank.fluidbox[index] returns the contents of the fluidbox at an index
@@ -456,28 +457,37 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_Fluid_Title"}
         local mainFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
 
-        local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
-        local bottomFrame = GuiApi.add_flow(guiTable, "bottomFrame", mainFlow, "horizontal", true)
+        local rateFlow = GuiApi.add_flow(guiTable, "", mainFlow, "vertical")
+        local rateFrame = GuiApi.add_frame(guiTable, "", rateFlow, "vertical")
+		rateFrame.style = Constants.Settings.RNS_Gui.frame_1
+		rateFrame.style.vertically_stretchable = true
+		rateFrame.style.left_padding = 3
+		rateFrame.style.right_padding = 3
+		rateFrame.style.right_margin = 3
+        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIOMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
 
+        local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
+        local bottomFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
+        
         local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", topFrame, "vertical", true)
 		colorFrame.style = Constants.Settings.RNS_Gui.frame_1
 		colorFrame.style.vertically_stretchable = true
 		colorFrame.style.left_padding = 3
 		colorFrame.style.right_padding = 3
 		colorFrame.style.right_margin = 3
-		colorFrame.style.width = 150
+		colorFrame.style.minimal_width = 150
 
         GuiApi.add_subtitle(guiTable, "", colorFrame, {"gui-description.RNS_Connection_Color"})
         local colorDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Fluid_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
         colorDD.style.minimal_width = 100
 
-        local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", mainFrame, "vertical", true)
+        local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", topFrame, "vertical", true)
 		filtersFrame.style = Constants.Settings.RNS_Gui.frame_1
 		filtersFrame.style.vertically_stretchable = true
 		filtersFrame.style.left_padding = 3
 		filtersFrame.style.right_padding = 3
 		filtersFrame.style.right_margin = 3
-		filtersFrame.style.width = 100
+		filtersFrame.style.minimal_width = 100
 
         GuiApi.add_subtitle(guiTable, "", filtersFrame, {"gui-description.RNS_Filter"})
 
@@ -488,7 +498,7 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 		guiTable.vars.filter = filter
 		if self.filter ~= "" then filter.elem_value = self.filter end
 
-        local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", mainFrame, "vertical", true)
+        local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", topFrame, "vertical", true)
 		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
 		settingsFrame.style.vertically_stretchable = true
 		settingsFrame.style.left_padding = 3
@@ -511,7 +521,7 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_line(guiTable, "", settingsFrame, "horizontal")
 
         if self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil then
-            local enableFrame = GuiApi.add_frame(guiTable, "EnableFrame", guiTable.vars.bottomFrame, "vertical")
+            local enableFrame = GuiApi.add_frame(guiTable, "EnableFrame", bottomFrame, "vertical")
             enableFrame.style = Constants.Settings.RNS_Gui.frame_1
             enableFrame.style.vertically_stretchable = true
             enableFrame.style.left_padding = 3
@@ -534,6 +544,8 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
             number.style.minimal_width = 100
         end
     end
+
+    guiTable.vars.TransferRate.caption = {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIOMultiplier}
 
     if self.filter ~= "" then
         guiTable.vars.filter.elem_value = self.filter

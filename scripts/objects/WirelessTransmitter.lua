@@ -6,6 +6,7 @@ WT = {
     color = "RED",
     networkController = nil,
     cardinals = nil,
+    powerUsage = 2
 }
 
 function WT:new(object)
@@ -169,7 +170,7 @@ function WT:getTooltips(guiTable, mainFrame, justCreated)
 		colorFrame.style.left_padding = 3
 		colorFrame.style.right_padding = 3
 		colorFrame.style.right_margin = 3
-		colorFrame.style.width = 150
+		colorFrame.style.minimal_width = 150
 
         GuiApi.add_subtitle(guiTable, "", colorFrame, {"gui-description.RNS_Connection_Color"})
         local colorDD = GuiApi.add_dropdown(guiTable, "RNS_WirelessTransmitter_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
@@ -181,11 +182,11 @@ function WT:getTooltips(guiTable, mainFrame, justCreated)
 		infoFrame.style.left_padding = 3
 		infoFrame.style.right_padding = 3
 		infoFrame.style.right_margin = 3
-		infoFrame.style.width = 150
+		infoFrame.style.minimal_width = 150
 
         GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
 
-        GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_WirelessTransmitterRange", Constants.Settings.RNS_Default_WirelessGrid_Distance}, Constants.Settings.RNS_Gui.white)
+        GuiApi.add_label(guiTable, "TransmitterRange", infoFrame, {"gui-description.RNS_WirelessTransmitterRange", Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
     
         local playerFrame = GuiApi.add_frame(guiTable, "PlayerFrame", mainFrame, "vertical", true)
 		playerFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -212,6 +213,9 @@ function WT:getTooltips(guiTable, mainFrame, justCreated)
 		playerScrollPane.style.vertically_stretchable = true
 		playerScrollPane.style.bottom_margin = 3
     end
+
+    guiTable.vars.TransmitterRange.caption = {"gui-description.RNS_WirelessTransmitterRange", Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier}
+
     local playerPane = guiTable.vars.PlayerScrollPane
     playerPane.clear()
 

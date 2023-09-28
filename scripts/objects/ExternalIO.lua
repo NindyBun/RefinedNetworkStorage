@@ -20,9 +20,10 @@ EIO = {
     enabler = nil,
     enablerCombinator = nil,
     combinator = nil,
-    metadataMode = false,
+    metadataMode = true,
     whitelist = true,
-    priority = 0
+    priority = 0,
+    powerUsage = 8
 }
 
 function EIO:new(object)
@@ -552,7 +553,7 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
         end
 
         if self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil then
-            local enableFrame = GuiApi.add_frame(guiTable, "EnableFrame", guiTable.vars.bottomFrame, "vertical")
+            local enableFrame = GuiApi.add_frame(guiTable, "EnableFrame", bottomFrame, "vertical")
             enableFrame.style = Constants.Settings.RNS_Gui.frame_1
             enableFrame.style.vertically_stretchable = true
             enableFrame.style.left_padding = 3

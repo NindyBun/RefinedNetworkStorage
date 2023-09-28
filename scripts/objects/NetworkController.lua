@@ -136,12 +136,14 @@ function NC:collectContents()
 
         if Util.getTableLength(priorityItems) > 0 then
             for _, drive in pairs(priorityItems) do
-                for name, content in pairs(drive.storageArray.item_list) do
+                for name, content in pairs(drive.storageArray) do
                     self.network.Contents.item[name] = math.min((self.network.Contents.item[name] or 0) + content.count, 2^32)
                 end
+                --[[
                 for name, count in pairs(drive.storageArray.inventory.get_contents()) do
                     self.network.Contents.item[name] = math.min((self.network.Contents.item[name] or 0) + count, 2^32)
                 end
+                ]]
             end
         end
         if Util.getTableLength(priorityFluids) > 0 then
@@ -356,17 +358,19 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)
         GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_Surface", self.thisEntity.surface.index}, Constants.Settings.RNS_Gui.white, "", false)
 
-        local connectedStructuresFrame = GuiApi.add_frame(guiTable, "", mainFrame, "vertical")
-		connectedStructuresFrame.style = Constants.Settings.RNS_Gui.frame_1
-		connectedStructuresFrame.style.vertically_stretchable = true
-		connectedStructuresFrame.style.minimal_width = 350
-		connectedStructuresFrame.style.left_margin = 3
-		connectedStructuresFrame.style.left_padding = 3
-		connectedStructuresFrame.style.right_padding = 3
+        --local connectedStructuresFrame = GuiApi.add_frame(guiTable, "", mainFrame, "vertical")
+		--connectedStructuresFrame.style = Constants.Settings.RNS_Gui.frame_1
+		--connectedStructuresFrame.style.vertically_stretchable = true
+		--connectedStructuresFrame.style.minimal_width = 350
+		--connectedStructuresFrame.style.left_margin = 3
+		--connectedStructuresFrame.style.left_padding = 3
+		--connectedStructuresFrame.style.right_padding = 3
 
-        GuiApi.add_subtitle(guiTable, "", connectedStructuresFrame, {"gui-description.RNS_NetworkController_Connections"})
+        local connectedStructuresFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
 
-        local connectedStructuresSP = GuiApi.add_scroll_pane(guiTable, "", connectedStructuresFrame, nil, false)
+        GuiApi.add_subtitle(guiTable, "", connectedStructuresFlow, {"gui-description.RNS_NetworkController_Connections"})
+
+        local connectedStructuresSP = GuiApi.add_scroll_pane(guiTable, "", connectedStructuresFlow, nil, false)
 		connectedStructuresSP.style.vertically_stretchable = true
 		connectedStructuresSP.style.bottom_margin = 3
 
@@ -389,7 +393,10 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         local name = t.name
         local count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.filter_by_name(name, self.network.ItemDriveTable)))
         if count > 0 then
-            GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, name, count, 64, Constants.Settings.RNS_Gui.label_font_2)
+            local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
+            section.style = Constants.Settings.RNS_Gui.frame_1
+            GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+            GuiApi.add_item_frame(guiTable, "", section, t.powerUsage .. "/t", name, count .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
         end
     end
 
@@ -397,48 +404,83 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         local name = t.name
         local count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.filter_by_name(name, self.network.FluidDriveTable)))
         if count > 0 then
-            GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, name, count, 64, Constants.Settings.RNS_Gui.label_font_2)
+            local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
+            section.style = Constants.Settings.RNS_Gui.frame_1
+            GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+            GuiApi.add_item_frame(guiTable, "", section, t.powerUsage .. "/t", name, count .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
         end
     end
 
     local itemIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ItemIOTable))
     if itemIOcount > 0 then
-        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.itemIO.slateEntity.name, itemIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
+        local name = Constants.NetworkCables.itemIO.slateEntity.name
+        local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
+        section.style = Constants.Settings.RNS_Gui.frame_1
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, _G.IIO.powerUsage*global.IIOMultiplier .. "/t", name, itemIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local fluidIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.FluidIOTable))
     if fluidIOcount > 0 then
-        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.fluidIO.slateEntity.name, fluidIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
+        local name = Constants.NetworkCables.fluidIO.slateEntity.name
+        local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
+        section.style = Constants.Settings.RNS_Gui.frame_1
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, _G.FIO.powerUsage*global.FIOMultiplier .. "/t", name, fluidIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local externalIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ExternalIOTable))
     if externalIOcount > 0 then
-        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.externalIO.slateEntity.name, externalIOcount, 64, Constants.Settings.RNS_Gui.label_font_2)
+        local name = Constants.NetworkCables.externalIO.slateEntity.name
+        local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
+        section.style = Constants.Settings.RNS_Gui.frame_1
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, _G.EIO.powerUsage .. "/t", name, externalIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local interfacecount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.NetworkInventoryInterfaceTable))
     if interfacecount > 0 then
-        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkInventoryInterface.name, interfacecount, 64, Constants.Settings.RNS_Gui.label_font_2)
+        local name = Constants.NetworkInventoryInterface.name
+        local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
+        section.style = Constants.Settings.RNS_Gui.frame_1
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, _G.NII.powerUsage .. "/t", name, interfacecount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local wirelessTransmittercount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.WirelessTransmitterTable))
     if wirelessTransmittercount > 0 then
-        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkCables.wirelessTransmitter.slateEntity.name, wirelessTransmittercount, 64, Constants.Settings.RNS_Gui.label_font_2)
+        local name = Constants.NetworkCables.wirelessTransmitter.slateEntity.name
+        local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
+        section.style = Constants.Settings.RNS_Gui.frame_1
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, _G.WT.powerUsage*global.WTRangeMultiplier .. "/t", name, wirelessTransmittercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local detectorcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.DetectorTable))
     if detectorcount > 0 then
-        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.Detector.name, detectorcount, 64, Constants.Settings.RNS_Gui.label_font_2)
+        local name = Constants.Detector.name
+        local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
+        section.style = Constants.Settings.RNS_Gui.frame_1
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, _G.DT.powerUsage .. "/t", name, detectorcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local transmittercount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.TransmitterTable))
     if transmittercount > 0 then
-        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkTransReceiver.transmitter.name, transmittercount, 64, Constants.Settings.RNS_Gui.label_font_2)
+        local name = Constants.NetworkTransReceiver.transmitter.name
+        local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
+        section.style = Constants.Settings.RNS_Gui.frame_1
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, Constants.NetworkTransReceiver.transmitter.powerUsage .. "/t", name, transmittercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local receivercount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ReceiverTable))
     if receivercount > 0 then
-        GuiApi.add_item_frame(guiTable, "", ConnectedStructuresTable, Constants.NetworkTransReceiver.receiver.name, receivercount, 64, Constants.Settings.RNS_Gui.label_font_2)
+        local name = Constants.NetworkTransReceiver.receiver.name
+        local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
+        section.style = Constants.Settings.RNS_Gui.frame_1
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, "0/t", name, receivercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
 end

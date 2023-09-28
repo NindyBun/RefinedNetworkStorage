@@ -4,6 +4,7 @@ NII = {
     networkController = nil,
     connectedObjs = nil,
     cardinals = nil,
+    powerUsage = 2
 }
 
 function NII:new(object)
@@ -288,13 +289,15 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 	local fluid = {}
 	for _, priority in pairs(BaseNet.getOperableObjects(self.networkController.network.ItemDriveTable)) do
 		for _, drive in pairs(priority) do
+			--[[
 			local storage = drive:get_sorted_and_merged_inventory()
 			for i = 1, #storage.inventory do
 				local itemstack = storage.inventory[i]
 				if itemstack.count <= 0 then break end
 				Util.add_or_merge(itemstack, inv)
 			end
-			for _, v in pairs(storage.item_list) do
+			]]
+			for _, v in pairs(drive.storageArray) do
 				local c = Util.itemstack_template(v.name)
 				c.cont.count = v.count
 				if c.cont.ammo then c.cont.ammo = v.ammo end
@@ -470,6 +473,11 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 								end
 								inv1.sort_and_merge()
 								if EIO.has_item_room(inv1) == true then
+									if external.metadataMode == false then
+										if itemstack.modified == true then return end
+										if itemstack.cont.ammo ~= game.item_prototypes[itemstack.cont.name].magazine_size then return end
+										if itemstack.cont.durability ~= game.item_prototypes[itemstack.cont.name].durability then return end
+									end
 									amount = amount - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, amount, false, true)
 									if amount <= 0 then return end
 								end
@@ -537,6 +545,11 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 								inv1.sort_and_merge()
 								local has = EIO.has_item(inv1, itemstack, true)
 								if has > 0 and RNSPlayer:has_room() == true then
+									if external.metadataMode == false then
+										if itemstack.modified == true then return end
+										if itemstack.cont.ammo ~= game.item_prototypes[itemstack.cont.name].magazine_size then return end
+										if itemstack.cont.durability ~= game.item_prototypes[itemstack.cont.name].durability then return end
+									end
 									amount = amount - BaseNet.transfer_from_inv_to_inv(inv1, inv, itemstack, nil, math.min(has, amount), false, true)
 									if amount <= 0 then return end
 								end

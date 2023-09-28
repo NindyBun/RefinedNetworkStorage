@@ -196,9 +196,9 @@ function GuiApi.add_sprite(guiTable, name, gui, path, tooltip, save)
     return sprite
 end
 
-function GuiApi.add_item_frame(guiTable, name, gui, item, amount, itemSize, fontStyle, color, save)
+function GuiApi.add_item_frame(guiTable, name, gui, tooltip, item, amount, itemSize, fontStyle, color, save)
     local frame = GuiApi.add_frame(guiTable, name, gui, "horizontal")
-    local sprite = GuiApi.add_sprite(guiTable, "", frame, "item/" .. item, game.item_prototypes[item].localised_name)
+    local sprite = GuiApi.add_sprite(guiTable, "", frame, "item/" .. item, tooltip or game.item_prototypes[item].localised_name)
     if itemSize ~= nil then
         sprite.resize_to_sprite = false
         sprite.style.size = itemSize
