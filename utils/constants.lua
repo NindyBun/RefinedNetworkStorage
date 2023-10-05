@@ -360,6 +360,9 @@ for i=1, 8 do
     Constants.Settings.Multipliers.IIO[i] = (Constants.Settings.Multipliers.IIO[i] or 2) + ((Constants.Settings.Multipliers.IIO[i] or 2) < 3 and 1 or i%2+2)
     Constants.Settings.Multipliers.FIO[i] = (Constants.Settings.Multipliers.FIO[i] or 2) + ((Constants.Settings.Multipliers.FIO[i] or 2) < 3 and 1 or i%2+2)
 end
+for i=1, 4 do
+    Constants.Settings.Multipliers.WT[i] = (Constants.Settings.Multipliers.WT[i] or 2) + 2
+end
 
 local j = 1
 for i = Constants.Settings.RNS_Max_Priority, -Constants.Settings.RNS_Max_Priority, -1 do

@@ -136,11 +136,6 @@ function NC:collectContents()
                 for name, content in pairs(drive.storageArray) do
                     self.network.Contents.item[name] = math.min((self.network.Contents.item[name] or 0) + content.count, 2^32)
                 end
-                --[[
-                for name, count in pairs(drive.storageArray.inventory.get_contents()) do
-                    self.network.Contents.item[name] = math.min((self.network.Contents.item[name] or 0) + count, 2^32)
-                end
-                ]]
             end
         end
         if Util.getTableLength(priorityFluids) > 0 then
@@ -188,20 +183,34 @@ function NC:find_players_with_wirelessTransmitter()
     local processed_players = {}
     for _, transmitter in pairs(BaseNet.getOperableObjects(self.network.WirelessTransmitterTable)[1]) do
         --For Players
-        local characters = self.thisEntity.surface.find_entities_filtered{
-            type = "character",
-            area = {
-                {transmitter.thisEntity.position.x-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance, transmitter.thisEntity.position.y-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance}, --top left
-                {transmitter.thisEntity.position.x+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance, transmitter.thisEntity.position.y+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance} --bottom right
+        if global.WTRangeMultiplier ~= -1 then
+            local characters = self.thisEntity.surface.find_entities_filtered{
+                type = "character",
+                area = {
+                    {transmitter.thisEntity.position.x-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, transmitter.thisEntity.position.y-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier}, --top left
+                    {transmitter.thisEntity.position.x+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, transmitter.thisEntity.position.y+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier} --bottom right
+                }
             }
-        }
-        for _, character in pairs(characters) do
-            if character.player ~= nil and self.network.PlayerPorts[character.player.name] ~= nil then
-                local RNSPlayer = getRNSPlayer(character.player.index)
-                if RNSPlayer ~= nil and RNSPlayer.thisEntity ~= nil and RNSPlayer.thisEntity.valid == true and processed_players[character.player.index] == nil then
-                    RNSPlayer:process_logistic_slots(self.network)
-                    processed_players[character.player.index] = RNSPlayer
+            for _, character in pairs(characters) do
+                if character.player ~= nil and self.network.PlayerPorts[character.player.name] ~= nil then
+                    local RNSPlayer = getRNSPlayer(character.player.index)
+                    if RNSPlayer ~= nil and RNSPlayer.thisEntity ~= nil and RNSPlayer.thisEntity.valid == true and processed_players[character.player.index] == nil then
+                        RNSPlayer:process_logistic_slots(self.network)
+                        processed_players[character.player.index] = RNSPlayer
+                    end
                 end
+            end
+        else
+            for _, RNSPlayer in pairs(global.playerTable) do
+                if RNSPlayer ~= nil and RNSPlayer.thisEntity ~= nil and RNSPlayer.thisEntity.valid == true and self.network.PlayerPorts[RNSPlayer.thisEntity.name] ~= nil and processed_players[RNSPlayer.thisEntity.name] == nil then
+                    if RNSPlayer.thisEntity.surface.index ~= transmitter.thisEntity.surface.index then goto next end
+                    --local RNSPlayer = getRNSPlayer(player.index)
+                    --if RNSPlayer ~= nil and RNSPlayer.thisEntity ~= nil and RNSPlayer.thisEntity.valid == true and processed_players[RNSPlayer.thisEntity.name] == nil then
+                        RNSPlayer:process_logistic_slots(self.network)
+                        processed_players[RNSPlayer.thisEntity.name] = RNSPlayer
+                    --end
+                end
+                ::next::
             end
         end
     end
@@ -211,21 +220,32 @@ end
 function NC:find_wirelessgrid_with_wirelessTransmitter(id)
     for _, transmitter in pairs(BaseNet.getOperableObjects(self.network.WirelessTransmitterTable)[1]) do
         --For Portable Wireless Grids
-        local interfaces = self.thisEntity.surface.find_entities_filtered{
-                name = Constants.WirelessGrid.name,
-                area = {
-                    {transmitter.thisEntity.position.x-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance, transmitter.thisEntity.position.y-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance}, --top left
-                    {transmitter.thisEntity.position.x+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance, transmitter.thisEntity.position.y+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance} --bottom right
+        if global.WTRangeMultiplier ~= -1 then
+            local interfaces = self.thisEntity.surface.find_entities_filtered{
+                    name = Constants.WirelessGrid.name,
+                    area = {
+                        {transmitter.thisEntity.position.x-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, transmitter.thisEntity.position.y-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier}, --top left
+                        {transmitter.thisEntity.position.x+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, transmitter.thisEntity.position.y+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier} --bottom right
+                    }
                 }
-            }
-        for _, interface in pairs(interfaces) do
-            if interface.unit_number == id then
-                local inter = global.entityTable[interface.unit_number]
-                if inter ~= nil and inter.thisEntity ~= nil and inter.thisEntity.valid == true then
-                    if inter.network_controller_position.x ~= nil and inter.network_controller_position.y ~= nil and inter.network_controller_surface ~= nil then
-                        if inter.network_controller_surface == self.thisEntity.surface.index and Util.positions_match(inter.network_controller_position, self.thisEntity.position) == true then
-                            return true
+            for _, interface in pairs(interfaces) do
+                if interface.unit_number == id then
+                    local inter = global.entityTable[interface.unit_number]
+                    if inter ~= nil and inter.thisEntity ~= nil and inter.thisEntity.valid == true then
+                        if inter.network_controller_position.x ~= nil and inter.network_controller_position.y ~= nil and inter.network_controller_surface ~= nil then
+                            if inter.network_controller_surface == self.thisEntity.surface.index and Util.positions_match(inter.network_controller_position, self.thisEntity.position) == true then
+                                return true
+                            end
                         end
+                    end
+                end
+            end
+        else
+            local inter = global.entityTable[id]
+            if inter ~= nil and inter.thisEntity ~= nil and inter.thisEntity.valid == true then
+                if inter.network_controller_position.x ~= nil and inter.network_controller_position.y ~= nil and inter.network_controller_surface ~= nil then
+                    if inter.network_controller_surface == self.thisEntity.surface.index and Util.positions_match(inter.network_controller_position, self.thisEntity.position) == true then
+                        return true
                     end
                 end
             end

@@ -168,4 +168,12 @@ function Event.finished_research(event)
 		global.IIOMultiplier = Constants.Settings.Multipliers.IIO[level]
 		return
 	end
+	if string.match(name, "RNS_fluid_transfer_bonus") ~= nil then
+		global.FIOMultiplier = Constants.Settings.Multipliers.FIO[level]
+		return
+	end
+	if string.match(name, "RNS_wireless_range_bonus") ~= nil then
+		global.WTRangeMultiplier = string.match(name, "inf") == nil and Constants.Settings.Multipliers.WT[level] or -1
+		return
+	end
 end
