@@ -10,6 +10,7 @@ require("prototypes.NetworkCable")
 require("prototypes.NetworkCableIOItem")
 require("prototypes.NetworkCableIOFluid")
 require("prototypes.NetworkCableIOExternal")
+require("prototypes.Recipes")
 -------------------------------------------------------------------------------------
 data:extend{
 	{

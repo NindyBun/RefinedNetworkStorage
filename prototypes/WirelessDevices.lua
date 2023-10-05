@@ -9,6 +9,7 @@ wirelessGridI.stack_size = 1
 wirelessGridI.place_result = Constants.WirelessGrid.name
 data:extend{wirelessGridI}
 
+--[[
 local wirelessGridR = {}
 wirelessGridR.type = "recipe"
 wirelessGridR.name = Constants.WirelessGrid.name
@@ -18,6 +19,7 @@ wirelessGridR.ingredients = Constants.WirelessGrid.ingredients
 wirelessGridR.result = Constants.WirelessGrid.name
 wirelessGridR.result_count = 1
 data:extend{wirelessGridR}
+]]
 
 local wirelessGridE = {}
 wirelessGridE.type = "container"
@@ -72,6 +74,7 @@ wirelessTransmitterI.stack_size = 10
 wirelessTransmitterI.place_result = Constants.NetworkCables.wirelessTransmitter.name
 data:extend{wirelessTransmitterI}
 
+--[[
 local wirelessTransmitterR = {}
 wirelessTransmitterR.type = "recipe"
 wirelessTransmitterR.name = Constants.NetworkCables.wirelessTransmitter.name
@@ -81,6 +84,7 @@ wirelessTransmitterR.ingredients = {}
 wirelessTransmitterR.result = Constants.NetworkCables.wirelessTransmitter.name
 wirelessTransmitterR.result_count = 1
 data:extend{wirelessTransmitterR}
+]]
 
 local wirelessTransmitter_E = {}
 wirelessTransmitter_E.type = "container"
@@ -137,6 +141,7 @@ playerportI.localised_description = {"item-description.RNS_PlayerPort", Constant
 playerportI.localised_description = {"equipment-description.RNS_PlayerPort", Constants.Settings.RNS_PlayerPort_Consumption}
 data:extend{playerportI}
 
+--[[
 local playerportR = {}
 playerportR.type = "recipe"
 playerportR.name = Constants.PlayerPort.name
@@ -146,6 +151,7 @@ playerportR.ingredients = {}
 playerportR.result = Constants.PlayerPort.name
 playerportR.result_count = 1
 data:extend{playerportR}
+]]
 
 local playerportE = {}
 playerportE.type = "battery-equipment"
@@ -181,6 +187,7 @@ for _, tr in pairs(Constants.NetworkTransReceiver) do
     data:extend{I}
 end
 
+--[[
 for _, tr in pairs(Constants.NetworkTransReceiver) do
     local R = {}
     R.type = "recipe"
@@ -192,6 +199,7 @@ for _, tr in pairs(Constants.NetworkTransReceiver) do
     R.result_count = 1
     data:extend{R}
 end
+]]
 
 for _, tr in pairs(Constants.NetworkTransReceiver) do
     local E = {}

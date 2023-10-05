@@ -11,6 +11,7 @@ for _, color in pairs(Constants.NetworkCables.Cables) do
     data:extend{networkCableI}
 end
 
+--[[
 for _, color in pairs(Constants.NetworkCables.Cables) do
     local networkCableR = {}
     networkCableR.type = "recipe"
@@ -22,6 +23,7 @@ for _, color in pairs(Constants.NetworkCables.Cables) do
     networkCableR.result_count = 10
     data:extend{networkCableR}
 end
+]]
 
 for _, color in pairs(Constants.NetworkCables.Cables) do
     local networkCable_E = {}
@@ -81,6 +83,7 @@ for _, color in pairs(Constants.NetworkCables.Cables) do
     data:extend{networkCableI}
 end
 
+--[[
 for _, color in pairs(Constants.NetworkCables.Cables) do
     local networkCableR = {}
     networkCableR.type = "recipe"
@@ -92,6 +95,7 @@ for _, color in pairs(Constants.NetworkCables.Cables) do
     networkCableR.result_count = 10
     data:extend{networkCableR}
 end
+]]
 
 for _, color in pairs(Constants.NetworkCables.Cables) do
     local networkCable_E = {}

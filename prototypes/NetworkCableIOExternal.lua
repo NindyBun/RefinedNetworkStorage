@@ -9,6 +9,7 @@ ioI.place_result = Constants.NetworkCables.externalIO.name
 ioI.stack_size = 25
 data:extend{ioI}
 
+--[[
 local ioR = {}
 ioR.type = "recipe"
 ioR.name = Constants.NetworkCables.externalIO.name
@@ -18,6 +19,7 @@ ioR.ingredients = {}
 ioR.result = Constants.NetworkCables.externalIO.name
 ioR.result_count = 1
 data:extend{ioR}
+]]
 
 local ioE = {}
 ioE.type = "assembling-machine"

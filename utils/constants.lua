@@ -909,9 +909,6 @@ Constants.WirelessGrid = {
     itemIcon = Constants.MOD_ID.."/graphics/Networks/Wireless/WirelessGridI.png",
     entityE =  Constants.MOD_ID.."/graphics/Networks/Wireless/WirelessGridE.png",
     entityS =  Constants.MOD_ID.."/graphics/Networks/Wireless/WirelessGridS.png",
-    craft_time = 1,
-    enabled = true,
-    ingredients = {},
 }
 Constants.Drives = {
     ItemDrive = {
@@ -923,10 +920,6 @@ Constants.Drives = {
             size = "4k",
             max_size = 4000,
             powerUsage = 2,
-            craft_time = 1,
-            enabled = true,
-            ingredients = {},
-            stack_size = 10,
             subgroup = Constants.ItemGroup.Category.ItemDrive_subgroup,
             order = "i-i[1]"
         },
@@ -938,10 +931,6 @@ Constants.Drives = {
             size = "16k",
             max_size = 16000,
             powerUsage = 4,
-            craft_time = 1,
-            enabled = true,
-            ingredients = {},
-            stack_size = 10,
             subgroup = Constants.ItemGroup.Category.ItemDrive_subgroup,
             order = "i-i[2]"
         },
@@ -953,10 +942,6 @@ Constants.Drives = {
             size = "64k",
             max_size = 64000,
             powerUsage = 6,
-            craft_time = 1,
-            enabled = true,
-            ingredients = {},
-            stack_size = 10,
             subgroup = Constants.ItemGroup.Category.ItemDrive_subgroup,
             order = "i-i[3]"
         },
@@ -968,10 +953,6 @@ Constants.Drives = {
             size = "256k",
             max_size = 256000,
             powerUsage = 8,
-            craft_time = 1,
-            enabled = true,
-            ingredients = {},
-            stack_size = 10,
             subgroup = Constants.ItemGroup.Category.ItemDrive_subgroup,
             order = "i-i[4]"
         }
@@ -985,10 +966,6 @@ Constants.Drives = {
             size = "25k",
             max_size = 25000,
             powerUsage = 2,
-            craft_time = 1,
-            enabled = true,
-            ingredients = {},
-            stack_size = 10,
             subgroup = Constants.ItemGroup.Category.FluidDrive_subgroup,
             order = "f-f[1]"
         },
@@ -1000,10 +977,6 @@ Constants.Drives = {
             size = "100k",
             max_size = 100000,
             powerUsage = 4,
-            craft_time = 1,
-            enabled = true,
-            ingredients = {},
-            stack_size = 10,
             subgroup = Constants.ItemGroup.Category.FluidDrive_subgroup,
             order = "f-f[2]"
         },
@@ -1015,10 +988,6 @@ Constants.Drives = {
             size = "400k",
             max_size = 400000,
             powerUsage = 6,
-            craft_time = 1,
-            enabled = true,
-            ingredients = {},
-            stack_size = 10,
             subgroup = Constants.ItemGroup.Category.FluidDrive_subgroup,
             order = "f-f[3]"
         },
@@ -1030,18 +999,364 @@ Constants.Drives = {
             size = "1600k",
             max_size = 1600000,
             powerUsage = 8,
-            craft_time = 1,
-            enabled = true,
-            ingredients = {},
-            stack_size = 10,
             subgroup = Constants.ItemGroup.Category.FluidDrive_subgroup,
             order = "f-f[4]"
         }
     }
 }
 Constants.Recipies = {
-
+    SiliconWafer = {
+        name = Constants.Intermediates.SiliconWafer.name,
+        craft_time = 2.5,
+        enabled = false,
+        category = "crafting",
+        ingredients = {{"stone", 10}},
+        count = 1
+    },
+    CalculatorProcessor = {
+        name = Constants.Intermediates.CalculatorProcessor.name,
+        craft_time = 0.5,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"electronic-circuit", 1},
+            {Constants.Intermediates.SiliconWafer.name, 1},
+            {"copper-cable", 3},
+            {"arithmetic-combinator", 1},
+            {"effectivity-module", 1}
+        },
+        count = 1
+    },
+    LogicProcessor = {
+        name = Constants.Intermediates.LogicProcessor.name,
+        craft_time = 0.5,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"advanced-circuit", 1},
+            {Constants.Intermediates.SiliconWafer.name, 1},
+            {"copper-cable", 3},
+            {"decider-combinator", 1},
+            {"productivity-module", 1}
+        },
+        count = 1
+    },
+    EngineeringProcessor = {
+        name = Constants.Intermediates.EngineeringProcessor.name,
+        craft_time = 0.5,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"processing-unit", 1},
+            {Constants.Intermediates.SiliconWafer.name, 1},
+            {"copper-cable", 3},
+            {"arithmetic-combinator", 1},
+            {"decider-combinator", 1},
+            {"speed-module", 1}
+        },
+        count = 1
+    },
+    NetworkController = {
+        name = Constants.NetworkController.main.name,
+        craft_time = 5,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"electronic-circuit", 10},
+            {"assembling-machine-2", 1},
+            {Constants.Intermediates.CalculatorProcessor.name, 5},
+            {Constants.Intermediates.LogicProcessor.name, 5},
+            {"radar", 1},
+        },
+        count = 1
+    },
+    NetworkInventoryInterface = {
+        name = Constants.NetworkInventoryInterface.name,
+        craft_time = 5,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"electronic-circuit", 10},
+            {"copper-cable", 5},
+            {"copper-plate", 5},
+            {Constants.Intermediates.CalculatorProcessor.name, 2},
+            {Constants.Intermediates.LogicProcessor.name, 2},
+            {"iron-plate", 10},
+            {"small-lamp", 15},
+        },
+        count = 1
+    },
+    WirelessGrid = {
+        name = Constants.WirelessGrid.name,
+        craft_time = 5,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"battery", 20},
+            {"low-density-structure", 5},
+            {"radar", 2},
+            {Constants.NetworkInventoryInterface.name, 1},
+            {Constants.Intermediates.EngineeringProcessor.name, 2},
+            {"solar-panel", 10},
+        },
+        count = 1
+    },
+    NetworkTransmitter = {
+        name = Constants.NetworkTransReceiver.transmitter.name,
+        craft_time = 10,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"satellite", 1},
+            {"logistic-chest-requester", 1},
+            {"radar", 2},
+            {Constants.Intermediates.EngineeringProcessor.name, 4},
+        },
+        count = 1
+    },
+    NetworkReceiver = {
+        name = Constants.NetworkTransReceiver.receiver.name,
+        craft_time = 10,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"satellite", 1},
+            {"logistic-chest-active-provider", 1},
+            {"radar", 2},
+            {Constants.Intermediates.EngineeringProcessor.name, 4},
+        },
+        count = 1
+    },
+    WirelessTransmitter = {
+        name = Constants.NetworkCables.wirelessTransmitter.name,
+        craft_time = 8,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"radar", 2},
+            {"substation", 4},
+            {"big-electric-pole", 1},
+            {"copper-cable", 50},
+            {Constants.Intermediates.EngineeringProcessor.name, 4},
+        },
+        count = 1
+    },
+    PlayerPort = {
+        name = Constants.PlayerPort.name,
+        craft_time = 8,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"logistic-chest-requester", 1},
+            {"logistic-chest-active-provider", 1},
+            {"personal-roboport-mk2-equipment", 1},
+            {Constants.Intermediates.EngineeringProcessor.name, 1},
+            {Constants.Intermediates.LogicProcessor.name, 3},
+            {Constants.Intermediates.CalculatorProcessor.name, 2},
+        },
+        count = 1
+    },
+    Detector = {
+        name = Constants.Detector.name,
+        craft_time = 2,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"copper-cable", 12},
+            {"plastic-bar", 6},
+            {"decider-combinator", 1},
+            {Constants.NetworkCables.Cables.RED.cable.name, 2},
+            {Constants.Intermediates.LogicProcessor.name, 4},
+        },
+        count = 1
+    },
+    RED_Cable = {
+        name = Constants.NetworkCables.Cables.RED.cable.name,
+        craft_time = 1,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"red-wire", 5},
+            {"green-wire", 5},
+            {"plastic-bar", 5},
+        },
+        count = 10
+    },
+    ItemIO = {
+        name = Constants.NetworkCables.itemIO.name,
+        craft_time = 2,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"fast-inserter", 10},
+            {"electric-engine-unit", 10},
+            {Constants.NetworkCables.Cables.RED.cable.name, 2},
+            {Constants.Intermediates.CalculatorProcessor.name, 1},
+            {Constants.Intermediates.LogicProcessor.name, 1},
+        },
+        count = 1
+    },
+    FluidIO = {
+        name = Constants.NetworkCables.fluidIO.name,
+        craft_time = 2,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"pump", 10},
+            {"electric-engine-unit", 10},
+            {Constants.NetworkCables.Cables.RED.cable.name, 2},
+            {Constants.Intermediates.CalculatorProcessor.name, 1},
+            {Constants.Intermediates.LogicProcessor.name, 1},
+        },
+        count = 1
+    },
+    ExternalIO = {
+        name = Constants.NetworkCables.externalIO.name,
+        craft_time = 2,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"pump", 5},
+            {"fast-inserter", 5},
+            {"electric-engine-unit", 10},
+            {Constants.NetworkCables.Cables.RED.cable.name, 2},
+            {Constants.Intermediates.CalculatorProcessor.name, 1},
+            {Constants.Intermediates.LogicProcessor.name, 1},
+        },
+        count = 1
+    },
+    ItemDrive4k = {
+        name = Constants.Drives.ItemDrive.ItemDrive4k.name,
+        craft_time = 1,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"electronic-circuit", 8},
+            {"copper-cable", 4},
+            {"steel-chest", 1},
+            {"iron-plate", 6}
+        },
+        count = 1
+    },
+    ItemDrive16k = {
+        name = Constants.Drives.ItemDrive.ItemDrive16k.name,
+        craft_time = 1,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {Constants.Drives.ItemDrive.ItemDrive4k.name, 3},
+            {"copper-cable", 4},
+            {Constants.Intermediates.CalculatorProcessor.name, 4},
+            {"steel-plate", 2}
+        },
+        count = 1
+    },
+    ItemDrive64k = {
+        name = Constants.Drives.ItemDrive.ItemDrive64k.name,
+        craft_time = 1,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {Constants.Drives.ItemDrive.ItemDrive16k.name, 3},
+            {Constants.Intermediates.LogicProcessor.name, 4},
+            {"plastic-bar", 4},
+            {"steel-plate", 2}
+        },
+        count = 1
+    },
+    ItemDrive256k = {
+        name = Constants.Drives.ItemDrive.ItemDrive256k.name,
+        craft_time = 1,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {Constants.Drives.ItemDrive.ItemDrive64k.name, 3},
+            {Constants.Intermediates.EngineeringProcessor.name, 4},
+            {"low-density-structure", 4},
+            {"steel-plate", 2}
+        },
+        count = 1
+    },
+    FluidDrive25k = {
+        name = Constants.Drives.FluidDrive.FluidDrive25k.name,
+        craft_time = 1,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"electronic-circuit", 8},
+            {"copper-cable", 4},
+            {"storage-tank", 1},
+            {"iron-plate", 6}
+        },
+        count = 1
+    },
+    FluidDrive100k = {
+        name = Constants.Drives.FluidDrive.FluidDrive100k.name,
+        craft_time = 1,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {Constants.Drives.FluidDrive.FluidDrive25k.name, 3},
+            {"copper-cable", 4},
+            {Constants.Intermediates.CalculatorProcessor.name, 4},
+            {"empty-barrel", 2}
+        },
+        count = 1
+    },
+    FluidDrive400k = {
+        name = Constants.Drives.FluidDrive.FluidDrive400k.name,
+        craft_time = 1,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {Constants.Drives.FluidDrive.FluidDrive100k.name, 3},
+            {Constants.Intermediates.LogicProcessor.name, 4},
+            {"plastic-bar", 4},
+            {"empty-barrel", 2}
+        },
+        count = 1
+    },
+    FluidDrive1600k = {
+        name = Constants.Drives.FluidDrive.FluidDrive1600k.name,
+        craft_time = 1,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {Constants.Drives.FluidDrive.FluidDrive400k.name, 3},
+            {Constants.Intermediates.EngineeringProcessor.name, 4},
+            {"low-density-structure", 4},
+            {"empty-barrel", 2}
+        },
+        count = 1
+    }
 }
+for color, cables in pairs(Constants.NetworkCables.Cables) do
+    Constants.Recipies[color.."_Underground"] = {
+        name = cables.underground.name,
+        craft_time = 2,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {"red-wire", 1},
+            {"green-wire", 1},
+            {"plastic-bar", 5},
+            {cables.cable.name, 2},
+        },
+        count = 2
+    }
+    if color == "RED" then goto continue end
+    Constants.Recipies[color.."_Cable"] = {
+        name = cables.cable.name,
+        craft_time = 0.1,
+        enabled = false,
+        category = "crafting",
+        ingredients = {
+            {Constants.NetworkCables.Cables.RED.cable.name, 10},
+        },
+        count = 10
+    }
+    ::continue::
+end
 Constants.Technology = {
 
 }

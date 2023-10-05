@@ -14,10 +14,10 @@ function createDriveItem(drive)
 	driveI.subgroup = drive.subgroup
 	driveI.order = drive.order
 	driveI.place_result = drive.name
-	driveI.stack_size = drive.stack_size
+	driveI.stack_size = 20
 	data:extend{driveI}
 end
-
+--[[
 function createDriveRecipe(drive)
 	local driveR = {}
 	driveR.type = "recipe"
@@ -29,6 +29,7 @@ function createDriveRecipe(drive)
 	driveR.result_count = 1
 	data:extend{driveR}
 end
+]]
 
 function createDriveEntity(drive)
 	local driveE = {}
@@ -82,12 +83,12 @@ end
 --------------------------------------------------------------------------------
 for _, drive in pairs(Constants.Drives.ItemDrive) do
 	createDriveItem(drive)
-	createDriveRecipe(drive)
+	--createDriveRecipe(drive)
 	createDriveEntity(drive)
 end
 
 for _, drive in pairs(Constants.Drives.FluidDrive) do
 	createDriveItem(drive)
-	createDriveRecipe(drive)
+	--createDriveRecipe(drive)
 	createDriveEntity(drive)
 end

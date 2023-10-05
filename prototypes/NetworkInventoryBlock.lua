@@ -9,6 +9,7 @@ inventoryBlockI.stack_size = 10
 inventoryBlockI.place_result = Constants.NetworkInventoryInterface.name
 data:extend{inventoryBlockI}
 
+--[[
 local inventoryBlockR = {}
 inventoryBlockR.type = "recipe"
 inventoryBlockR.name = Constants.NetworkInventoryInterface.name
@@ -18,6 +19,7 @@ inventoryBlockR.ingredients = {}
 inventoryBlockR.result = Constants.NetworkInventoryInterface.name
 inventoryBlockR.result_count = 1
 data:extend{inventoryBlockR}
+]]
 
 local inventoryBlockE = {}
 inventoryBlockE.type = "container"

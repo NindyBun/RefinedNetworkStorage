@@ -25,6 +25,7 @@ ioI.place_result = Constants.NetworkCables.fluidIO.name
 ioI.stack_size = 25
 data:extend{ioI}
 
+--[[
 local ioR = {}
 ioR.type = "recipe"
 ioR.name = Constants.NetworkCables.fluidIO.name
@@ -34,6 +35,7 @@ ioR.ingredients = {}
 ioR.result = Constants.NetworkCables.fluidIO.name
 ioR.result_count = 1
 data:extend{ioR}
+]]
 
 local ioE = {}
 ioE.type = "storage-tank"

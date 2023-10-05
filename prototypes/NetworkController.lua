@@ -9,6 +9,7 @@ controllerI.stack_size = 20
 controllerI.place_result = Constants.NetworkController.main.name
 data:extend{controllerI}
 
+--[[
 local controllerR = {}
 controllerR.type = "recipe"
 controllerR.name = Constants.NetworkController.main.name
@@ -18,6 +19,7 @@ controllerR.ingredients = {}
 controllerR.result = Constants.NetworkController.main.name
 controllerR.result_count = 1
 data:extend{controllerR}
+]]
 
 local cE0 = {}
 cE0.type = "electric-energy-interface"

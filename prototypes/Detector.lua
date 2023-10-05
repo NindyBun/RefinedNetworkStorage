@@ -9,6 +9,7 @@ detectorI.stack_size = 10
 detectorI.place_result = Constants.Detector.name
 data:extend{detectorI}
 
+--[[
 local detectorR = {}
 detectorR.type = "recipe"
 detectorR.name = Constants.Detector.name
@@ -18,6 +19,7 @@ detectorR.ingredients = {}
 detectorR.result = Constants.Detector.name
 detectorR.result_count = 1
 data:extend{detectorR}
+]]
 
 local detector_E = {}
 detector_E.type = "container"
