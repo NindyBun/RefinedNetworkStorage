@@ -6,7 +6,9 @@ WT = {
     color = "RED",
     networkController = nil,
     cardinals = nil,
-    powerUsage = 2
+    powerUsage = 2,
+    rangeArea = nil,
+    showArea = false
 }
 
 function WT:new(object)
@@ -70,6 +72,18 @@ function WT:update()
             self.networkController = nil
         end
         if self.thisEntity.to_be_deconstructed() == true then return end
+        
+        if self.showArea == true and self.rangeArea == nil then
+			self.rangeArea = rendering.draw_rectangle{
+                color=Constants.Settings.RNS_Gui.red, width=5, filled=false,
+                left_top={self.thisEntity.position.x-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, self.thisEntity.position.y-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier},
+                right_bottom={self.thisEntity.position.x+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, self.thisEntity.position.y+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier},
+                surface=self.thisEntity.surface
+            }
+        elseif self.showArea == false and self.rangeArea ~= nil then
+            rendering.destroy(self.rangeArea)
+        end
+
         self:createArms()
     --end
 end
@@ -187,7 +201,10 @@ function WT:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
 
         GuiApi.add_label(guiTable, "TransmitterRange", infoFrame, {"gui-description.RNS_WirelessTransmitterRange", Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
-    
+        
+        GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_WirelessTransmitterArea"}, Constants.Settings.RNS_Gui.white)
+        GuiApi.add_switch(guiTable, "RNS_WT_RangeAreaSwitch", infoFrame, {"gui-description.RNS_Off"}, {"gui-description.RNS_On"}, "", "", self.showArea == true and "right", false, {ID=self.thisEntity.unit_number})
+
         local playerFrame = GuiApi.add_frame(guiTable, "PlayerFrame", mainFrame, "vertical", true)
 		playerFrame.style = Constants.Settings.RNS_Gui.frame_1
 		playerFrame.style.vertically_stretchable = true
@@ -229,6 +246,17 @@ function WT:getTooltips(guiTable, mainFrame, justCreated)
 end
 
 function WT.interaction(event, RNSPlayer)
+    if string.match(event.element.name, "RNS_WT_RangeAreaSwitch") then
+		local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+		if event.element.switch_state == "left" then
+			io.showArea = false
+		else
+			io.showArea = true
+		end
+		return
+	end
     if string.match(event.element.name, "RNS_WirelessTransmitter_Color") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]

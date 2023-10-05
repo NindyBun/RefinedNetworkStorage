@@ -340,6 +340,7 @@ Constants.Settings = {
         tooltip = "tooltip_gui",
         orange = {255, 131, 0},
         blue = {108, 114, 229},
+        red = {255, 0, 0},
         white = {255, 255, 255},
         yellow_title = "yellow_label",
         frame_1 = "Frame_1",
@@ -357,11 +358,11 @@ Constants.Settings = {
     }
 }
 for i=1, 8 do
-    Constants.Settings.Multipliers.IIO[i] = (Constants.Settings.Multipliers.IIO[i] or 2) + ((Constants.Settings.Multipliers.IIO[i] or 2) < 3 and 1 or i%2+2)
-    Constants.Settings.Multipliers.FIO[i] = (Constants.Settings.Multipliers.FIO[i] or 2) + ((Constants.Settings.Multipliers.FIO[i] or 2) < 3 and 1 or i%2+2)
+    Constants.Settings.Multipliers.IIO[i] = (Constants.Settings.Multipliers.IIO[i-1] or 1) + ((Constants.Settings.Multipliers.IIO[i-1] or 1) < 3 and 1 or i%2+2)
+    Constants.Settings.Multipliers.FIO[i] = (Constants.Settings.Multipliers.FIO[i-1] or 1) + ((Constants.Settings.Multipliers.FIO[i-1] or 1) < 3 and 1 or i%2+2)
 end
 for i=1, 4 do
-    Constants.Settings.Multipliers.WT[i] = (Constants.Settings.Multipliers.WT[i] or 2) + 2
+    Constants.Settings.Multipliers.WT[i] = (Constants.Settings.Multipliers.WT[i-1] or 1) + 1
 end
 
 local j = 1
