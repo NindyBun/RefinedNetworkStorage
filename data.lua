@@ -1,4 +1,5 @@
 Constants = require("utils.constants")
+require("prototypes.Intermediates")
 require("prototypes.others")
 require("prototypes.Drives")
 require("prototypes.WirelessDevices")
@@ -87,6 +88,15 @@ data:extend{
 		name=Constants.ItemGroup.Category.Laser_subgroup,
 		group=Constants.ItemGroup.Category.group,
 		order="l"
+	}
+}
+
+data:extend{
+	{
+		type="item-subgroup",
+		name=Constants.ItemGroup.Category.Intermediate_subgroup,
+		group=Constants.ItemGroup.Category.group,
+		order="b"
 	}
 }
 

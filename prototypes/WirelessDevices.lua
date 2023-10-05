@@ -127,12 +127,14 @@ data:extend{wirelessTransmitter_E}
 local playerportI = {}
 playerportI.type = "item"
 playerportI.name = Constants.PlayerPort.name
-playerportI.icon = Constants.PlayerPort.icon
+playerportI.icon = Constants.PlayerPort.itemIcon
 playerportI.icon_size = 256
 playerportI.subgroup = Constants.ItemGroup.Category.subgroup
 playerportI.order = "i"
 playerportI.stack_size = 1
 playerportI.placed_as_equipment_result = Constants.PlayerPort.name
+playerportI.localised_description = {"item-description.RNS_PlayerPort", Constants.Settings.RNS_PlayerPort_Consumption}
+playerportI.localised_description = {"equipment-description.RNS_PlayerPort", Constants.Settings.RNS_PlayerPort_Consumption}
 data:extend{playerportI}
 
 local playerportR = {}
@@ -149,7 +151,7 @@ local playerportE = {}
 playerportE.type = "battery-equipment"
 playerportE.name = Constants.PlayerPort.name
 playerportE.sprite = {
-    filename = Constants.PlayerPort.icon,
+    filename = Constants.PlayerPort.itemIcon,
     priority = "extra-high",
     size = 256,
 }

@@ -363,7 +363,8 @@ Constants.ItemGroup = {
         ItemDrive_subgroup = "RNS-ItemDrives",
         FluidDrive_subgroup = "RNS-FluidDrives",
         Laser_subgroup = "RNS-Lasers",
-        Cable_subgroup = "RNS-ColoredCables"
+        Cable_subgroup = "RNS-ColoredCables",
+        Intermediate_subgroup = "RNS-Intermediates"
     }
 }
 Constants.Icons = {
@@ -396,9 +397,31 @@ Constants.Icons = {
         sprite = Constants.MOD_ID.."/graphics/x-mark.png"
     },
 }
+Constants.Intermediates = {
+    SiliconWafer = {
+        name = "RNS_SiliconWafer",
+        itemIcon = Constants.MOD_ID.."/graphics/silicon_wafer.png",
+        order = "1"
+    },
+    CalculatorProcessor = {
+        name = "RNS_CalculatorProcessor",
+        itemIcon = Constants.MOD_ID.."/graphics/calculator_processor.png",
+        order = "2"
+    },
+    LogicProcessor = {
+        name = "RNS_LogicProcessor",
+        itemIcon = Constants.MOD_ID.."/graphics/logic_processor.png",
+        order = "3"
+    },
+    EngineeringProcessor = {
+        name = "RNS_EngineeringProcessor",
+        itemIcon = Constants.MOD_ID.."/graphics/engineering_processor.png",
+        order = "4"
+    }
+}
 Constants.PlayerPort = {
     name = "RNS_PlayerPort",
-    icon = Constants.MOD_ID.."/graphics/personalPlayerPort.png",
+    itemIcon = Constants.MOD_ID.."/graphics/personalPlayerPort.png",
 }
 Constants.Detector = {
     name = "RNS_Detector",
