@@ -22,7 +22,7 @@ ioI.icon_size = 512
 ioI.subgroup = Constants.ItemGroup.Category.subgroup
 ioI.order = "i"
 ioI.place_result = Constants.NetworkCables.fluidIO.name
-ioI.stack_size = 25
+ioI.stack_size = 50
 data:extend{ioI}
 
 --[[

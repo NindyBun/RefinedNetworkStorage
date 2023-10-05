@@ -5,7 +5,7 @@ detectorI.icon = Constants.Detector.itemIcon
 detectorI.icon_size = 512
 detectorI.subgroup = Constants.ItemGroup.Category.subgroup
 detectorI.order = "i"
-detectorI.stack_size = 10
+detectorI.stack_size = 50
 detectorI.place_result = Constants.Detector.name
 data:extend{detectorI}
 

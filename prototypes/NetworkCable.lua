@@ -78,7 +78,7 @@ for _, color in pairs(Constants.NetworkCables.Cables) do
     networkCableI.icon_size = 512
     networkCableI.subgroup = Constants.ItemGroup.Category.Cable_subgroup
     networkCableI.order = "a"
-    networkCableI.stack_size = 200
+    networkCableI.stack_size = 100
     networkCableI.place_result = color.underground.name
     data:extend{networkCableI}
 end

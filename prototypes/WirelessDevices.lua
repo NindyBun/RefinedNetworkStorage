@@ -70,7 +70,7 @@ wirelessTransmitterI.icon = Constants.NetworkCables.wirelessTransmitter.itemIcon
 wirelessTransmitterI.icon_size = 512
 wirelessTransmitterI.subgroup = Constants.ItemGroup.Category.subgroup
 wirelessTransmitterI.order = "i"
-wirelessTransmitterI.stack_size = 10
+wirelessTransmitterI.stack_size = 50
 wirelessTransmitterI.place_result = Constants.NetworkCables.wirelessTransmitter.name
 data:extend{wirelessTransmitterI}
 

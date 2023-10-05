@@ -14,7 +14,7 @@ function createDriveItem(drive)
 	driveI.subgroup = drive.subgroup
 	driveI.order = drive.order
 	driveI.place_result = drive.name
-	driveI.stack_size = 20
+	driveI.stack_size = 50
 	data:extend{driveI}
 end
 --[[
@@ -64,7 +64,7 @@ function createDriveEntity(drive)
 					priority = "extra-high",
 					width = 512,
 					height = 512,
-					shift = {0,-148/512},
+					shift = {0,-147/512},
 					scale = 1/4
 				},
 				{

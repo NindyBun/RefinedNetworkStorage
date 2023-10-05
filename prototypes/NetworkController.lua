@@ -5,7 +5,7 @@ controllerI.icon = Constants.NetworkController.main.itemIcon
 controllerI.icon_size = 256
 controllerI.subgroup = Constants.ItemGroup.Category.subgroup
 controllerI.order = "n"
-controllerI.stack_size = 20
+controllerI.stack_size = 10
 controllerI.place_result = Constants.NetworkController.main.name
 data:extend{controllerI}
 

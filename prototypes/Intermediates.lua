@@ -6,6 +6,6 @@ for _, intermediate in pairs(Constants.Intermediates) do
 	item.icon_size = 512
 	item.subgroup = Constants.ItemGroup.Category.Intermediate_subgroup
 	item.order = intermediate.order
-	item.stack_size = 100
+	item.stack_size = 200
 	data:extend{item}
 end

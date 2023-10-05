@@ -5,7 +5,7 @@ inventoryBlockI.icon = Constants.NetworkInventoryInterface.itemIcon
 inventoryBlockI.icon_size = 512
 inventoryBlockI.subgroup = Constants.ItemGroup.Category.subgroup
 inventoryBlockI.order = "i"
-inventoryBlockI.stack_size = 10
+inventoryBlockI.stack_size = 1
 inventoryBlockI.place_result = Constants.NetworkInventoryInterface.name
 data:extend{inventoryBlockI}
 
