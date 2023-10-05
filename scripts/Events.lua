@@ -159,3 +159,13 @@ function Event.onSettingsPasted(event)
 		o2:copy_settings(o1)
     end
 end
+
+function Event.finished_research(event)
+	if event.research == nil then return end
+	local name, _ = string.gsub(event.research.name, "%-", "_")
+	local level = event.research.level
+	if string.match(name, "RNS_item_transfer_bonus") ~= nil then
+		global.IIOMultiplier = Constants.Settings.Multipliers.IIO[level]
+		return
+	end
+end

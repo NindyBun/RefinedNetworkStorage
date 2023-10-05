@@ -349,8 +349,18 @@ Constants.Settings = {
         label_font = "LabelFont",
         label_font_2 = "LabelFont2",
         scroll_pane = "Scroll_Pane"
+    },
+    Multipliers = {
+        IIO = {},
+        FIO = {},
+        WT = {}
     }
 }
+for i=1, 8 do
+    Constants.Settings.Multipliers.IIO[i] = (Constants.Settings.Multipliers.IIO[i] or 2) + ((Constants.Settings.Multipliers.IIO[i] or 2) < 3 and 1 or i%2+2)
+    Constants.Settings.Multipliers.FIO[i] = (Constants.Settings.Multipliers.FIO[i] or 2) + ((Constants.Settings.Multipliers.FIO[i] or 2) < 3 and 1 or i%2+2)
+end
+
 local j = 1
 for i = Constants.Settings.RNS_Max_Priority, -Constants.Settings.RNS_Max_Priority, -1 do
     Constants.Settings.RNS_Priorities[j] = i
@@ -1357,7 +1367,1005 @@ for color, cables in pairs(Constants.NetworkCables.Cables) do
     }
     ::continue::
 end
-Constants.Technology = {
-
+Constants.Technologies = {
+    AdvancedStorageHandling1 = {
+        name = "RNS-advanced-storage-handling-1",
+        icon = Constants.MOD_ID .. "/graphics/Networks/NetworkController/NetworkControllerI.png",
+        icon_size = 256,
+        prerequisites = {
+            "modules",
+            "circuit-network",
+            "optics"
+        },
+        effects = {
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.NetworkController.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.ItemDrive4k.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.FluidDrive25k.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.NetworkInventoryInterface.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.SiliconWafer.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.CalculatorProcessor.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.LogicProcessor.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.RED_Cable.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.WHITE_Cable.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.PURPLE_Cable.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.PINK_Cable.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.ORANGE_Cable.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.LIGHTGREEN_Cable.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.LIGHTBLUE_Cable.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.GREY_Cable.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.GREEN_Cable.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.BROWN_Cable.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.RED_Underground.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.WHITE_Underground.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.PURPLE_Underground.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.PINK_Underground.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.ORANGE_Underground.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.LIGHTGREEN_Underground.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.LIGHTBLUE_Underground.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.GREY_Underground.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.GREEN_Underground.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.BROWN_Underground.name
+            },
+        },
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 100,
+            time = 45,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1}
+            }
+        }
+    },
+    AdvancedStorageHandling2 = {
+        name = "RNS-advanced-storage-handling-2",
+        icon = Constants.MOD_ID .. "/graphics/Networks/NetworkController/NetworkControllerI.png",
+        icon_size = 256,
+        prerequisites = {
+            "RNS-advanced-storage-handling-1",
+            "electric-engine",
+        },
+        effects = {
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.ItemIO.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.FluidIO.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.ExternalIO.name
+            },
+        },
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 200,
+            time = 45,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1}
+            }
+        }
+    },
+    CircuitHandling = {
+        name = "RNS-circuit-handling",
+        icon = Constants.MOD_ID .. "/graphics/Networks/Detector/DetectorI.png",
+        prerequisites = {
+            "RNS-advanced-storage-handling-1",
+            "circuit-network",
+            "advanced-electronics",
+        },
+        effects = {
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.Detector.name
+            }
+        },
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 75,
+            time = 15,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+            }
+        }
+    },
+    WirelessInteraction = {
+        name = "RNS-wireless-interaction",
+        icon = Constants.MOD_ID .. "/graphics/Networks/Wireless/WirelessGridI.png",
+        prerequisites = {
+            "RNS-advanced-storage-handling-1",
+            "electric-energy-distribution-2",
+            "low-density-structure",
+            "solar-energy"
+        },
+        effects = {
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.WirelessTransmitter.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.WirelessGrid.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.EngineeringProcessor.name
+            },
+        },
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 275,
+            time = 45,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1}
+            }
+        }
+    },
+    PersonalLogistics = {
+        name = "RNS-personal-logistics",
+        icon = Constants.MOD_ID .. "/graphics/personalPlayerPort.png",
+        icon_size = 256,
+        prerequisites = {
+            "RNS-wireless-interaction",
+            "logistic-system",
+            "personal-roboport-mk2-equipment",
+        },
+        effects = {
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.PlayerPort.name
+            },
+        },
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 325,
+            time = 45,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"utility-science-pack", 1}
+            }
+        }
+    },
+    LongDistanceConnections = {
+        name = "RNS-long-distance-connections",
+        icon = Constants.MOD_ID .. "/graphics/Networks/TransReceiver/NetworkTransmitterI.png",
+        prerequisites = {
+            "RNS-advanced-storage-handling-1",
+            "space-science-pack",
+        },
+        effects = {
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.NetworkTransmitter.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.NetworkReceiver.name
+            },
+        },
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 2000,
+            time = 60,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"utility-science-pack", 1},
+                {"production-science-pack", 1},
+                {"space-science-pack", 1}
+            }
+        }
+    },
+    ItemDrive1 = {
+        name = "RNS-itemdrive-1",
+        icon = Constants.MOD_ID .. "/graphics/Drives/ItemDrive2I.png",
+        prerequisites = {
+            "RNS-advanced-storage-handling-1",
+        },
+        effects = {
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.ItemDrive16k.name
+            },
+        },
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 200,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+            }
+        }
+    },
+    ItemDrive2 = {
+        name = "RNS-itemdrive-2",
+        icon = Constants.MOD_ID .. "/graphics/Drives/ItemDrive3I.png",
+        prerequisites = {
+            "RNS-itemdrive-1",
+        },
+        effects = {
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.ItemDrive64k.name
+            },
+        },
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 250,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+            }
+        }
+    },
+    ItemDrive3 = {
+        name = "RNS-itemdrive-3",
+        icon = Constants.MOD_ID .. "/graphics/Drives/ItemDrive4I.png",
+        prerequisites = {
+            "RNS-itemdrive-2",
+        },
+        effects = {
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.ItemDrive256k.name
+            },
+        },
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count =300,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"utility-science-pack", 1},
+                {"production-science-pack", 1},
+            }
+        }
+    },
+    FluidDrive1 = {
+        name = "RNS-fluiddrive-1",
+        icon = Constants.MOD_ID .. "/graphics/Drives/FluidDrive2I.png",
+        prerequisites = {
+            "RNS-advanced-storage-handling-1",
+        },
+        effects = {
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.FluidDrive100k.name
+            },
+        },
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 300,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+            }
+        }
+    },
+    FluidDrive2 = {
+        name = "RNS-fluiddrive-2",
+        icon = Constants.MOD_ID .. "/graphics/Drives/FluidDrive3I.png",
+        prerequisites = {
+            "RNS-fluiddrive-1",
+        },
+        effects = {
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.FluidDrive400k.name
+            },
+        },
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 250,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+            }
+        }
+    },
+    FluidDrive3 = {
+        name = "RNS-fluiddrive-3",
+        icon = Constants.MOD_ID .. "/graphics/Drives/FluidDrive4I.png",
+        prerequisites = {
+            "RNS-fluiddrive-2",
+        },
+        effects = {
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.FluidDrive1600k.name
+            },
+        },
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 300,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"utility-science-pack", 1},
+                {"production-science-pack", 1},
+            }
+        }
+    },
+    ItemTransferBonus1 = {
+        name = "RNS-item-transfer-bonus-1",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/ItemIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-advanced-storage-handling-1",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 200,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+            }
+        }
+    },
+    ItemTransferBonus2 = {
+        name = "RNS-item-transfer-bonus-2",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/ItemIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-item-transfer-bonus-1",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 300,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+            }
+        }
+    },
+    ItemTransferBonus3 = {
+        name = "RNS-item-transfer-bonus-3",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/ItemIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-item-transfer-bonus-2",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 400,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+            }
+        }
+    },
+    ItemTransferBonus4 = {
+        name = "RNS-item-transfer-bonus-4",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/ItemIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-item-transfer-bonus-3",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 500,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+            }
+        }
+    },
+    ItemTransferBonus5 = {
+        name = "RNS-item-transfer-bonus-5",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/ItemIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-item-transfer-bonus-4",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 600,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+            }
+        }
+    },
+    ItemTransferBonus6 = {
+        name = "RNS-item-transfer-bonus-6",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/ItemIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-item-transfer-bonus-5",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 700,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+                {"utility-science-pack", 1},
+            }
+        }
+    },
+    ItemTransferBonus7 = {
+        name = "RNS-item-transfer-bonus-7",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/ItemIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-item-transfer-bonus-6",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 800,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+                {"utility-science-pack", 1},
+            }
+        }
+    },
+    ItemTransferBonus8 = {
+        name = "RNS-item-transfer-bonus-8",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/ItemIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-item-transfer-bonus-7",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 900,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+                {"utility-science-pack", 1},
+            }
+        }
+    },
+    FluidTransferBonus1 = {
+        name = "RNS-fluid-transfer-bonus-1",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/FluidIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-advanced-storage-handling-1",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 200,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+            }
+        }
+    },
+    FluidTransferBonus2 = {
+        name = "RNS-fluid-transfer-bonus-2",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/FluidIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-fluid-transfer-bonus-1",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 300,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+            }
+        }
+    },
+    FluidTransferBonus3 = {
+        name = "RNS-fluid-transfer-bonus-3",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/FluidIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-fluid-transfer-bonus-2",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 400,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+            }
+        }
+    },
+    FluidTransferBonus4 = {
+        name = "RNS-fluid-transfer-bonus-4",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/FluidIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-fluid-transfer-bonus-3",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 500,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+            }
+        }
+    },
+    FluidTransferBonus5 = {
+        name = "RNS-fluid-transfer-bonus-5",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/FluidIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-fluid-transfer-bonus-4",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 600,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+            }
+        }
+    },
+    FluidTransferBonus6 = {
+        name = "RNS-fluid-transfer-bonus-6",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/FluidIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-fluid-transfer-bonus-5",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 700,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+                {"utility-science-pack", 1},
+            }
+        }
+    },
+    FluidTransferBonus7 = {
+        name = "RNS-fluid-transfer-bonus-7",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/FluidIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-fluid-transfer-bonus-6",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 800,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+                {"utility-science-pack", 1},
+            }
+        }
+    },
+    FluidTransferBonus8 = {
+        name = "RNS-fluid-transfer-bonus-8",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/FluidIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-fluid-transfer-bonus-7",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 900,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+                {"utility-science-pack", 1},
+            }
+        }
+    },
+    WirelessRangeBonus1 = {
+        name = "RNS-wireless-range-bonus-1",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Networks/Wireless/WirelessTransmitterI.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-advanced-storage-handling-1",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 200,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+            }
+        }
+    },
+    WirelessRangeBonus2 = {
+        name = "RNS-wireless-range-bonus-2",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Networks/Wireless/WirelessTransmitterI.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-wireless-range-bonus-1",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 300,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+            }
+        }
+    },
+    WirelessRangeBonus3 = {
+        name = "RNS-wireless-range-bonus-3",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Networks/Wireless/WirelessTransmitterI.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-wireless-range-bonus-2",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 600,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+            }
+        }
+    },
+    WirelessRangeBonus4 = {
+        name = "RNS-wireless-range-bonus-4",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Networks/Wireless/WirelessTransmitterI.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-wireless-range-bonus-3",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 1200,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+                {"utility-science-pack", 1},
+            }
+        }
+    },
+    WirelessRangeBonusInf = {
+        name = "RNS-wireless-range-bonus-inf",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Networks/Wireless/WirelessTransmitterI.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-wireless-range-bonus-4",
+        },
+        effects = {},
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 4000,
+            time = 60,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+                {"utility-science-pack", 1},
+                {"space-science-pack", 1},
+            }
+        }
+    },
 }
 return Constants

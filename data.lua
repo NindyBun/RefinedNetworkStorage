@@ -11,6 +11,7 @@ require("prototypes.NetworkCableIOItem")
 require("prototypes.NetworkCableIOFluid")
 require("prototypes.NetworkCableIOExternal")
 require("prototypes.Recipes")
+require("prototypes.Technologies")
 -------------------------------------------------------------------------------------
 data:extend{
 	{

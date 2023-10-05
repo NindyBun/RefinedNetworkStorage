@@ -1,4 +1,4 @@
-local Constants = require("utils.constants")
+Constants = require("utils.constants")
 data:extend({
     {
         type = "bool-setting",
