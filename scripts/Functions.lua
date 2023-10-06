@@ -82,3 +82,12 @@ end
 function getPlayer(id)
     return game.players[id]
 end
+
+function getRGBA()
+    return {
+        r=settings.global[Constants.Settings.RNS_RGBA_R].value,
+        g=settings.global[Constants.Settings.RNS_RGBA_G].value,
+        b=settings.global[Constants.Settings.RNS_RGBA_B].value,
+        a=settings.global[Constants.Settings.RNS_RGBA_A].value
+    }
+end

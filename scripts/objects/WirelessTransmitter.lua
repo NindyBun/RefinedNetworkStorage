@@ -56,6 +56,7 @@ function WT:remove()
         self.networkController.network.WirelessTransmitterTable[1][self.entID] = nil
         self.networkController.network.shouldRefresh = true
     end
+    if self.rangeArea ~= nil then rendering.destroy(self.rangeArea) end
 end
 
 function WT:valid()
@@ -75,13 +76,14 @@ function WT:update()
         
         if self.showArea == true and self.rangeArea == nil then
 			self.rangeArea = rendering.draw_rectangle{
-                color=Constants.Settings.RNS_Gui.red, width=5, filled=false,
+                color=getRGBA(), width=5, filled=true,
                 left_top={self.thisEntity.position.x-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, self.thisEntity.position.y-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier},
                 right_bottom={self.thisEntity.position.x+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, self.thisEntity.position.y+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier},
                 surface=self.thisEntity.surface
             }
         elseif self.showArea == false and self.rangeArea ~= nil then
             rendering.destroy(self.rangeArea)
+            self.rangeArea = nil
         end
 
         self:createArms()

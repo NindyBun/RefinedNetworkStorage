@@ -9,6 +9,10 @@ Constants.Settings = {
     RNS_CableUnderground_Reach = 4,
     RNS_Max_Priority = 5,
     RNS_Priorities = {},
+    RNS_RGBA_R = "RNS_Red",
+    RNS_RGBA_G = "RNS_Green",
+    RNS_RGBA_B = "RNS_Blue",
+    RNS_RGBA_A = "RNS_Alpha",
     RNS_ColorG = {
         [1] = {"gui-description.RNS_RED"},
         [2] = {"gui-description.RNS_WHITE"},
@@ -1561,11 +1565,36 @@ Constants.Technologies = {
             }
         }
     },
+    EngineeringProcessor = {
+        name = "RNS-engineering-processor",
+        icon = Constants.MOD_ID .. "/graphics/engineering_processor.png",
+        prerequisites = {
+            "RNS-advanced-storage-handling-1",
+            "advanced-electronics-2",
+        },
+        effects = {
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.EngineeringProcessor.name
+            },
+        },
+        upgrade = false,
+        max_level = 0,
+        unit = {
+            count = 300,
+            time = 30,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1}
+            }
+        }
+    },
     WirelessInteraction = {
         name = "RNS-wireless-interaction",
         icon = Constants.MOD_ID .. "/graphics/Networks/Wireless/WirelessGridI.png",
         prerequisites = {
-            "RNS-advanced-storage-handling-1",
+            "RNS-engineering-processor",
             "electric-energy-distribution-2",
             "low-density-structure",
             "solar-energy"
@@ -1578,10 +1607,6 @@ Constants.Technologies = {
             {
                 type  = "unlock-recipe",
                 recipe = Constants.Recipies.WirelessGrid.name
-            },
-            {
-                type  = "unlock-recipe",
-                recipe = Constants.Recipies.EngineeringProcessor.name
             },
         },
         upgrade = false,
@@ -1629,6 +1654,7 @@ Constants.Technologies = {
         icon = Constants.MOD_ID .. "/graphics/Networks/TransReceiver/NetworkTransmitterI.png",
         prerequisites = {
             "RNS-advanced-storage-handling-1",
+            "RNS-engineering-processor",
             "space-science-pack",
         },
         effects = {
@@ -2251,7 +2277,7 @@ Constants.Technologies = {
         upgrade = false,
         max_level = 0,
         unit = {
-            count = 200,
+            count = 400,
             time = 30,
             ingredients = {
                 {"automation-science-pack", 1},
@@ -2277,7 +2303,7 @@ Constants.Technologies = {
         upgrade = false,
         max_level = 0,
         unit = {
-            count = 300,
+            count = 600,
             time = 30,
             ingredients = {
                 {"automation-science-pack", 1},
@@ -2304,7 +2330,7 @@ Constants.Technologies = {
         upgrade = false,
         max_level = 0,
         unit = {
-            count = 600,
+            count = 800,
             time = 30,
             ingredients = {
                 {"automation-science-pack", 1},
