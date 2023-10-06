@@ -64,7 +64,7 @@ function createDriveEntity(drive)
 					priority = "extra-high",
 					width = 512,
 					height = 512,
-					shift = {0,-147/512},
+					shift = {0,-138/512},
 					scale = 1/4
 				},
 				{

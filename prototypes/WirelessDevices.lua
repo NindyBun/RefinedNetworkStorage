@@ -154,7 +154,7 @@ data:extend{playerportR}
 ]]
 
 local playerportE = {}
-playerportE.type = "battery-equipment"
+playerportE.type = "active-defense-equipment"
 playerportE.name = Constants.PlayerPort.name
 playerportE.sprite = {
     filename = Constants.PlayerPort.itemIcon,
@@ -166,10 +166,19 @@ playerportE.shape = {
     height = 2,
     type = "full"
 }
+playerportE.automatic=false
+playerportE.attack_parameters = {
+    type = "beam",
+    range = 0,
+    cooldown = 0,
+    ammo_type = {
+        category = "melee"
+    }
+}
 playerportE.categories = {"armor"}
 playerportE.energy_source = {
     type = "energy",
-    buffer_capacity = "5MJ",
+    buffer_capacity = tostring(Constants.Settings.RNS_PlayerPort_Consumption*50000) .. "J",
     usage_priority = "secondary-input"
 }
 data:extend{playerportE}
