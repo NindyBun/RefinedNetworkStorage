@@ -177,3 +177,31 @@ function Event.finished_research(event)
 		return
 	end
 end
+
+function Event.reversed_research(event)
+	if event.research == nil then return end
+	local name, _ = string.gsub(event.research.name, "%-", "_")
+	local level = event.research.level
+	if string.match(name, "RNS_item_transfer_bonus") ~= nil then
+		global.IIOMultiplier = Constants.Settings.Multipliers.IIO[level-1] or 1
+		return
+	end
+	if string.match(name, "RNS_fluid_transfer_bonus") ~= nil then
+		global.FIOMultiplier = Constants.Settings.Multipliers.FIO[level-1] or 1
+		return
+	end
+	if string.match(name, "RNS_wireless_range_bonus") ~= nil then
+		global.WTRangeMultiplier = string.match(name, "inf") == nil and Constants.Settings.Multipliers.WT[level-1] or 1
+		return
+	end
+end
+
+function Event.pre_crafted_item(event)
+	local RNSPlayer = getRNSPlayer(event.player_index)
+	local queued_count = event.queued_count
+	game.print()
+end
+
+function Event.crafted_item(event)
+
+end

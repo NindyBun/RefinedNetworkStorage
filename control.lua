@@ -163,6 +163,18 @@ function finished_research(event)
     Util.safeCall(Event.finished_research, event)
 end
 
+function reversed_research(event)
+    Util.safeCall(Event.reverse_research, event)
+end
+
+function pre_crafted_item(event)
+    Util.safeCall(Event.pre_crafted_item, event)
+end
+
+function crafted_item(event)
+    Util.safeCall(Event.crafted_item, event)
+end
+
 script.on_init(onInit)
 script.on_configuration_changed(onInit)
 script.on_load(onLoad)
@@ -173,6 +185,10 @@ script.on_event(defines.events.on_player_joined_game, initPlayer)
 script.on_event(defines.events.on_tick, onTick)
 
 script.on_event(defines.events.on_research_finished, finished_research)
+script.on_event(defines.events.on_research_reversed, reversed_research)
+
+script.on_event(defines.events.on_pre_player_crafted_item, pre_crafted_item)
+script.on_event(defines.events.on_player_crafted_item, crafted_item)
 
 script.on_event(defines.events.on_built_entity, placed)
 script.on_event(defines.events.on_player_built_tile, placed)
