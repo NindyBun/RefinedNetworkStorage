@@ -10,7 +10,8 @@ data:extend
         flow_color = {r=0.7, g=0.7, b=0.7},
         icon = Constants.Settings.RNS_BlankIcon,
         icon_size = 32,
-        hidden = true
+        hidden = true,
+        auto_barrel = false
     }
 }
 
