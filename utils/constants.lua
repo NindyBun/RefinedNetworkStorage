@@ -1204,7 +1204,7 @@ Constants.Recipies = {
         category = "crafting",
         ingredients = {
             {"fast-inserter", 10},
-            {"electric-engine-unit", 10},
+            {"engine-unit", 10},
             {Constants.NetworkCables.Cables.RED.cable.name, 2},
             {Constants.Intermediates.CalculatorProcessor.name, 1},
             {Constants.Intermediates.LogicProcessor.name, 1},
@@ -1218,7 +1218,7 @@ Constants.Recipies = {
         category = "crafting",
         ingredients = {
             {"pump", 10},
-            {"electric-engine-unit", 10},
+            {"engine-unit", 10},
             {Constants.NetworkCables.Cables.RED.cable.name, 2},
             {Constants.Intermediates.CalculatorProcessor.name, 1},
             {Constants.Intermediates.LogicProcessor.name, 1},
@@ -1233,7 +1233,7 @@ Constants.Recipies = {
         ingredients = {
             {"pump", 5},
             {"fast-inserter", 5},
-            {"electric-engine-unit", 10},
+            {"engine-unit", 10},
             {Constants.NetworkCables.Cables.RED.cable.name, 2},
             {Constants.Intermediates.CalculatorProcessor.name, 1},
             {Constants.Intermediates.LogicProcessor.name, 1},
