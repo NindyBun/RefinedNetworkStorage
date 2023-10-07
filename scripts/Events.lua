@@ -195,13 +195,3 @@ function Event.reversed_research(event)
 		return
 	end
 end
-
-function Event.pre_crafted_item(event)
-	local RNSPlayer = getRNSPlayer(event.player_index)
-	local queued_count = event.queued_count
-	game.print()
-end
-
-function Event.crafted_item(event)
-
-end
