@@ -160,20 +160,33 @@ function Event.onSettingsPasted(event)
     end
 end
 
+function printResearchBonus(type)
+	if type == "item" then
+		game.print({"gui-description.RNS_ItemTransferBonus", Constants.Settings.RNS_BaseItemIO_TransferCapacity*15*global.IIOMultiplier})
+	elseif type == "fluid" then
+		game.print({"gui-description.RNS_FluidTransferBonus", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIOMultiplier})
+	elseif type == "wireless" then
+		game.print({"gui-description.RNS_WirelessRangeBonus", global.WTRangeMultiplier ~= -1 and Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier or "infinite"})
+	end
+end
+
 function Event.finished_research(event)
 	if event.research == nil then return end
 	local name, _ = string.gsub(event.research.name, "%-", "_")
 	local level = event.research.level
 	if string.match(name, "RNS_item_transfer_bonus") ~= nil then
 		global.IIOMultiplier = Constants.Settings.Multipliers.IIO[level]
+		printResearchBonus("item")
 		return
 	end
 	if string.match(name, "RNS_fluid_transfer_bonus") ~= nil then
 		global.FIOMultiplier = Constants.Settings.Multipliers.FIO[level]
+		printResearchBonus("fluid")
 		return
 	end
 	if string.match(name, "RNS_wireless_range_bonus") ~= nil then
 		global.WTRangeMultiplier = string.match(name, "inf") == nil and Constants.Settings.Multipliers.WT[level] or -1
+		printResearchBonus("wireless")
 		return
 	end
 end
@@ -184,14 +197,17 @@ function Event.reversed_research(event)
 	local level = event.research.level
 	if string.match(name, "RNS_item_transfer_bonus") ~= nil then
 		global.IIOMultiplier = Constants.Settings.Multipliers.IIO[level-1] or 1
+		printResearchBonus("item")
 		return
 	end
 	if string.match(name, "RNS_fluid_transfer_bonus") ~= nil then
 		global.FIOMultiplier = Constants.Settings.Multipliers.FIO[level-1] or 1
+		printResearchBonus("fluid")
 		return
 	end
 	if string.match(name, "RNS_wireless_range_bonus") ~= nil then
 		global.WTRangeMultiplier = string.match(name, "inf") == nil and Constants.Settings.Multipliers.WT[level-1] or 1
+		printResearchBonus("wireless")
 		return
 	end
 end
