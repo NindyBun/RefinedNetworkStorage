@@ -1041,7 +1041,6 @@ Constants.Recipies = {
             {Constants.Intermediates.SiliconWafer.name, 1},
             {"copper-cable", 3},
             {"arithmetic-combinator", 1},
-            {"effectivity-module", 1}
         },
         count = 1
     },
@@ -1055,7 +1054,6 @@ Constants.Recipies = {
             {Constants.Intermediates.SiliconWafer.name, 1},
             {"copper-cable", 3},
             {"decider-combinator", 1},
-            {"productivity-module", 1}
         },
         count = 1
     },
@@ -1070,7 +1068,6 @@ Constants.Recipies = {
             {"copper-cable", 3},
             {"arithmetic-combinator", 1},
             {"decider-combinator", 1},
-            {"speed-module", 1}
         },
         count = 1
     },
@@ -1381,7 +1378,6 @@ Constants.Technologies = {
         icon = Constants.MOD_ID .. "/graphics/Networks/NetworkController/NetworkControllerI.png",
         icon_size = 256,
         prerequisites = {
-            "modules",
             "circuit-network",
             "optics"
         },
