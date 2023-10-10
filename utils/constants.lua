@@ -1508,7 +1508,6 @@ Constants.Technologies = {
         icon_size = 256,
         prerequisites = {
             "RNS-advanced-storage-handling-1",
-            "electric-engine",
         },
         effects = {
             {
@@ -1592,6 +1591,7 @@ Constants.Technologies = {
         prerequisites = {
             "RNS-engineering-processor",
             "electric-energy-distribution-2",
+            "battery",
             "low-density-structure",
             "solar-energy"
         },
