@@ -441,6 +441,7 @@ end
 function EIO.has_item(inv, itemstack_data, getModified)
     local amount = 0
     inv.sort_and_merge()
+    if inv.is_empty() then return 0 end
     for i = 1, #inv do
         local itemstack = inv[i]
         if itemstack.count <= 0 then break end
