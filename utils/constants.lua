@@ -1396,6 +1396,10 @@ Constants.Technologies = {
             },
             {
                 type  = "unlock-recipe",
+                recipe = Constants.Recipies.ExternalIO.name
+            },
+            {
+                type  = "unlock-recipe",
                 recipe = Constants.Recipies.NetworkInventoryInterface.name
             },
             {
@@ -1517,10 +1521,6 @@ Constants.Technologies = {
             {
                 type  = "unlock-recipe",
                 recipe = Constants.Recipies.FluidIO.name
-            },
-            {
-                type  = "unlock-recipe",
-                recipe = Constants.Recipies.ExternalIO.name
             },
         },
         upgrade = false,
