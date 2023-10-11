@@ -466,6 +466,7 @@ function EIO.has_item(inv, itemstack_data, getModified)
             end
         end
         ::continue::
+        if amount > 0 then break end
     end
 
     return amount

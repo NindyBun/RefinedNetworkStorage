@@ -582,7 +582,7 @@ function IIO:IO()
                                                             if self.metadataMode == externalInv.metadataMode and self.metadataMode == true then
                                                                 meta = true
                                                             end
-                                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, math.min(transportCapacity, has), meta, true)
+                                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, transportCapacity, meta, true)
                                                             if transportCapacity <= 0 then goto exit end
                                                         end
                                                     end
