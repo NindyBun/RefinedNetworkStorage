@@ -1191,9 +1191,9 @@ Constants.Recipies = {
         enabled = false,
         category = "crafting",
         ingredients = {
-            {"red-wire", 5},
-            {"green-wire", 5},
-            {"plastic-bar", 5},
+            {"copper-cable", 10},
+            {"electronic-circuit", 5},
+            {"iron-plate", 5},
         },
         count = 10
     },
@@ -1352,9 +1352,8 @@ for color, cables in pairs(Constants.NetworkCables.Cables) do
         enabled = false,
         category = "crafting",
         ingredients = {
-            {"red-wire", 1},
-            {"green-wire", 1},
-            {"plastic-bar", 5},
+            {"copper-cable", 2},
+            {"iron-plate", 5},
             {cables.cable.name, 2},
         },
         count = 2
