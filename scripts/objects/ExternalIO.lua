@@ -455,10 +455,10 @@ function EIO:getRealDirection()
 end
 
 function EIO.has_item_room(inv)
-    inv.sort_and_merge()
-    for i=1, #inv do
-        if inv[i].count <= 0 then return true end
-    end
+    --inv.sort_and_merge()
+    --for i=1, #inv do
+    --    if inv[i].count <= 0 then return true end
+    --end
     if not inv.is_full() then return true end
     if inv.is_empty() then return true end
     return false

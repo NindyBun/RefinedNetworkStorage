@@ -416,7 +416,7 @@ function IIO:IO()
                                             local isOperable = IIO.check_operable_mode(ii.io, "output") and not inv.is_empty()
                                             if isOperable == true then
                                                 transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, self.filters.values, math.min(transportCapacity, drive:getRemainingStorageSize()), self.metadataMode, self.whitelist)
-                                                if transportCapacity <= 0 then goto exit end
+                                                if transportCapacity <= 0 or inv.is_empty() then goto exit end
                                             end
                                         end
                                         index1 = index1 + 1
@@ -433,7 +433,7 @@ function IIO:IO()
                                         local isOperable = IIO.check_operable_mode(ii.io, "output") and not inv.is_empty()
                                         if isOperable == true then
                                             transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_drive(inv, drive, nil, nil, math.min(transportCapacity, drive:getRemainingStorageSize()), self.metadataMode, false)
-                                            if transportCapacity <= 0 then goto exit end
+                                            if transportCapacity <= 0 or inv.is_empty() then goto exit end
                                         end
                                     end
                                     index = index + 1
@@ -454,11 +454,11 @@ function IIO:IO()
                                         local ii = Util.next(self.focusedEntity.inventory)
                                         local inv = foc.get_inventory(ii.slot)
                                         if inv ~= nil then
-                                            if inv.is_full() then goto next end
+                                            if inv.is_full() then goto exit end
                                             local isOperable = IIO.check_operable_mode(ii.io, "input") and inv.can_insert(itemstack.cont)
                                             if isOperable == true then
                                                 transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, transportCapacity, self.metadataMode)
-                                                if transportCapacity <= 0 then goto exit end
+                                                if transportCapacity <= 0 or inv.is_full() then goto exit end
                                             end
                                         end
                                         index1 = index1 + 1
@@ -504,14 +504,14 @@ function IIO:IO()
                                                         local ii1 = Util.next(externalInv.focusedEntity.inventory)
                                                         local inv1 = externalInv.focusedEntity.thisEntity.get_inventory(ii1.slot)
                                                         if inv1 ~= nil then
-                                                            inv1.sort_and_merge()
+                                                            --inv1.sort_and_merge()
                                                             if EIO.has_item_room(inv1) == true and IIO.check_operable_mode(ii1.io, "input") then
                                                                 local meta = false
                                                                 if self.metadataMode == externalInv.metadataMode and self.metadataMode == true then
                                                                     meta = true
                                                                 end
                                                                 transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, transportCapacity, meta, self.whitelist)
-                                                                if transportCapacity <= 0 then goto exit end
+                                                                if transportCapacity <= 0 or inv.is_empty() then goto exit end
                                                             end
                                                         end
                                                         index2 = index2 + 1
@@ -536,7 +536,7 @@ function IIO:IO()
                                                     local ii1 = Util.next(externalInv.focusedEntity.inventory)
                                                     local inv1 = externalInv.focusedEntity.thisEntity.get_inventory(ii1.slot)
                                                     if inv1 ~= nil then
-                                                        inv1.sort_and_merge()
+                                                        --inv1.sort_and_merge()
                                                         if EIO.has_item_room(inv1) == true and IIO.check_operable_mode(ii1.io, "input") then
                                                             if Util.getTableLength_non_nil(externalInv.filters.item.values) == 0 then
                                                                 if externalInv.whitelist == true then goto next end
@@ -546,7 +546,7 @@ function IIO:IO()
                                                                 meta = true
                                                             end
                                                             transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, nil, externalInv, transportCapacity, meta, false)
-                                                            if transportCapacity <= 0 then goto exit end
+                                                            if transportCapacity <= 0 or inv.is_empty() then goto exit end
                                                         end
                                                     end
                                                     index1 = index1 + 1
@@ -570,7 +570,7 @@ function IIO:IO()
                                         local ii = Util.next(externalInv.focusedEntity.inventory)
                                         local inv = externalInv.focusedEntity.thisEntity.get_inventory(ii.slot)
                                         if inv ~= nil and IIO.check_operable_mode(ii.io, "output") then
-                                            inv.sort_and_merge()
+                                            --inv.sort_and_merge()
                                             local has = EIO.has_item(inv, itemstack, self.metadataMode)
             
                                             if has > 0 then
@@ -579,7 +579,7 @@ function IIO:IO()
                                                     local ii1 = Util.next(self.focusedEntity.inventory)
                                                     local inv1 = foc.get_inventory(ii1.slot)
                                                     if inv1 ~= nil then
-                                                        if inv1.is_full() then goto next end
+                                                        if inv1.is_full() then goto exit end
                                                         local isOperable = IIO.check_operable_mode(ii1.io, "input") and inv1.can_insert(itemstack.cont)
                                                         if isOperable == true then
                                                             local meta = false
@@ -587,7 +587,7 @@ function IIO:IO()
                                                                 meta = true
                                                             end
                                                             transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, transportCapacity, meta, true)
-                                                            if transportCapacity <= 0 then goto exit end
+                                                            if transportCapacity <= 0 or inv.is_full() then goto exit end
                                                         end
                                                     end
                                                     index2 = index2 + 1

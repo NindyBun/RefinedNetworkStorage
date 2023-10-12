@@ -277,7 +277,7 @@ function FIO:IO()
                                 end
                             end
                             ::continue::
-                            if transportCapacity <= 0 then goto exit end
+                            if transportCapacity <= 0 or #externalTank.focusedEntity.thisEntity.fluidbox <= 0 then goto exit end
                         end
                     end
                 end
