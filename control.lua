@@ -19,6 +19,7 @@ require("scripts.objects.RNSPlayer")
 require("scripts.objects.NetworkCables")
 require("scripts.objects.NetworkCableUnderground")
 require("scripts.objects.ItemIO")
+require("scripts.objects.ItemIOV2")
 require("scripts.objects.FluidIO")
 require("scripts.objects.ExternalIO")
 require("scripts.objects.ItemDrives")
@@ -27,11 +28,11 @@ require("scripts.objects.NetworkInventoryInterface")
 
 --When the mod is added in a save
 function onInit()
-    --local freeplay = remote.interfaces["freeplay"]
-    --if freeplay then  -- Disable freeplay popup-message
-    --    if freeplay["set_skip_intro"] then remote.call("freeplay", "set_skip_intro", true) end
-    --    if freeplay["set_disable_crashsite"] then remote.call("freeplay", "set_disable_crashsite", true) end
-    --end
+    local freeplay = remote.interfaces["freeplay"]
+    if freeplay then  -- Disable freeplay popup-message
+        if freeplay["set_skip_intro"] then remote.call("freeplay", "set_skip_intro", true) end
+        if freeplay["set_disable_crashsite"] then remote.call("freeplay", "set_disable_crashsite", true) end
+    end
 
 	global.entityTable = global.entityTable or {}
     global.IIOMultiplier = global.IIOMultiplier or 1
