@@ -477,12 +477,12 @@ end
 function EIO:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
 		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_External_Title"}
-        local mainFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
+        local mainFlow = GuiApi.add_flow(guiTable, "MainFlow", mainFrame, "vertical")
 
-        local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
-        local bottomFrame = GuiApi.add_flow(guiTable, "bottomFrame", mainFlow, "horizontal")
+        local topFrame = GuiApi.add_flow(guiTable, "TopFrame", mainFlow, "horizontal")
+        local bottomFrame = GuiApi.add_flow(guiTable, "BottomFrame", mainFlow, "horizontal")
 
-        local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", topFrame, "vertical")
+        local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", topFrame, "vertical", true)
 		colorFrame.style = Constants.Settings.RNS_Gui.frame_1
 		colorFrame.style.vertically_stretchable = true
 		colorFrame.style.left_padding = 3
@@ -494,7 +494,7 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
         local colorDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
         colorDD.style.minimal_width = 100
 
-        local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", topFrame, "vertical")
+        local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", topFrame, "vertical", true)
 		filtersFrame.style = Constants.Settings.RNS_Gui.frame_1
 		filtersFrame.style.vertically_stretchable = true
 		filtersFrame.style.left_padding = 3
@@ -516,7 +516,7 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
             end
         end
 
-        local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", topFrame, "vertical")
+        local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", topFrame, "vertical", true)
 		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
 		settingsFrame.style.vertically_stretchable = true
 		settingsFrame.style.left_padding = 3
