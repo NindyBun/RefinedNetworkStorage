@@ -67,6 +67,7 @@ function IIO:new(object)
             values = nil
         }
     }
+    t:createArms()
     t.combinator = object.surface.create_entity{
         name="RNS_Combinator",
         position=object.position,
@@ -170,7 +171,7 @@ function IIO:update()
     if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false then
         self:reset_focused_entity()
     end
-    self:createArms()
+    --if game.tick % 25 then self:createArms() end
 end
 
 function IIO:toggleHoverIcon(hovering)
@@ -370,8 +371,8 @@ function IIO.check_operable_mode(io, mode)
     return string.match(io, mode) ~= nil
 end
 
-function IIO.matches_filters(name, filter)
-    for _, name1 in pairs(filter) do
+function IIO.matches_filters(name, filters)
+    for _, name1 in pairs(filters) do
         if name == name1 then return true end
     end
     return false
@@ -454,7 +455,7 @@ function IIO:IO()
                                         if inv ~= nil then
                                             local isOperable = IIO.check_operable_mode(ii.io, "input") and inv.can_insert(itemstack.cont)
                                             if isOperable == true then
-                                                transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, math.min(transportCapacity, has), self.metadataMode)
+                                                transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, transportCapacity, self.metadataMode)
                                                 if transportCapacity <= 0 then goto exit end
                                             end
                                         end

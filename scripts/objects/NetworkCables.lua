@@ -81,7 +81,7 @@ function NCbl:update()
             self.networkController = nil
         end
         if self.thisEntity.to_be_deconstructed() == true then return end
-        self:createArms()
+        --if game.tick % 25 then self:createArms() end
     --end
 end
 

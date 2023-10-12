@@ -27,7 +27,7 @@ function NC:new(object)
         [3] = {}, --S
         [4] = {}, --W
     }
-    t:collect()
+    t:createArms()
     t.network.shouldRefresh = true
     UpdateSys.addEntity(t)
     return t
@@ -73,7 +73,7 @@ function NC:update()
         return
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
-    self:collect()
+    --if game.tick % 25 then self:createArms() end
     if game.tick % self.updateTick == 0 or self.network.shouldRefresh == true or game.tick > self.lastUpdate then --Refreshes connections every 10 seconds
         self.network:doRefresh(self)
     end
@@ -332,7 +332,7 @@ function NC:getCheckArea()
     }
 end
 
-function NC:collect()
+function NC:createArms()
     local areas = self:getCheckArea()
     self:resetCollection()
     for _, area in pairs(areas) do

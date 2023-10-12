@@ -57,6 +57,7 @@ function FIO:new(object)
             flow = ""
         }
     }
+    t:createArms()
     t.combinator = object.surface.create_entity{
         name="RNS_Combinator",
         position=object.position,
@@ -116,7 +117,7 @@ function FIO:update()
     if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false then
         self:reset_focused_entity()
     end
-    self:createArms()
+    --if game.tick % 25 then self:createArms() end
 end
 
 function FIO:copy_settings(obj)

@@ -33,7 +33,7 @@ function ID:new(object)
         [3] = {}, --S
         [4] = {}, --W
     }
-    t:collect()
+    t:createArms()
     UpdateSys.addEntity(t)
     return t
 end
@@ -67,7 +67,7 @@ function ID:update()
         self.networkController = nil
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
-    self:collect()
+    --if game.tick % 25 then self:createArms() end
 end
 
 function ID:copy_settings(obj)
@@ -104,7 +104,7 @@ function ID:getCheckArea()
     }
 end
 
-function ID:collect()
+function ID:createArms()
     local areas = self:getCheckArea()
     self:resetCollection()
     for _, area in pairs(areas) do

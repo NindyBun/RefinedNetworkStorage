@@ -40,6 +40,7 @@ function DT:new(object)
         [3] = false, --S
         [4] = false, --W
     }
+    t:createArms()
     t.filters = {
         item = "",
         fluid = ""
@@ -66,7 +67,6 @@ function DT:new(object)
     t.enablerCombinator.destructible = false
     t.enablerCombinator.operable = false
     t.enablerCombinator.minable = false
-    t:createArms()
     UpdateSys.addEntity(t)
     return t
 end
@@ -103,16 +103,17 @@ function DT:update()
             self.networkController = nil
         end
         if self.thisEntity.to_be_deconstructed() == true then return end
-        self:createArms()
+        --if game.tick % 25 then self:createArms() end
     --end
 end
 
 function DT:update_signal()
-    if self.filters[self.type] == "" or self.output == "" then return end
-    if self.networkController ~= nil and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true and self.networkController.thisEntity.to_be_deconstructed() == false then
-        local amount = self.networkController.network.Contents[self.type][self.filters[self.type]] or 0
+    if self.filters[self.type] == "" or self.output == "" or self.enabler.filter == "" then return end
+    local amount = self.networkController.network.Contents[self.type][self.filters[self.type]] or 0
+        
+    if self.networkController ~= nil and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true and self.networkController.thisEntity.to_be_deconstructed() == false and Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == true then
         --self.combinator.get_or_create_control_behavior().set_signal(2,  (operatorFunctions[self.operator](amount, self.number) and {{signal={type="virtual", name="signal-red"}, count=1}} or {nil})[1])
-        self.enablerCombinator.get_or_create_control_behavior().set_signal(1, (Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) and {{signal={type=self.enabler.filter.type, name=self.enabler.filter.name}, count=self.enabler.numberOutput == 1 and 1 or amount}} or {nil})[1])
+        self.enablerCombinator.get_or_create_control_behavior().set_signal(1, {signal={type=self.enabler.filter.type, name=self.enabler.filter.name}, count=(self.enabler.numberOutput == 1 and 1 or amount)})
     else
         --self.combinator.get_or_create_control_behavior().set_signal(2,  nil)
         self.enablerCombinator.get_or_create_control_behavior().set_signal(1, nil)
@@ -326,7 +327,7 @@ function DT.interaction(event, RNSPlayer)
 		local io = global.entityTable[id]
 		if io == nil then return end
         if event.element.elem_value ~= nil then
-            io.enabler.filter = event.element.elem_value
+            io.enabler.filter = {type=event.element.elem_value.type, name=event.element.elem_value.name}
             io.combinator.get_or_create_control_behavior().set_signal(2, {signal={type=event.element.elem_value.type, name=event.element.elem_value.name}, count=1})
         else
             io.enabler.filter = ""
@@ -363,7 +364,7 @@ function DT.interaction(event, RNSPlayer)
             local filter = io.filters[io.type]
             io.combinator.get_or_create_control_behavior().set_signal(1, filter ~= "" and {signal={type=io.type, name=filter}, count=1} or nil)
             io.combinator.get_or_create_control_behavior().set_signal(2,  nil)
-            io.combinator1.get_or_create_control_behavior().set_signal(1, nil)
+            io.enablerCombinator.get_or_create_control_behavior().set_signal(1, nil)
         end
 		return
     end

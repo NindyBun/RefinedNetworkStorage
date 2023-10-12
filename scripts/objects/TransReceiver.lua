@@ -35,7 +35,7 @@ function TR:new(object)
         [4] = false, --W
         [5] = false  --Receiver
     }
-    t:collect()
+    t:createArms()
     UpdateSys.addEntity(t)
     return t
 end
@@ -71,7 +71,7 @@ function TR:update()
         return
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
-    self:collect()
+    --if game.tick % 25 then self:createArms() end
 end
 
 function TR:resetCollection()
@@ -95,7 +95,7 @@ function TR:getCheckArea()
     }
 end
 
-function TR:collect()
+function TR:createArms()
     local areas = self:getCheckArea()
     self:resetCollection()
     for _, area in pairs(areas) do

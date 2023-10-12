@@ -27,7 +27,7 @@ function NII:new(object)
         [3] = {}, --S
         [4] = {}, --W
     }
-    t:collect()
+    t:createArms()
     UpdateSys.addEntity(t)
     return t
 end
@@ -60,7 +60,7 @@ function NII:update()
         self.networkController = nil
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
-    self:collect()
+	--if game.tick % 25 then self:createArms() end
 end
 
 function NII:resetCollection()
@@ -83,7 +83,7 @@ function NII:getCheckArea()
     }
 end
 
-function NII:collect()
+function NII:createArms()
     local areas = self:getCheckArea()
     self:resetCollection()
     for _, area in pairs(areas) do

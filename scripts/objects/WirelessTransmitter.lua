@@ -86,7 +86,7 @@ function WT:update()
             self.rangeArea = nil
         end
 
-        self:createArms()
+        --if game.tick % 25 then self:createArms() end
     --end
 end
 

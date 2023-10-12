@@ -68,6 +68,7 @@ function EIO:new(object)
             flow = ""
         }
     }
+    t:createArms()
     --10 filters
     t.filters = {
         item = {
@@ -142,7 +143,7 @@ function EIO:update()
         self:reset_focused_entity()
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
-    self:createArms()
+    --if game.tick % 25 then self:createArms() end
 end
 
 function EIO:copy_settings(obj)
@@ -479,9 +480,9 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
         local mainFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
 
         local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
-        local bottomFrame = GuiApi.add_flow(guiTable, "bottomFrame", mainFlow, "horizontal", true)
+        local bottomFrame = GuiApi.add_flow(guiTable, "bottomFrame", mainFlow, "horizontal")
 
-        local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", topFrame, "vertical", true)
+        local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", topFrame, "vertical")
 		colorFrame.style = Constants.Settings.RNS_Gui.frame_1
 		colorFrame.style.vertically_stretchable = true
 		colorFrame.style.left_padding = 3
@@ -493,7 +494,7 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
         local colorDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
         colorDD.style.minimal_width = 100
 
-        local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", topFrame, "vertical", true)
+        local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", topFrame, "vertical")
 		filtersFrame.style = Constants.Settings.RNS_Gui.frame_1
 		filtersFrame.style.vertically_stretchable = true
 		filtersFrame.style.left_padding = 3
@@ -515,7 +516,7 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
             end
         end
 
-        local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", topFrame, "vertical", true)
+        local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", topFrame, "vertical")
 		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
 		settingsFrame.style.vertically_stretchable = true
 		settingsFrame.style.left_padding = 3
@@ -526,18 +527,18 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
 		GuiApi.add_subtitle(guiTable, "", settingsFrame, {"gui-description.RNS_Setting"})
 
         --Fluid or Item Mode
-        local typeFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
+        local typeFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal")
         GuiApi.add_label(guiTable, "", typeFlow, {"gui-description.RNS_Type"}, Constants.Settings.RNS_Gui.white)
         local typeDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Type", typeFlow, {{"gui-description.RNS_Item"}, {"gui-description.RNS_Fluid"}}, Constants.Settings.RNS_Types[self.type], false, "", {ID=self.thisEntity.unit_number})
         typeDD.style.minimal_width = 100
 
         --IO Mode
-        local modeFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
+        local modeFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal")
         GuiApi.add_label(guiTable, "", modeFlow, {"gui-description.RNS_Mode"}, Constants.Settings.RNS_Gui.white)
         local modeDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Mode", modeFlow, {{"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, {"gui-description.RNS_Both"}}, Constants.Settings.RNS_Modes[self.io], false, "", {ID=self.thisEntity.unit_number})
         modeDD.style.minimal_width = 100
 
-        local priorityFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
+        local priorityFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal")
         GuiApi.add_label(guiTable, "", priorityFlow, {"gui-description.RNS_Priority"}, Constants.Settings.RNS_Gui.white)
         local priorityDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_External_Priority", priorityFlow, Constants.Settings.RNS_Priorities, ((#Constants.Settings.RNS_Priorities+1)/2)-self.priority, false, "", {ID=self.thisEntity.unit_number})
         priorityDD.style.minimal_width = 100

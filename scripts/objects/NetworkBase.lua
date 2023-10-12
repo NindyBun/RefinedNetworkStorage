@@ -87,6 +87,8 @@ end
 function addConnectables(source, connections, master)
     if valid(source) == false then return end
     if source.thisEntity == nil and source.thisEntity.valid == false then return end
+    if source.createArms == nil then return end
+    source:createArms()
     if source.connectedObjs == nil and source.connectedObjs.valid == false then return end
     for _, connected in pairs(source.connectedObjs) do
         for _, con in pairs(connected) do
@@ -438,7 +440,7 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
             if whitelist == true then
                 if game.item_prototypes[itemC.cont.name] ~= game.item_prototypes[itemstack_data.cont.name] then goto continue end
             else
-                if IIO.matches_filters(itemC.cont.name, filters) == true then
+                if filters ~= nil and IIO.matches_filters(itemC.cont.name, filters) == true then
                     goto continue
                 else
                     itemstack_data = Util.itemstack_template(itemC.cont.name)
