@@ -195,6 +195,7 @@ function FIO:generateModeIcon()
 end
 
 function FIO:IO()
+    self:reset_focused_entity()
     local transportCapacity = Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier
     --#tank.fluidbox returns number of pipe connections
     --tank.fluidbox.get_locked_fluid(index) returns filtered fluid at an index
@@ -311,6 +312,38 @@ function FIO:reset_focused_entity()
             flow = ""
         }
     }
+
+    local selfP = self.thisEntity.position
+    local area = self:getCheckArea()[self:getDirection()]
+    local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
+    local nearest = nil
+
+    for _, ent in pairs(ents) do
+        if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") == nil and ent.operable and global.entityTable[ent.unit_number] == nil then
+            if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then
+                nearest = ent
+            end
+        end
+    end
+
+    if nearest == nil then return end
+    if #nearest.fluidbox ~= 0 then
+        if self.focusedEntity.thisEntity == nil or (self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false) then
+            self.focusedEntity.thisEntity = nearest
+            for i=1, #nearest.fluidbox do
+                for j=1, #nearest.fluidbox.get_pipe_connections(i) do
+                    local target = nearest.fluidbox.get_pipe_connections(i)[j]
+                    if target.target_position.x == self.thisEntity.position.x and target.target_position.y == self.thisEntity.position.y then
+                        self.focusedEntity.fluid_box.index = i
+                        self.focusedEntity.fluid_box.flow =  target.flow_direction
+                        self.focusedEntity.fluid_box.target_position = target.target_position
+                        self.focusedEntity.fluid_box.filter =  (nearest.fluidbox.get_locked_fluid(i) ~= nil and {nearest.fluidbox.get_locked_fluid(i)} or {""})[1]
+                        break
+                    end
+                end
+            end
+        end
+    end
 end
 
 function FIO:getCheckArea()
@@ -348,7 +381,7 @@ function FIO:createArms()
                                 enti = enti + 1
                             end
                         end
-                        --Update network connections if necessary
+                        --[[Update network connections if necessary
                         if self.cardinals[area.direction] == false then
                             self.cardinals[area.direction] = true
                             if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
@@ -356,10 +389,10 @@ function FIO:createArms()
                             elseif obj.thisEntity.name == Constants.NetworkController.main.name then
                                 obj.network.shouldRefresh = true
                             end
-                        end
+                        end]]
                         break
                     end
-                elseif ent ~= nil and self:getDirection() == area.direction then --Get entity with inventory
+                --[[elseif ent ~= nil and self:getDirection() == area.direction then --Get entity with inventory
                     if #ent.fluidbox ~= 0 then
                         if self.focusedEntity.thisEntity == nil or (self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false) then
                             self:reset_focused_entity()
@@ -377,11 +410,11 @@ function FIO:createArms()
                                 end
                             end
                         end
-                    end
+                    end]]
                 end
             end
         end
-        if self:getDirection() ~= area.direction then
+        --[[if self:getDirection() ~= area.direction then
             --Update network connections if necessary
             if self.cardinals[area.direction] == true and enti ~= 0 then
                 self.cardinals[area.direction] = false
@@ -389,7 +422,7 @@ function FIO:createArms()
                     self.networkController.network.shouldRefresh = true
                 end
             end
-        end
+        end]]
     end
 end
 

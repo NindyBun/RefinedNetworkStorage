@@ -168,9 +168,9 @@ function IIO:update()
         self.networkController = nil
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
-    if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false then
-        self:reset_focused_entity()
-    end
+    --if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false then
+    --    self:reset_focused_entity()
+    --end
     --if game.tick % 25 then self:createArms() end
 end
 
@@ -362,6 +362,7 @@ function IIO.has_item(inv, itemstack_data, metadataMode)
                 amount = amount + itemstack.count - 1
             end
         end
+        if amount > 0 then break end
         ::continue::
     end
     return amount
@@ -379,6 +380,7 @@ function IIO.matches_filters(name, filters)
 end
 
 function IIO:IO()
+    self:reset_focused_entity()
     local transportCapacity = Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier
     for k=1, 1 do
         if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
@@ -443,7 +445,6 @@ function IIO:IO()
                             repeat
                                 local nextItem = Util.next_non_nil(self.filters)
                                 if nextItem == "" then goto exit end
-    
                                 local itemstack = Util.itemstack_template(nextItem)
                                 local has = drive:has_item(itemstack, self.metadataMode)
     
@@ -453,6 +454,7 @@ function IIO:IO()
                                         local ii = Util.next(self.focusedEntity.inventory)
                                         local inv = foc.get_inventory(ii.slot)
                                         if inv ~= nil then
+                                            if inv.is_full() then goto next end
                                             local isOperable = IIO.check_operable_mode(ii.io, "input") and inv.can_insert(itemstack.cont)
                                             if isOperable == true then
                                                 transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, transportCapacity, self.metadataMode)
@@ -577,6 +579,7 @@ function IIO:IO()
                                                     local ii1 = Util.next(self.focusedEntity.inventory)
                                                     local inv1 = foc.get_inventory(ii1.slot)
                                                     if inv1 ~= nil then
+                                                        if inv1.is_full() then goto next end
                                                         local isOperable = IIO.check_operable_mode(ii1.io, "input") and inv1.can_insert(itemstack.cont)
                                                         if isOperable == true then
                                                             local meta = false
@@ -641,6 +644,25 @@ function IIO:reset_focused_entity()
             values = nil
         }
     }
+
+    local selfP = self.thisEntity.position
+    local area = self:getCheckArea()[self:getDirection()]
+    local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
+    local nearest = nil
+
+    for _, ent in pairs(ents) do
+        if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") == nil and ent.operable and global.entityTable[ent.unit_number] == nil then
+            if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then
+                nearest = ent
+            end
+        end
+    end
+
+    if nearest == nil then return end
+    if Constants.Settings.RNS_TypesWithContainer[nearest.type] == true then
+        self.focusedEntity.thisEntity = nearest
+        self.focusedEntity.inventory.values = Constants.Settings.RNS_Inventory_Types[nearest.type]
+    end
 end
 
 function IIO:createArms()
@@ -667,7 +689,7 @@ function IIO:createArms()
                                 enti = enti + 1
                             end
                         end
-                        --Update network connections if necessary
+                        --[[Update network connections if necessary
                         if self.cardinals[area.direction] == false then
                             self.cardinals[area.direction] = true
                             if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
@@ -675,10 +697,10 @@ function IIO:createArms()
                             elseif obj.thisEntity.name == Constants.NetworkController.main.name then
                                 obj.network.shouldRefresh = true
                             end
-                        end
+                        end]]
                         break
                     end
-                elseif ent ~= nil and self:getDirection() == area.direction then --Get entity with inventory
+                --[[elseif ent ~= nil and self:getDirection() == area.direction then --Get entity with inventory
                     if Constants.Settings.RNS_TypesWithContainer[ent.type] == true then
                         if self.focusedEntity.thisEntity == nil or (self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false) then
                             self:reset_focused_entity()
@@ -686,11 +708,11 @@ function IIO:createArms()
                             self.focusedEntity.inventory.values = Constants.Settings.RNS_Inventory_Types[ent.type]
                             break
                         end
-                    end
+                    end]]
                 end
             end
         end
-        if self:getDirection() ~= area.direction then
+        --[[if self:getDirection() ~= area.direction then
             --Update network connections if necessary
             if self.cardinals[area.direction] == true and enti ~= 0 then
                 self.cardinals[area.direction] = false
@@ -698,7 +720,7 @@ function IIO:createArms()
                     self.networkController.network.shouldRefresh = true
                 end
             end
-        end
+        end]]
     end
 end
 

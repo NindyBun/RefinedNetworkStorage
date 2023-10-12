@@ -646,6 +646,7 @@ function BaseNet:filter_externalIO_by_valid_signal()
         objs[p] = {}
         for _, o in pairs(priority) do
             if o:signal_valid() == true then
+                o:reset_focused_entity()
                 objs[p][o.entID] = o
             end
         end

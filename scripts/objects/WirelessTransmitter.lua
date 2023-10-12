@@ -156,7 +156,7 @@ function WT:createArms()
                     self.connectedObjs[area.direction] = {obj}
                 end
             end
-            if self.cardinals[area.direction] == false then
+            --[[if self.cardinals[area.direction] == false then
                 self.cardinals[area.direction] = true
                 if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
                     self.networkController.network.shouldRefresh = true
@@ -170,7 +170,7 @@ function WT:createArms()
                 if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
                     self.networkController.network.shouldRefresh = true
                 end
-            end
+            end]]
         end
     end
 end
