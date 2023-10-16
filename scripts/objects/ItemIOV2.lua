@@ -764,7 +764,15 @@ function IIO2:getRealDirection()
     end
 end
 
-function IIO2:getTooltips(guiTable, mainFrame, justCreated)
+function IIO2:change_IO_mode(io)
+    if io == "input" then
+        
+    elseif io == "output" then
+    
+    end
+end
+
+--[[function IIO2:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
 		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_Item_Title"}
         --[[local mainFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
@@ -867,7 +875,7 @@ function IIO2:getTooltips(guiTable, mainFrame, justCreated)
             --number.elem_value = {type="virtual", name="constant-number"}
             local number = GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Item_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
             number.style.minimal_width = 100
-        end]]
+        end
     end
 
     guiTable.vars.TransferRate.caption = {"gui-description.RNS_ItemTransferRate", Constants.Settings.RNS_BaseItemIO_TransferCapacity*15*global.IIOMultiplier}
@@ -880,8 +888,8 @@ function IIO2:getTooltips(guiTable, mainFrame, justCreated)
     end
     if self.enabler.filter ~= nil and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
         guiTable.vars.enabler.elem_value = self.enabler.filter
-    end]]
-end
+    end
+end]]
 
 function IIO2:set_icons(index, name)
     self.combinator.get_or_create_control_behavior().set_signal(index, name ~= nil and {signal={type="item", name=name}, count=1} or nil)
