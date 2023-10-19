@@ -66,6 +66,12 @@ function GUI.on_gui_opened(event)
     local RNSPlayer = getRNSPlayer(event.player_index)
 
     if event.entity ~= nil and event.entity.valid == true then
+        if event.entity.name == "RNS_Rotational_Object" and event.entity.to_be_deconstructed() == false then
+            local obj = global.entityTable[event.entity.unit_number]
+            if valid(obj) == false then return end
+            player.opened = obj.port
+            return
+        end
         if Util.safeCall(GUI.open_tooltip_gui, RNSPlayer, player, player.selected) == false then
             player.print({"gui-description.RNS_openGui_falied"})
             Event.clear_gui(event)
@@ -127,6 +133,12 @@ function GUI.on_gui_element_changed(event)
 
     if string.match(event.element.name, "RNS_NetworkCableIO_Item") then
         IIO.interaction(event, RNSPlayer)
+        GUI.update(true)
+        return
+    end
+
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item") then
+        IIO2.interaction(event, RNSPlayer)
         GUI.update(true)
         return
     end

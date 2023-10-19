@@ -75,6 +75,9 @@ function Event.rotated(event)
     if obj.generateModeIcon then
         obj:generateModeIcon()
     end
+	if obj.rotate then
+		obj:rotate()
+	end
 end
 
 function Event.changed_selection(event)

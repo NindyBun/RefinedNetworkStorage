@@ -10,7 +10,7 @@ IIO2 = {
     filters = nil,
     metadataMode = false,
     whitelist = true,
-    io = "output",
+    io = "input",
     ioIcon = nil,
     enabler = nil,
     enablerCombinator = nil,
@@ -18,6 +18,8 @@ IIO2 = {
     processed = false,
     priority = 0,
     powerUsage = 4,
+    container = nil,
+    port = nil
 }
 
 function IIO2:new(object)
@@ -28,11 +30,21 @@ function IIO2:new(object)
     mt.__index = IIO2
     t.thisEntity = object
     t.entID = object.unit_number
-    --[[
-    if global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)] ~= nil and global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)][tostring(object.position.y)] ~= nil then
-        t.color = global.placedCablesTable[tostring(object.surface.index)][tostring(object.position.x)][tostring(object.position.y)].ent.color
-    end
-    ]]
+    t.container = object.surface.create_entity{
+        name="RNS_Blank_Container",
+        position=object.position,
+        force="neutral"
+    }
+    t.container.destructible = false
+    t.container.operable = false
+    t.container.minable = false
+    t.port = object.surface.create_entity{
+        name="RNS_Blank_ItemIO",
+        position=object.position,
+        force="neutral"
+    }
+    t.port.destructible = false
+    t.port.minable = false
     rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
     --t:generateModeIcon()
     t.cardinals = {
@@ -68,7 +80,8 @@ function IIO2:new(object)
         }
     }
     t:createArms()
-    t.combinator = object.surface.create_entity{
+    t:change_IO_mode(t.io)
+    --[[t.combinator = object.surface.create_entity{
         name="RNS_Combinator",
         position=object.position,
         force="neutral"
@@ -89,7 +102,7 @@ function IIO2:new(object)
     }
     t.enablerCombinator.destructible = false
     t.enablerCombinator.operable = false
-    t.enablerCombinator.minable = false
+    t.enablerCombinator.minable = false]]
     UpdateSys.addEntity(t)
     return t
 end
@@ -104,6 +117,8 @@ end
 function IIO2:remove()
     if self.combinator ~= nil then self.combinator.destroy() end
     if self.enablerCombinator ~= nil then self.enablerCombinator.destroy() end
+    if self.container ~= nil then self.container.destroy() end
+    if self.port ~= nil then self.port.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
         self.networkController.network.ItemIOTable[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil
@@ -168,10 +183,24 @@ function IIO2:update()
         self.networkController = nil
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
+
+    --Make sure the pickup and dropoff points are correct in case Bob's Adjustable Inserter Mod is active
+    --if game.tick % 2 == 0 then
+    --    if self.io == "input" and Util.positions_match(self.port.drop_position, {self.port.position.x, self.port.position.y + 0.1}) == false or Util.positions_match(self.port.pickup_position, {self.port.position.x, self.port.position.y - 1}) == false then
+    --        self:change_IO_mode("input")
+    --    elseif self.io == "output" and Util.positions_match(self.port.drop_position, {self.port.position.x, self.port.position.y - 1}) == false or Util.positions_match(self.port.pickup_position, {self.port.position.x, self.port.position.y + 0.1}) == false then
+    --        self:change_IO_mode("ouput")
+    --    end
+    --end
+
     --if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false then
     --    self:reset_focused_entity()
     --end
     --if game.tick % 25 then self:createArms() end
+end
+
+function IIO2:rotate()
+    self.port.direction = self.thisEntity.direction
 end
 
 
@@ -765,17 +794,25 @@ function IIO2:getRealDirection()
 end
 
 function IIO2:change_IO_mode(io)
-    if io == "input" then
-        
-    elseif io == "output" then
+    local horizontal = false
+    local vertical = true
+
+    local dir = self:getRealDirection()
     
+
+    if io == "input" then
+        self.port.pickup_position = {self.port.position.x, self.port.position.y - 1}
+        self.port.drop_position = {self.port.position.x, self.port.position.y + 0.1}
+    elseif io == "output" then
+        self.port.pickup_position = {self.port.position.x, self.port.position.y + 0.1}
+        self.port.drop_position = {self.port.position.x, self.port.position.y - 1}
     end
 end
 
 --[[function IIO2:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
-		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_Item_Title"}
-        --[[local mainFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
+		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIOV2_Item_Title"}
+        local mainFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
 
         local rateFlow = GuiApi.add_flow(guiTable, "", mainFlow, "vertical")
         local rateFrame = GuiApi.add_frame(guiTable, "", rateFlow, "vertical")
@@ -798,7 +835,7 @@ end
 		colorFrame.style.minimal_width = 150
 
         GuiApi.add_subtitle(guiTable, "", colorFrame, {"gui-description.RNS_Connection_Color"})
-        local colorDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Item_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
+        local colorDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIOV2_Item_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
         colorDD.style.minimal_width = 100
 
         --Filters 2 max
@@ -815,13 +852,9 @@ end
         local filterFlow = GuiApi.add_flow(guiTable, "", filtersFrame, "vertical")
         filterFlow.style.horizontal_align = "center"
 
-        local filter1 = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_1", filterFlow, "", true, "item", 40, {ID=self.thisEntity.unit_number})
-		guiTable.vars.filter1 = filter1
-		if self.filters.values[1] ~= "" then filter1.elem_value = self.filters.values[1] end
-
-        local filter2 = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_2", filterFlow, "", true, "item", 40, {ID=self.thisEntity.unit_number})
-		guiTable.vars.filter2 = filter2
-		if self.filters.values[2] ~= "" then filter2.elem_value = self.filters.values[2] end
+        local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIOV2_Item_Filter", filterFlow, "", true, "item", 40, {ID=self.thisEntity.unit_number})
+		guiTable.vars.filter = filter
+		if self.filter ~= "" then filter.elem_value = self.filter end
 
         local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", topFrame, "vertical", true)
 		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -835,7 +868,7 @@ end
 
         local priorityFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
         GuiApi.add_label(guiTable, "", priorityFlow, {"gui-description.RNS_Priority"}, Constants.Settings.RNS_Gui.white)
-        local priorityDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Item_Priority", priorityFlow, Constants.Settings.RNS_Priorities, ((#Constants.Settings.RNS_Priorities+1)/2)-self.priority, false, "", {ID=self.thisEntity.unit_number})
+        local priorityDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIOV2_Item_Priority", priorityFlow, Constants.Settings.RNS_Priorities, ((#Constants.Settings.RNS_Priorities+1)/2)-self.priority, false, "", {ID=self.thisEntity.unit_number})
         priorityDD.style.minimal_width = 100
 
         GuiApi.add_line(guiTable, "", settingsFrame, "horizontal")
@@ -843,15 +876,15 @@ end
         -- Whitelist/Blacklist mode
         local state = "left"
 		if self.whitelist == false then state = "right" end
-		GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_Item_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
+		GuiApi.add_switch(guiTable, "RNS_NetworkCableIOV2_Item_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
         
         -- Input/Output mode
         local state1 = "left"
 		if self.io == "output" then state1 = "right" end
-		GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_Item_IO", settingsFrame, {"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, "", "", state1, false, {ID=self.thisEntity.unit_number})
+		GuiApi.add_switch(guiTable, "RNS_NetworkCableIOV2_Item_IO", settingsFrame, {"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, "", "", state1, false, {ID=self.thisEntity.unit_number})
 
         -- Match metadata mode
-        GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Item_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
+        --GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Item_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
     
         if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
             local enableFrame = GuiApi.add_frame(guiTable, "EnableFrame", bottomFrame, "vertical")
@@ -864,26 +897,26 @@ end
             GuiApi.add_subtitle(guiTable, "ConditionSub", enableFrame, {"gui-description.RNS_Condition"})
             local cFlow = GuiApi.add_flow(guiTable, "", enableFrame, "horizontal")
             cFlow.style.vertical_align = "center"
-            local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Enabler", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+            local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIOV2_Item_Enabler", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
             guiTable.vars.enabler = filter
             if self.enabler.filter ~= nil then
                 filter.elem_value = self.enabler.filter
             end
-            local opDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Item_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.enabler.operator], false, "", {ID=self.thisEntity.unit_number})
+            local opDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIOV2_Item_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.enabler.operator], false, "", {ID=self.thisEntity.unit_number})
             opDD.style.minimal_width = 50
             --local number = GuiApi.add_filter(guiTable, "RNS_Detector_Number", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
             --number.elem_value = {type="virtual", name="constant-number"}
-            local number = GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Item_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
+            local number = GuiApi.add_text_field(guiTable, "RNS_NetworkCableIOV2_Item_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
             number.style.minimal_width = 100
         end
     end
 
     guiTable.vars.TransferRate.caption = {"gui-description.RNS_ItemTransferRate", Constants.Settings.RNS_BaseItemIO_TransferCapacity*15*global.IIOMultiplier}
 
-    --[[if self.filters.values[1] ~= "" then
-        guiTable.vars.filter1.elem_value = self.filters.values[1]
+    if self.filter ~= "" then
+        guiTable.vars.filter.elem_value = self.filter
     end
-    if self.filters.values[2] ~= "" then
+    --[[if self.filters.values[2] ~= "" then
         guiTable.vars.filter2.elem_value = self.filters.values[2]
     end
     if self.enabler.filter ~= nil and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
@@ -892,11 +925,12 @@ end
 end]]
 
 function IIO2:set_icons(index, name)
-    self.combinator.get_or_create_control_behavior().set_signal(index, name ~= nil and {signal={type="item", name=name}, count=1} or nil)
+    --self.combinator.get_or_create_control_behavior().set_signal(index, name ~= nil and {signal={type="item", name=name}, count=1} or nil)
+    self.thisEntity.set_filter(index, name ~= nil and name or nil)
 end
 
 function IIO2.interaction(event, RNSPlayer)
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Number") then
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Number") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -905,7 +939,7 @@ function IIO2.interaction(event, RNSPlayer)
         event.element.text = tostring(num)
         return
     end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Operator") then
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Operator") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -915,7 +949,7 @@ function IIO2.interaction(event, RNSPlayer)
         end
 		return
     end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Enabler") then
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Enabler") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -926,11 +960,11 @@ function IIO2.interaction(event, RNSPlayer)
         end
 		return
     end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Filter") then
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Filter") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        local index = 0
+        --[[local index = 0
         if string.match(event.element.name, "1") then
             index = 1
         elseif string.match(event.element.name, "2") then
@@ -947,11 +981,19 @@ function IIO2.interaction(event, RNSPlayer)
                 io:set_icons(index, nil)
             end
             io.processed = false
+        end]]
+        if event.element.elem_value ~= nil then
+            io.filter = event.element.elem_value
+            io:set_icons(1, event.element.elem_value)
+        else
+            io.filter = ""
+            io:set_icons(1, nil)
         end
+        io.processed = false
 		return
 	end
 
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Color") then
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Color") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -964,7 +1006,7 @@ function IIO2.interaction(event, RNSPlayer)
 		return
 	end
 
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Priority") then
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Priority") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -982,7 +1024,7 @@ function IIO2.interaction(event, RNSPlayer)
 		return
     end
 
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Whitelist") then
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Whitelist") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -991,7 +1033,7 @@ function IIO2.interaction(event, RNSPlayer)
 		return
     end
 
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Metadata") then
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Metadata") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -1000,13 +1042,13 @@ function IIO2.interaction(event, RNSPlayer)
 		return
     end
 
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_IO") then
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_IO") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
         io.io = event.element.switch_state == "left" and "input" or "output"
         io.processed = false
-        --io:generateModeIcon()
+        io:change_IO_mode(io.io)
 		return
     end
 
