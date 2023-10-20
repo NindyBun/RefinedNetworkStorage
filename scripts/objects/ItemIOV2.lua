@@ -794,14 +794,10 @@ function IIO2:getRealDirection()
 end
 
 function IIO2:change_IO_mode(io)
-    local horizontal = false
-    local vertical = true
-
-    local dir = self:getRealDirection()
-    
+    local axis = Util.axis(self.thisEntity)
 
     if io == "input" then
-        self.port.pickup_position = {self.port.position.x, self.port.position.y - 1}
+        self.port.pickup_position = {self.port.position.x + (axis == "x" and -1 or 0), self.port.position.y - 1}
         self.port.drop_position = {self.port.position.x, self.port.position.y + 0.1}
     elseif io == "output" then
         self.port.pickup_position = {self.port.position.x, self.port.position.y + 0.1}
