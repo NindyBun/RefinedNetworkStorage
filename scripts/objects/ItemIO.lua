@@ -336,7 +336,7 @@ end
     end
 end]]
 
-function IIO.has_item(inv, itemstack_data, metadataMode)
+--[[function IIO.has_item(inv, itemstack_data, metadataMode)
     local amount = 0
     for i = 1, #inv do
         local itemstack = inv[i]
@@ -366,7 +366,7 @@ function IIO.has_item(inv, itemstack_data, metadataMode)
         ::continue::
     end
     return amount
-end
+end]]
 
 function IIO.check_operable_mode(io, mode)
     return string.match(io, mode) ~= nil

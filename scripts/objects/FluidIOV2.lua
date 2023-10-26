@@ -1,4 +1,4 @@
-FIO = {
+FIO2 = {
     thisEntity = nil,
     entID = nil,
     networkController = nil,
@@ -19,12 +19,12 @@ FIO = {
     powerUsage = 4,
 }
 
-function FIO:new(object)
+function FIO2:new(object)
     if object == nil then return end
     local t = {}
     local mt = {}
     setmetatable(t, mt)
-    mt.__index = FIO
+    mt.__index = FIO2
     t.thisEntity = object
     t.entID = object.unit_number
     rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
@@ -84,14 +84,14 @@ function FIO:new(object)
     return t
 end
 
-function FIO:rebuild(object)
+function FIO2:rebuild(object)
     if object == nil then return end
     local mt = {}
-    mt.__index = FIO
+    mt.__index = FIO2
     setmetatable(object, mt)
 end
 
-function FIO:remove()
+function FIO2:remove()
     if self.combinator ~= nil then self.combinator.destroy() end
     if self.enablerCombinator ~= nil then self.enablerCombinator.destroy() end
     UpdateSys.remove(self)
@@ -101,11 +101,11 @@ function FIO:remove()
     end
 end
 
-function FIO:valid()
+function FIO2:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
-function FIO:update()
+function FIO2:update()
     if valid(self) == false then
         self:remove()
         return
@@ -120,7 +120,7 @@ function FIO:update()
     --if game.tick % 25 then self:createArms() end
 end
 
-function FIO:copy_settings(obj)
+function FIO2:copy_settings(obj)
     self.color = obj.color
     self.whitelist = obj.whitelist
     self.io = obj.io
@@ -133,7 +133,7 @@ function FIO:copy_settings(obj)
     self:generateModeIcon()
 end
 
-function FIO:serialize_settings()
+function FIO2:serialize_settings()
     local tags = {}
 
     tags["color"] = self.color
@@ -146,7 +146,7 @@ function FIO:serialize_settings()
     return tags
 end
 
-function FIO:deserialize_settings(tags)
+function FIO2:deserialize_settings(tags)
     self.color = tags["color"]
     self.whitelist = tags["whitelist"]
     self.io = tags["io"]
@@ -159,11 +159,11 @@ function FIO:deserialize_settings(tags)
     self:generateModeIcon()
 end
 
-function FIO:set_icons(index, name)
+function FIO2:set_icons(index, name)
     self.combinator.get_or_create_control_behavior().set_signal(index, name ~= nil and {signal={type="fluid", name=name}, count=1} or nil)
 end
 
-function FIO:toggleHoverIcon(hovering)
+function FIO2:toggleHoverIcon(hovering)
     if self.ioIcon == nil then return end
     if hovering and rendering.get_only_in_alt_mode(self.ioIcon) then
         rendering.set_only_in_alt_mode(self.ioIcon, false)
@@ -172,7 +172,7 @@ function FIO:toggleHoverIcon(hovering)
     end
 end
 
-function FIO:generateModeIcon()
+function FIO2:generateModeIcon()
     if self.ioIcon ~= nil then rendering.destroy(self.ioIcon) end
     local offset = {0, 0}
     if self:getRealDirection() == 1 then
@@ -194,9 +194,9 @@ function FIO:generateModeIcon()
     }
 end
 
-function FIO:IO()
+function FIO2:IO()
     self:reset_focused_entity()
-    local transportCapacity = Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier
+    local transportCapacity = Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIO2Multiplier
     --#tank.fluidbox returns number of pipe connections
     --tank.fluidbox.get_locked_fluid(index) returns filtered fluid at an index
     --tank.fluidbox[index] returns the contents of the fluidbox at an index
@@ -290,7 +290,7 @@ function FIO:IO()
     self.processed = transportCapacity < Constants.Settings.RNS_BaseFluidIO_TransferCapacity
 end
 
-function FIO:resetConnection()
+function FIO2:resetConnection()
     self.connectedObjs = {
         [1] = {}, --N
         [2] = {}, --E
@@ -304,7 +304,7 @@ function FIO:resetConnection()
     end
 end
 
-function FIO:reset_focused_entity()
+function FIO2:reset_focused_entity()
     self.focusedEntity = {
         thisEntity = nil,
         fluid_box = {
@@ -348,7 +348,7 @@ function FIO:reset_focused_entity()
     end
 end
 
-function FIO:getCheckArea()
+function FIO2:getCheckArea()
     local x = self.thisEntity.position.x
     local y = self.thisEntity.position.y
     return {
@@ -359,7 +359,7 @@ function FIO:getCheckArea()
     }
 end
 
-function FIO:createArms()
+function FIO2:createArms()
     local areas = self:getCheckArea()
     self:resetConnection()
     for _, area in pairs(areas) do
@@ -428,7 +428,7 @@ function FIO:createArms()
     end
 end
 
-function FIO:getDirection()
+function FIO2:getDirection()
     local dir = self.thisEntity.direction
     if dir == defines.direction.north then
         return 1
@@ -441,7 +441,7 @@ function FIO:getDirection()
     end
 end
 
-function FIO:getConnectionDirection()
+function FIO2:getConnectionDirection()
     local dir = self.thisEntity.direction
     if dir == defines.direction.north then
         return 4
@@ -454,7 +454,7 @@ function FIO:getConnectionDirection()
     end
 end
 
-function FIO:getRealDirection()
+function FIO2:getRealDirection()
     local dir = self.thisEntity.direction
     if dir == defines.direction.north then
         return 1
@@ -467,7 +467,7 @@ function FIO:getRealDirection()
     end
 end
 
-function FIO:getTooltips(guiTable, mainFrame, justCreated)
+function FIO2:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
 		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_Fluid_Title"}
         local mainFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
@@ -479,7 +479,7 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 		rateFrame.style.left_padding = 3
 		rateFrame.style.right_padding = 3
 		rateFrame.style.right_margin = 3
-        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIOMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
+        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIO2Multiplier}, Constants.Settings.RNS_Gui.white, "", true)
 
         local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
         local bottomFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
@@ -560,7 +560,7 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
         end
     end
 
-    guiTable.vars.TransferRate.caption = {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIOMultiplier}
+    guiTable.vars.TransferRate.caption = {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIO2Multiplier}
 
     if self.filter ~= "" then
         guiTable.vars.filter.elem_value = self.filter
@@ -572,7 +572,7 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 end
 
 
-function FIO.interaction(event, RNSPlayer)
+function FIO2.interaction(event, RNSPlayer)
     if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Number") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]

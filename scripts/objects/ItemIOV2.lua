@@ -11,16 +11,8 @@ IIO2 = {
     color = "RED",
     arms = nil,
     connectedObjs = nil,
-    focusedEntity = nil,
     cardinals = nil,
-    --filters = nil,
-    --metadataMode = false,
-    --whitelist = true,
     io = "input",
-    --ioIcon = nil,
-    --enabler = nil,
-    --enablerCombinator = nil,
-    --combinator = nil,
     processed = false,
     priority = 0,
     powerUsage = 4,
@@ -52,7 +44,6 @@ function IIO2:new(object)
     t.port.destructible = false
     t.port.minable = false
     rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
-    --t:generateModeIcon()
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -71,44 +62,7 @@ function IIO2:new(object)
         [3] = {}, --S
         [4] = {}, --W
     }
-    t.filters = {
-        index = 1,
-        values = {
-            [1] = "",
-            [2] = ""
-        }
-    }
-    --[[t.focusedEntity = {
-        thisEntity = nil,
-        inventory = {
-            index = 1,
-            values = nil
-        }
-    }]]
-    --t:createArms()
     t:change_IO_mode(t.io)
-    --[[t.combinator = object.surface.create_entity{
-        name="RNS_Combinator",
-        position=object.position,
-        force="neutral"
-    }
-    t.combinator.destructible = false
-    t.combinator.operable = false
-    t.combinator.minable = false
-    t.enabler = {
-        operator = "<",
-        number = 0,
-        filter = nil,
-        numberOutput = 1
-    }
-    t.enablerCombinator = object.surface.create_entity{
-        name="RNS_Combinator_2",
-        position=object.position,
-        force="neutral"
-    }
-    t.enablerCombinator.destructible = false
-    t.enablerCombinator.operable = false
-    t.enablerCombinator.minable = false]]
     UpdateSys.addEntity(t)
     return t
 end
@@ -377,7 +331,7 @@ end
     end
 end]]
 
-function IIO2.has_item(inv, itemstack_data, metadataMode)
+--[[function IIO2.has_item(inv, itemstack_data, metadataMode)
     local amount = 0
     for i = 1, #inv do
         local itemstack = inv[i]
@@ -407,250 +361,15 @@ function IIO2.has_item(inv, itemstack_data, metadataMode)
         ::continue::
     end
     return amount
-end
+end]]
 
 function IIO2.check_operable_mode(io, mode)
     return string.match(io, mode) ~= nil
 end
 
-function IIO2.matches_filters(name, filters)
-    for _, name1 in pairs(filters) do
-        if name == name1 then return true end
-    end
-    return false
-end
-
 function IIO2:IO()
     local transportCapacity = Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier*2
     local container = self.container.get_inventory(defines.inventory.chest)
-    --[[self:reset_focused_entity()
-    for k=1, 1 do
-        if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
-        local network = self.networkController.network
-        if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
-            if self.enabler.filter == nil then break end
-            local amount = self.enablerCombinator.get_merged_signal({type=self.enabler.filter.type, name=self.enabler.filter.name}, defines.circuit_connector_id.constant_combinator)
-            if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then break end
-        end
-        if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true and self.focusedEntity.inventory.values ~= nil then
-            local foc = self.focusedEntity.thisEntity
-            local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
-            local externalInvs = BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal()))
-            for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
-                local priorityD = itemDrives[i]
-                local priorityE = externalInvs[i]
-                if Util.getTableLength(priorityD) > 0 then
-                    for _, drive in pairs(priorityD) do
-                        if self.io == "input" then
-                            if not drive:has_room() then goto next end
-                            if Util.getTableLength_non_nil(self.filters.values) > 0 then
-                                local index = 0
-                                repeat
-                                    local nextItem = Util.next_non_nil(self.filters)
-                                    if nextItem == "" then goto exit end
-                                    local itemstack = Util.itemstack_template(nextItem)
-                
-                                    local index1 = 0
-                                    repeat
-                                        local ii = Util.next(self.focusedEntity.inventory)
-                                        local inv = foc.get_inventory(ii.slot)
-                                        if inv ~= nil then
-                                            local isOperable = IIO.check_operable_mode(ii.io, "output") and not inv.is_empty()
-                                            if isOperable == true then
-                                                transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, self.filters.values, math.min(transportCapacity, drive:getRemainingStorageSize()), self.metadataMode, self.whitelist)
-                                                if transportCapacity <= 0 or inv.is_empty() then goto exit end
-                                            end
-                                        end
-                                        index1 = index1 + 1
-                                    until index1 == Util.getTableLength(self.focusedEntity.inventory.values)
-                                    index = index + 1
-                                until index == Util.getTableLength(self.filters.values)
-                                goto next
-                            elseif Util.getTableLength_non_nil(self.filters.values) == 0 and self.whitelist == false then
-                                local index = 0
-                                repeat
-                                    local ii = Util.next(self.focusedEntity.inventory)
-                                    local inv = foc.get_inventory(ii.slot)
-                                    if inv ~= nil then
-                                        local isOperable = IIO.check_operable_mode(ii.io, "output") and not inv.is_empty()
-                                        if isOperable == true then
-                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_drive(inv, drive, nil, nil, math.min(transportCapacity, drive:getRemainingStorageSize()), self.metadataMode, false)
-                                            if transportCapacity <= 0 or inv.is_empty() then goto exit end
-                                        end
-                                    end
-                                    index = index + 1
-                                until index == Util.getTableLength(self.focusedEntity.inventory.values)
-                                goto next
-                            end
-                        elseif self.io == "output" and self.whitelist == true and Util.getTableLength_non_nil(self.filters.values) > 0 then
-                            local index = 0
-                            repeat
-                                local nextItem = Util.next_non_nil(self.filters)
-                                if nextItem == "" then goto exit end
-                                local itemstack = Util.itemstack_template(nextItem)
-                                local has = drive:has_item(itemstack, self.metadataMode)
-    
-                                if has > 0 then
-                                    local index1 = 0
-                                    repeat
-                                        local ii = Util.next(self.focusedEntity.inventory)
-                                        local inv = foc.get_inventory(ii.slot)
-                                        if inv ~= nil then
-                                            if inv.is_full() then goto exit end
-                                            local isOperable = IIO.check_operable_mode(ii.io, "input") and inv.can_insert(itemstack.cont)
-                                            if isOperable == true then
-                                                transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, transportCapacity, self.metadataMode)
-                                                if transportCapacity <= 0 or inv.is_full() then goto exit end
-                                            end
-                                        end
-                                        index1 = index1 + 1
-                                    until index1 == Util.getTableLength(self.focusedEntity.inventory.values)
-                                end
-                                index = index + 1
-                            until index == Util.getTableLength(self.filters.values)
-                            goto next
-                        end
-                        ::next::
-                    end
-                end
-                if Util.getTableLength(priorityE) > 0 then
-                    for _, externalInv in pairs(priorityE) do
-                        if externalInv.focusedEntity.thisEntity ~= nil and externalInv.focusedEntity.thisEntity.valid and externalInv.focusedEntity.thisEntity.to_be_deconstructed() == false and externalInv.focusedEntity.inventory.values ~= nil then
-                            if self.io == "input" then
-                                if string.match(externalInv.io, "input") == nil then goto next end
-                                if Util.getTableLength_non_nil(self.filters.values) > 0 then
-                                    local index = 0
-                                    repeat
-                                        local nextItem = Util.next_non_nil(self.filters)
-                                        if nextItem == "" then goto exit end
-                                        local itemstack = Util.itemstack_template(nextItem)
-                                        if Util.getTableLength_non_nil(externalInv.filters.item.values) > 0 then
-                                            if externalInv:matches_filters("item", itemstack.cont.name) == true then
-                                                if externalInv.whitelist == false then goto next end
-                                            else
-                                                if externalInv.whitelist == true then goto next end
-                                            end
-                                        elseif Util.getTableLength_non_nil(externalInv.filters.item.values) == 0 then
-                                            if externalInv.whitelist == true then goto next end
-                                        end
-                    
-                                        local index1 = 0
-                                        repeat
-                                            local ii = Util.next(self.focusedEntity.inventory)
-                                            local inv = foc.get_inventory(ii.slot)
-                                            if inv ~= nil then
-                                                local isOperable = IIO.check_operable_mode(ii.io, "output") and not inv.is_empty()
-                                                if isOperable == true then
-                                                    local index2 = 0
-                                                    repeat
-                                                        local ii1 = Util.next(externalInv.focusedEntity.inventory)
-                                                        local inv1 = externalInv.focusedEntity.thisEntity.get_inventory(ii1.slot)
-                                                        if inv1 ~= nil then
-                                                            --inv1.sort_and_merge()
-                                                            if EIO.has_item_room(inv1) == true and IIO.check_operable_mode(ii1.io, "input") then
-                                                                local meta = false
-                                                                if self.metadataMode == externalInv.metadataMode and self.metadataMode == true then
-                                                                    meta = true
-                                                                end
-                                                                transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, transportCapacity, meta, self.whitelist)
-                                                                if transportCapacity <= 0 or inv.is_empty() then goto exit end
-                                                            end
-                                                        end
-                                                        index2 = index2 + 1
-                                                    until index2 == Util.getTableLength(externalInv.focusedEntity.inventory.values)
-                                                end
-                                            end
-                                            index1 = index1 + 1
-                                        until index1 == Util.getTableLength(self.focusedEntity.inventory.values)
-                                        index = index + 1
-                                    until index == Util.getTableLength(self.filters.values)
-                                    goto next
-                                elseif Util.getTableLength_non_nil(self.filters.values) == 0 and self.whitelist == false then
-                                    local index = 0
-                                    repeat
-                                        local ii = Util.next(self.focusedEntity.inventory)
-                                        local inv = foc.get_inventory(ii.slot)
-                                        if inv ~= nil then
-                                            local isOperable = IIO.check_operable_mode(ii.io, "output") and not inv.is_empty()
-                                            if isOperable == true then
-                                                local index1 = 0
-                                                repeat
-                                                    local ii1 = Util.next(externalInv.focusedEntity.inventory)
-                                                    local inv1 = externalInv.focusedEntity.thisEntity.get_inventory(ii1.slot)
-                                                    if inv1 ~= nil then
-                                                        --inv1.sort_and_merge()
-                                                        if EIO.has_item_room(inv1) == true and IIO.check_operable_mode(ii1.io, "input") then
-                                                            if Util.getTableLength_non_nil(externalInv.filters.item.values) == 0 then
-                                                                if externalInv.whitelist == true then goto next end
-                                                            end
-                                                            local meta = false
-                                                            if self.metadataMode == externalInv.metadataMode and self.metadataMode == true then
-                                                                meta = true
-                                                            end
-                                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, nil, externalInv, transportCapacity, meta, false)
-                                                            if transportCapacity <= 0 or inv.is_empty() then goto exit end
-                                                        end
-                                                    end
-                                                    index1 = index1 + 1
-                                                until index1 == Util.getTableLength(externalInv.focusedEntity.inventory.values)
-                                            end
-                                        end
-                                        index = index + 1
-                                    until index == Util.getTableLength(self.focusedEntity.inventory.values)
-                                    goto next
-                                end
-                            elseif self.io == "output" and self.whitelist == true and Util.getTableLength_non_nil(self.filters.values) > 0 then
-                                if string.match(externalInv.io, "output") == nil then goto next end
-                                local index = 0
-                                repeat
-                                    local nextItem = Util.next_non_nil(self.filters)
-                                    if nextItem == "" then goto exit end
-        
-                                    local itemstack = Util.itemstack_template(nextItem)
-                                    local index1 = 0
-                                    repeat
-                                        local ii = Util.next(externalInv.focusedEntity.inventory)
-                                        local inv = externalInv.focusedEntity.thisEntity.get_inventory(ii.slot)
-                                        if inv ~= nil and IIO.check_operable_mode(ii.io, "output") then
-                                            --inv.sort_and_merge()
-                                            local has = EIO.has_item(inv, itemstack, self.metadataMode)
-            
-                                            if has > 0 then
-                                                local index2 = 0
-                                                repeat
-                                                    local ii1 = Util.next(self.focusedEntity.inventory)
-                                                    local inv1 = foc.get_inventory(ii1.slot)
-                                                    if inv1 ~= nil then
-                                                        if inv1.is_full() then goto exit end
-                                                        local isOperable = IIO.check_operable_mode(ii1.io, "input") and inv1.can_insert(itemstack.cont)
-                                                        if isOperable == true then
-                                                            local meta = false
-                                                            if self.metadataMode == externalInv.metadataMode and self.metadataMode == true then
-                                                                meta = true
-                                                            end
-                                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, transportCapacity, meta, true)
-                                                            if transportCapacity <= 0 or inv.is_full() then goto exit end
-                                                        end
-                                                    end
-                                                    index2 = index2 + 1
-                                                until index2 == Util.getTableLength(self.focusedEntity.inventory.values)
-                                            end
-                                        end
-                                        index1 = index1 + 1
-                                    until index1 == Util.getTableLength(externalInv.focusedEntity.inventory.values)
-                                    index = index + 1
-                                until index == Util.getTableLength(self.filters.values)
-                                goto next
-                            end
-                        end
-                        ::next::
-                    end
-                end
-            end
-        end
-        ::exit::
-    end]]
-    --self.processed = transportCapacity < Constants.Settings.RNS_BaseItemIO_TransferCapacity
     for k=1, 1 do
         if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
         local network = self.networkController.network
@@ -798,38 +517,11 @@ function IIO2:createArms()
                                 enti = enti + 1
                             end
                         end
-                        --[[Update network connections if necessary
-                        if self.cardinals[area.direction] == false then
-                            self.cardinals[area.direction] = true
-                            if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
-                                self.networkController.network.shouldRefresh = true
-                            elseif obj.thisEntity.name == Constants.NetworkController.main.name then
-                                obj.network.shouldRefresh = true
-                            end
-                        end]]
                         break
                     end
-                --[[elseif ent ~= nil and self:getDirection() == area.direction then --Get entity with inventory
-                    if Constants.Settings.RNS_TypesWithContainer[ent.type] == true then
-                        if self.focusedEntity.thisEntity == nil or (self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false) then
-                            self:reset_focused_entity()
-                            self.focusedEntity.thisEntity = ent
-                            self.focusedEntity.inventory.values = Constants.Settings.RNS_Inventory_Types[ent.type]
-                            break
-                        end
-                    end]]
                 end
             end
         end
-        --[[if self:getDirection() ~= area.direction then
-            --Update network connections if necessary
-            if self.cardinals[area.direction] == true and enti ~= 0 then
-                self.cardinals[area.direction] = false
-                if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
-                    self.networkController.network.shouldRefresh = true
-                end
-            end
-        end]]
     end
 end
 
@@ -889,7 +581,6 @@ function IIO2:getTooltips(guiTable, mainFrame, justCreated)
 		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIOV2_Item_Title"}
         local mainFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
         local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
-        local bottomFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
         
         local colorFrame = GuiApi.add_frame(guiTable, "ColorFrame", topFrame, "vertical", true)
 		colorFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -916,24 +607,6 @@ function IIO2:getTooltips(guiTable, mainFrame, justCreated)
         invFlow.style.horizontal_align = "center"
         GuiApi.add_simple_button(guiTable, "RNS_NetworkCableIOV2_Item_Inv", invFlow, {"gui-description.RNS_OpenInventory"}, "", false, {ID=self.thisEntity.unit_number})
 
-        --Filters 2 max
-        --[[local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", topFrame, "vertical", true)
-		filtersFrame.style = Constants.Settings.RNS_Gui.frame_1
-		filtersFrame.style.vertically_stretchable = true
-		filtersFrame.style.left_padding = 3
-		filtersFrame.style.right_padding = 3
-		filtersFrame.style.right_margin = 3
-		filtersFrame.style.minimal_width = 100
-
-        GuiApi.add_subtitle(guiTable, "", filtersFrame, {"gui-description.RNS_Filter"})
-
-        local filterFlow = GuiApi.add_flow(guiTable, "", filtersFrame, "vertical")
-        filterFlow.style.horizontal_align = "center"
-
-        local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIOV2_Item_Filter", filterFlow, "", true, "item", 40, {ID=self.thisEntity.unit_number})
-		guiTable.vars.filter = filter
-		if self.filter ~= "" then filter.elem_value = self.filter end]]
-
         local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", topFrame, "vertical", true)
 		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
 		settingsFrame.style.vertically_stretchable = true
@@ -951,91 +624,14 @@ function IIO2:getTooltips(guiTable, mainFrame, justCreated)
 
         GuiApi.add_line(guiTable, "", settingsFrame, "horizontal")
 
-        -- Whitelist/Blacklist mode
-        --[[local state = "left"
-		if self.whitelist == false then state = "right" end
-		GuiApi.add_switch(guiTable, "RNS_NetworkCableIOV2_Item_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
-        ]]
         -- Input/Output mode
         local state1 = "left"
 		if self.io == "output" then state1 = "right" end
 		GuiApi.add_switch(guiTable, "RNS_NetworkCableIOV2_Item_IO", settingsFrame, {"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, "", "", state1, false, {ID=self.thisEntity.unit_number})
-
-        -- Match metadata mode
-        --GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Item_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
-    
-        --[[if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
-            local enableFrame = GuiApi.add_frame(guiTable, "EnableFrame", bottomFrame, "vertical")
-            enableFrame.style = Constants.Settings.RNS_Gui.frame_1
-            enableFrame.style.vertically_stretchable = true
-            enableFrame.style.left_padding = 3
-            enableFrame.style.right_padding = 3
-            enableFrame.style.right_margin = 3
-    
-            GuiApi.add_subtitle(guiTable, "ConditionSub", enableFrame, {"gui-description.RNS_Condition"})
-            local cFlow = GuiApi.add_flow(guiTable, "", enableFrame, "horizontal")
-            cFlow.style.vertical_align = "center"
-            local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIOV2_Item_Enabler", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
-            guiTable.vars.enabler = filter
-            if self.enabler.filter ~= nil then
-                filter.elem_value = self.enabler.filter
-            end
-            local opDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIOV2_Item_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.enabler.operator], false, "", {ID=self.thisEntity.unit_number})
-            opDD.style.minimal_width = 50
-            --local number = GuiApi.add_filter(guiTable, "RNS_Detector_Number", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
-            --number.elem_value = {type="virtual", name="constant-number"}
-            local number = GuiApi.add_text_field(guiTable, "RNS_NetworkCableIOV2_Item_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
-            number.style.minimal_width = 100
-        end]]
     end
-
-    --[[if self.filter ~= "" then
-        guiTable.vars.filter.elem_value = self.filter
-    end]]
-    --[[if self.filters.values[2] ~= "" then
-        guiTable.vars.filter2.elem_value = self.filters.values[2]
-    end
-    if self.enabler.filter ~= nil and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
-        guiTable.vars.enabler.elem_value = self.enabler.filter
-    end]]
-end
-
-function IIO2:set_icons(index, name)
-    --self.combinator.get_or_create_control_behavior().set_signal(index, name ~= nil and {signal={type="item", name=name}, count=1} or nil)
-    --self.thisEntity.set_filter(index, name ~= nil and name or nil)
 end
 
 function IIO2.interaction(event, RNSPlayer)
-    --[[if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Number") then
-        local id = event.element.tags.ID
-		local io = global.entityTable[id]
-		if io == nil then return end
-        local num = math.min(2^32, tonumber(event.element.text ~= "" and event.element.text or "0"))
-        io.enabler.number = num
-        event.element.text = tostring(num)
-        return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Operator") then
-        local id = event.element.tags.ID
-		local io = global.entityTable[id]
-		if io == nil then return end
-        local operator = Constants.Settings.RNS_OperatorN[event.element.selected_index]
-        if operator ~= io.enabler.operator then
-            io.enabler.operator = operator
-        end
-		return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Enabler") then
-        local id = event.element.tags.ID
-		local io = global.entityTable[id]
-		if io == nil then return end
-        if event.element.elem_value ~= nil then
-            io.enabler.filter = event.element.elem_value
-        else
-            io.enabler.filter = nil
-        end
-		return
-    end]]
     if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Inv") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
@@ -1043,38 +639,6 @@ function IIO2.interaction(event, RNSPlayer)
         RNSPlayer.thisEntity.opened = io.port
         return
     end
-    --[[if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Filter") then
-		local id = event.element.tags.ID
-		local io = global.entityTable[id]
-		if io == nil then return end
-        local index = 0
-        if string.match(event.element.name, "1") then
-            index = 1
-        elseif string.match(event.element.name, "2") then
-            index = 2
-        end
-        if index ~= 0 then
-            if event.element.elem_value ~= nil then
-                io.filters.values[index] = event.element.elem_value
-                --io.combinator.get_or_create_control_behavior().set_signal(index, {signal={type="item", name=event.element.elem_value}, count=1})
-                io:set_icons(index, event.element.elem_value)
-            else
-                io.filters.values[index] = ""
-                --io.combinator.get_or_create_control_behavior().set_signal(index, nil)
-                io:set_icons(index, nil)
-            end
-            io.processed = false
-        end
-        if event.element.elem_value ~= nil then
-            io.filter = event.element.elem_value
-            --io:set_icons(1, event.element.elem_value)
-        else
-            io.filter = ""
-            --io:set_icons(1, nil)
-        end
-        io.processed = false
-		return
-	end]]
 
     if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Color") then
 		local id = event.element.tags.ID
@@ -1106,24 +670,6 @@ function IIO2.interaction(event, RNSPlayer)
         end
 		return
     end
-
-    --[[if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Whitelist") then
-        local id = event.element.tags.ID
-		local io = global.entityTable[id]
-		if io == nil then return end
-        io.whitelist = event.element.switch_state == "left" and true or false
-        io.processed = false
-		return
-    end
-
-    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Metadata") then
-        local id = event.element.tags.ID
-		local io = global.entityTable[id]
-		if io == nil then return end
-        io.metadataMode = event.element.state
-        io.processed = false
-		return
-    end]]
 
     if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_IO") then
         local id = event.element.tags.ID
