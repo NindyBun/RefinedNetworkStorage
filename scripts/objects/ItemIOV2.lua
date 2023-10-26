@@ -121,13 +121,12 @@ function IIO2:rebuild(object)
 end
 
 function IIO2:remove()
-    if self.combinator ~= nil then self.combinator.destroy() end
-    if self.enablerCombinator ~= nil then self.enablerCombinator.destroy() end
+    self:return_items_on_removed()
     if self.container ~= nil then self.container.destroy() end
     if self.port ~= nil then self.port.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
-        self.networkController.network.ItemIOTable[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil
+        self.networkController.network.ItemIOV2Table[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil
         self.networkController.network.shouldRefresh = true
     end
 end
@@ -138,46 +137,34 @@ end
 
 function IIO2:copy_settings(obj)
     self.color = obj.color
-    self.metadataMode = obj.metadataMode
-    self.whitelist = obj.whitelist
     self.io = obj.io
-    self.enabler = obj.enabler
-
-    self.filters = obj.filters
-    self:set_icons(1, self.filters.values[1] ~= "" and self.filters.values[1] or nil)
-    self:set_icons(2, self.filters.values[2] ~= "" and self.filters.values[2] or nil)
-
     self.priority = obj.priority
-    --self:generateModeIcon()
+    self:change_IO_mode(self.io)
+    self.port.inserter_filter_mode = obj.port.inserter_filter_mode
+    self.port.inserter_stack_size_override = self.port.inserter_target_pickup_count > Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier and 1 or self.port.inserter_target_pickup_count
+
 end
 
 function IIO2:serialize_settings()
     local tags = {}
 
     tags["color"] = self.color
-    tags["filters"] = self.filters
-    tags["metadataMode"] = self.metadataMode
-    tags["whitelist"] = self.whitelist
     tags["io"] = self.io
     tags["priority"] = self.priority
-    tags["enabler"] = self.enabler
+    tags["filter"] = self.port.inserter_filter_mode
+    tags["stacksize"] = self.port.inserter_stack_size_override
 
     return tags
 end
 
 function IIO2:deserialize_settings(tags)
     self.color = tags["color"]
-    self.metadataMode = tags["metadataMode"]
-    self.whitelist = tags["whitelist"]
     self.io = tags["io"]
-    self.enabler = tags["enabler"]
-
-    self.filters = tags["filters"]
-    self:set_icons(1, self.filters.values[1] ~= "" and self.filters.values[1] or nil)
-    self:set_icons(2, self.filters.values[2] ~= "" and self.filters.values[2] or nil)
-
     self.priority = tags["priority"]
-    --self:generateModeIcon()
+    self:change_IO_mode(self.io)
+    self.port.inserter_filter_mode = tags["filter"]
+    self.port.inserter_stack_size_override = tags["stacksize"]
+
 end
 
 function IIO2:update()
@@ -198,48 +185,63 @@ function IIO2:update()
     --inserter_stack_size_override
 
     self.port.inserter_stack_size_override = self.port.inserter_target_pickup_count > Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier and 1 or self.port.inserter_target_pickup_count
-
-    --if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false then
-    --    self:reset_focused_entity()
-    --end
-    --if game.tick % 25 then self:createArms() end
 end
 
 function IIO2:rotate()
     self.port.direction = self.thisEntity.direction
 end
 
-
---[[function IIO2:toggleHoverIcon(hovering)
-    if self.ioIcon == nil then return end
-    if hovering and rendering.get_only_in_alt_mode(self.ioIcon) then
-        rendering.set_only_in_alt_mode(self.ioIcon, false)
-    elseif not hovering and not rendering.get_only_in_alt_mode(self.ioIcon) then
-        rendering.set_only_in_alt_mode(self.ioIcon, true)
+function IIO2:return_items_on_removed()
+    local container = self.container.get_inventory(defines.inventory.chest)
+    for k=1, 1 do
+        if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
+        local network = self.networkController.network
+        local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
+        local externalInvs = BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal()))
+        for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
+            local priorityD = itemDrives[i]
+            local priorityE = externalInvs[i]
+            if Util.getTableLength(priorityD) > 0 then
+                for _, drive in pairs(priorityD) do
+                    if not drive:has_room() then goto next end
+                    BaseNet.transfer_from_inv_to_drive(container, drive, nil, nil, drive:getRemainingStorageSize(), true, false)
+                    if container.is_empty() then goto exit end
+                    ::next::
+                end
+            end
+            if Util.getTableLength(priorityE) > 0 then
+                for _, externalInv in pairs(priorityE) do
+                    externalInv:reset_focused_entity()
+                    if externalInv.focusedEntity.thisEntity ~= nil and externalInv.focusedEntity.thisEntity.valid and externalInv.focusedEntity.thisEntity.to_be_deconstructed() == false and externalInv.focusedEntity.inventory.values ~= nil then
+                        if string.match(externalInv.io, "input") == nil then goto next end
+                        local index2 = 0
+                        repeat
+                            local ii1 = Util.next(externalInv.focusedEntity.inventory)
+                            local inv1 = externalInv.focusedEntity.thisEntity.get_inventory(ii1.slot)
+                            if inv1 ~= nil then
+                                --inv1.sort_and_merge()
+                                if EIO.has_item_room(inv1) == true and IIO2.check_operable_mode(ii1.io, "input") then
+                                    BaseNet.transfer_from_inv_to_inv(container, inv1, nil, externalInv, container.get_item_count(), externalInv.metadataMode, false)
+                                    if container.is_empty() then goto exit end
+                                end
+                            end
+                            index2 = index2 + 1
+                        until index2 == Util.getTableLength(externalInv.focusedEntity.inventory.values)
+                    end
+                    ::next::
+                end
+            end
+        end
+        ::exit::
+    end
+    if not container.is_empty() then
+        container.sort_and_merge()
+        for i = 1, #container do
+            if container[i].count <= 0 then break end
+            self.thisEntity.surface.spill_item_stack(self.thisEntity.position, container[i], true, "neutral", false)
+        end
     end
 end
-
-function IIO2:generateModeIcon()
-    if self.ioIcon ~= nil then rendering.destroy(self.ioIcon) end
-    local offset = {0, 0}
-    if self:getRealDirection() == 1 then
-        offset = {0,-0.5}
-    elseif self:getRealDirection() == 2 then
-        offset = {0.5, 0}
-    elseif self:getRealDirection() == 3 then
-        offset = {0,0.5}
-    elseif self:getRealDirection() == 4 then
-        offset = {-0.5,0}
-    end
-    self.ioIcon = rendering.draw_sprite{
-        sprite=Constants.Icons.item, 
-        target=self.thisEntity, 
-        target_offset=offset,
-        surface=self.thisEntity.surface,
-        only_in_alt_mode=true,
-        orientation=self.io == "input" and ((self:getRealDirection()*0.25)+0.25)%1.00 or ((self:getRealDirection()*0.25)-0.25)
-    }
-end]]
 
 --Transport Belts do not have an inventory, only an array. Meaning we can only input/output default items, no modified items because we can't access the inventory.
 --We are not using this at all due to the lack of lua access untill i can find a way to bypass it
