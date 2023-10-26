@@ -140,6 +140,7 @@ function IIO2:copy_settings(obj)
     self.io = obj.io
     self.priority = obj.priority
     self:change_IO_mode(self.io)
+    self.port.set_filter(1, obj.port.get_filter(1))
     self.port.inserter_filter_mode = obj.port.inserter_filter_mode
     self.port.inserter_stack_size_override = self.port.inserter_target_pickup_count > Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier and 1 or self.port.inserter_target_pickup_count
 
@@ -151,7 +152,8 @@ function IIO2:serialize_settings()
     tags["color"] = self.color
     tags["io"] = self.io
     tags["priority"] = self.priority
-    tags["filter"] = self.port.inserter_filter_mode
+    tags["filter"] = self.port.get_filter(1)
+    tags["filtermode"] = self.port.inserter_filter_mode
     tags["stacksize"] = self.port.inserter_stack_size_override
 
     return tags
@@ -162,7 +164,8 @@ function IIO2:deserialize_settings(tags)
     self.io = tags["io"]
     self.priority = tags["priority"]
     self:change_IO_mode(self.io)
-    self.port.inserter_filter_mode = tags["filter"]
+    self.port.set_filter(1, tags["filter"])
+    self.port.inserter_filter_mode = tags["filtermode"]
     self.port.inserter_stack_size_override = tags["stacksize"]
 
 end
@@ -662,7 +665,7 @@ function IIO2:IO()
                         if not drive:has_room() then goto next end
                         transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_drive(container, drive, nil, nil, math.min(transportCapacity, drive:getRemainingStorageSize()), true, false)
                         if transportCapacity <= 0 or container.is_empty() then goto exit end
-                    elseif self.io == "output" and self.port.get_filter(1) ~= "" then
+                    elseif self.io == "output" and self.port.get_filter(1) ~= nil then
                         transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_inv(drive, container, Util.itemstack_template(self.port.get_filter(1)), transportCapacity, true)
                         if transportCapacity <= 0 or container.is_full() then goto exit end
                     end
@@ -688,7 +691,7 @@ function IIO2:IO()
                                 end
                                 index2 = index2 + 1
                             until index2 == Util.getTableLength(externalInv.focusedEntity.inventory.values)
-                        elseif self.io == "output" and self.port.get_filter(1) ~= "" then
+                        elseif self.io == "output" and self.port.get_filter(1) ~= nil then
                             if string.match(externalInv.io, "output") == nil then goto next end
                             local itemstack = Util.itemstack_template(self.port.get_filter(1))
                                 local index1 = 0
