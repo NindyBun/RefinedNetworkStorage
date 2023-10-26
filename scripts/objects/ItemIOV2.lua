@@ -416,7 +416,7 @@ function IIO2.matches_filters(name, filters)
 end
 
 function IIO2:IO()
-    local transportCapacity = Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier
+    local transportCapacity = Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier*2
     local container = self.container.get_inventory(defines.inventory.chest)
     --[[self:reset_focused_entity()
     for k=1, 1 do
