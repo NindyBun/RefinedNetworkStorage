@@ -4,6 +4,7 @@ BaseNet = {
     ItemDriveTable = nil,
     FluidDriveTable = nil,
     ItemIOTable = nil,
+    ItemIOV2Table = nil,
     FluidIOTable = nil,
     ExternalIOTable = nil,
     NetworkInventoryInterfaceTable = nil,
@@ -61,6 +62,8 @@ function BaseNet:resetTables()
     generate_priority_table(self.FluidDriveTable)
     self.ItemIOTable = {}
     generate_priority_table(self.ItemIOTable)
+    self.ItemIOV2Table = {}
+    generate_priority_table(self.ItemIOV2Table)
     self.FluidIOTable = {}
     generate_priority_table(self.FluidIOTable)
     self.ExternalIOTable = {}
@@ -111,6 +114,8 @@ function addConnectables(source, connections, master)
                 master.network.FluidDriveTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
             elseif con.thisEntity.name == Constants.NetworkCables.itemIO.name then
                 master.network.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
+            elseif con.thisEntity.name == "RNS_Rotational_Object" then
+                master.network.ItemIOV2Table[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
             elseif con.thisEntity.name == Constants.NetworkCables.fluidIO.name then
                 master.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
             elseif con.thisEntity.name == Constants.NetworkCables.externalIO.name then
@@ -730,4 +735,5 @@ function BaseNet:getTotalObjects()
             + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ExternalIOTable)) + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.NetworkInventoryInterfaceTable))
             + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.WirelessTransmitterTable))*global.WTRangeMultiplier + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.DetectorTable))
             + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.TransmitterTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ReceiverTable))
+            + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ItemIOV2Table))*global.IIOMultiplier
 end

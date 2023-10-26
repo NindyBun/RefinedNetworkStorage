@@ -27,22 +27,25 @@ e.type = "inserter"
 e.name = name
 e.icon = Constants.NetworkCables.itemIO.itemIcon
 e.icon_size = 512
-e.flags = {"placeable-neutral", "player-creation"}
-e.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
-e.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+e.flags = {"placeable-neutral", "player-creation", "not-rotatable"}
+e.collision_box = {{-0.25, -0.25}, {0.25, 0.25}}
+e.selection_box = {{-0.25, -0.25}, {0.25, 0.25}}
 e.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
 e.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
 e.energy_source = {
     type = "void",
 }
+e.draw_circuit_wires = true
+e.circuit_wire_max_distance = 7
+e.selection_priority = 51
 e.allow_custom_vectors = true
 e.draw_held_item = false
 e.use_easter_egg = false
 e.filter_count = 1
 e.chases_belt_items = false
-e.stack_size_bonus = 15
+e.stack_size_bonus = 15-1
 e.extension_speed = 1
-e.rotation_speed = 0.25
+e.rotation_speed = 15/60
 e.insert_position = {0, -1}
 e.pickup_position = {0, 0.1}
 e.platform_picture = {

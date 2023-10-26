@@ -53,6 +53,11 @@ end
 function GUI.open_tooltip_gui(RNSPlayer, player, entity)
     if entity == nil or entity.valid == false or entity.to_be_deconstructed() == true then return end
 
+    local cursorStack = player.cursor_stack
+	if cursorStack and cursorStack.valid_for_read then
+		if cursorStack.name == "green-wire" or cursorStack.name == "red-wire" or cursorStack.type == "repair-tool" then return end
+	end
+
     local obj = global.entityTable[entity.unit_number]
     if valid(obj) == false or obj.getTooltips == nil then return end
 
@@ -66,12 +71,6 @@ function GUI.on_gui_opened(event)
     local RNSPlayer = getRNSPlayer(event.player_index)
 
     if event.entity ~= nil and event.entity.valid == true then
-        if event.entity.name == "RNS_Rotational_Object" and event.entity.to_be_deconstructed() == false then
-            local obj = global.entityTable[event.entity.unit_number]
-            if valid(obj) == false then return end
-            player.opened = obj.port
-            return
-        end
         if Util.safeCall(GUI.open_tooltip_gui, RNSPlayer, player, player.selected) == false then
             player.print({"gui-description.RNS_openGui_falied"})
             Event.clear_gui(event)
@@ -121,6 +120,12 @@ function GUI.on_gui_clicked(event)
 
     if string.match(event.element.name, "RNS_WT") then
         WT.interaction(event, RNSPlayer)
+        GUI.update(true)
+        return
+    end
+
+    if string.match(event.element.name, "RNS_NetworkCableIOV2") then
+        IIO2.interaction(event, RNSPlayer)
         GUI.update(true)
         return
     end

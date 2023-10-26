@@ -44,6 +44,7 @@ end
 
 --Deconstructor
 function NC:remove()
+    self.network:doRefresh(self)
     if self.state ~= nil then rendering.destroy(self.state) end
     UpdateSys.remove(self)
 end
@@ -257,7 +258,7 @@ end
 function NC:updateItemIO()
     local import = {}
     local export = {}
-    for p, priority in pairs(BaseNet.getOperableObjects(self.network.ItemIOTable)) do
+    for p, priority in pairs(BaseNet.getOperableObjects(self.network.ItemIOV2Table)) do
         import[p] = {}
         export[p] = {}
         for _, item in pairs(priority) do
@@ -438,6 +439,16 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         section.style.minimal_width = 200
         GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
         GuiApi.add_item_frame(guiTable, "", section, _G.IIO.powerUsage*global.IIOMultiplier .. "/t", name, itemIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
+    end
+
+    local itemIOV2count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ItemIOV2Table))
+    if itemIOV2count > 0 then
+        local name = "RNS_Rotational_Object"
+        local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
+        section.style = Constants.Settings.RNS_Gui.frame_1
+        section.style.minimal_width = 200
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
+        GuiApi.add_item_frame(guiTable, "", section, _G.IIO2.powerUsage*global.IIOMultiplier .. "/t", name, itemIOV2count .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local fluidIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.FluidIOTable))
