@@ -147,10 +147,11 @@ function BaseNet.transfer_from_tank_to_tank(from_tank, to_tank, from_index, to_i
     for i=1, 1 do
         if from_tank.fluidbox[from_index] == nil then break end
         if from_tank.fluidbox[from_index].name ~= name then break end
+        if to_tank.fluidbox[to_index] ~= nil and to_index.fluidbox[to_index].name ~= name then break end
         local amount0 = from_tank.fluidbox[from_index].amount
         amount = math.min(amount0, amount_to_transfer)
 
-        local temp0 = from_tank.fluidbox[from_index].temperature
+        --[[local temp0 = from_tank.fluidbox[from_index].temperature
 
         if to_tank.fluidbox[to_index] == nil then
             to_tank.fluidbox[to_index] = {
@@ -195,7 +196,19 @@ function BaseNet.transfer_from_tank_to_tank(from_tank, to_tank, from_index, to_i
                 amount = amount0 - transfered,
                 temperature = temp0
             }
-        end
+        end]]
+
+        local transfered = to_tank.insert_fluid({
+            name = name,
+            amount = amount,
+            temperature = from_tank.fluidbox[from_index].temperature
+        })
+        amount = amount - transfered <= 0 and 0 or amount - transfered
+        from_tank.fluidbox[from_index] = {
+            name = name,
+            amount = amount0 - transfered,
+            temperature = from_tank.fluidbox[from_index].temperature
+        }
     end
 
     return amount_to_transfer - amount
@@ -205,13 +218,17 @@ function BaseNet.transfer_from_drive_to_tank(drive, tank_entity, index, name, am
     local amount = amount_to_transfer
 
     for i=1, 1 do
-        if tank_entity.fluidbox[index] == nil then
+        --[[if tank_entity.fluidbox[index] == nil then
             tank_entity.fluidbox[index] = {
                 name = name,
                 amount = amount,
                 temperature = drive.fluidArray[name].temperature
             }
-            local transfered = tank_entity.fluidbox[index].amount
+            local transfered = tank_entity.insert_fluid({
+                name = name,
+                amount = amount,
+                temperature = drive.fluidArray[name].temperature
+            })
             amount = amount - transfered <= 0 and 0 or amount - transfered
             drive:remove_fluid(name, transfered)
             break
@@ -233,9 +250,24 @@ function BaseNet.transfer_from_drive_to_tank(drive, tank_entity, index, name, am
                 amount = amount1,
                 temperature = (drive.fluidArray[name].temperature * transfered + amount0 * temp0) / (amount1)
             }
+            local portion = tank_entity.fluidbox.get_capacity(index) - tank_entity.fluidbox[index].amount
+            local transfered = tank_entity.insert_fluid({
+                name = name,
+                amount = portion,
+                temperature = drive.fluidArray[name].temperature
+            })
+            amount = amount - transfered <= 0 and 0 or amount - transfered
             drive:remove_fluid(name, transfered)
             break
-        end
+        end]]
+        if tank_entity.fluidbox[index].name ~= name then break end
+        local transfered = tank_entity.insert_fluid({
+            name = name,
+            amount = amount,
+            temperature = drive.fluidArray[name].temperature
+        })
+        amount = amount - transfered <= 0 and 0 or amount - transfered
+        drive:remove_fluid(name, transfered)
     end
 
     return amount_to_transfer - amount
