@@ -443,7 +443,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
 
     local itemIOV2count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ItemIOV2Table))
     if itemIOV2count > 0 then
-        local name = "RNS_Rotational_Object"
+        local name = "RNS_Rotational_Object_Item"
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
         section.style = Constants.Settings.RNS_Gui.frame_1
         section.style.minimal_width = 200
@@ -459,6 +459,16 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         section.style.minimal_width = 200
         GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
         GuiApi.add_item_frame(guiTable, "", section, _G.FIO.powerUsage*global.FIOMultiplier .. "/t", name, fluidIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
+    end
+
+    local fluidIOV2count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.FluidIOV2Table))
+    if fluidIOV2count > 0 then
+        local name = "RNS_Rotational_Object_Fluid"
+        local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
+        section.style = Constants.Settings.RNS_Gui.frame_1
+        section.style.minimal_width = 200
+        GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
+        GuiApi.add_item_frame(guiTable, "", section, _G.FIO2.powerUsage*global.FIOMultiplier .. "/t", name, fluidIOV2count .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local externalIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ExternalIOTable))

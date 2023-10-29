@@ -12,7 +12,7 @@ IIO2 = {
     arms = nil,
     connectedObjs = nil,
     cardinals = nil,
-    io = "input",
+    io = "output",
     processed = false,
     priority = 0,
     powerUsage = 4,
@@ -39,6 +39,7 @@ function IIO2:new(object)
     t.port = object.surface.create_entity{
         name="RNS_Blank_ItemIO",
         position=object.position,
+        direction=object.direction,
         force="neutral"
     }
     t.port.destructible = false
@@ -331,38 +332,6 @@ end
     end
 end]]
 
---[[function IIO2.has_item(inv, itemstack_data, metadataMode)
-    local amount = 0
-    for i = 1, #inv do
-        local itemstack = inv[i]
-        if itemstack.count <= 0 then goto continue end
-        local itemstackC = Util.itemstack_convert(itemstack)
-        if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) then
-            if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
-                if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo < game.item_prototypes[itemstackC.cont.name].magazine_size then
-                    amount = amount + 1
-                    goto continue
-                end
-                if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability < game.item_prototypes[itemstackC.cont.name].durability then
-                    amount = amount + 1
-                    goto continue
-                end
-            end
-            amount = amount + itemstack.count
-        elseif game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
-            if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo > itemstackC.cont.ammo and itemstackC.cont.count > 1 then
-                amount = amount + itemstack.count - 1
-            end
-            if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability > itemstackC.cont.durability and itemstackC.cont.count > 1 then
-                amount = amount + itemstack.count - 1
-            end
-        end
-        if amount > 0 then break end
-        ::continue::
-    end
-    return amount
-end]]
-
 function IIO2.check_operable_mode(io, mode)
     return string.match(io, mode) ~= nil
 end
@@ -462,35 +431,6 @@ function IIO2:getCheckArea()
         [4] = {direction = 4, startP = {x-0.5, y+0.5}, endP = {x+0.5, y+1.5}}, --South
         [3] = {direction = 3, startP = {x-1.5, y-0.5}, endP = {x-0.5, y+0.5}}, --West
     }
-end
-
-function IIO2:reset_focused_entity()
-    self.focusedEntity = {
-        thisEntity = nil,
-        inventory = {
-            index = 1,
-            values = nil
-        }
-    }
-
-    local selfP = self.thisEntity.position
-    local area = self:getCheckArea()[self:getDirection()]
-    local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
-    local nearest = nil
-
-    for _, ent in pairs(ents) do
-        if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") == nil and ent.operable and global.entityTable[ent.unit_number] == nil then
-            if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then
-                nearest = ent
-            end
-        end
-    end
-
-    if nearest == nil then return end
-    if Constants.Settings.RNS_TypesWithContainer[nearest.type] == true then
-        self.focusedEntity.thisEntity = nearest
-        self.focusedEntity.inventory.values = Constants.Settings.RNS_Inventory_Types[nearest.type]
-    end
 end
 
 function IIO2:createArms()

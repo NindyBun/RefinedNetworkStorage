@@ -6,6 +6,7 @@ BaseNet = {
     ItemIOTable = nil,
     ItemIOV2Table = nil,
     FluidIOTable = nil,
+    FluidIOV2Table = nil,
     ExternalIOTable = nil,
     NetworkInventoryInterfaceTable = nil,
     WirelessTransmitterTable = nil,
@@ -66,6 +67,8 @@ function BaseNet:resetTables()
     generate_priority_table(self.ItemIOV2Table)
     self.FluidIOTable = {}
     generate_priority_table(self.FluidIOTable)
+    self.FluidIOV2Table = {}
+    generate_priority_table(self.FluidIOV2Table)
     self.ExternalIOTable = {}
     generate_priority_table(self.ExternalIOTable)
     self.NetworkInventoryInterfaceTable = {}
@@ -110,24 +113,37 @@ function addConnectables(source, connections, master)
 
             if string.match(con.thisEntity.name, "RNS_ItemDrive") ~= nil then
                 master.network.ItemDriveTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
+
             elseif string.match(con.thisEntity.name, "RNS_FluidDrive") ~= nil then
                 master.network.FluidDriveTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
+
             elseif con.thisEntity.name == Constants.NetworkCables.itemIO.name then
                 master.network.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
-            elseif con.thisEntity.name == "RNS_Rotational_Object" then
+
+            elseif con.thisEntity.name == "RNS_Rotational_Object_Item" then
                 master.network.ItemIOV2Table[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
+
             elseif con.thisEntity.name == Constants.NetworkCables.fluidIO.name then
                 master.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
+
+            elseif con.thisEntity.name == "RNS_Rotational_Object_Fluid" then
+                master.network.FluidIOV2Table[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
+
             elseif con.thisEntity.name == Constants.NetworkCables.externalIO.name then
                 master.network.ExternalIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
+
             elseif con.thisEntity.name == Constants.NetworkInventoryInterface.name then
                 master.network.NetworkInventoryInterfaceTable[1][con.entID] = con
+
             elseif con.thisEntity.name == Constants.NetworkCables.wirelessTransmitter.name then
                 master.network.WirelessTransmitterTable[1][con.entID] = con
+
             elseif con.thisEntity.name == Constants.Detector.name then
                 master.network.DetectorTable[1][con.entID] = con
+
             elseif con.thisEntity.name == Constants.NetworkTransReceiver.transmitter.name then
                 master.network.TransmitterTable[1][con.entID] = con
+                
             elseif con.thisEntity.name == Constants.NetworkTransReceiver.receiver.name then
                 master.network.ReceiverTable[1][con.entID] = con
             end

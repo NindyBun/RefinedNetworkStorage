@@ -6,17 +6,14 @@ FIO2 = {
     connectedObjs = nil,
     cardinals = nil,
     filter = nil,
-    whitelist = false,
-    ioIcon = nil,
+    --ioIcon = nil,
     color = "RED",
     io = "output",
     processed=false,
-    focusedEntity=nil,
-    enabler = nil,
-    enablerCombinator = nil,
     combinator=nil,
     priority = 0,
     powerUsage = 4,
+    tank = nil
 }
 
 function FIO2:new(object)
@@ -28,7 +25,7 @@ function FIO2:new(object)
     t.thisEntity = object
     t.entID = object.unit_number
     rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
-    t:generateModeIcon()
+    --t:generateModeIcon()
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -48,15 +45,6 @@ function FIO2:new(object)
         [4] = {}, --W
     }
     t.filter = ""
-    t.focusedEntity = {
-        thisEntity = nil,
-        fluid_box = {
-            index = nil,
-            filter = "",
-            target_position = nil,
-            flow = ""
-        }
-    }
     t:createArms()
     t.combinator = object.surface.create_entity{
         name="RNS_Combinator",
@@ -66,20 +54,14 @@ function FIO2:new(object)
     t.combinator.destructible = false
     t.combinator.operable = false
     t.combinator.minable = false
-    t.enabler = {
-        operator = "<",
-        number = 0,
-        filter = nil,
-        numberOutput = 1
-    }
-    t.enablerCombinator = object.surface.create_entity{
-        name="RNS_Combinator_2",
+    t.tank = object.surface.create_entity{
+        name="RNS_Fluid_"..t.io,
+        direction=object.direction,
         position=object.position,
         force="neutral"
     }
-    t.enablerCombinator.destructible = false
-    t.enablerCombinator.operable = false
-    t.enablerCombinator.minable = false
+    t.tank.destructible = false
+    t.tank.minable = false
     UpdateSys.addEntity(t)
     return t
 end
@@ -93,12 +75,16 @@ end
 
 function FIO2:remove()
     if self.combinator ~= nil then self.combinator.destroy() end
-    if self.enablerCombinator ~= nil then self.enablerCombinator.destroy() end
+    if self.tank ~= nil then self.tank.destroy() end
     UpdateSys.remove(self)
     if self.networkController ~= nil then
-        self.networkController.network.FluidIOTable[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil
+        self.networkController.network.FluidIOV2Table[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil
         self.networkController.network.shouldRefresh = true
     end
+end
+
+function FIO2:rotate()
+    self.tank.direction = self.thisEntity.direction
 end
 
 function FIO2:valid()
@@ -114,23 +100,17 @@ function FIO2:update()
         self.networkController = nil
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
-    if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false then
-        self:reset_focused_entity()
-    end
-    --if game.tick % 25 then self:createArms() end
 end
 
 function FIO2:copy_settings(obj)
     self.color = obj.color
-    self.whitelist = obj.whitelist
     self.io = obj.io
-    self.enabler = obj.enabler
 
     self.filter = obj.filter
     self:set_icons(1, self.filter ~= "" and self.filter or nil)
 
     self.priority = obj.priority
-    self:generateModeIcon()
+    --self:generateModeIcon()
 end
 
 function FIO2:serialize_settings()
@@ -138,32 +118,28 @@ function FIO2:serialize_settings()
 
     tags["color"] = self.color
     tags["filter"] = self.filter
-    tags["whitelist"] = self.whitelist
     tags["io"] = self.io
     tags["priority"] = self.priority
-    tags["enabler"] = self.enabler
 
     return tags
 end
 
 function FIO2:deserialize_settings(tags)
     self.color = tags["color"]
-    self.whitelist = tags["whitelist"]
     self.io = tags["io"]
-    self.enabler = tags["enabler"]
 
     self.filter = tags["filter"]
     self:set_icons(1, self.filter ~= "" and self.filter or nil)
 
     self.priority = tags["priority"]
-    self:generateModeIcon()
+    --self:generateModeIcon()
 end
 
 function FIO2:set_icons(index, name)
     self.combinator.get_or_create_control_behavior().set_signal(index, name ~= nil and {signal={type="fluid", name=name}, count=1} or nil)
 end
 
-function FIO2:toggleHoverIcon(hovering)
+--[[function FIO2:toggleHoverIcon(hovering)
     if self.ioIcon == nil then return end
     if hovering and rendering.get_only_in_alt_mode(self.ioIcon) then
         rendering.set_only_in_alt_mode(self.ioIcon, false)
@@ -192,11 +168,11 @@ function FIO2:generateModeIcon()
         only_in_alt_mode=true,
         orientation=self.io == "input" and ((self:getRealDirection()*0.25)+0.25)%1.00 or ((self:getRealDirection()*0.25)-0.25)
     }
-end
+end]]
 
 function FIO2:IO()
-    self:reset_focused_entity()
-    local transportCapacity = Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIO2Multiplier
+    --self:reset_focused_entity()
+    local transportCapacity = Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier
     --#tank.fluidbox returns number of pipe connections
     --tank.fluidbox.get_locked_fluid(index) returns filtered fluid at an index
     --tank.fluidbox[index] returns the contents of the fluidbox at an index
@@ -300,50 +276,6 @@ function FIO2:resetConnection()
     for _, arm in pairs(self.arms) do
         if arm ~= nil then
             rendering.destroy(arm)
-        end
-    end
-end
-
-function FIO2:reset_focused_entity()
-    self.focusedEntity = {
-        thisEntity = nil,
-        fluid_box = {
-            index = 1,
-            filter = "",
-            target_position = {},
-            flow = ""
-        }
-    }
-
-    local selfP = self.thisEntity.position
-    local area = self:getCheckArea()[self:getDirection()]
-    local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
-    local nearest = nil
-
-    for _, ent in pairs(ents) do
-        if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") == nil and ent.operable and global.entityTable[ent.unit_number] == nil then
-            if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then
-                nearest = ent
-            end
-        end
-    end
-
-    if nearest == nil then return end
-    if #nearest.fluidbox ~= 0 then
-        if self.focusedEntity.thisEntity == nil or (self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false) then
-            self.focusedEntity.thisEntity = nearest
-            for i=1, #nearest.fluidbox do
-                for j=1, #nearest.fluidbox.get_pipe_connections(i) do
-                    local target = nearest.fluidbox.get_pipe_connections(i)[j]
-                    if target.target_position.x == self.thisEntity.position.x and target.target_position.y == self.thisEntity.position.y then
-                        self.focusedEntity.fluid_box.index = i
-                        self.focusedEntity.fluid_box.flow =  target.flow_direction
-                        self.focusedEntity.fluid_box.target_position = target.target_position
-                        self.focusedEntity.fluid_box.filter =  (nearest.fluidbox.get_locked_fluid(i) ~= nil and {nearest.fluidbox.get_locked_fluid(i)} or {""})[1]
-                        break
-                    end
-                end
-            end
         end
     end
 end
@@ -479,7 +411,7 @@ function FIO2:getTooltips(guiTable, mainFrame, justCreated)
 		rateFrame.style.left_padding = 3
 		rateFrame.style.right_padding = 3
 		rateFrame.style.right_margin = 3
-        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIO2Multiplier}, Constants.Settings.RNS_Gui.white, "", true)
+        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIOMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
 
         local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
         local bottomFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
@@ -560,7 +492,7 @@ function FIO2:getTooltips(guiTable, mainFrame, justCreated)
         end
     end
 
-    guiTable.vars.TransferRate.caption = {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIO2Multiplier}
+    guiTable.vars.TransferRate.caption = {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIOMultiplier}
 
     if self.filter ~= "" then
         guiTable.vars.filter.elem_value = self.filter
