@@ -438,29 +438,24 @@ function IIO2:createArms()
     local areas = self:getCheckArea()
     self:resetConnection()
     for _, area in pairs(areas) do
-        local enti = 0
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
-            if ent ~= nil and ent.valid == true then
-                if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil and ent.operable then
-                    if area.direction ~= self:getDirection() then --Prevent cable connection on the IO port
-                        local obj = global.entityTable[ent.unit_number]
-                        if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
-                            --Do nothing
-                        else
-                            if obj.color == nil then
-                                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
-                                self.connectedObjs[area.direction] = {obj}
-                                enti = enti + 1
-                            elseif obj.color ~= "" and obj.color == self.color then
-                                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
-                                self.connectedObjs[area.direction] = {obj}
-                                enti = enti + 1
-                            end
+            if ent ~= nil and ent.valid == true and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil and ent.operable then
+                if area.direction ~= self:getDirection() then --Prevent cable connection on the IO port
+                    local obj = global.entityTable[ent.unit_number]
+                    if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
+                        --Do nothing
+                    else
+                        if obj.color == nil then
+                            self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                            self.connectedObjs[area.direction] = {obj}
+                        elseif obj.color ~= "" and obj.color == self.color then
+                            self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                            self.connectedObjs[area.direction] = {obj}
                         end
-                        break
                     end
                 end
+                break
             end
         end
     end

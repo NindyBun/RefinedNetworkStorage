@@ -192,7 +192,7 @@ i.selection_priority = 51
 i.energy_source = {
     type = "void"
 }
-i.energy_usage = "0J"
+i.energy_usage = "1J"
 i.pumping_speed = 20
 i.fluid_wagon_connector_speed = 64
 i.fluid_box = {
@@ -231,7 +231,7 @@ o.selection_priority = 51
 o.energy_source = {
     type = "void"
 }
-o.energy_usage = "0J"
+o.energy_usage = "1J"
 o.pumping_speed = 20
 o.fluid_wagon_connector_speed = 64
 o.fluid_box = {
