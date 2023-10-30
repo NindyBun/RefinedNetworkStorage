@@ -8,7 +8,7 @@ FIO2 = {
     filter = nil,
     --ioIcon = nil,
     color = "RED",
-    io = "output",
+    io = "input",
     processed=false,
     combinator=nil,
     priority = 0,
@@ -110,7 +110,6 @@ function FIO2:copy_settings(obj)
     self:set_icons(1, self.filter ~= "" and self.filter or nil)
 
     self.priority = obj.priority
-    --self:generateModeIcon()
 end
 
 function FIO2:serialize_settings()
@@ -132,43 +131,11 @@ function FIO2:deserialize_settings(tags)
     self:set_icons(1, self.filter ~= "" and self.filter or nil)
 
     self.priority = tags["priority"]
-    --self:generateModeIcon()
 end
 
 function FIO2:set_icons(index, name)
     self.combinator.get_or_create_control_behavior().set_signal(index, name ~= nil and {signal={type="fluid", name=name}, count=1} or nil)
 end
-
---[[function FIO2:toggleHoverIcon(hovering)
-    if self.ioIcon == nil then return end
-    if hovering and rendering.get_only_in_alt_mode(self.ioIcon) then
-        rendering.set_only_in_alt_mode(self.ioIcon, false)
-    elseif not hovering and not rendering.get_only_in_alt_mode(self.ioIcon) then
-        rendering.set_only_in_alt_mode(self.ioIcon, true)
-    end
-end
-
-function FIO2:generateModeIcon()
-    if self.ioIcon ~= nil then rendering.destroy(self.ioIcon) end
-    local offset = {0, 0}
-    if self:getRealDirection() == 1 then
-        offset = {0,-0.5}
-    elseif self:getRealDirection() == 2 then
-        offset = {0.5, 0}
-    elseif self:getRealDirection() == 3 then
-        offset = {0,0.5}
-    elseif self:getRealDirection() == 4 then
-        offset = {-0.5,0}
-    end
-    self.ioIcon = rendering.draw_sprite{
-        sprite=Constants.Icons.fluid, 
-        target=self.thisEntity, 
-        target_offset=offset,
-        surface=self.thisEntity.surface,
-        only_in_alt_mode=true,
-        orientation=self.io == "input" and ((self:getRealDirection()*0.25)+0.25)%1.00 or ((self:getRealDirection()*0.25)-0.25)
-    }
-end]]
 
 function FIO2:IO()
     --self:reset_focused_entity()
@@ -183,11 +150,6 @@ function FIO2:IO()
     for i=1, 1 do
         if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
         local network = self.networkController.network
-        if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
-            if self.enabler.filter == nil then break end
-            local amount = self.enablerCombinator.get_merged_signal({type=self.enabler.filter.type, name=self.enabler.filter.name}, defines.circuit_connector_id.constant_combinator)
-            if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then break end
-        end
         if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true then
             local fluid_box = self.focusedEntity.fluid_box
             if self.thisEntity.position.x ~= fluid_box.target_position.x or self.thisEntity.position.y ~= fluid_box.target_position.y then break end

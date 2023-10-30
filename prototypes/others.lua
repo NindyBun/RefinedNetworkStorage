@@ -170,7 +170,7 @@ data:extend{combinator}
 
 local combinator1 = {}
 combinator1.circuit_wire_connection_points = connection_points
-combinator1.circuit_wire_max_distance = 6
+combinator1.circuit_wire_max_distance = 9
 combinator1.collision_box = {{-0.25, -0.25}, {0.25, 0.25}}
 combinator1.selection_box = {{-0.25, -0.25}, {0.25, 0.25}}
 combinator1.flags = {'placeable-neutral', 'hidden', 'not-upgradable', 'not-rotatable', 'hide-alt-info'}
@@ -197,7 +197,7 @@ data:extend{combinator1}
 
 local combinator1 = {}
 combinator1.circuit_wire_connection_points = connection_points
-combinator1.circuit_wire_max_distance = 6
+combinator1.circuit_wire_max_distance = 9
 combinator1.collision_box = {{-0.25, -0.25}, {0.25, 0.25}}
 combinator1.selection_box = {{-0.25, -0.25}, {0.25, 0.25}}
 combinator1.flags = {'placeable-neutral', 'hidden', 'not-upgradable', 'not-rotatable', 'hide-alt-info'}

@@ -177,6 +177,84 @@ local connection_lights = {
 }
 
 local i = {}
+i.type = "pump"
+i.name = nameI
+i.icon = Constants.Settings.RNS_BlankIcon
+i.icon_size = 32
+i.flags = {"placeable-neutral", "player-creation", "not-rotatable"}
+i.collision_box = {{-0.25, -0.25}, {0.25, 0.25}}
+i.selection_box = {{-0.25, -0.25}, {0.25, 0.25}}
+i.circuit_wire_connection_points = connection_points
+i.circuit_connector_sprites = connection_lights
+i.draw_circuit_wires = true
+i.circuit_wire_max_distance = 9
+i.selection_priority = 51
+i.energy_source = {
+    type = "void"
+}
+i.energy_usage = "0J"
+i.pumping_speed = 20
+i.fluid_wagon_connector_speed = 64
+i.fluid_box = {
+    base_area = 12, --volume = base_area * height * 100
+    base_level = 1,
+    pipe_connections = {
+        {type = "input", position = {0, -1}}
+    },
+    --production_type = "input"
+}
+i.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
+i.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
+i.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
+i.animations = {
+    north = {
+        filename = Constants.Settings.RNS_BlankIcon,
+        size = 32,
+        scale = 1,
+    }
+}
+data:extend{i}
+
+local o = {}
+o.type = "pump"
+o.name = nameO
+o.icon = Constants.Settings.RNS_BlankIcon
+o.icon_size = 32
+o.flags = {"placeable-neutral", "player-creation", "not-rotatable"}
+o.collision_box = {{-0.25, -0.25}, {0.25, 0.25}}
+o.selection_box = {{-0.25, -0.25}, {0.25, 0.25}}
+o.circuit_wire_connection_points = connection_points
+o.circuit_connector_sprites = connection_lights
+o.draw_circuit_wires = true
+o.circuit_wire_max_distance = 9
+o.selection_priority = 51
+o.energy_source = {
+    type = "void"
+}
+o.energy_usage = "0J"
+o.pumping_speed = 20
+o.fluid_wagon_connector_speed = 64
+o.fluid_box = {
+    base_area = 12, --volume = base_area * height * 100
+    base_level = 1,
+    pipe_connections = {
+        {type = "output", position = {0, -1}}
+    },
+    --production_type = "output"
+}
+o.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
+o.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
+o.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
+o.animations = {
+    north = {
+        filename = Constants.Settings.RNS_BlankIcon,
+        size = 32,
+        scale = 1,
+    }
+}
+data:extend{o}
+
+--[[local i = {}
 i.type = "storage-tank"
 i.name = nameI
 i.icon = Constants.Settings.RNS_BlankIcon
@@ -306,4 +384,4 @@ o.flow_length_in_ticks = 1
 o.pictures.picture.east = table.deepcopy(o.pictures.picture.north)
 o.pictures.picture.south = table.deepcopy(o.pictures.picture.north)
 o.pictures.picture.west = table.deepcopy(o.pictures.picture.north)
-data:extend{o}
+data:extend{o}]]

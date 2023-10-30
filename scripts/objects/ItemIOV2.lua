@@ -337,8 +337,9 @@ function IIO2.check_operable_mode(io, mode)
 end
 
 function IIO2:IO()
-    local transportCapacity = Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier*2
     local container = self.container.get_inventory(defines.inventory.chest)
+    local transportCapacity = self.io == "input" and container.get_item_count() or Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier
+    local t0 = transportCapacity
     for k=1, 1 do
         if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
         local network = self.networkController.network
@@ -405,7 +406,7 @@ function IIO2:IO()
         end
         ::exit::
     end
-    self.processed = transportCapacity < Constants.Settings.RNS_BaseItemIO_TransferCapacity
+    self.processed = transportCapacity < t0
 end
 
 function IIO2:resetConnection()
