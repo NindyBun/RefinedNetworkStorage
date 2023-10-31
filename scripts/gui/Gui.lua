@@ -154,6 +154,12 @@ function GUI.on_gui_element_changed(event)
         return
     end
 
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Fluid") then
+        FIO2.interaction(event, RNSPlayer)
+        GUI.update(true)
+        return
+    end
+
     if string.match(event.element.name, "RNS_NetworkCableIO_External") then
         EIO.interaction(event, RNSPlayer)
         GUI.update(true)

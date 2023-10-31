@@ -120,13 +120,13 @@ function addConnectables(source, connections, master)
             elseif con.thisEntity.name == Constants.NetworkCables.itemIO.name then
                 master.network.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
 
-            elseif con.thisEntity.name == "RNS_Rotational_Object_Item" then
+            elseif con.thisEntity.name == "RNS_NetworkCableIOV2_Item" then
                 master.network.ItemIOV2Table[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
 
             elseif con.thisEntity.name == Constants.NetworkCables.fluidIO.name then
                 master.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
 
-            elseif con.thisEntity.name == "RNS_Rotational_Object_Fluid" then
+            elseif con.thisEntity.name == "RNS_NetworkCableIOV2_Fluid" then
                 master.network.FluidIOV2Table[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
 
             elseif con.thisEntity.name == Constants.NetworkCables.externalIO.name then
@@ -163,7 +163,7 @@ function BaseNet.transfer_from_tank_to_tank(from_tank, to_tank, from_index, to_i
     for i=1, 1 do
         if from_tank.fluidbox[from_index] == nil then break end
         if from_tank.fluidbox[from_index].name ~= name then break end
-        if to_tank.fluidbox[to_index] ~= nil and to_index.fluidbox[to_index].name ~= name then break end
+        if to_tank.fluidbox[to_index] ~= nil and to_tank.fluidbox[to_index].name ~= name then break end
         local amount0 = from_tank.fluidbox[from_index].amount
         amount = math.min(amount0, amount_to_transfer)
 
@@ -306,9 +306,9 @@ function BaseNet.transfer_from_tank_to_drive(tank_entity, drive, index, name, am
         if amount0 - transfered <= 0 then
             tank_entity.fluidbox[index] = nil
         else
-            tank_entity.fluidbox[index] = {
+            tank_entity.remove_fluid{
                 name = name,
-                amount = amount0 - transfered,
+                amount = transfered,
                 temperature = temp0
             }
         end

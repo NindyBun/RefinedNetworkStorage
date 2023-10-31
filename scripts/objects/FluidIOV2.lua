@@ -45,7 +45,6 @@ function FIO2:new(object)
         [4] = {}, --W
     }
     t.filter = ""
-    t:createArms()
     t.combinator = object.surface.create_entity{
         name="RNS_Combinator",
         position=object.position,
@@ -55,6 +54,7 @@ function FIO2:new(object)
     t.combinator.operable = false
     t.combinator.minable = false
     t:change_pump(t.io)
+    t:createArms()
     UpdateSys.addEntity(t)
     return t
 end
@@ -67,6 +67,7 @@ function FIO2:rebuild(object)
 end
 
 function FIO2:remove()
+    self:return_fluid_on_removed()
     if self.combinator ~= nil then self.combinator.destroy() end
     if self.port ~= nil then self.port.destroy() end
     UpdateSys.remove(self)
@@ -133,7 +134,45 @@ function FIO2:set_icons(index, name)
 end
 
 function FIO2:return_fluid_on_removed()
-
+    if self.port == nil then return end
+    if self.port.fluidbox[1] == nil then return end
+    if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then return end
+    local network = self.networkController.network
+    local fluidDrives = BaseNet.getOperableObjects(network.FluidDriveTable)
+    local externalTanks = BaseNet.filter_by_type("fluid", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal()))
+    for p = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
+        local priorityF = fluidDrives[p]
+        local priorityE = externalTanks[p]
+        if Util.getTableLength(priorityF) > 0 then
+            for _, drive in pairs(priorityF) do
+                if not drive:has_room() then goto continue end
+                BaseNet.transfer_from_tank_to_drive(self.port, drive, 1, self.port.fluidbox[1].name, math.min(self.port.get_fluid_count(), drive:getRemainingStorageSize()))
+                if self.port.fluidbox[1] == nil then return end
+                ::continue::
+            end
+        end
+        if Util.getTableLength(priorityE) > 0 then
+            for _, externalTank in pairs(priorityE) do
+                if externalTank.focusedEntity.thisEntity ~= nil and externalTank.focusedEntity.thisEntity.valid and externalTank.focusedEntity.thisEntity.to_be_deconstructed() == false and externalTank.focusedEntity.fluid_box.index ~= nil then
+                    local fluid_boxE = externalTank.focusedEntity.fluid_box
+                    if string.match(fluid_boxE.flow, "input") == nil then goto continue end
+                    if string.match(externalTank.io, "input") == nil then goto continue end
+                    if Util.getTableLength_non_nil(externalTank.filters.fluid.values) > 0 then
+                        if externalTank:matches_filters("fluid", self.port.fluidbox[1].name) == true then
+                            if externalTank.whitelist == false then goto continue end
+                        else
+                            if externalTank.whitelist == true then goto continue end
+                        end
+                    elseif Util.getTableLength_non_nil(externalTank.filters.fluid.values) == 0 then
+                        if externalTank.whitelist == true then goto continue end
+                    end
+                    BaseNet.transfer_from_tank_to_tank(self.port, externalTank.focusedEntity.thisEntity, 1, fluid_boxE.index, self.port.fluidbox[1].name, self.port.get_fluid_count())
+                    if self.port.fluidbox[1] == nil then return end
+                    ::continue::
+                end
+            end
+        end
+    end
 end
 
 function FIO2:IO()
@@ -147,6 +186,8 @@ function FIO2:IO()
     --tank.fluidbox[index] = {name?, amount?, tempurature?} sets the fluidbox
 
     for i=1, 1 do
+        if self.port.fluidbox[1] == nil then break end
+        if self.filter ~= self.port.fluidbox[1].name then break end
         if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
         local network = self.networkController.network
         local fluidDrives = BaseNet.getOperableObjects(network.FluidDriveTable)
@@ -157,19 +198,13 @@ function FIO2:IO()
             if Util.getTableLength(priorityF) > 0 then
                 for _, drive in pairs(priorityF) do
                     if self.io == "input" then
-                        if string.match(fluid_box.flow, "output") == nil then goto exit end
                         if not drive:has_room() then goto continue end
-                        if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") then
-                            transportCapacity = transportCapacity - BaseNet.transfer_from_tank_to_drive(self.focusedEntity.thisEntity, drive, fluid_box.index, self.filter, math.min(transportCapacity, drive:getRemainingStorageSize()))
-                            if transportCapacity <= 0 or self.focusedEntity.thisEntity.fluidbox[fluid_box.index] == nil then goto exit end
-                        end
+                        transportCapacity = transportCapacity - BaseNet.transfer_from_tank_to_drive(self.port, drive, 1, self.filter, math.min(transportCapacity, drive:getRemainingStorageSize()))
+                        if transportCapacity <= 0 or self.port.fluidbox[1] == nil then goto exit end
                     elseif self.io == "output" then
-                        if string.match(fluid_box.flow, "input") == nil then goto exit end
                         if drive:has_fluid(self.filter) == 0 then goto continue end
-                        if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") then
-                            transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_tank(drive, self.focusedEntity.thisEntity, fluid_box.index, self.filter, math.min(transportCapacity, drive:has_fluid(self.filter)))
-                            if transportCapacity <= 0 or self.focusedEntity.thisEntity.fluidbox[fluid_box.index].amount == self.focusedEntity.thisEntity.fluidbox.get_capacity(fluid_box.index) then goto exit end
-                        end
+                        transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_tank(drive, self.port, 1, self.filter, math.min(transportCapacity, drive:has_fluid(self.filter)))
+                        if transportCapacity <= 0 or self.port.fluidbox[1].amount == self.port.fluidbox.get_capacity(1) then goto exit end
                     end
                     ::continue::
                 end
@@ -178,40 +213,26 @@ function FIO2:IO()
                 for _, externalTank in pairs(priorityE) do
                     if  externalTank.focusedEntity.thisEntity ~= nil and externalTank.focusedEntity.thisEntity.valid and externalTank.focusedEntity.thisEntity.to_be_deconstructed() == false and externalTank.focusedEntity.fluid_box.index ~= nil then
                         local fluid_boxE = externalTank.focusedEntity.fluid_box
+                        if Util.getTableLength_non_nil(externalTank.filters.fluid.values) > 0 then
+                            if externalTank:matches_filters("fluid", self.filter) == true then
+                                if externalTank.whitelist == false then goto continue end
+                            else
+                                if externalTank.whitelist == true then goto continue end
+                            end
+                        elseif Util.getTableLength_non_nil(externalTank.filters.fluid.values) == 0 then
+                            if externalTank.whitelist == true then goto continue end
+                        end
+
                         if self.io == "input" then
-                            if string.match(fluid_box.flow, "output") == nil then goto exit end
                             if string.match(fluid_boxE.flow, "input") == nil then goto continue end
                             if string.match(externalTank.io, "input") == nil then goto continue end
-                            if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") then
-                                if Util.getTableLength_non_nil(externalTank.filters.fluid.values) > 0 then
-                                    if externalTank:matches_filters("fluid", self.filter) == true then
-                                        if externalTank.whitelist == false then goto continue end
-                                    else
-                                        if externalTank.whitelist == true then goto continue end
-                                    end
-                                elseif Util.getTableLength_non_nil(externalTank.filters.fluid.values) == 0 then
-                                    if externalTank.whitelist == true then goto continue end
-                                end
-                                transportCapacity = transportCapacity - BaseNet.transfer_from_tank_to_tank(self.focusedEntity.thisEntity, externalTank.focusedEntity.thisEntity, fluid_box.index, fluid_boxE.index, self.filter, transportCapacity)
-                                if transportCapacity <= 0 or self.focusedEntity.thisEntity.fluidbox[fluid_box.index] == nil then goto exit end
-                            end
+                            transportCapacity = transportCapacity - BaseNet.transfer_from_tank_to_tank(self.port, externalTank.focusedEntity.thisEntity, 1, fluid_boxE.index, self.filter, transportCapacity)
+                            if transportCapacity <= 0 or self.port.fluidbox[1] == nil then goto exit end
                         elseif self.io == "output" then
-                            if string.match(fluid_box.flow, "input") == nil then goto exit end
                             if string.match(fluid_boxE.flow, "output") == nil then goto continue end
                             if string.match(externalTank.io, "output") == nil then goto continue end
-                            if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") then
-                                if Util.getTableLength_non_nil(externalTank.filters.fluid.values) > 0 then
-                                    if externalTank:matches_filters("fluid", self.filter) == true then
-                                        if externalTank.whitelist == false then goto continue end
-                                    else
-                                        if externalTank.whitelist == true then goto continue end
-                                    end
-                                elseif Util.getTableLength_non_nil(externalTank.filters.fluid.values) == 0 then
-                                    if externalTank.whitelist == true then goto continue end
-                                end
-                                transportCapacity = transportCapacity - BaseNet.transfer_from_tank_to_tank(externalTank.focusedEntity.thisEntity, self.focusedEntity.thisEntity, fluid_box.index, fluid_boxE.index, self.filter, transportCapacity)
-                                if transportCapacity <= 0 or (self.focusedEntity.thisEntity.fluidbox[fluid_box.index] ~= nil and self.focusedEntity.thisEntity.fluidbox[fluid_box.index].amount == self.focusedEntity.thisEntity.fluidbox.get_capacity(fluid_box.index)) then goto exit end
-                            end
+                            transportCapacity = transportCapacity - BaseNet.transfer_from_tank_to_tank(externalTank.focusedEntity.thisEntity, self.porty, fluid_boxE.index, 1, self.filter, transportCapacity)
+                            if transportCapacity <= 0 or self.port.fluidbox[1].amount == self.port.fluidbox.get_capacity(1) then goto exit end
                         end
                         ::continue::
                     end
@@ -255,24 +276,26 @@ function FIO2:createArms()
         local enti = 0
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
-            if ent ~= nil and ent.valid == true and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil and ent.operable then
-                if area.direction ~= self:getDirection() then --Prevent cable connection on the IO port
-                    local obj = global.entityTable[ent.unit_number]
-                    if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
-                        --Do nothing
-                    else
-                        if obj.color == nil then
-                            self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
-                            self.connectedObjs[area.direction] = {obj}
-                            enti = enti + 1
-                        elseif obj.color ~= "" and obj.color == self.color then
-                            self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
-                            self.connectedObjs[area.direction] = {obj}
-                            enti = enti + 1
+            if ent ~= nil and ent.valid == true then
+                if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil and (ent.operable or ent.minable or ent.destructible) then
+                    if area.direction ~= self:getDirection() then --Prevent cable connection on the IO port
+                        local obj = global.entityTable[ent.unit_number]
+                        if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
+                            --Do nothing
+                        else
+                            if obj.color == nil then
+                                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                                self.connectedObjs[area.direction] = {obj}
+                                enti = enti + 1
+                            elseif obj.color ~= "" and obj.color == self.color then
+                                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                                self.connectedObjs[area.direction] = {obj}
+                                enti = enti + 1
+                            end
                         end
+                        break
                     end
                 end
-                break
             end
         end
     end
@@ -382,6 +405,7 @@ end
 
 function FIO2:change_pump(io)
     self:return_fluid_on_removed()
+    if self.port ~= nil then self.port.destroy() end
     self.port = self.thisEntity.surface.create_entity{
         name="RNS_Fluid_"..io,
         direction=self.thisEntity.direction,
@@ -393,7 +417,7 @@ function FIO2:change_pump(io)
 end
 
 function FIO2.interaction(event, RNSPlayer)
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Filter") then
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Fluid_Filter") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -408,7 +432,7 @@ function FIO2.interaction(event, RNSPlayer)
 		return
 	end
 
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Color") then
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Fluid_Color") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -421,7 +445,7 @@ function FIO2.interaction(event, RNSPlayer)
 		return
 	end
 
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Priority") then
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Fluid_Priority") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -438,7 +462,7 @@ function FIO2.interaction(event, RNSPlayer)
 		return
     end
 
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_IO") then
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Fluid_IO") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end

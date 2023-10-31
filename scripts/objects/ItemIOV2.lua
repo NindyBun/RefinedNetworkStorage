@@ -64,6 +64,7 @@ function IIO2:new(object)
         [4] = {}, --W
     }
     t:change_IO_mode(t.io)
+    t:createArms()
     UpdateSys.addEntity(t)
     return t
 end
@@ -150,6 +151,7 @@ function IIO2:rotate()
 end
 
 function IIO2:return_items_on_removed()
+    if self.container == nil then return end
     local container = self.container.get_inventory(defines.inventory.chest)
     for k=1, 1 do
         if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
@@ -341,6 +343,7 @@ function IIO2:IO()
     local transportCapacity = self.io == "input" and container.get_item_count() or Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier
     local t0 = transportCapacity
     for k=1, 1 do
+        if container.is_empty() then break end
         if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
         local network = self.networkController.network
         local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
@@ -440,22 +443,24 @@ function IIO2:createArms()
     for _, area in pairs(areas) do
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
-            if ent ~= nil and ent.valid == true and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil and ent.operable then
-                if area.direction ~= self:getDirection() then --Prevent cable connection on the IO port
-                    local obj = global.entityTable[ent.unit_number]
-                    if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
-                        --Do nothing
-                    else
-                        if obj.color == nil then
-                            self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
-                            self.connectedObjs[area.direction] = {obj}
-                        elseif obj.color ~= "" and obj.color == self.color then
-                            self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
-                            self.connectedObjs[area.direction] = {obj}
+            if ent ~= nil and ent.valid == true then
+                if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil and (ent.operable or ent.minable or ent.destructible) then
+                    if area.direction ~= self:getDirection() then --Prevent cable connection on the IO port
+                        local obj = global.entityTable[ent.unit_number]
+                        if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
+                            --Do nothing
+                        else
+                            if obj.color == nil then
+                                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                                self.connectedObjs[area.direction] = {obj}
+                            elseif obj.color ~= "" and obj.color == self.color then
+                                self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                                self.connectedObjs[area.direction] = {obj}
+                            end
                         end
+                        break
                     end
                 end
-                break
             end
         end
     end
@@ -530,7 +535,7 @@ function IIO2:getTooltips(guiTable, mainFrame, justCreated)
         local colorDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIOV2_Item_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
         colorDD.style.minimal_width = 100
 
-        local inserterFrame = GuiApi.add_frame(guiTable, "InserterFrame", topFrame, "vertical", true)
+--[[    local inserterFrame = GuiApi.add_frame(guiTable, "InserterFrame", topFrame, "vertical", true)
 		inserterFrame.style = Constants.Settings.RNS_Gui.frame_1
 		inserterFrame.style.vertically_stretchable = true
 		inserterFrame.style.left_padding = 3
@@ -542,7 +547,7 @@ function IIO2:getTooltips(guiTable, mainFrame, justCreated)
         local invFlow = GuiApi.add_flow(guiTable, "", inserterFrame, "horizontal")
         invFlow.style.horizontal_align = "center"
         GuiApi.add_simple_button(guiTable, "RNS_NetworkCableIOV2_Item_Inv", invFlow, {"gui-description.RNS_OpenInventory"}, "", false, {ID=self.thisEntity.unit_number})
-
+]]
         local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", topFrame, "vertical", true)
 		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
 		settingsFrame.style.vertically_stretchable = true
@@ -568,13 +573,13 @@ function IIO2:getTooltips(guiTable, mainFrame, justCreated)
 end
 
 function IIO2.interaction(event, RNSPlayer)
-    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Inv") then
+    --[[if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Inv") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
         RNSPlayer.thisEntity.opened = io.port
         return
-    end
+    end]]
 
     if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Color") then
 		local id = event.element.tags.ID

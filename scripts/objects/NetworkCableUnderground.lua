@@ -163,7 +163,7 @@ function NCug:createArms()
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         local nearest = nil
         for _, ent in pairs(ents) do
-            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and ent.operable then
+            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and (ent.operable or ent.minable or ent.destructible) then
                 local obj = global.entityTable[ent.unit_number]
                 if area.direction == self:getDirection() then
                     if string.match(ent.name, "RNS_NetworkCableRamp") ~= nil and obj.color == self.color and (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then

@@ -287,7 +287,7 @@ end
 function NC:updateFluidIO()
     local import = {}
     local export = {}
-    for p, priority in pairs(BaseNet.getOperableObjects(self.network.FluidIOTable)) do
+    for p, priority in pairs(BaseNet.getOperableObjects(self.network.FluidIOV2Table)) do
         import[p] = {}
         export[p] = {}
         for _, fluid in pairs(priority) do
@@ -339,7 +339,7 @@ function NC:createArms()
     for _, area in pairs(areas) do
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
-            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and ent.operable then
+            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and (ent.operable or ent.minable or ent.destructible) then
                 if global.entityTable[ent.unit_number] ~= nil then
                     local obj = global.entityTable[ent.unit_number]
                     if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
@@ -443,7 +443,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
 
     local itemIOV2count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ItemIOV2Table))
     if itemIOV2count > 0 then
-        local name = "RNS_Rotational_Object_Item"
+        local name = "RNS_NetworkCableIOV2_Item"
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
         section.style = Constants.Settings.RNS_Gui.frame_1
         section.style.minimal_width = 200
@@ -463,7 +463,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
 
     local fluidIOV2count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.FluidIOV2Table))
     if fluidIOV2count > 0 then
-        local name = "RNS_Rotational_Object_Fluid"
+        local name = "RNS_NetworkCableIOV2_Fluid"
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
         section.style = Constants.Settings.RNS_Gui.frame_1
         section.style.minimal_width = 200

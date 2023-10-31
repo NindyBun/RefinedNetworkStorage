@@ -1,5 +1,5 @@
 local name = "RNS_Blank_ItemIO"
-local name2 = "RNS_Rotational_Object"
+local name2 = "RNS_NetworkCableIOV2_Item"
 
 local i = {}
 i.type = "item"

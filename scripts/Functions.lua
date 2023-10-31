@@ -16,8 +16,8 @@ function createObjectTables()
         addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=iF.name}
     end
 
-    addOrCreateObjectTable{tableName="ItemIOV2Table", tag="IIO2", objName="RNS_Rotational_Object_Item"}
-    addOrCreateObjectTable{tableName="FluidIOV2Table", tag="FIO2", objName="RNS_Rotational_Object_Fluid"}
+    addOrCreateObjectTable{tableName="ItemIOV2Table", tag="IIO2", objName="RNS_NetworkCableIOV2_Item"}
+    addOrCreateObjectTable{tableName="FluidIOV2Table", tag="FIO2", objName="RNS_NetworkCableIOV2_Fluid"}
 
     --addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive1k.name}
     --addOrCreateObjectTable{tableName="ItemDriveTable", tag="ID", objName=Constants.Drives.ItemDrive.ItemDrive4k.name}

@@ -1,4 +1,4 @@
-local name = "RNS_Rotational_Object_Fluid"
+local name = "RNS_NetworkCableIOV2_Fluid"
 local nameI = "RNS_Fluid_input"
 local nameO = "RNS_Fluid_output"
 
