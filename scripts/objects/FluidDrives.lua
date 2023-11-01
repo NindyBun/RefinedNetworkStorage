@@ -108,7 +108,6 @@ function FD:createArms()
     local areas = self:getCheckArea()
     self:resetCollection()
     for _, area in pairs(areas) do
-        local enti = 0
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and global.entityTable[ent.unit_number] ~= nil then
@@ -117,8 +116,6 @@ function FD:createArms()
                     --Do nothing
                 else
                     table.insert(self.connectedObjs[area.direction], obj)
-                    enti = enti + 1
-
                     --[[if self.cardinals[area.direction] == false then
                         self.cardinals[area.direction] = true
                         if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then

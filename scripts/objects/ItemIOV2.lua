@@ -340,10 +340,9 @@ end
 
 function IIO2:IO()
     local container = self.container.get_inventory(defines.inventory.chest)
-    local transportCapacity = self.io == "input" and container.get_item_count() or Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier
-    local t0 = transportCapacity
+    local transportCapacity = Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier
     for k=1, 1 do
-        if container.is_empty() then break end
+        if self.io == "input" and container.is_empty() then break end
         if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
         local network = self.networkController.network
         local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
@@ -409,7 +408,7 @@ function IIO2:IO()
         end
         ::exit::
     end
-    self.processed = transportCapacity < t0
+    self.processed = transportCapacity < Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier
 end
 
 function IIO2:resetConnection()

@@ -80,7 +80,7 @@ ioE.fluid_boxes = {
         base_area = 1,
 		hide_connection_info = true,
         pipe_connections = {
-            {position = {0, -0.5}}
+            {position = {0, -1}}
         },
         production_type = "output"
     }

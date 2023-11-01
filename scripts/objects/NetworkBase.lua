@@ -279,7 +279,7 @@ function BaseNet.transfer_from_drive_to_tank(drive, tank_entity, index, name, am
             drive:remove_fluid(name, transfered)
             break
         end]]
-        if tank_entity.fluidbox[index].name ~= name then break end
+        if tank_entity.fluidbox[index] ~= nil and tank_entity.fluidbox[index].name ~= name then break end
         local transfered = tank_entity.insert_fluid({
             name = name,
             amount = amount,

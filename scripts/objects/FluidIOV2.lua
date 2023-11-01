@@ -186,8 +186,8 @@ function FIO2:IO()
     --tank.fluidbox[index] = {name?, amount?, tempurature?} sets the fluidbox
 
     for i=1, 1 do
-        if self.port.fluidbox[1] == nil then break end
-        if self.filter ~= self.port.fluidbox[1].name then break end
+        if self.io == "input" and self.port.fluidbox[1] == nil then break end
+        if self.io == "input" and self.filter ~= self.port.fluidbox[1].name then break end
         if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
         local network = self.networkController.network
         local fluidDrives = BaseNet.getOperableObjects(network.FluidDriveTable)
@@ -204,7 +204,7 @@ function FIO2:IO()
                     elseif self.io == "output" then
                         if drive:has_fluid(self.filter) == 0 then goto continue end
                         transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_tank(drive, self.port, 1, self.filter, math.min(transportCapacity, drive:has_fluid(self.filter)))
-                        if transportCapacity <= 0 or self.port.fluidbox[1].amount == self.port.fluidbox.get_capacity(1) then goto exit end
+                        if transportCapacity <= 0 or self.port.get_fluid_count() == self.port.fluidbox.get_capacity(1) then goto exit end
                     end
                     ::continue::
                 end
@@ -231,8 +231,8 @@ function FIO2:IO()
                         elseif self.io == "output" then
                             if string.match(fluid_boxE.flow, "output") == nil then goto continue end
                             if string.match(externalTank.io, "output") == nil then goto continue end
-                            transportCapacity = transportCapacity - BaseNet.transfer_from_tank_to_tank(externalTank.focusedEntity.thisEntity, self.porty, fluid_boxE.index, 1, self.filter, transportCapacity)
-                            if transportCapacity <= 0 or self.port.fluidbox[1].amount == self.port.fluidbox.get_capacity(1) then goto exit end
+                            transportCapacity = transportCapacity - BaseNet.transfer_from_tank_to_tank(externalTank.focusedEntity.thisEntity, self.port, fluid_boxE.index, 1, self.filter, transportCapacity)
+                            if transportCapacity <= 0 or self.port.get_fluid_count() == self.port.fluidbox.get_capacity(1) then goto exit end
                         end
                         ::continue::
                     end
@@ -241,7 +241,7 @@ function FIO2:IO()
             ::exit::
         end
     end
-    self.processed = transportCapacity < Constants.Settings.RNS_BaseFluidIO_TransferCapacity
+    self.processed = transportCapacity <= Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier
 end
 
 function FIO2:resetConnection()
@@ -407,7 +407,7 @@ function FIO2:change_pump(io)
     self:return_fluid_on_removed()
     if self.port ~= nil then self.port.destroy() end
     self.port = self.thisEntity.surface.create_entity{
-        name="RNS_Fluid_"..io,
+        name="rns_Fluid_"..io,
         direction=self.thisEntity.direction,
         position=self.thisEntity.position,
         force="neutral"
