@@ -258,18 +258,13 @@ end
 function NC:updateItemIO()
     local import = {}
     local export = {}
+    local processed = 0
     for p, priority in pairs(BaseNet.getOperableObjects(self.network.ItemIOV2Table)) do
         import[p] = {}
         export[p] = {}
         for _, item in pairs(priority) do
             if item.io == "input" then table.insert(import[p], item) end
-            if item.io == "output" then
-                if settings.global[Constants.Settings.RNS_RoundRobin].value then
-                    table.insert(export[p], item.processed == false and 1 or (Util.getTableLength(export[p])), item)
-                else
-                    table.insert(export[p], item)
-                end
-            end
+            if item.io == "output" then table.insert(export[p], item) end
         end
     end
     for _, priority in pairs(import) do
@@ -279,7 +274,19 @@ function NC:updateItemIO()
     end
     for _, priority in pairs(export) do
         for _, item in pairs(priority) do
-            item:IO()
+            if item.processed == false and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+                item:IO()
+            elseif settings.global[Constants.Settings.RNS_RoundRobin].value == false then
+                item:IO()
+            end
+            if item.processed == true then processed = processed + 1 end
+        end
+    end
+    if processed == BaseNet.get_table_length_in_priority(export) and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+        for _, priority in pairs(export) do
+            for _, item in pairs(priority) do
+                item.processed = false
+            end
         end
     end
 end
@@ -287,21 +294,15 @@ end
 function NC:updateFluidIO()
     local import = {}
     local export = {}
+    local processed = 0
     for p, priority in pairs(BaseNet.getOperableObjects(self.network.FluidIOV2Table)) do
         import[p] = {}
         export[p] = {}
         for _, fluid in pairs(priority) do
             if fluid.io == "input" then table.insert(import[p], fluid) end
-            if fluid.io == "output" then
-                --if fluid.processed == false and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
-                --    table.insert(export[p], 1, fluid)
-                --else
-                    table.insert(export[p], fluid)
-                --end
-            end
+            if fluid.io == "output" then table.insert(export[p], fluid) end
         end
     end
-    local processed = 0
     for _, priority in pairs(import) do
         for _, fluid in pairs(priority) do
             fluid:IO()
@@ -317,7 +318,7 @@ function NC:updateFluidIO()
             if fluid.processed == true then processed = processed + 1 end
         end
     end
-    if processed >= BaseNet.get_table_length_in_priority(export) and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+    if processed == BaseNet.get_table_length_in_priority(export) and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(export) do
             for _, fluid in pairs(priority) do
                 fluid.processed = false

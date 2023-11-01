@@ -241,7 +241,7 @@ function FIO2:IO()
             ::exit::
         end
     end
-    self.processed = transportCapacity <= Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier
+    self.processed = transportCapacity < Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier or self.port.get_fluid_count() == self.port.fluidbox.get_capacity(1)
 end
 
 function FIO2:resetConnection()

@@ -408,7 +408,7 @@ function IIO2:IO()
         end
         ::exit::
     end
-    self.processed = transportCapacity < Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier
+    self.processed = transportCapacity < Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier or container.is_full()
 end
 
 function IIO2:resetConnection()
