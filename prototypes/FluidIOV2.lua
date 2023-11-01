@@ -1,6 +1,6 @@
 local name = "RNS_NetworkCableIOV2_Fluid"
-local nameI = "RNS_Fluid_input"
-local nameO = "RNS_Fluid_output"
+local nameI = "rns_Fluid_input"
+local nameO = "rns_Fluid_output"
 
 local ioI = {}
 ioI.type = "item"

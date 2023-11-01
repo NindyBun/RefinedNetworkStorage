@@ -69,7 +69,7 @@ function IIO:new(object)
     }
     t:createArms()
     t.combinator = object.surface.create_entity{
-        name="RNS_Combinator",
+        name="rns_Combinator",
         position=object.position,
         force="neutral"
     }
@@ -83,7 +83,7 @@ function IIO:new(object)
         numberOutput = 1
     }
     t.enablerCombinator = object.surface.create_entity{
-        name="RNS_Combinator_2",
+        name="rns_Combinator_2",
         position=object.position,
         force="neutral"
     }
@@ -673,7 +673,7 @@ function IIO:createArms()
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true then
-                if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil and ent.operable then
+                if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil then
                     if area.direction ~= self:getDirection() then --Prevent cable connection on the IO port
                         local obj = global.entityTable[ent.unit_number]
                         if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then

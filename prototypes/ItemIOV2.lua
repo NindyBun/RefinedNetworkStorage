@@ -1,4 +1,4 @@
-local name = "RNS_Blank_ItemIO"
+local name = "rns_Blank_ItemIO"
 local name2 = "RNS_NetworkCableIOV2_Item"
 
 local i = {}
@@ -72,7 +72,7 @@ data:extend{e}
 
 local c = {}
 c.type = "container"
-c.name = "RNS_Blank_Container"
+c.name = "rns_Blank_Container"
 c.icon = Constants.Settings.RNS_BlankIcon
 c.icon_size = 32
 c.flags = {"placeable-neutral", "player-creation", "hide-alt-info"}
