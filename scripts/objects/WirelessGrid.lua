@@ -282,14 +282,6 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 	local fluid = {}
 	for _, priority in pairs(BaseNet.getOperableObjects(self.networkController.network.ItemDriveTable)) do
 		for _, drive in pairs(priority) do
-			--[[
-			local storage = drive:get_sorted_and_merged_inventory()
-			for i = 1, #storage.inventory do
-				local itemstack = storage.inventory[i]
-				if itemstack.count <= 0 then break end
-				Util.add_or_merge(itemstack, inv)
-			end
-			]]
 			for _, v in pairs(drive.storageArray) do
 				local c = Util.itemstack_template(v.name)
 				c.cont.count = v.count
@@ -455,23 +447,14 @@ function WG.transfer_from_pinv(RNSPlayer, WG, tags, count)
 							local ii = Util.next(external.focusedEntity.inventory)
 							local inv1 = external.focusedEntity.thisEntity.get_inventory(ii.slot)
 							if inv1 ~= nil and IIO.check_operable_mode(ii.io, "input") then
-								if Util.getTableLength_non_nil(external.filters.item.values) > 0 then
-									if external:matches_filters("item", itemstack.cont.name) == true then
-										if external.whitelist == false then goto next end
-									else
-										if external.whitelist == true then goto next end
-									end
-								elseif Util.getTableLength_non_nil(external.filters.item.values) == 0 then
-									if external.whitelist == true then goto next end
-								end
 								inv1.sort_and_merge()
 								if EIO.has_item_room(inv1) == true then
-									if external.metadataMode == false then
+									--[[if external.metadataMode == false then
 										if itemstack.modified == true then return end
 										if itemstack.cont.ammo ~= game.item_prototypes[itemstack.cont.name].magazine_size then return end
 										if itemstack.cont.durability ~= game.item_prototypes[itemstack.cont.name].durability then return end
-									end
-									amount = amount - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, amount, false, true)
+									end]]
+									amount = amount - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, external, amount, false, true)
 									if amount <= 0 then return end
 								end
 							end
@@ -483,17 +466,6 @@ function WG.transfer_from_pinv(RNSPlayer, WG, tags, count)
 			end
 		end
 	end
-
-	--[[
-	for _, priority in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-		for _, drive in pairs(priority) do
-			if drive:has_room() then
-				amount = amount - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, math.min(amount, drive:getRemainingStorageSize()), false, true)
-				if amount <= 0 then return end
-			end
-		end
-	end
-	]]
 end
 
 function WG.transfer_from_idinv(RNSPlayer, WG, tags, count)
@@ -538,11 +510,11 @@ function WG.transfer_from_idinv(RNSPlayer, WG, tags, count)
 								inv1.sort_and_merge()
 								local has = EIO.has_item(inv1, itemstack, true)
 								if has > 0 and RNSPlayer:has_room() == true then
-									if external.metadataMode == false then
+									--[[if external.metadataMode == false then
 										if itemstack.modified == true then return end
 										if itemstack.cont.ammo ~= game.item_prototypes[itemstack.cont.name].magazine_size then return end
 										if itemstack.cont.durability ~= game.item_prototypes[itemstack.cont.name].durability then return end
-									end
+									end]]
 									amount = amount - BaseNet.transfer_from_inv_to_inv(inv1, inv, itemstack, nil, math.min(has, amount), false, true)
 									if amount <= 0 then return end
 								end
@@ -555,19 +527,6 @@ function WG.transfer_from_idinv(RNSPlayer, WG, tags, count)
 			end
 		end
 	end
-
-	--[[
-	for _, priority in pairs(network.getOperableObjects(network.ItemDriveTable)) do
-		for _, drive in pairs(priority) do
-			if RNSPlayer:has_room() then
-				amount = amount - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, math.min(amount, drive:getRemainingStorageSize()), false)
-				if amount <= 0 then return end
-			else
-				return
-			end
-		end
-	end
-	]]
 end
 
 function WG.transfer_from_fdinv(RNSPlayer, WG, tags, count)

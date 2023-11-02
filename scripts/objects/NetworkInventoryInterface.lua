@@ -87,7 +87,6 @@ function NII:createArms()
     local areas = self:getCheckArea()
     self:resetCollection()
     for _, area in pairs(areas) do
-        local enti = 0
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and global.entityTable[ent.unit_number] ~= nil then
@@ -96,25 +95,9 @@ function NII:createArms()
                     --Do nothing
                 else
                     table.insert(self.connectedObjs[area.direction], obj)
-                    enti = enti + 1
-
-                    --[[if self.cardinals[area.direction] == false then
-                        self.cardinals[area.direction] = true
-                        if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
-                            self.networkController.network.shouldRefresh = true
-                        elseif obj.thisEntity.name == Constants.NetworkController.main.name then
-                            obj.network.shouldRefresh = true
-                        end
-                    end]]
                 end
             end
         end
-        --[[if self.cardinals[area.direction] == true and enti == 0 then
-            self.cardinals[area.direction] = false
-            if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
-                self.networkController.network.shouldRefresh = true
-            end
-        end]]
     end
 end
 
@@ -289,14 +272,6 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 	local fluid = {}
 	for _, priority in pairs(BaseNet.getOperableObjects(self.networkController.network.ItemDriveTable)) do
 		for _, drive in pairs(priority) do
-			--[[
-			local storage = drive:get_sorted_and_merged_inventory()
-			for i = 1, #storage.inventory do
-				local itemstack = storage.inventory[i]
-				if itemstack.count <= 0 then break end
-				Util.add_or_merge(itemstack, inv)
-			end
-			]]
 			for _, v in pairs(drive.storageArray) do
 				local c = Util.itemstack_template(v.name)
 				c.cont.count = v.count
@@ -462,23 +437,14 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 							local ii = Util.next(external.focusedEntity.inventory)
 							local inv1 = external.focusedEntity.thisEntity.get_inventory(ii.slot)
 							if inv1 ~= nil and IIO.check_operable_mode(ii.io, "input") then
-								if Util.getTableLength_non_nil(external.filters.item.values) > 0 then
-									if external:matches_filters("item", itemstack.cont.name) == true then
-										if external.whitelist == false then goto next end
-									else
-										if external.whitelist == true then goto next end
-									end
-								elseif Util.getTableLength_non_nil(external.filters.item.values) == 0 then
-									if external.whitelist == true then goto next end
-								end
 								inv1.sort_and_merge()
 								if EIO.has_item_room(inv1) == true then
-									if external.metadataMode == false then
+									--[[if external.metadataMode == false then
 										if itemstack.modified == true then return end
 										if itemstack.cont.ammo ~= game.item_prototypes[itemstack.cont.name].magazine_size then return end
 										if itemstack.cont.durability ~= game.item_prototypes[itemstack.cont.name].durability then return end
-									end
-									amount = amount - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, amount, false, true)
+									end]]
+									amount = amount - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, external, amount, false, true)
 									if amount <= 0 then return end
 								end
 							end
@@ -545,11 +511,11 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 								inv1.sort_and_merge()
 								local has = EIO.has_item(inv1, itemstack, true)
 								if has > 0 and RNSPlayer:has_room() == true then
-									if external.metadataMode == false then
+									--[[if external.metadataMode == false then
 										if itemstack.modified == true then return end
 										if itemstack.cont.ammo ~= game.item_prototypes[itemstack.cont.name].magazine_size then return end
 										if itemstack.cont.durability ~= game.item_prototypes[itemstack.cont.name].durability then return end
-									end
+									end]]
 									amount = amount - BaseNet.transfer_from_inv_to_inv(inv1, inv, itemstack, nil, math.min(has, amount), false, true)
 									if amount <= 0 then return end
 								end

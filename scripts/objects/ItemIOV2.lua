@@ -14,6 +14,7 @@ IIO2 = {
     cardinals = nil,
     io = "output",
     processed = false,
+    includeModified = false,
     priority = 0,
     powerUsage = 4,
     container = nil,
@@ -376,7 +377,7 @@ function IIO2:IO()
                                 if inv1 ~= nil then
                                     --inv1.sort_and_merge()
                                     if EIO.has_item_room(inv1) == true and IIO2.check_operable_mode(ii1.io, "input") then
-                                        transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(container, inv1, nil, externalInv, transportCapacity, externalInv.metadataMode, false)
+                                        transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(container, inv1, nil, externalInv, transportCapacity, true, false)
                                         if transportCapacity <= 0 or container.is_empty() then goto exit end
                                     end
                                 end
@@ -390,10 +391,10 @@ function IIO2:IO()
                                     local ii = Util.next(externalInv.focusedEntity.inventory)
                                     local inv = externalInv.focusedEntity.thisEntity.get_inventory(ii.slot)
                                     if inv ~= nil and IIO2.check_operable_mode(ii.io, "output") then
-                                        --inv.sort_and_merge()
-                                        local has = EIO.has_item(inv, itemstack, self.metadataMode)
+                                        inv.sort_and_merge()
+                                        local has = EIO.has_item(inv, itemstack, self.includeModified)
                                         if has > 0 then
-                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, container, itemstack, nil, transportCapacity, true, true)
+                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, container, itemstack, nil, transportCapacity, self.includeModified, true)
                                             if transportCapacity <= 0 or container.is_full() then goto exit end
                                         end
                                     end
@@ -534,19 +535,6 @@ function IIO2:getTooltips(guiTable, mainFrame, justCreated)
         local colorDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIOV2_Item_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
         colorDD.style.minimal_width = 100
 
---[[    local inserterFrame = GuiApi.add_frame(guiTable, "InserterFrame", topFrame, "vertical", true)
-		inserterFrame.style = Constants.Settings.RNS_Gui.frame_1
-		inserterFrame.style.vertically_stretchable = true
-		inserterFrame.style.left_padding = 3
-		inserterFrame.style.right_padding = 3
-		inserterFrame.style.right_margin = 3
-		inserterFrame.style.minimal_width = 100
-
-        GuiApi.add_subtitle(guiTable, "", inserterFrame, {"gui-description.RNS_Inventory"})
-        local invFlow = GuiApi.add_flow(guiTable, "", inserterFrame, "horizontal")
-        invFlow.style.horizontal_align = "center"
-        GuiApi.add_simple_button(guiTable, "RNS_NetworkCableIOV2_Item_Inv", invFlow, {"gui-description.RNS_OpenInventory"}, "", false, {ID=self.thisEntity.unit_number})
-]]
         local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", topFrame, "vertical", true)
 		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
 		settingsFrame.style.vertically_stretchable = true
@@ -568,6 +556,11 @@ function IIO2:getTooltips(guiTable, mainFrame, justCreated)
         local state1 = "left"
 		if self.io == "output" then state1 = "right" end
 		GuiApi.add_switch(guiTable, "RNS_NetworkCableIOV2_Item_IO", settingsFrame, {"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, "", "", state1, false, {ID=self.thisEntity.unit_number})
+    
+        -- Include Modified Items
+        if self.io == "output" then
+            GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIOV2_Item_Modified", settingsFrame, {"gui-description.RNS_Modified_2"}, {"gui-description.RNS_Modified_2_description"}, self.includeModified, false, {ID=self.thisEntity.unit_number})
+        end
     end
 end
 
@@ -579,6 +572,14 @@ function IIO2.interaction(event, RNSPlayer)
         RNSPlayer.thisEntity.opened = io.port
         return
     end]]
+
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Modified") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.includeModified = event.element.state
+		return
+    end
 
     if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Color") then
 		local id = event.element.tags.ID

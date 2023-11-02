@@ -391,9 +391,9 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
     return count - amount
 end
 
-function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, external_data, count, allowMetadata, whitelist)
+function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, external_data, count, allowModified, whitelist)
     local amount = count
-    allowMetadata = allowMetadata or false
+    allowModified = allowModified or false
     whitelist = whitelist or false
     for i = 1, #from_inv do
         local mod = false
@@ -410,6 +410,7 @@ function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, exte
             itemstack_data = Util.itemstack_template(itemstackC.cont.name)
         end
         if external_data ~= nil then
+            if external_data.onlyModified == true and itemstack_data.modified == false and string.match(external_data.io, "input") ~= nil then goto continue end
             if Util.getTableLength_non_nil(external_data.filters.item.values) > 0 then
                 if external_data:matches_filters("item", itemstack_data.cont.name) == true then
                     if external_data.whitelist == false then goto continue end
@@ -419,7 +420,7 @@ function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, exte
             end
         end
         local min = math.min(itemstackC.cont.count, amount)
-        if Util.itemstack_matches(itemstack_data, itemstackC, allowMetadata) == false then
+        if Util.itemstack_matches(itemstack_data, itemstackC, allowModified) == false then
             if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
                 if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo > itemstackC.cont.ammo and itemstackC.cont.count > 1 then
                     mod = true
@@ -437,16 +438,16 @@ function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, exte
             local temp = {
                 name = itemstackC.cont.name,
                 count = min,
-                durability = not allowMetadata and itemstack_data.cont.durability or itemstackC.cont.durability,
-                ammo = not allowMetadata and itemstack_data.cont.ammo or itemstackC.cont.ammo
+                durability = not allowModified and itemstack_data.cont.durability or itemstackC.cont.durability,
+                ammo = not allowModified and itemstack_data.cont.ammo or itemstackC.cont.ammo
             }
             local inserted = to_inv.insert(temp)
             amount = amount - inserted
             itemstack.count = itemstack.count - inserted <= 0 and 0 or itemstack.count - inserted
-            if itemstack.count > 0 and itemstackC.cont.ammo and not allowMetadata then
+            if itemstack.count > 0 and itemstackC.cont.ammo and not allowModified then
                 if mod then itemstack.ammo = itemstackC.cont.ammo end
             end
-            if itemstack.count > 0 and itemstackC.cont.durability and not allowMetadata then
+            if itemstack.count > 0 and itemstackC.cont.durability and not allowModified then
                 if mod then itemstack.durability = itemstackC.cont.durability end
             end
         else
@@ -455,10 +456,10 @@ function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, exte
                 local temp = {
                     name=itemstack_data.cont.name,
                     count=min1,
-                    health=not allowMetadata and itemstack_data.cont.health or itemstackC.cont.health,
-                    durability=not allowMetadata and itemstack_data.cont.durability or itemstackC.cont.durability,
-                    ammo=not allowMetadata and itemstack_data.cont.ammo or itemstackC.cont.ammo,
-                    tags=not allowMetadata and itemstack_data.cont.tags or itemstackC.cont.tags
+                    health=not allowModified and itemstack_data.cont.health or itemstackC.cont.health,
+                    durability=not allowModified and itemstack_data.cont.durability or itemstackC.cont.durability,
+                    ammo=not allowModified and itemstack_data.cont.ammo or itemstackC.cont.ammo,
+                    tags=not allowModified and itemstack_data.cont.tags or itemstackC.cont.tags
                 }
                 local t = to_inv.insert(temp)
                 amount = amount - t

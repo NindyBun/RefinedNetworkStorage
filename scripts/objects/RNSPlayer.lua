@@ -137,11 +137,7 @@ function RNSP:process_logistic_slots(network)
                                                 inv1.sort_and_merge()
                                                 local has = EIO.has_item(inv1, itemstack, true)
                                                 if has > 0 and self:has_room() == true then
-                                                    local meta = false
-                                                    if external.metadataMode == true then
-                                                        meta = true
-                                                    end
-                                                    local added = BaseNet.transfer_from_inv_to_inv(inv1, player_inv, itemstack, nil, math.min(has, add), meta, true)
+                                                    local added = BaseNet.transfer_from_inv_to_inv(inv1, player_inv, itemstack, nil, math.min(has, add), true, true)
                                                     add = add - added
                                                     port.energy = port.energy - added*Constants.Settings.RNS_PlayerPort_Consumption
                                                     if port.energy < Constants.Settings.RNS_PlayerPort_Consumption then return end
@@ -182,22 +178,9 @@ function RNSP:process_logistic_slots(network)
                                             local ii = Util.next(external.focusedEntity.inventory)
                                             local inv1 = external.focusedEntity.thisEntity.get_inventory(ii.slot)
                                             if inv1 ~= nil and IIO.check_operable_mode(ii.io, "input") then
-                                                if Util.getTableLength_non_nil(external.filters.item.values) > 0 then
-                                                    if external:matches_filters("item", itemstack.cont.name) == true then
-                                                        if external.whitelist == false then goto continue end
-                                                    else
-                                                        if external.whitelist == true then goto continue end
-                                                    end
-                                                elseif Util.getTableLength_non_nil(external.filters.item.values) == 0 then
-                                                    if external.whitelist == true then goto continue end
-                                                end
                                                 inv1.sort_and_merge()
                                                 if EIO.has_item_room(inv1) == true then
-                                                    local meta = false
-                                                    if external.metadataMode == true then
-                                                        meta = true
-                                                    end
-                                                    local removed = BaseNet.transfer_from_inv_to_inv(player_inv, inv1, itemstack, nil, remove, meta, true)
+                                                    local removed = BaseNet.transfer_from_inv_to_inv(player_inv, inv1, itemstack, external, remove, true, true)
                                                     remove = remove - removed
                                                     port.energy = port.energy - removed*Constants.Settings.RNS_PlayerPort_Consumption
                                                     if port.energy < Constants.Settings.RNS_PlayerPort_Consumption then return end
@@ -249,22 +232,9 @@ function RNSP:process_logistic_slots(network)
                                     local ii = Util.next(external.focusedEntity.inventory)
                                     local inv1 = external.focusedEntity.thisEntity.get_inventory(ii.slot)
                                     if inv1 ~= nil and IIO.check_operable_mode(ii.io, "input") then
-                                        if Util.getTableLength_non_nil(external.filters.item.values) > 0 then
-                                            if external:matches_filters("item", itemstack.cont.name) == true then
-                                                if external.whitelist == false then goto continue end
-                                            else
-                                                if external.whitelist == true then goto continue end
-                                            end
-                                        elseif Util.getTableLength_non_nil(external.filters.item.values) == 0 then
-                                            if external.whitelist == true then goto continue end
-                                        end
                                         inv1.sort_and_merge()
                                         if EIO.has_item_room(inv1) == true then
-                                            local meta = false
-                                            if external.metadataMode == true then
-                                                meta = true
-                                            end
-                                            local removed = BaseNet.transfer_from_inv_to_inv(player_trash, inv1, itemstack, nil, remove, meta, true)
+                                            local removed = BaseNet.transfer_from_inv_to_inv(player_trash, inv1, itemstack, external, remove, true, true)
                                             remove = remove - removed
                                             port.energy = port.energy - removed*Constants.Settings.RNS_PlayerPort_Consumption
                                             if port.energy < Constants.Settings.RNS_PlayerPort_Consumption then return end

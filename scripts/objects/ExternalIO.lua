@@ -20,7 +20,7 @@ EIO = {
     enabler = nil,
     enablerCombinator = nil,
     combinator = nil,
-    metadataMode = true,
+    onlyModified = true,
     whitelist = true,
     priority = 0,
     powerUsage = 8
@@ -68,7 +68,6 @@ function EIO:new(object)
             flow = ""
         }
     }
-    t:createArms()
     --10 filters
     t.filters = {
         item = {
@@ -106,6 +105,7 @@ function EIO:new(object)
     t.enablerCombinator.destructible = false
     t.enablerCombinator.operable = false
     t.enablerCombinator.minable = false
+    t:createArms()
     UpdateSys.addEntity(t)
     return t
 end
@@ -148,7 +148,7 @@ end
 
 function EIO:copy_settings(obj)
     self.color = obj.color
-    self.metadataMode = obj.metadataMode
+    self.onlyModified = obj.onlyModified
     self.whitelist = obj.whitelist
     self.io = obj.io
     self.type = obj.type
@@ -172,7 +172,7 @@ function EIO:serialize_settings()
 
     tags["color"] = self.color
     tags["filters"] = self.filters
-    tags["metadataMode"] = self.metadataMode
+    tags["onlyModified"] = self.onlyModified
     tags["whitelist"] = self.whitelist
     tags["io"] = self.io
     tags["priority"] = self.priority
@@ -184,7 +184,7 @@ end
 
 function EIO:deserialize_settings(tags)
     self.color = tags["color"]
-    self.metadataMode = tags["metadataMode"]
+    self.onlyModified = tags["onlyModified"]
     self.whitelist = tags["whitelist"]
     self.io = tags["io"]
     self.type = tags["type"]
@@ -336,70 +336,11 @@ function EIO:createArms()
                                 self.connectedObjs[area.direction] = {obj}
                             end
                         end
-                        --[[Update network connections if necessary
-                        if self.cardinals[area.direction] == false then
-                            self.cardinals[area.direction] = true
-                            if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
-                                self.networkController.network.shouldRefresh = true
-                            elseif obj.thisEntity.name == Constants.NetworkController.main.name then
-                                obj.network.shouldRefresh = true
-                            end
-                        end]]
                         break
                     end
-                --[[elseif ent ~= nil and self:getDirection() == area.direction then --Get entity with inventory
-                    if self.focusedEntity.thisEntity == nil or (self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false) then
-                        if Constants.Settings.RNS_TypesWithContainer[ent.type] == true then
-                            self:reset_focused_entity()
-                            self.focusedEntity.thisEntity = ent
-                            self.focusedEntity.inventory.values = Constants.Settings.RNS_Inventory_Types[ent.type]
-                            if #ent.fluidbox ~= 0 then
-                                for i=1, #ent.fluidbox do
-                                    for j=1, #ent.fluidbox.get_pipe_connections(i) do
-                                        local target = ent.fluidbox.get_pipe_connections(i)[j]
-                                        if target.target_position.x == self.thisEntity.position.x and target.target_position.y == self.thisEntity.position.y then
-                                            self.focusedEntity.fluid_box.index = i
-                                            self.focusedEntity.fluid_box.flow =  target.flow_direction
-                                            self.focusedEntity.fluid_box.target_position = target.target_position
-                                            self.focusedEntity.fluid_box.filter =  (ent.fluidbox.get_locked_fluid(i) ~= nil and {ent.fluidbox.get_locked_fluid(i)} or {""})[1]
-                                        end
-                                    end
-                                end
-                            end
-                            break
-                        end
-                        if #ent.fluidbox ~= 0 then
-                            self:reset_focused_entity()
-                            self.focusedEntity.thisEntity = ent
-                            for i=1, #ent.fluidbox do
-                                for j=1, #ent.fluidbox.get_pipe_connections(i) do
-                                    local target = ent.fluidbox.get_pipe_connections(i)[j]
-                                    if target.target_position.x == self.thisEntity.position.x and target.target_position.y == self.thisEntity.position.y then
-                                        self.focusedEntity.fluid_box.index = i
-                                        self.focusedEntity.fluid_box.flow =  target.flow_direction
-                                        self.focusedEntity.fluid_box.target_position = target.target_position
-                                        self.focusedEntity.fluid_box.filter =  (ent.fluidbox.get_locked_fluid(i) ~= nil and {ent.fluidbox.get_locked_fluid(i)} or {""})[1]
-                                    end
-                                end
-                            end
-                            if Constants.Settings.RNS_TypesWithContainer[ent.type] == true then
-                                self.focusedEntity.inventory.values = Constants.Settings.RNS_Inventory_Types[ent.type]
-                            end
-                            break
-                        end
-                    end]]
                 end
             end
         end
-        --[[if self:getDirection() ~= area.direction then
-            --Update network connections if necessary
-            if self.cardinals[area.direction] == true and enti ~= 0 then
-                self.cardinals[area.direction] = false
-                if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
-                    self.networkController.network.shouldRefresh = true
-                end
-            end
-        end]]
     end
 end
 
@@ -579,9 +520,9 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
         if self.whitelist == false then state = "right" end
         GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_External_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
 
-        if self.type == "item" then
+        if self.type == "item" and string.match(self.io, "input") ~= nil then
             -- Match metadata mode
-            GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_External_Metadata", settingsFrame, {"gui-description.RNS_Metadata"}, {"gui-description.RNS_Metadata_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
+            GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_External_Modified", settingsFrame, {"gui-description.RNS_Modified"}, {"gui-description.RNS_Modified_description"}, self.onlyModified, false, {ID=self.thisEntity.unit_number})
         end
 
         if self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil then
@@ -662,7 +603,6 @@ function EIO.interaction(event, RNSPlayer)
             io.filters[event.element.tags.type].values[event.element.tags.index] = ""
             io.combinator.get_or_create_control_behavior().set_signal(event.element.tags.index, nil)
         end
-        io.processed = false
 		return
     end
 
@@ -674,7 +614,6 @@ function EIO.interaction(event, RNSPlayer)
         if color ~= io.color then
             io.color = color
             rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[io.color].sprites[5].name, target=io.thisEntity, surface=io.thisEntity.surface, render_layer="lower-object-above-shadow"}
-            io.processed = false
         end
 		return
 	end
@@ -686,7 +625,6 @@ function EIO.interaction(event, RNSPlayer)
         local mode = Constants.Settings.RNS_ModeN[event.element.selected_index]
         if mode ~= io.io then
             io.io = mode
-            io.processed = false
             io:generateModeIcon()
         end
 		return
@@ -700,7 +638,6 @@ function EIO.interaction(event, RNSPlayer)
         if type ~= io.type then
             io.type = type
             RNSPlayer:push_varTable(id, true)
-            io.processed = false
             for i=1, 10 do
                 local filter = io.filters[io.type].values[i]
                 io.combinator.get_or_create_control_behavior().set_signal(i, filter ~= "" and {signal={type=io.type, name=filter}, count=1} or nil)
@@ -721,7 +658,6 @@ function EIO.interaction(event, RNSPlayer)
                 io.networkController.network.ExternalIOTable[oldP][io.entID] = nil
                 io.networkController.network.ExternalIOTable[1+Constants.Settings.RNS_Max_Priority-priority][io.entID] = io
             end
-            io.processed = false
         end
 		return
     end
@@ -731,16 +667,14 @@ function EIO.interaction(event, RNSPlayer)
 		local io = global.entityTable[id]
 		if io == nil then return end
         io.whitelist = event.element.switch_state == "left" and true or false
-        io.processed = false
 		return
     end
 
-    if string.match(event.element.name, "RNS_NetworkCableIO_External_Metadata") then
+    if string.match(event.element.name, "RNS_NetworkCableIO_External_Modified") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        io.metadataMode = event.element.state
-        io.processed = false
+        io.onlyModified = event.element.state
 		return
     end
 end
