@@ -319,7 +319,6 @@ function EIO:createArms()
     local areas = self:getCheckArea()
     self:resetConnection()
     for _, area in pairs(areas) do
-        local enti = 0
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true then
@@ -332,11 +331,9 @@ function EIO:createArms()
                             if obj.color == nil then
                                 self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
                                 self.connectedObjs[area.direction] = {obj}
-                                enti = enti + 1
                             elseif obj.color ~= "" and obj.color == self.color then
                                 self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
                                 self.connectedObjs[area.direction] = {obj}
-                                enti = enti + 1
                             end
                         end
                         --[[Update network connections if necessary
