@@ -561,6 +561,8 @@ function IIO2:getTooltips(guiTable, mainFrame, justCreated)
         if self.io == "output" then
             GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIOV2_Item_Modified", settingsFrame, {"gui-description.RNS_Modified_2"}, {"gui-description.RNS_Modified_2_description"}, self.includeModified, false, {ID=self.thisEntity.unit_number})
         end
+
+        
     end
 end
 
