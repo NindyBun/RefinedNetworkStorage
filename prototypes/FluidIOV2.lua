@@ -201,6 +201,7 @@ i.fluid_box = {
     pipe_connections = {
         {type = "input", position = {0, -1}}
     },
+    --pipe_covers = pipecoverspictures(),
     --production_type = "input"
 }
 i.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
@@ -240,6 +241,7 @@ o.fluid_box = {
     pipe_connections = {
         {type = "output", position = {0, -1}}
     },
+    --pipe_covers = pipecoverspictures(),
     --production_type = "output"
 }
 o.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }

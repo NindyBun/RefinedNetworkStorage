@@ -78,7 +78,7 @@ c.icon_size = 32
 c.flags = {"placeable-neutral", "player-creation", "hide-alt-info"}
 c.collision_box = {{-0.40, -0.40}, {0.40, 0.40}}
 c.selection_box = {{-0.50, -0.50}, {0.50, 0.50}}
-c.inventory_size = 1
+c.inventory_size = 10
 c.picture =
     {
         filename = Constants.Settings.RNS_BlankIcon,

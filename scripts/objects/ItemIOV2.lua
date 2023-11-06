@@ -35,7 +35,6 @@ function IIO2:new(object)
         force="neutral"
     }
     t.container.destructible = false
-    t.container.operable = false
     t.container.minable = false
     t.port = object.surface.create_entity{
         name="rns_Blank_ItemIO",
@@ -202,6 +201,10 @@ function IIO2:return_items_on_removed()
             self.thisEntity.surface.spill_item_stack(self.thisEntity.position, container[i], true, "neutral", false)
         end
     end
+
+    local hand = self.port.held_stack
+    if hand == nil then return end
+    self.thisEntity.surface.spill_item_stack(self.thisEntity.position, hand, true, "neutral", false)
 end
 
 --Transport Belts do not have an inventory, only an array. Meaning we can only input/output default items, no modified items because we can't access the inventory.
@@ -562,18 +565,18 @@ function IIO2:getTooltips(guiTable, mainFrame, justCreated)
             GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIOV2_Item_Modified", settingsFrame, {"gui-description.RNS_Modified_2"}, {"gui-description.RNS_Modified_2_description"}, self.includeModified, false, {ID=self.thisEntity.unit_number})
         end
 
-        
+        GuiApi.add_simple_button(guiTable, "RNS_NetworkCableIOV2_Item_Inv", settingsFrame, {"gui-description.RNS_OpenInventory"}, "", false, {ID=self.thisEntity.unit_number})
     end
 end
 
 function IIO2.interaction(event, RNSPlayer)
-    --[[if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Inv") then
+    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Inv") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        RNSPlayer.thisEntity.opened = io.port
+        RNSPlayer.thisEntity.opened = io.container
         return
-    end]]
+    end
 
     if string.match(event.element.name, "RNS_NetworkCableIOV2_Item_Modified") then
         local id = event.element.tags.ID
