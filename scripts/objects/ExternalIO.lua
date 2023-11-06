@@ -277,7 +277,7 @@ function EIO:reset_focused_entity()
     local nearest = nil
 
     for _, ent in pairs(ents) do
-        if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") == nil and ent.operable and global.entityTable[ent.unit_number] == nil then
+        if ent ~= nil and ent.valid == true and string.match(string.upper(ent.name), "RNS_") == nil and global.entityTable[ent.unit_number] == nil then
             if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then
                 nearest = ent
             end

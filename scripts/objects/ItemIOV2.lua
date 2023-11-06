@@ -344,6 +344,7 @@ end
 
 function IIO2:IO()
     local container = self.container.get_inventory(defines.inventory.chest)
+    container.sort_and_merge()
     local transportCapacity = Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier
     for k=1, 1 do
         if self.io == "input" and container.is_empty() then break end
