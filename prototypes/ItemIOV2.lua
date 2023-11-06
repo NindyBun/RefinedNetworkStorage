@@ -36,7 +36,7 @@ e.energy_source = {
     type = "void",
 }
 e.draw_circuit_wires = true
-e.circuit_wire_max_distance = 7
+e.circuit_wire_max_distance = 9
 e.selection_priority = 51
 e.allow_custom_vectors = true
 e.draw_held_item = false
