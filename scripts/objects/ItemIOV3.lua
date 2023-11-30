@@ -303,7 +303,7 @@ function IIO3:IO()
                                 until index == Util.getTableLength(self.focusedEntity.inventory.output.values)
                                 goto next
                             end
-                        elseif self.io == "output" and self.whitelist == true and Util.getTableLength_non_nil(self.filters.values) > 0 then --Doesn't work when one inventory is full
+                        elseif self.io == "output" and self.whitelist == true and Util.getTableLength_non_nil(self.filters.values) > 0 then
                             local index = 0
                             repeat
                                 local nextItem = Util.next_non_nil(self.filters)
@@ -467,8 +467,15 @@ function IIO3:IO()
         ::exit::
     end
     self.processed = transportCapacity < Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier or
-        (self.filters.values[1] ~= "" and not self.focusedEntity.thisEntity.can_insert(self.filters.values[1])) or
-        (self.filters.values[2] ~= "" and not self.focusedEntity.thisEntity.can_insert(self.filters.values[2]))
+        (self.focusedEntity.thisEntity ~= nil and self:checkFullness())
+end
+
+function IIO3:checkFullness()
+    local i = 0
+    for _, slot in pairs(self.focusedEntity.inventory[self.io].values) do
+        if self.focusedEntity.thisEntity.get_inventory(slot).is_full() then i = i + 1 end
+    end
+    return i == #self.focusedEntity.inventory[self.io].values
 end
 
 function IIO3:resetConnection()
