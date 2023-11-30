@@ -325,6 +325,7 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
     local list = drive_inv.storageArray
     --local inventory = drive_inv.storageArray.inventory
     for i=1, 1 do
+        to_inv.sort_and_merge()
         if list[itemstack_data.cont.name] ~= nil and itemstack_data.modified == false then
             local item = list[itemstack_data.cont.name]
             local min = math.min(item.count, amount)
@@ -488,16 +489,20 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
     allowMetadata = allowMetadata or false
     --drive_inv:get_sorted_and_merged_inventory()
     local amount = count
+    from_inv.sort_and_merge()
+
     for i=1, #from_inv do
         local mod = false
         local item = from_inv[i]
+        if itemstack_data ~= nil and whitelist == true then
+            item, i = from_inv.find_item_stack(itemstack_data.cont.name)
+            if item == nil then break end
+        end
         if item.count <= 0 then goto continue end
         local itemC = Util.itemstack_convert(item)
         if itemstack_data ~= nil then
-            if whitelist == true then
-                if game.item_prototypes[itemC.cont.name] ~= game.item_prototypes[itemstack_data.cont.name] then goto continue end
-            else
-                if filters ~= nil and IIO.matches_filters(itemC.cont.name, filters) == true then
+            if whitelist == false then
+                if filters ~= nil and IIO3.matches_filters(itemC.cont.name, filters) == true then
                     goto continue
                 else
                     itemstack_data = Util.itemstack_template(itemC.cont.name)

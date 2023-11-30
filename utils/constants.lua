@@ -294,13 +294,15 @@ Constants.Settings = {
             }
         },
         ["infinity-container"] = {
-            [1] = {
-                slot = defines.inventory.chest,
-                io = "input/output"
+            input = {
+                defines.inventory.chest,
+            },
+            output = {
+                defines.inventory.chest,
             }
         },
         ["furnace"] = {
-            [1] = {
+            --[[1] = {
                 slot = defines.inventory.fuel,
                 io = "input"
             },
@@ -315,7 +317,15 @@ Constants.Settings = {
             [4] = {
                 slot = defines.inventory.furnace_result,
                 io = "output"
+            },]]--
+            input = {
+                defines.inventory.fuel,
+                defines.inventory.furnace_source,
             },
+            output = {
+                defines.inventory.burnt_result,
+                defines.inventory.furnace_result,
+            }
         },
         ["assembling-machine"] = {
             [1] = {

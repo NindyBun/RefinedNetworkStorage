@@ -259,7 +259,7 @@ function NC:updateItemIO()
     local import = {}
     local export = {}
     local processed = 0
-    for p, priority in pairs(BaseNet.getOperableObjects(self.network.ItemIOV2Table)) do
+    for p, priority in pairs(BaseNet.getOperableObjects(self.network.ItemIOTable)) do
         import[p] = {}
         export[p] = {}
         for _, item in pairs(priority) do
@@ -452,7 +452,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         section.style = Constants.Settings.RNS_Gui.frame_1
         section.style.minimal_width = 200
         GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
-        GuiApi.add_item_frame(guiTable, "", section, _G.IIO.powerUsage*global.IIOMultiplier .. "/t", name, itemIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, _G.IIO3.powerUsage*global.IIOMultiplier .. "/t", name, itemIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local itemIOV2count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ItemIOV2Table))

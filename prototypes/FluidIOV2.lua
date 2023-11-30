@@ -193,7 +193,7 @@ i.energy_source = {
     type = "void"
 }
 i.energy_usage = "1J"
-i.pumping_speed = 20
+i.pumping_speed = 20 --Amount transfered per tick
 i.fluid_wagon_connector_speed = 64
 i.fluid_box = {
     base_area = 12, --volume = base_area * height * 100
@@ -201,8 +201,7 @@ i.fluid_box = {
     pipe_connections = {
         {type = "input", position = {0, -1}}
     },
-    --pipe_covers = pipecoverspictures(),
-    --production_type = "input"
+    pipe_covers = pipecoverspictures(),
 }
 i.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
 i.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
@@ -233,7 +232,7 @@ o.energy_source = {
     type = "void"
 }
 o.energy_usage = "1J"
-o.pumping_speed = 20
+o.pumping_speed = 20 --Amount transfered per tick
 o.fluid_wagon_connector_speed = 64
 o.fluid_box = {
     base_area = 12, --volume = base_area * height * 100
@@ -241,8 +240,7 @@ o.fluid_box = {
     pipe_connections = {
         {type = "output", position = {0, -1}}
     },
-    --pipe_covers = pipecoverspictures(),
-    --production_type = "output"
+    pipe_covers = pipecoverspictures(),
 }
 o.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
 o.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
@@ -256,134 +254,87 @@ o.animations = {
 }
 data:extend{o}
 
---[[local i = {}
-i.type = "storage-tank"
-i.name = nameI
-i.icon = Constants.Settings.RNS_BlankIcon
-i.icon_size = 32
-i.flags = {"placeable-neutral", "player-creation", "not-rotatable"}
-i.collision_box = {{-0.25, -0.25}, {0.25, 0.25}}
-i.selection_box = {{-0.25, -0.25}, {0.25, 0.25}}
-i.window_bounding_box = {{0, 0}, {0, 0}}
-i.circuit_wire_connection_points = connection_points
-i.circuit_connector_sprites = connection_lights
-i.draw_circuit_wires = true
-i.circuit_wire_max_distance = 7
-i.selection_priority = 51
-i.fluid_box = {
-    base_area = 12, --volume = base_area * height * 100
-    base_level = -1,
-    pipe_connections = {
-        {type = "input", position = {0, -1}}
-    },
-    production_type = "input"
-}
-i.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
-i.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
-i.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
-i.pictures =
-    {
-        picture = {
-            north = {
-                layers = {
-                    {
-                        filename = Constants.Settings.RNS_BlankIcon,
-                        priority = "extra-high",
-                        size = 32,
-                        scale = 1,
-                    },
-                }
-            }
-        },
-        window_background = {
-            filename = Constants.Settings.RNS_BlankIcon,
-            size = 32,
-            scale = 1
-        },
-        fluid_background = {
-            filename = Constants.Settings.RNS_BlankIcon,
-            size = 32,
-            scale = 1
-        },
-        flow_sprite = {
-            filename = Constants.Settings.RNS_BlankIcon,
-            size = 32,
-            scale = 1
-        },
-        gas_flow = {
-            filename = Constants.Settings.RNS_BlankIcon,
-            size = 32,
-            scale = 1
-        },
-    }
-i.flow_length_in_ticks = 1
-i.pictures.picture.east = table.deepcopy(i.pictures.picture.north)
-i.pictures.picture.south = table.deepcopy(i.pictures.picture.north)
-i.pictures.picture.west = table.deepcopy(i.pictures.picture.north)
-data:extend{i}
+local d = "_spritesheet"
+local tI = {}
+tI.type = "item"
+tI.name = "test"
+tI.icon = Constants.MOD_ID.."/graphics/test"..d..".png"
+tI.icon_size = 512
+tI.subgroup = Constants.ItemGroup.Category.subgroup
+tI.order = "i"
+tI.place_result = "test"
+tI.stack_size = 50
+data:extend{tI}
 
-local o = {}
-o.type = "storage-tank"
-o.name = nameO
-o.icon = Constants.Settings.RNS_BlankIcon
-o.icon_size = 32
-o.flags = {"placeable-neutral", "player-creation","not-rotatable"}
-o.collision_box = {{-0.25, -0.25}, {0.25, 0.25}}
-o.selection_box = {{-0.25, -0.25}, {0.25, 0.25}}
-o.window_bounding_box = {{0, 0}, {0, 0}}
-o.circuit_wire_connection_points = connection_points
-o.circuit_connector_sprites = connection_lights
-o.draw_circuit_wires = true
-o.circuit_wire_max_distance = 7
-o.selection_priority = 51
-o.fluid_box = {
+local tR = {}
+tR.type = "recipe"
+tR.name = "test"
+tR.energy_required = 0.01
+tR.enabled = true
+tR.ingredients = {}
+tR.result = "test"
+tR.result_count = 1
+data:extend{tR}
+
+local tE = {}
+tE.type = "pump"
+tE.name = "test"
+tE.icon = Constants.MOD_ID.."/graphics/test"..d..".png"
+tE.icon_size = 512
+tE.flags = {"placeable-neutral", "player-creation"}
+tE.collision_box = {{-0.25, -0.25}, {0.25, 0.25}}
+tE.selection_box = {{-0.25, -0.25}, {0.25, 0.25}}
+tE.circuit_wire_connection_points = connection_points
+tE.circuit_connector_sprites = connection_lights
+tE.draw_circuit_wires = true
+tE.circuit_wire_max_distance = 9
+tE.selection_priority = 51
+tE.energy_source = {
+    type = "void"
+}
+tE.energy_usage = "1J"
+tE.pumping_speed = 20 --Amount transfered per tick
+tE.fluid_wagon_connector_speed = 64
+tE.fluid_box = {
     base_area = 12, --volume = base_area * height * 100
     base_level = 1,
     pipe_connections = {
-        {type = "output", position = {0, -1}}
+        {type = "output", position = {0, -1}},
     },
-    production_type = "output"
+    pipe_covers = pipecoverspictures(),
 }
-o.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
-o.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
-o.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
-o.pictures =
-    {
-        picture = {
-            north = {
-                layers = {
-                    {
-                        filename = Constants.Settings.RNS_BlankIcon,
-                        priority = "extra-high",
-                        size = 32,
-                        scale = 1,
-                    },
-                }
+tE.open_sound = { filename = "__base__/sound/wooden-chest-open.ogg" }
+tE.close_sound = { filename = "__base__/sound/wooden-chest-close.ogg" }
+tE.vehicle_impact_sound =  { filename = "__base__/sound/car-wood-impact.ogg", volume = 1.0 }
+tE.animations = {
+    north = {
+        layers = {
+            {
+                filename = Constants.MOD_ID.."/graphics/test"..d..".png",
+                priority = "extra-high",
+                size = 512,
+                scale = 1/16,
+                x = 0
+            },
+            {
+                filename = Constants.MOD_ID.."/graphics/test"..d.."_s.png",
+                priority = "high",
+                draw_as_shadow = true,
+                size = 512,
+                scale = 3/16,
+                x = 0
             }
-        },
-        window_background = {
-            filename = Constants.Settings.RNS_BlankIcon,
-            size = 32,
-            scale = 1
-        },
-        fluid_background = {
-            filename = Constants.Settings.RNS_BlankIcon,
-            size = 32,
-            scale = 1
-        },
-        flow_sprite = {
-            filename = Constants.Settings.RNS_BlankIcon,
-            size = 32,
-            scale = 1
-        },
-        gas_flow = {
-            filename = Constants.Settings.RNS_BlankIcon,
-            size = 32,
-            scale = 1
-        },
+        }
+        
     }
-o.flow_length_in_ticks = 1
-o.pictures.picture.east = table.deepcopy(o.pictures.picture.north)
-o.pictures.picture.south = table.deepcopy(o.pictures.picture.north)
-o.pictures.picture.west = table.deepcopy(o.pictures.picture.north)
-data:extend{o}]]
+}
+tE.animations.east = table.deepcopy(tE.animations.north)
+tE.animations.east.layers[1].x = 512
+tE.animations.east.layers[2].x = 512
+tE.animations.south = table.deepcopy(tE.animations.north)
+tE.animations.south.layers[1].x = 512*2
+tE.animations.south.layers[2].x = 512*2
+tE.animations.west = table.deepcopy(tE.animations.north)
+tE.animations.west.layers[1].x = 512*3
+tE.animations.west.layers[2].x = 512*3
+data:extend{tE}

@@ -28,7 +28,7 @@ function createObjectTables()
     --addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive64k.name}
     --addOrCreateObjectTable{tableName="FluidDriveTable", tag="FD", objName=Constants.Drives.FluidDrive.FluidDrive256k.name}
 
-    addOrCreateObjectTable{tableName="ItemIOTable", tag="IIO", objName=Constants.NetworkCables.itemIO.name}
+    addOrCreateObjectTable{tableName="ItemIOTable", tag="IIO3", objName=Constants.NetworkCables.itemIO.name}
     addOrCreateObjectTable{tableName="FluidIOTable", tag="FIO", objName=Constants.NetworkCables.fluidIO.name}
     addOrCreateObjectTable{tableName="ExternalIOTable", tag="EIO", objName=Constants.NetworkCables.externalIO.name}
     for _, color in pairs(Constants.NetworkCables.Cables) do

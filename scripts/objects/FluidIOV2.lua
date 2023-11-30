@@ -135,7 +135,7 @@ function FIO2:set_icons(index, name)
 end
 
 function FIO2:toggleHoverIcon(hovering)
-    if self.ioIcon == nil then return end
+    if self.ioIcon == nil or self.io == "output" then return end
     if hovering and rendering.get_only_in_alt_mode(self.ioIcon) then
         rendering.set_only_in_alt_mode(self.ioIcon, false)
     elseif not hovering and not rendering.get_only_in_alt_mode(self.ioIcon) then
@@ -158,9 +158,9 @@ function FIO2:generateModeIcon()
     end
     self.ioIcon = rendering.draw_sprite{
         sprite=Constants.Icons.fluid, 
-        target=self.thisEntity, 
+        target=self.port,
         target_offset=offset,
-        surface=self.thisEntity.surface,
+        surface=self.port.surface,
         only_in_alt_mode=true,
         orientation=self.io == "input" and ((self:getRealDirection()*0.25)+0.25)%1.00 or ((self:getRealDirection()*0.25)-0.25)
     }
@@ -447,6 +447,7 @@ function FIO2:change_pump(io)
     }
     self.port.destructible = false
     self.port.minable = false
+    self:generateModeIcon()
 end
 
 function FIO2.interaction(event, RNSPlayer)

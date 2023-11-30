@@ -137,7 +137,7 @@ function GUI.on_gui_element_changed(event)
     if player == nil then return end
 
     if string.match(event.element.name, "RNS_NetworkCableIO_Item") then
-        IIO.interaction(event, RNSPlayer)
+        IIO3.interaction(event, RNSPlayer)
         GUI.update(true)
         return
     end
