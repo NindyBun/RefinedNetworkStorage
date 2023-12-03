@@ -260,8 +260,14 @@ function EIO:reset_focused_entity()
     self.focusedEntity = {
         thisEntity = nil,
         inventory = {
-            index = 1,
-            values = nil
+            input = {
+                index = 1,
+                values = nil
+            },
+            output = {
+                index = 1,
+                values = nil
+            }
         },
         fluid_box = {
             index = nil,
@@ -300,7 +306,8 @@ function EIO:reset_focused_entity()
         end
     end
     if Constants.Settings.RNS_TypesWithContainer[nearest.type] == true then
-        self.focusedEntity.inventory.values = Constants.Settings.RNS_Inventory_Types[nearest.type]
+        self.focusedEntity.inventory.input.values = Constants.Settings.RNS_Inventory_Types[nearest.type].input
+        self.focusedEntity.inventory.output.values = Constants.Settings.RNS_Inventory_Types[nearest.type].output
     end
 end
 

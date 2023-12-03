@@ -261,8 +261,10 @@ function IIO3:IO()
             if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then break end
         end
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
-        if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true and #self.focusedEntity.inventory[self.io].values ~= 0 then
+        if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true then
             local foc = self.focusedEntity.thisEntity
+            if self.io == "input" and #self.focusedEntity.inventory.output.values == 0 then break end
+            if self.io == "output" and #self.focusedEntity.inventory.input.values == 0 then break end
             local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
             local externalInvs = BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal()))
             for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
@@ -284,26 +286,27 @@ function IIO3:IO()
                                         local inv = foc.get_inventory(Util.next(self.focusedEntity.inventory.output))
                                         if inv ~= nil and not inv.is_empty() then
                                             transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, self.filters.values, math.min(transportCapacity, drive:getRemainingStorageSize()), self.metadataMode, self.whitelist)
-                                            if transportCapacity <= 0 or inv.is_empty() then goto exit end
+                                            --if transportCapacity <= 0 or inv.is_empty() then goto exit end
+                                            if transportCapacity <= 0 then goto exit end
                                         end
                                         index1 = index1 + 1
                                     until index1 == Util.getTableLength(self.focusedEntity.inventory.output.values)
                                     index = index + 1
                                 until index == Util.getTableLength(self.filters.values)
-                                goto next
                             elseif Util.getTableLength_non_nil(self.filters.values) == 0 and self.whitelist == false then
                                 local index = 0
                                 repeat
                                     local inv = foc.get_inventory(Util.next(self.focusedEntity.inventory.output))
                                     if inv ~= nil and not inv.is_empty() then
                                         transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_drive(inv, drive, nil, nil, math.min(transportCapacity, drive:getRemainingStorageSize()), self.metadataMode, false)
-                                        if transportCapacity <= 0 or inv.is_empty() then goto exit end
+                                        --if transportCapacity <= 0 or inv.is_empty() then goto exit end
+                                        if transportCapacity <= 0 then goto exit end
                                     end
                                     index = index + 1
                                 until index == Util.getTableLength(self.focusedEntity.inventory.output.values)
-                                goto next
                             end
                         elseif self.io == "output" and self.whitelist == true and Util.getTableLength_non_nil(self.filters.values) > 0 then
+                            if drive:getStorageSize() <= 0 then goto next end
                             local index = 0
                             repeat
                                 local nextItem = Util.next_non_nil(self.filters)
@@ -317,22 +320,23 @@ function IIO3:IO()
                                         local inv = foc.get_inventory(Util.next(self.focusedEntity.inventory.input))
                                         if inv ~= nil and not inv.is_full() then
                                             transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, transportCapacity, self.metadataMode)
-                                            if transportCapacity <= 0 or inv.is_full() then goto exit end
+                                            --if transportCapacity <= 0 or inv.is_full() then goto exit end
+                                            if transportCapacity <= 0 then goto exit end
                                         end
                                         index1 = index1 + 1
                                     until index1 == Util.getTableLength(self.focusedEntity.inventory.input.values)
                                 end
                                 index = index + 1
                             until index == Util.getTableLength(self.filters.values)
-                            goto next
                         end
                         ::next::
                     end
                 end
-                --[[if Util.getTableLength(priorityE) > 0 then
+                ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                if Util.getTableLength(priorityE) > 0 then
                     for _, externalInv in pairs(priorityE) do
-                        if externalInv.focusedEntity.thisEntity ~= nil and externalInv.focusedEntity.thisEntity.valid and externalInv.focusedEntity.thisEntity.to_be_deconstructed() == false and externalInv.focusedEntity.inventory.values ~= nil then
-                            if self.io == "input" then
+                        if externalInv.focusedEntity.thisEntity ~= nil and externalInv.focusedEntity.thisEntity.valid and externalInv.focusedEntity.thisEntity.to_be_deconstructed() == false and #externalInv.focusedEntity.inventory[self.io].values ~= 0 then
+                            if self.io == "input" then --Switch the external inventory and focused inventory
                                 if string.match(externalInv.io, "input") == nil then goto next end
                                 if Util.getTableLength_non_nil(self.filters.values) > 0 then
                                     local index = 0
@@ -340,6 +344,7 @@ function IIO3:IO()
                                         local nextItem = Util.next_non_nil(self.filters)
                                         if nextItem == "" then goto exit end
                                         local itemstack = Util.itemstack_template(nextItem)
+
                                         if Util.getTableLength_non_nil(externalInv.filters.item.values) > 0 then
                                             if externalInv:matches_filters("item", itemstack.cont.name) == true then
                                                 if externalInv.whitelist == false then goto next end
@@ -349,71 +354,49 @@ function IIO3:IO()
                                         elseif Util.getTableLength_non_nil(externalInv.filters.item.values) == 0 then
                                             if externalInv.whitelist == true then goto next end
                                         end
-                    
+
                                         local index1 = 0
                                         repeat
-                                            local ii = Util.next(self.focusedEntity.inventory)
-                                            local inv = foc.get_inventory(ii.slot)
-                                            if inv ~= nil then
-                                                local isOperable = IIO3.check_operable_mode(ii.io, "output") and not inv.is_empty()
-                                                if isOperable == true then
-                                                    local index2 = 0
-                                                    repeat
-                                                        local ii1 = Util.next(externalInv.focusedEntity.inventory)
-                                                        local inv1 = externalInv.focusedEntity.thisEntity.get_inventory(ii1.slot)
-                                                        if inv1 ~= nil then
-                                                            --inv1.sort_and_merge()
-                                                            if EIO.has_item_room(inv1) == true and IIO3.check_operable_mode(ii1.io, "input") then
-                                                                local meta = false
-                                                                if self.metadataMode == externalInv.metadataMode and self.metadataMode == true then
-                                                                    meta = true
-                                                                end
-                                                                transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, transportCapacity, meta, self.whitelist)
-                                                                if transportCapacity <= 0 or inv.is_empty() then goto exit end
-                                                            end
-                                                        end
-                                                        index2 = index2 + 1
-                                                    until index2 == Util.getTableLength(externalInv.focusedEntity.inventory.values)
-                                                end
+                                            local inv = externalInv.focusedEntity.thisEntity.get_inventory(Util.next(externalInv.focusedEntity.inventory.input))
+                                            if inv ~= nil and not inv.is_full() then
+                                                local index2 = 0
+                                                repeat
+                                                    local inv1 = foc.get_inventory(Util.next(self.focusedEntity.inventory.output))
+                                                    if inv1 ~= nil and not inv1.is_empty() then
+                                                        local meta = (self.metadataMode == externalInv.metadataMode and self.metadataMode == true)
+                                                        transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv1, inv, itemstack, nil, transportCapacity, meta, true)
+                                                        --if transportCapacity <= 0 or inv1.is_empty() then goto exit end
+                                                        if transportCapacity <= 0 then goto exit end
+                                                    end
+                                                    index2 = index2 + 1
+                                                until index2 == Util.getTableLength(self.focusedEntity.inventory.output.values)
                                             end
                                             index1 = index1 + 1
-                                        until index1 == Util.getTableLength(self.focusedEntity.inventory.values)
+                                        until index1 == Util.getTableLength(externalInv.focusedEntity.inventory.input.values)
                                         index = index + 1
                                     until index == Util.getTableLength(self.filters.values)
-                                    goto next
                                 elseif Util.getTableLength_non_nil(self.filters.values) == 0 and self.whitelist == false then
                                     local index = 0
                                     repeat
-                                        local ii = Util.next(self.focusedEntity.inventory)
-                                        local inv = foc.get_inventory(ii.slot)
-                                        if inv ~= nil then
-                                            local isOperable = IIO3.check_operable_mode(ii.io, "output") and not inv.is_empty()
-                                            if isOperable == true then
-                                                local index1 = 0
-                                                repeat
-                                                    local ii1 = Util.next(externalInv.focusedEntity.inventory)
-                                                    local inv1 = externalInv.focusedEntity.thisEntity.get_inventory(ii1.slot)
-                                                    if inv1 ~= nil then
-                                                        --inv1.sort_and_merge()
-                                                        if EIO.has_item_room(inv1) == true and IIO3.check_operable_mode(ii1.io, "input") then
-                                                            if Util.getTableLength_non_nil(externalInv.filters.item.values) == 0 then
-                                                                if externalInv.whitelist == true then goto next end
-                                                            end
-                                                            local meta = false
-                                                            if self.metadataMode == externalInv.metadataMode and self.metadataMode == true then
-                                                                meta = true
-                                                            end
-                                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, nil, externalInv, transportCapacity, meta, false)
-                                                            if transportCapacity <= 0 or inv.is_empty() then goto exit end
-                                                        end
-                                                    end
-                                                    index1 = index1 + 1
-                                                until index1 == Util.getTableLength(externalInv.focusedEntity.inventory.values)
+                                        local inv = externalInv.focusedEntity.thisEntity.get_inventory(Util.next(externalInv.focusedEntity.inventory.input))
+                                        if inv ~= nil and not inv.is_full() then
+                                            if Util.getTableLength_non_nil(externalInv.filters.item.values) == 0 then
+                                                if externalInv.whitelist == true then goto next end
                                             end
+                                            local index1 = 0
+                                            repeat
+                                                local inv1 = foc.get_inventory(Util.next(self.focusedEntity.inventory.output))
+                                                if inv1 ~= nil and not inv1.is_empty() then
+                                                    local meta = (self.metadataMode == externalInv.metadataMode and self.metadataMode == true)
+                                                    transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv1, inv, nil, externalInv, transportCapacity, meta, false)
+                                                    --if transportCapacity <= 0 or inv1.is_empty() then goto exit end
+                                                    if transportCapacity <= 0 then goto exit end
+                                                end
+                                                index1 = index1 + 1
+                                            until index1 == Util.getTableLength(self.focusedEntity.inventory.output.values)
                                         end
                                         index = index + 1
-                                    until index == Util.getTableLength(self.focusedEntity.inventory.values)
-                                    goto next
+                                    until index == Util.getTableLength(externalInv.focusedEntity.inventory.input.values)
                                 end
                             elseif self.io == "output" and self.whitelist == true and Util.getTableLength_non_nil(self.filters.values) > 0 then
                                 if string.match(externalInv.io, "output") == nil then goto next end
@@ -425,43 +408,30 @@ function IIO3:IO()
                                     local itemstack = Util.itemstack_template(nextItem)
                                     local index1 = 0
                                     repeat
-                                        local ii = Util.next(externalInv.focusedEntity.inventory)
-                                        local inv = externalInv.focusedEntity.thisEntity.get_inventory(ii.slot)
-                                        if inv ~= nil and IIO3.check_operable_mode(ii.io, "output") then
-                                            --inv.sort_and_merge()
-                                            local has = EIO.has_item(inv, itemstack, self.metadataMode)
-            
-                                            if has > 0 then
-                                                local index2 = 0
-                                                repeat
-                                                    local ii1 = Util.next(self.focusedEntity.inventory)
-                                                    local inv1 = foc.get_inventory(ii1.slot)
-                                                    if inv1 ~= nil then
-                                                        if inv1.is_full() then goto exit end
-                                                        local isOperable = IIO3.check_operable_mode(ii1.io, "input") and inv1.can_insert(itemstack.cont)
-                                                        if isOperable == true then
-                                                            local meta = false
-                                                            if self.metadataMode == externalInv.metadataMode and self.metadataMode == true then
-                                                                meta = true
-                                                            end
-                                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, transportCapacity, meta, true)
-                                                            if transportCapacity <= 0 or inv.is_full() then goto exit end
-                                                        end
-                                                    end
-                                                    index2 = index2 + 1
-                                                until index2 == Util.getTableLength(self.focusedEntity.inventory.values)
-                                            end
+                                        local inv = externalInv.focusedEntity.thisEntity.get_inventory(Util.next(externalInv.focusedEntity.inventory.output))
+                                        if inv ~= nil and inv.get_contents()[itemstack.cont.name] ~= nil then
+                                            local index2 = 0
+                                            repeat
+                                                local inv1 = foc.get_inventory(Util.next(self.focusedEntity.inventory.input))
+                                                if inv1 ~= nil and not inv1.is_full() then
+                                                    local meta = (self.metadataMode == externalInv.metadataMode and self.metadataMode == true)
+                                                    transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, transportCapacity, meta, true)
+                                                    --if transportCapacity <= 0 or inv.is_full() then goto exit end
+                                                    if transportCapacity <= 0 then goto exit end
+                                                end
+                                                index2 = index2 + 1
+                                            until index2 == Util.getTableLength(self.focusedEntity.inventory.input.values)
                                         end
                                         index1 = index1 + 1
-                                    until index1 == Util.getTableLength(externalInv.focusedEntity.inventory.values)
+                                    until index1 == Util.getTableLength(externalInv.focusedEntity.inventory.output.values)
                                     index = index + 1
                                 until index == Util.getTableLength(self.filters.values)
-                                goto next
                             end
                         end
                         ::next::
                     end
-                end]]
+                end
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             end
         end
         ::exit::
@@ -473,7 +443,8 @@ end
 function IIO3:checkFullness()
     local i = 0
     for _, slot in pairs(self.focusedEntity.inventory[self.io].values) do
-        if self.focusedEntity.thisEntity.get_inventory(slot).is_full() then i = i + 1 end
+        if self.io == "output" and self.focusedEntity.thisEntity.get_inventory(slot).is_full() then i = i + 1 end
+        if self.io == "input" and self.focusedEntity.thisEntity.get_inventory(slot).is_empty() then i = i + 1 end
     end
     return i == #self.focusedEntity.inventory[self.io].values
 end

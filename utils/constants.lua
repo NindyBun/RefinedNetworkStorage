@@ -302,22 +302,6 @@ Constants.Settings = {
             }
         },
         ["furnace"] = {
-            --[[1] = {
-                slot = defines.inventory.fuel,
-                io = "input"
-            },
-            [2] = {
-                slot = defines.inventory.burnt_result,
-                io = "output"
-            },
-            [3] = {
-                slot = defines.inventory.furnace_source,
-                io = "input"
-            },
-            [4] = {
-                slot = defines.inventory.furnace_result,
-                io = "output"
-            },]]--
             input = {
                 defines.inventory.fuel,
                 defines.inventory.furnace_source,

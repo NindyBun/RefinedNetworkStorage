@@ -396,17 +396,20 @@ function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, exte
     local amount = count
     allowModified = allowModified or false
     whitelist = whitelist or false
+    from_inv.sort_and_merge()
+    to_inv.sort_and_merge()
+    
     for i = 1, #from_inv do
         local mod = false
         local itemstack = from_inv[i]
+        if itemstack_data ~= nil and whitelist == true then
+            itemstack, i = from_inv.find_item_stack(itemstack_data.cont.name)
+            if itemstack == nil then break end
+        end
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
-        if itemstack_data ~= nil then
-            if whitelist == true then
-                if game.item_prototypes[itemstackC.cont.name] ~= game.item_prototypes[itemstack_data.cont.name] then goto continue end
-            else
-                if game.item_prototypes[itemstackC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then goto continue end
-            end
+        if itemstack_data ~= nil and whitelist == false and game.item_prototypes[itemstackC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then
+            goto continue
         else
             itemstack_data = Util.itemstack_template(itemstackC.cont.name)
         end
@@ -468,6 +471,8 @@ function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, exte
             else
                 for j=1, #to_inv do
                     local item1 = to_inv[j]
+                    item1, j = to_inv.find_empty_stack()
+                    if item1 == nil then break end
                     if item1.count > 0 then goto continue end
                     if item1.transfer_stack(itemstack) then
                         amount = amount - min
