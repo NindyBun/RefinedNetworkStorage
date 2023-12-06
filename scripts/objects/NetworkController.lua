@@ -282,7 +282,7 @@ function NC:updateItemIO()
             if item.processed == true then processed = processed + 1 end
         end
     end
-    if processed <= BaseNet.get_table_length_in_priority(export) and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+    if processed >= BaseNet.get_table_length_in_priority(export) and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(export) do
             for _, item in pairs(priority) do
                 item.processed = false
@@ -318,7 +318,7 @@ function NC:updateFluidIO()
             if fluid.processed == true then processed = processed + 1 end
         end
     end
-    if processed == BaseNet.get_table_length_in_priority(export) and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+    if processed >= BaseNet.get_table_length_in_priority(export) and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(export) do
             for _, fluid in pairs(priority) do
                 fluid.processed = false
