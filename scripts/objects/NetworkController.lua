@@ -282,7 +282,7 @@ function NC:updateItemIO()
             if item.processed == true then processed = processed + 1 end
         end
     end
-    if processed == BaseNet.get_table_length_in_priority(export) and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+    if processed <= BaseNet.get_table_length_in_priority(export) and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(export) do
             for _, item in pairs(priority) do
                 item.processed = false
@@ -295,7 +295,7 @@ function NC:updateFluidIO()
     local import = {}
     local export = {}
     local processed = 0
-    for p, priority in pairs(BaseNet.getOperableObjects(self.network.FluidIOV2Table)) do
+    for p, priority in pairs(BaseNet.getOperableObjects(self.network.FluidIOTable)) do
         import[p] = {}
         export[p] = {}
         for _, fluid in pairs(priority) do

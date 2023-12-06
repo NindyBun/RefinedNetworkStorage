@@ -287,7 +287,13 @@ function FIO:IO()
         end
         ::exit::
     end
-    self.processed = transportCapacity < Constants.Settings.RNS_BaseFluidIO_TransferCapacity
+    self.processed = transportCapacity < Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier or (self.focusedEntity.thisEntity ~= nil and self:checkFullness())
+end
+
+function FIO:checkFullness()
+    local fluid_box = self.focusedEntity.fluid_box
+    if self.io == "output" and (self.focusedEntity.thisEntity.fluidbox[fluid_box.index] ~= nil and self.focusedEntity.thisEntity.fluidbox[fluid_box.index].amount == self.focusedEntity.thisEntity.fluidbox.get_capacity(fluid_box.index)) then return true end
+    return false
 end
 
 function FIO:resetConnection()

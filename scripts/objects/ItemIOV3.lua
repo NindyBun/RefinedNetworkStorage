@@ -263,8 +263,8 @@ function IIO3:IO()
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
         if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true then
             local foc = self.focusedEntity.thisEntity
-            if self.io == "input" and #self.focusedEntity.inventory.output.values == 0 then break end
-            if self.io == "output" and #self.focusedEntity.inventory.input.values == 0 then break end
+            if self.io == "input" and self.focusedEntity.inventory.output.values == nil then break end
+            if self.io == "output" and self.focusedEntity.inventory.input.values == nil then break end
             local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
             local externalInvs = BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal()))
             for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
@@ -335,7 +335,7 @@ function IIO3:IO()
                 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 if Util.getTableLength(priorityE) > 0 then
                     for _, externalInv in pairs(priorityE) do
-                        if externalInv.focusedEntity.thisEntity ~= nil and externalInv.focusedEntity.thisEntity.valid and externalInv.focusedEntity.thisEntity.to_be_deconstructed() == false and #externalInv.focusedEntity.inventory[self.io].values ~= 0 then
+                        if externalInv.focusedEntity.thisEntity ~= nil and externalInv.focusedEntity.thisEntity.valid and externalInv.focusedEntity.thisEntity.to_be_deconstructed() == false and externalInv.focusedEntity.inventory[self.io].values ~= nil then
                             if self.io == "input" then --Switch the external inventory and focused inventory
                                 if string.match(externalInv.io, "input") == nil then goto next end
                                 if Util.getTableLength_non_nil(self.filters.values) > 0 then
@@ -444,9 +444,9 @@ function IIO3:checkFullness()
     local i = 0
     for _, slot in pairs(self.focusedEntity.inventory[self.io].values) do
         if self.io == "output" and self.focusedEntity.thisEntity.get_inventory(slot).is_full() then i = i + 1 end
-        if self.io == "input" and self.focusedEntity.thisEntity.get_inventory(slot).is_empty() then i = i + 1 end
+        if self.io == "output" and i == #self.focusedEntity.inventory["output"].values then return true end
     end
-    return i == #self.focusedEntity.inventory[self.io].values
+    return false
 end
 
 function IIO3:resetConnection()

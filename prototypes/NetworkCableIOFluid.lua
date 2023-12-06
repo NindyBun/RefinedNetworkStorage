@@ -50,10 +50,10 @@ ioE.window_bounding_box = {{0, 0}, {0, 0}}
 ioE.fluid_box = {
     base_area = 1, --scales by 100x
     base_level = 1,
-    filter="rns_empty_fluid",
+    --filter="rns_empty_fluid",
     hide_connection_info = true,
     pipe_connections = {
-        {position = {0, -1}}
+        {type = "output", position = {0, -1}}
     }
 }
 ioE.fast_replaceable_group = Constants.Settings.RNS_FR_Cable
