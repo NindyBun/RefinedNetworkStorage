@@ -272,8 +272,9 @@ function IIO3:IO()
                 local priorityE = externalInvs[i]
                 if Util.getTableLength(priorityD) > 0 then
                     for _, drive in pairs(priorityD) do
+                        local remaining = drive:getRemainingStorageSize()
                         if self.io == "input" then
-                            if not drive:has_room() then goto next end
+                            if remaining <= 0 then goto next end
                             if Util.getTableLength_non_nil(self.filters.values) > 0 then
                                 local index = 0
                                 repeat
@@ -285,7 +286,7 @@ function IIO3:IO()
                                     repeat
                                         local inv = foc.get_inventory(Util.next(self.focusedEntity.inventory.output))
                                         if inv ~= nil and not inv.is_empty() then
-                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, self.filters.values, math.min(transportCapacity, drive:getRemainingStorageSize()), self.metadataMode, self.whitelist)
+                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, self.filters.values, math.min(transportCapacity, remaining), self.metadataMode, self.whitelist)
                                             --if transportCapacity <= 0 or inv.is_empty() then goto exit end
                                             if transportCapacity <= 0 then goto exit end
                                         end
@@ -298,7 +299,7 @@ function IIO3:IO()
                                 repeat
                                     local inv = foc.get_inventory(Util.next(self.focusedEntity.inventory.output))
                                     if inv ~= nil and not inv.is_empty() then
-                                        transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_drive(inv, drive, nil, nil, math.min(transportCapacity, drive:getRemainingStorageSize()), self.metadataMode, false)
+                                        transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_drive(inv, drive, nil, nil, math.min(transportCapacity, remaining), self.metadataMode, false)
                                         --if transportCapacity <= 0 or inv.is_empty() then goto exit end
                                         if transportCapacity <= 0 then goto exit end
                                     end
@@ -306,7 +307,7 @@ function IIO3:IO()
                                 until index == Util.getTableLength(self.focusedEntity.inventory.output.values)
                             end
                         elseif self.io == "output" and self.whitelist == true and Util.getTableLength_non_nil(self.filters.values) > 0 then
-                            if drive:getStorageSize() <= 0 then goto next end
+                            if remaining >= drive.maxStorage then goto next end
                             local index = 0
                             repeat
                                 local nextItem = Util.next_non_nil(self.filters)
