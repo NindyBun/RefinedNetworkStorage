@@ -196,6 +196,17 @@ end
 
 function FIO:IO()
     self:reset_focused_entity()
+    if self.focusedEntity.thisEntity == nil then self.processed = true return end
+    if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then self.processed = true return end
+    local network = self.networkController.network
+    if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
+        if self.enabler.filter == nil then self.processed = true return end
+        local amount = self.enablerCombinator.get_merged_signal({type=self.enabler.filter.type, name=self.enabler.filter.name}, defines.circuit_connector_id.constant_combinator)
+        if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then self.processed = true return end
+    end
+    local fluid_box = self.focusedEntity.fluid_box
+    if self.thisEntity.position.x ~= fluid_box.target_position.x or self.thisEntity.position.y ~= fluid_box.target_position.y then self.processed = true return end
+    
     local transportCapacity = Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier
     --#tank.fluidbox returns number of pipe connections
     --tank.fluidbox.get_locked_fluid(index) returns filtered fluid at an index
@@ -203,18 +214,8 @@ function FIO:IO()
     --tank.fluidbox.get_pipe_connections(index)[1] returns the fluidbox prototype at a pipe index and fluidbox index, we can use flow_direction and target_position
     --tank.fluidbox[index] = nil sets the fluidbox empty
     --tank.fluidbox[index] = {name?, amount?, tempurature?} sets the fluidbox
-
     for i=1, 1 do
-        if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
-        local network = self.networkController.network
-        if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
-            if self.enabler.filter == nil then break end
-            local amount = self.enablerCombinator.get_merged_signal({type=self.enabler.filter.type, name=self.enabler.filter.name}, defines.circuit_connector_id.constant_combinator)
-            if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then break end
-        end
         if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true then
-            local fluid_box = self.focusedEntity.fluid_box
-            if self.thisEntity.position.x ~= fluid_box.target_position.x or self.thisEntity.position.y ~= fluid_box.target_position.y then break end
             local fluidDrives = BaseNet.getOperableObjects(network.FluidDriveTable)
             local externalTanks = BaseNet.filter_by_type("fluid", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal()))
             for p = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
@@ -390,48 +391,11 @@ function FIO:createArms()
                                 enti = enti + 1
                             end
                         end
-                        --[[Update network connections if necessary
-                        if self.cardinals[area.direction] == false then
-                            self.cardinals[area.direction] = true
-                            if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
-                                self.networkController.network.shouldRefresh = true
-                            elseif obj.thisEntity.name == Constants.NetworkController.main.name then
-                                obj.network.shouldRefresh = true
-                            end
-                        end]]
                         break
                     end
-                --[[elseif ent ~= nil and self:getDirection() == area.direction then --Get entity with inventory
-                    if #ent.fluidbox ~= 0 then
-                        if self.focusedEntity.thisEntity == nil or (self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false) then
-                            self:reset_focused_entity()
-                            self.focusedEntity.thisEntity = ent
-                            for i=1, #ent.fluidbox do
-                                for j=1, #ent.fluidbox.get_pipe_connections(i) do
-                                    local target = ent.fluidbox.get_pipe_connections(i)[j]
-                                    if target.target_position.x == self.thisEntity.position.x and target.target_position.y == self.thisEntity.position.y then
-                                        self.focusedEntity.fluid_box.index = i
-                                        self.focusedEntity.fluid_box.flow =  target.flow_direction
-                                        self.focusedEntity.fluid_box.target_position = target.target_position
-                                        self.focusedEntity.fluid_box.filter =  (ent.fluidbox.get_locked_fluid(i) ~= nil and {ent.fluidbox.get_locked_fluid(i)} or {""})[1]
-                                        break
-                                    end
-                                end
-                            end
-                        end
-                    end]]
                 end
             end
         end
-        --[[if self:getDirection() ~= area.direction then
-            --Update network connections if necessary
-            if self.cardinals[area.direction] == true and enti ~= 0 then
-                self.cardinals[area.direction] = false
-                if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
-                    self.networkController.network.shouldRefresh = true
-                end
-            end
-        end]]
     end
 end
 

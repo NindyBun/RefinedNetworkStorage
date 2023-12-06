@@ -251,20 +251,21 @@ end
 
 function IIO3:IO()
     self:reset_focused_entity()
+    if self.focusedEntity.thisEntity == nil then self.processed = true return end
+    if self.io == "input" and self.focusedEntity.inventory.output.values == nil then self.processed = true return end
+    if self.io == "output" and self.focusedEntity.inventory.input.values == nil then self.processed = true return end
+    if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then self.processed = true return end
+    local network = self.networkController.network
+    if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
+        if self.enabler.filter == nil then self.processed = true return end
+        local amount = self.enablerCombinator.get_merged_signal({type=self.enabler.filter.type, name=self.enabler.filter.name}, defines.circuit_connector_id.constant_combinator)
+        if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then self.processed = true return end
+    end
+
     local transportCapacity = Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier
     for k=1, 1 do
-        if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then break end
-        local network = self.networkController.network
-        if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
-            if self.enabler.filter == nil then break end
-            local amount = self.enablerCombinator.get_merged_signal({type=self.enabler.filter.type, name=self.enabler.filter.name}, defines.circuit_connector_id.constant_combinator)
-            if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then break end
-        end
-------------------------------------------------------------------------------------------------------------------------------------------------------------
         if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true then
             local foc = self.focusedEntity.thisEntity
-            if self.io == "input" and self.focusedEntity.inventory.output.values == nil then break end
-            if self.io == "output" and self.focusedEntity.inventory.input.values == nil then break end
             local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
             local externalInvs = BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal()))
             for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
