@@ -137,10 +137,11 @@ end
 
 function FD:insert_fluid(name, amount, temperature)
     temperature = temperature or game.fluid_prototypes[name].default_temperature
-    if self:has_room() == false then return 0 end
+    local remaining = self:getRemainingStorageSize()
+    if remaining <= 0 then return 0 end
     if self.fluidArray[name] ~= nil then
         local tank = self.fluidArray[name]
-        local min = math.min(amount, self:getRemainingStorageSize())
+        local min = math.min(amount, remaining)
         tank.temperature = ((tank.temperature or game.fluid_prototypes[name].default_temperature) * tank.amount + min * temperature) / (tank.amount + min)
         tank.amount = tank.amount + min
         return min
@@ -164,7 +165,8 @@ function FD:remove_fluid(name, amount)
 end
 
 function FD:has_room()
-    if self:getRemainingStorageSize() > 0 then return true end
+    local remaining = self:getRemainingStorageSize()
+    if remaining > 0 then return true end
     return false
 end
 
