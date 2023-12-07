@@ -4,7 +4,7 @@ data:extend({
         type = "bool-setting",
         name = Constants.Settings.RNS_RoundRobin,
         setting_type = "runtime-global",
-        default_value = false
+        default_value = true
     }
 })
 data:extend({

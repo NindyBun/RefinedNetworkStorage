@@ -120,14 +120,14 @@ function addConnectables(source, connections, master)
             elseif con.thisEntity.name == Constants.NetworkCables.itemIO.name then
                 master.network.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
 
-            elseif con.thisEntity.name == "RNS_NetworkCableIOV2_Item" then
-                master.network.ItemIOV2Table[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
+            --elseif con.thisEntity.name == "RNS_NetworkCableIOV2_Item" then
+            --    master.network.ItemIOV2Table[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
 
             elseif con.thisEntity.name == Constants.NetworkCables.fluidIO.name then
                 master.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
 
-            elseif con.thisEntity.name == "RNS_NetworkCableIOV2_Fluid" then
-                master.network.FluidIOV2Table[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
+            --elseif con.thisEntity.name == "RNS_NetworkCableIOV2_Fluid" then
+            --    master.network.FluidIOV2Table[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
 
             elseif con.thisEntity.name == Constants.NetworkCables.externalIO.name then
                 master.network.ExternalIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
