@@ -215,6 +215,7 @@ script.on_event(defines.events.on_gui_selection_state_changed, onGuiElemChanged)
 script.on_event(defines.events.on_gui_text_changed, onGuiElemChanged)
 script.on_event(defines.events.on_gui_switch_state_changed, onGuiElemChanged)
 script.on_event(defines.events.on_gui_selected_tab_changed, onGuiElemChanged)
+script.on_event(defines.events.on_gui_value_changed, onGuiElemChanged)
 
 script.on_event(defines.events.on_player_setup_blueprint, onBlueprintSetup)
 script.on_event(defines.events.on_player_configured_blueprint, onBlueprintConfigured)

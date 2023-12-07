@@ -444,8 +444,14 @@ function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, exte
         end
         if itemstack.count <= 0 then goto continue end
         local itemstackC = Util.itemstack_convert(itemstack)
-        if itemstack_data ~= nil and whitelist == false and game.item_prototypes[itemstackC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then
-            goto continue
+        if itemstack_data ~= nil then
+            if whitelist == false then
+                if game.item_prototypes[itemstackC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then
+                    goto continue
+                else
+                    itemstack_data = Util.itemstack_template(itemstackC.cont.name)
+                end
+            end
         else
             itemstack_data = Util.itemstack_template(itemstackC.cont.name)
         end
@@ -507,7 +513,7 @@ function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, exte
             else
                 for j=1, #to_inv do
                     local item1 = to_inv[j]
-                    item1, j = to_inv.find_empty_stack()
+                    item1, j = to_inv.find_empty_stack(itemstack.name)
                     if item1 == nil then break end
                     if item1.count > 0 then goto continue end
                     if item1.transfer_stack(itemstack) then

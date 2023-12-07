@@ -271,12 +271,32 @@ function IIO3:IO()
             for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
                 local priorityD = itemDrives[i]
                 local priorityE = externalInvs[i]
-                if Util.getTableLength(priorityD) > 0 then
+                --if Util.getTableLength(priorityD) > 0 then
                     for _, drive in pairs(priorityD) do
                         local remaining = drive:getRemainingStorageSize()
                         if self.io == "input" then
                             if remaining <= 0 then goto next end
-                            if Util.getTableLength_non_nil(self.filters.values) > 0 then
+                            local index = 0
+                            repeat
+                                local filterstack = nil
+                                local nextItem = Util.next_non_nil(self.filters)
+                                if nextItem ~= "" then
+                                    filterstack = Util.itemstack_template(nextItem)
+                                end
+            
+                                local index1 = 0
+                                repeat
+                                    local inv = foc.get_inventory(Util.next(self.focusedEntity.inventory.output))
+                                    if inv ~= nil and not inv.is_empty() then
+                                        transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_drive(inv, drive, filterstack, filterstack ~= nil and self.filters.values or nil, math.min(transportCapacity, remaining), self.metadataMode, filterstack ~= nil and self.whitelist or false)
+                                        --if transportCapacity <= 0 or inv.is_empty() then goto exit end
+                                        if transportCapacity <= 0 then goto exit end
+                                    end
+                                    index1 = index1 + 1
+                                until index1 == Util.getTableLength(self.focusedEntity.inventory.output.values)
+                                index = index + 1
+                            until index == Util.getTableLength(self.filters.values)
+                            --[[if Util.getTableLength_non_nil(self.filters.values) > 0 then
                                 local index = 0
                                 repeat
                                     local nextItem = Util.next_non_nil(self.filters)
@@ -306,7 +326,7 @@ function IIO3:IO()
                                     end
                                     index = index + 1
                                 until index == Util.getTableLength(self.focusedEntity.inventory.output.values)
-                            end
+                            end]]
                         elseif self.io == "output" and self.whitelist == true and Util.getTableLength_non_nil(self.filters.values) > 0 then
                             if remaining >= drive.maxStorage then goto next end
                             local index = 0
@@ -333,14 +353,52 @@ function IIO3:IO()
                         end
                         ::next::
                     end
-                end
+                --end
                 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                if Util.getTableLength(priorityE) > 0 then
+                --if Util.getTableLength(priorityE) > 0 then
                     for _, externalInv in pairs(priorityE) do
                         if externalInv.focusedEntity.thisEntity ~= nil and externalInv.focusedEntity.thisEntity.valid and externalInv.focusedEntity.thisEntity.to_be_deconstructed() == false and externalInv.focusedEntity.inventory[self.io].values ~= nil then
-                            if self.io == "input" then --Switch the external inventory and focused inventory
+                            if self.io == "input" then
                                 if string.match(externalInv.io, "input") == nil then goto next end
-                                if Util.getTableLength_non_nil(self.filters.values) > 0 then
+                                local index = 0
+                                repeat
+                                    local nextItem = Util.next_non_nil(self.filters)
+                                    local filterstack = nil
+                                    if nextItem ~= "" then
+                                        filterstack = Util.itemstack_template(nextItem)
+                                    end
+
+                                    if Util.getTableLength_non_nil(externalInv.filters.item.values) > 0 then
+                                        if filterstack ~= nil and externalInv:matches_filters("item", filterstack.cont.name) == true then
+                                            if externalInv.whitelist == false then goto next end
+                                        else
+                                            if externalInv.whitelist == true then goto next end
+                                        end
+                                    elseif Util.getTableLength_non_nil(externalInv.filters.item.values) == 0 then
+                                        if externalInv.whitelist == true then goto next end
+                                    end
+
+                                    local index1 = 0
+                                    repeat
+                                        local inv = externalInv.focusedEntity.thisEntity.get_inventory(Util.next(externalInv.focusedEntity.inventory.input))
+                                        if inv ~= nil and not inv.is_full() then
+                                            local index2 = 0
+                                            repeat
+                                                local inv1 = foc.get_inventory(Util.next(self.focusedEntity.inventory.output))
+                                                if inv1 ~= nil and not inv1.is_empty() then
+                                                    local meta = (self.metadataMode == externalInv.metadataMode and self.metadataMode == true)
+                                                    transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv1, inv, filterstack, filterstack == nil and externalInv or nil, transportCapacity, meta, (filterstack == nil and {true} or {false})[1])
+                                                    --if transportCapacity <= 0 or inv1.is_empty() then goto exit end
+                                                    if transportCapacity <= 0 then goto exit end
+                                                end
+                                                index2 = index2 + 1
+                                            until index2 == Util.getTableLength(self.focusedEntity.inventory.output.values)
+                                        end
+                                        index1 = index1 + 1
+                                    until index1 == Util.getTableLength(externalInv.focusedEntity.inventory.input.values)
+                                    index = index + 1
+                                until index == Util.getTableLength(self.filters.values)
+                                --[[if Util.getTableLength_non_nil(self.filters.values) > 0 then
                                     local index = 0
                                     repeat
                                         local nextItem = Util.next_non_nil(self.filters)
@@ -399,7 +457,7 @@ function IIO3:IO()
                                         end
                                         index = index + 1
                                     until index == Util.getTableLength(externalInv.focusedEntity.inventory.input.values)
-                                end
+                                end]]
                             elseif self.io == "output" and self.whitelist == true and Util.getTableLength_non_nil(self.filters.values) > 0 then
                                 if string.match(externalInv.io, "output") == nil then goto next end
                                 local index = 0
@@ -432,8 +490,7 @@ function IIO3:IO()
                         end
                         ::next::
                     end
-                end
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                --end
             end
         end
         ::exit::
