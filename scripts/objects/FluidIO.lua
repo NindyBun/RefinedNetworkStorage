@@ -221,7 +221,7 @@ function FIO:IO()
             for p = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
                 local priorityF = fluidDrives[p]
                 local priorityE = externalTanks[p]
-                if Util.getTableLength(priorityF) > 0 then
+                --if Util.getTableLength(priorityF) > 0 then
                     for _, drive in pairs(priorityF) do
                         if self.io == "input" then
                             if string.match(fluid_box.flow, "output") == nil then goto exit end
@@ -241,8 +241,8 @@ function FIO:IO()
                         end
                         ::continue::
                     end
-                end
-                if Util.getTableLength(priorityE) > 0 then
+                --end
+                --if Util.getTableLength(priorityE) > 0 then
                     for _, externalTank in pairs(priorityE) do
                         if  externalTank.focusedEntity.thisEntity ~= nil and externalTank.focusedEntity.thisEntity.valid and externalTank.focusedEntity.thisEntity.to_be_deconstructed() == false and externalTank.focusedEntity.fluid_box.index ~= nil then
                             local fluid_boxE = externalTank.focusedEntity.fluid_box
@@ -284,7 +284,7 @@ function FIO:IO()
                             ::continue::
                         end
                     end
-                end
+                --end
             end
         end
         ::exit::
