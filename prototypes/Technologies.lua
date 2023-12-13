@@ -9,10 +9,10 @@ for _, tech in pairs(Constants.Technologies) do
 	end
 	T.icon_size = tech.icon_size or 512
 	T.prerequisites = tech.prerequisites
-	--T.max_level = tech.max_level
+	T.max_level = tech.max_level
 	T.effects = tech.effects
 	T.unit = tech.unit
-	--T.upgrade = tech.upgrade
+	T.upgrade = tech.upgrade
 	T.order = "a-z"
 	data:extend{T}
 end

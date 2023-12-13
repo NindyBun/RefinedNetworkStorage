@@ -368,7 +368,8 @@ function FIO:getCheckArea()
 end
 
 function FIO:createArms()
-    local areas = self:getCheckArea()
+    BaseNet.generateArms(self)
+    --[[local areas = self:getCheckArea()
     self:resetConnection()
     for _, area in pairs(areas) do
         local enti = 0
@@ -396,7 +397,7 @@ function FIO:createArms()
                 end
             end
         end
-    end
+    end]]
 end
 
 function FIO:getDirection()

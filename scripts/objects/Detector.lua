@@ -177,7 +177,8 @@ function DT:getCheckArea()
 end
 
 function DT:createArms()
-    local areas = self:getCheckArea()
+    BaseNet.generateArms(self)
+    --[[local areas = self:getCheckArea()
     local selfP = self.thisEntity.position
     self:resetConnection()
     for _, area in pairs(areas) do
@@ -239,8 +240,8 @@ function DT:createArms()
                     self.networkController.network.shouldRefresh = true
                 end
             end
-        end]]
-    end
+        end--
+    end]]
 end
 
 function DT:getTooltips(guiTable, mainFrame, justCreated)

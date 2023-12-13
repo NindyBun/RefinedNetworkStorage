@@ -323,7 +323,8 @@ function EIO:getCheckArea()
 end
 
 function EIO:createArms()
-    local areas = self:getCheckArea()
+    BaseNet.generateArms(self)
+    --[[local areas = self:getCheckArea()
     self:resetConnection()
     for _, area in pairs(areas) do
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
@@ -348,7 +349,7 @@ function EIO:createArms()
                 end
             end
         end
-    end
+    end]]
 end
 
 function EIO:signal_valid()

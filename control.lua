@@ -166,7 +166,7 @@ function finished_research(event)
 end
 
 function reversed_research(event)
-    Util.safeCall(Event.reverse_research, event)
+    Util.safeCall(Event.reversed_research, event)
 end
 
 script.on_init(onInit)

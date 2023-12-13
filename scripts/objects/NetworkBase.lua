@@ -157,6 +157,36 @@ function BaseNet:getTooltips()
     
 end
 
+function BaseNet.generateArms(object)
+    if object == nil then return end
+    local areas = object:getCheckArea()
+    object:resetConnection()
+    for _, area in pairs(areas) do
+        local ents = object.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
+        for _, ent in pairs(ents) do
+            if ent ~= nil and ent.valid == true then
+                if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil then
+                    if area.direction ~= object:getDirection() then --Prevent cable connection on the IO port
+                        local obj = global.entityTable[ent.unit_number]
+                        if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
+                            --Do nothing
+                        else
+                            if obj.color == nil then
+                                object.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[object.color].sprites[area.direction].name, target=object.thisEntity, surface=object.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                                object.connectedObjs[area.direction] = {obj}
+                            elseif obj.color ~= "" and obj.color == self.color then
+                                object.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[object.color].sprites[area.direction].name, target=object.thisEntity, surface=object.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                                object.connectedObjs[area.direction] = {obj}
+                            end
+                        end
+                        break
+                    end
+                end
+            end
+        end
+    end
+end
+
 function BaseNet.transfer_from_tank_to_tank(from_tank, to_tank, from_index, to_index, name, amount_to_transfer)
     local to_tank_capacity = to_tank.fluidbox.get_capacity(to_index)
     local amount = amount_to_transfer
@@ -513,11 +543,11 @@ function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, exte
             else
                 for j=1, #to_inv do
                     local item1 = to_inv[j]
-                    item1, j = to_inv.find_empty_stack(itemstack.name)
+                    item1, j = to_inv.find_empty_stack(itemstackC.name)
                     if item1 == nil then break end
                     if item1.count > 0 then goto continue end
                     if item1.transfer_stack(itemstack) then
-                        amount = amount - min
+                        amount = amount - itemstack.count
                         break
                     end
                     ::continue::

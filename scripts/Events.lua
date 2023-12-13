@@ -178,18 +178,18 @@ function Event.finished_research(event)
 	local name, _ = string.gsub(event.research.name, "%-", "_")
 	local level = event.research.level
 	if string.match(name, "RNS_item_transfer_bonus") ~= nil then
-		global.IIOMultiplier = Constants.Settings.Multipliers.IIO[level]
-		printResearchBonus("item")
+		global.IIOMultiplier = string.match(name, "infinite") == nil and Constants.Settings.Multipliers.IIO[level] or (Constants.Settings.Multipliers.IIO[8] + 2*level)
+		--printResearchBonus("item")
 		return
 	end
 	if string.match(name, "RNS_fluid_transfer_bonus") ~= nil then
-		global.FIOMultiplier = Constants.Settings.Multipliers.FIO[level]
-		printResearchBonus("fluid")
+		global.FIOMultiplier = string.match(name, "infinite") == nil and Constants.Settings.Multipliers.FIO[level] or (Constants.Settings.Multipliers.FIO[8] + 2*level)
+		--printResearchBonus("fluid")
 		return
 	end
 	if string.match(name, "RNS_wireless_range_bonus") ~= nil then
 		global.WTRangeMultiplier = string.match(name, "inf") == nil and Constants.Settings.Multipliers.WT[level] or -1
-		printResearchBonus("wireless")
+		--printResearchBonus("wireless")
 		return
 	end
 end
@@ -199,18 +199,18 @@ function Event.reversed_research(event)
 	local name, _ = string.gsub(event.research.name, "%-", "_")
 	local level = event.research.level
 	if string.match(name, "RNS_item_transfer_bonus") ~= nil then
-		global.IIOMultiplier = Constants.Settings.Multipliers.IIO[level-1] or 1
-		printResearchBonus("item")
+		global.IIOMultiplier = string.match(name, "infinite") == nil and (Constants.Settings.Multipliers.IIO[level-1] or 1) or (Constants.Settings.Multipliers.IIO[8] + (2*(level-1) == 0 and 0 or 2*(level-1)))
+		--printResearchBonus("item")
 		return
 	end
 	if string.match(name, "RNS_fluid_transfer_bonus") ~= nil then
-		global.FIOMultiplier = Constants.Settings.Multipliers.FIO[level-1] or 1
-		printResearchBonus("fluid")
+		global.FIOMultiplier = string.match(name, "infinite") == nil and (Constants.Settings.Multipliers.FIO[level-1] or 1) or (Constants.Settings.Multipliers.FIO[8] + (2*(level-1) == 0 and 0 or 2*(level-1)))
+		--printResearchBonus("fluid")
 		return
 	end
 	if string.match(name, "RNS_wireless_range_bonus") ~= nil then
 		global.WTRangeMultiplier = string.match(name, "inf") == nil and Constants.Settings.Multipliers.WT[level-1] or 1
-		printResearchBonus("wireless")
+		--printResearchBonus("wireless")
 		return
 	end
 end

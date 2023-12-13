@@ -150,147 +150,137 @@ Constants.Settings = {
     },
     RNS_Inventory_Types = {
         ["rocket-silo"] = {
-            [1] = {
-                slot = defines.inventory.rocket_silo_rocket,
-                io = "input"
+            input = {
+                defines.inventory.rocket_silo_rocket,
+                defines.inventory.rocket_silo_input,
             },
-            [2] = {
-                slot = defines.inventory.rocket_silo_result,
-                io = "output"
-            },
-            [3] = {
-                slot = defines.inventory.rocket_silo_input,
-                io = "input"
-            },
-            [4] = {
-                slot = defines.inventory.rocket_silo_output,
-                io = "output"
+            output = {
+                defines.inventory.rocket_silo_result,
+                defines.inventory.rocket_silo_output,
             }
         },
         ["mining-drill"] = {
-            [1] = {
-                slot = defines.inventory.fuel,
-                io = "input"
+            input = {
+                defines.inventory.fuel,
             },
-            [2] = {
-                slot = defines.inventory.burnt_result,
-                io = "output"
-            },
-            [3] = {
-                slot = defines.inventory.chest,
-                io = "output"
+            output = {
+                defines.inventory.burnt_result,
+                defines.inventory.chest,
             }
         },
         ["reactor"] = {
-            [1] = {
-                slot = defines.inventory.fuel,
-                io = "input"
+            input = {
+                defines.inventory.fuel,
             },
-            [2] = {
-                slot = defines.inventory.burnt_result,
-                io = "output"
-            },
+            output = {
+                defines.inventory.burnt_result,
+            }
         },
         ["locomotive"] = {
-            [1] = {
-                slot = defines.inventory.fuel,
-                io = "input"
+            input = {
+                defines.inventory.fuel,
             },
-            [2] = {
-                slot = defines.inventory.burnt_result,
-                io = "output"
-            },
+            output = {
+                defines.inventory.burnt_result,
+            }
         },
         ["lab"] = {
-            [1] = {
-                slot = defines.inventory.lab_input,
-                io = "input"
+            input = {
+                defines.inventory.lab_input,
+                defines.inventory.fuel,
             },
-            [2] = {
-                slot = defines.inventory.fuel,
-                io = "input"
-            },
-            [3] = {
-                slot = defines.inventory.burnt_result,
-                io = "output"
-            },
+            output = {
+                defines.inventory.burnt_result,
+            }
         },
         ["cargo-wagon"] = {
-            [1] = {
-                slot = defines.inventory.cargo_wagon,
-                io = "input/output"
+            input = {
+                defines.inventory.cargo_wagon,
+            },
+            output = {
+                defines.inventory.cargo_wagon,
             }
         },
         ["burner-generator"] = {
-            [1] = {
-                slot = defines.inventory.fuel,
-                io = "input"
+            input = {
+                defines.inventory.fuel,
             },
-            [2] = {
-                slot = defines.inventory.burnt_result,
-                io = "output"
-            },
+            output = {
+                defines.inventory.burnt_result,
+            }
         },
         ["boiler"] = {
-            [1] = {
-                slot = defines.inventory.fuel,
-                io = "input"
+            input = {
+                defines.inventory.fuel,
             },
-            [2] = {
-                slot = defines.inventory.burnt_result,
-                io = "output"
-            },
+            output = {
+                defines.inventory.burnt_result,
+            }
         },
         ["artillery-wagon"] = {
-            [1] = {
-                slot = defines.inventory.artillery_wagon_ammo,
-                io = "input/output"
+            input = {
+                defines.inventory.artillery_wagon_ammo,
+            },
+            output = {
+                defines.inventory.artillery_wagon_ammo,
             }
         },
         ["artillery-turret"] = {
-            [1] = {
-                slot = defines.inventory.artillery_turret_ammo,
-                io = "input/output"
+            input = {
+                defines.inventory.artillery_turret_ammo,
+            },
+            output ={
+                defines.inventory.artillery_turret_ammo,
             }
         },
         ["ammo-turret"] = {
-            [1] = {
-                slot = defines.inventory.turret_ammo,
-                io = "input/output"
+            input = {
+                defines.inventory.turret_ammo,
+            },
+            output = {
+                defines.inventory.turret_ammo,
             }
         },
         ["roboport"] = {
-            [1] = {
-                slot = defines.inventory.roboport_robot,
-                io = "input/output"
+            input = {
+                defines.inventory.roboport_robot,
+                defines.inventory.roboport_material,
             },
-            [2] = {
-                slot = defines.inventory.roboport_material,
-                io = "input/output"
+            output = {
+                defines.inventory.roboport_robot,
+                defines.inventory.roboport_material,
             }
         },
         ["rocket-silo-rocket"] = {
-            [1] = {
-                slot = defines.inventory.rocket,
-                io = "input/output"
+            input = {
+                defines.inventory.rocket,
+            },
+            output = {
+                defines.inventory.rocket,
             }
         },
         ["logistic-container"] = {
-            [1] = {
-                slot = defines.inventory.chest,
-                io = "input/output"
+            input = {
+                defines.inventory.chest,
+            },
+            output = {
+                defines.inventory.chest,
             }
         },
         ["linked-container"] = {
-            [1] = {
-                slot = defines.inventory.chest,
-                io = "input/output"
+            input = {
+                defines.inventory.chest,
+            },
+            output = {
+                defines.inventory.chest,
             }
         },
         ["container"] = {
-            [1] = {
-                slot = defines.inventory.chest,
-                io = "input/output"
+            input = {
+                defines.inventory.chest,
+            },
+            output = {
+                defines.inventory.chest,
             }
         },
         ["infinity-container"] = {
@@ -312,22 +302,14 @@ Constants.Settings = {
             }
         },
         ["assembling-machine"] = {
-            [1] = {
-                slot = defines.inventory.fuel,
-                io = "input"
+            input = {
+                defines.inventory.assembling_machine_input,
+                defines.inventory.fuel,
             },
-            [2] = {
-                slot = defines.inventory.burnt_result,
-                io = "output"
-            },
-            [3] = {
-                slot = defines.inventory.assembling_machine_input,
-                io = "input"
-            },
-            [4] = {
-                slot = defines.inventory.assembling_machine_output,
-                io = "output"
-            },
+            output = {
+                defines.inventory.assembling_machine_output,
+                defines.inventory.burnt_result,
+            }
         }
     },
     RNS_Gui = {
@@ -1489,7 +1471,7 @@ Constants.Technologies = {
             },
         },
         upgrade = false,
-        max_level = 0,
+        max_level = 1,
         unit = {
             count = 100,
             time = 45,
@@ -1517,7 +1499,7 @@ Constants.Technologies = {
             },
         },
         upgrade = false,
-        max_level = 0,
+        max_level = 2,
         unit = {
             count = 200,
             time = 45,
@@ -1542,8 +1524,8 @@ Constants.Technologies = {
                 recipe = Constants.Recipies.Detector.name
             }
         },
+        max_level = 1,
         upgrade = false,
-        max_level = 0,
         unit = {
             count = 75,
             time = 15,
@@ -1566,8 +1548,8 @@ Constants.Technologies = {
                 recipe = Constants.Recipies.EngineeringProcessor.name
             },
         },
+        max_level = 1,
         upgrade = false,
-        max_level = 0,
         unit = {
             count = 300,
             time = 30,
@@ -1598,8 +1580,8 @@ Constants.Technologies = {
                 recipe = Constants.Recipies.WirelessGrid.name
             },
         },
+        max_level = 1,
         upgrade = false,
-        max_level = 0,
         unit = {
             count = 275,
             time = 45,
@@ -1625,8 +1607,8 @@ Constants.Technologies = {
                 recipe = Constants.Recipies.PlayerPort.name
             },
         },
+        max_level = 1,
         upgrade = false,
-        max_level = 0,
         unit = {
             count = 325,
             time = 45,
@@ -1656,8 +1638,8 @@ Constants.Technologies = {
                 recipe = Constants.Recipies.NetworkReceiver.name
             },
         },
+        max_level = 1,
         upgrade = false,
-        max_level = 0,
         unit = {
             count = 2000,
             time = 60,
@@ -1683,8 +1665,8 @@ Constants.Technologies = {
                 recipe = Constants.Recipies.ItemDrive16k.name
             },
         },
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 1,
         unit = {
             count = 200,
             time = 30,
@@ -1706,8 +1688,8 @@ Constants.Technologies = {
                 recipe = Constants.Recipies.ItemDrive64k.name
             },
         },
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 2,
         unit = {
             count = 250,
             time = 30,
@@ -1730,8 +1712,8 @@ Constants.Technologies = {
                 recipe = Constants.Recipies.ItemDrive256k.name
             },
         },
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 3,
         unit = {
             count =300,
             time = 30,
@@ -1756,8 +1738,8 @@ Constants.Technologies = {
                 recipe = Constants.Recipies.FluidDrive100k.name
             },
         },
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 1,
         unit = {
             count = 300,
             time = 30,
@@ -1779,8 +1761,8 @@ Constants.Technologies = {
                 recipe = Constants.Recipies.FluidDrive400k.name
             },
         },
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 2,
         unit = {
             count = 250,
             time = 30,
@@ -1803,8 +1785,8 @@ Constants.Technologies = {
                 recipe = Constants.Recipies.FluidDrive1600k.name
             },
         },
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 3,
         unit = {
             count = 300,
             time = 30,
@@ -1831,8 +1813,8 @@ Constants.Technologies = {
             "RNS-advanced-storage-handling-1",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 1,
         unit = {
             count = 200,
             time = 30,
@@ -1856,8 +1838,8 @@ Constants.Technologies = {
             "RNS-item-transfer-bonus-1",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 2,
         unit = {
             count = 300,
             time = 30,
@@ -1882,8 +1864,8 @@ Constants.Technologies = {
             "RNS-item-transfer-bonus-2",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 3,
         unit = {
             count = 400,
             time = 30,
@@ -1909,8 +1891,8 @@ Constants.Technologies = {
             "RNS-item-transfer-bonus-3",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 4,
         unit = {
             count = 500,
             time = 30,
@@ -1936,8 +1918,8 @@ Constants.Technologies = {
             "RNS-item-transfer-bonus-4",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 5,
         unit = {
             count = 600,
             time = 30,
@@ -1963,8 +1945,8 @@ Constants.Technologies = {
             "RNS-item-transfer-bonus-5",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 6,
         unit = {
             count = 700,
             time = 30,
@@ -1991,8 +1973,8 @@ Constants.Technologies = {
             "RNS-item-transfer-bonus-6",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 7,
         unit = {
             count = 800,
             time = 30,
@@ -2019,8 +2001,8 @@ Constants.Technologies = {
             "RNS-item-transfer-bonus-7",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 8,
         unit = {
             count = 900,
             time = 30,
@@ -2030,6 +2012,35 @@ Constants.Technologies = {
                 {"chemical-science-pack", 1},
                 {"production-science-pack", 1},
                 {"utility-science-pack", 1},
+            }
+        }
+    },
+    ItemTransferBonusInfinite = {
+        name = "RNS-item-transfer-bonus-infinite",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/ItemIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-item-transfer-bonus-8",
+        },
+        effects = {},
+        upgrade = true,
+        max_level = "infinite",
+        unit = {
+            count_formula = "(2^L)*1000",
+            time = 60,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+                {"utility-science-pack", 1},
+                {"space-science-pack", 1},
             }
         }
     },
@@ -2047,8 +2058,8 @@ Constants.Technologies = {
             "RNS-advanced-storage-handling-1",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 1,
         unit = {
             count = 200,
             time = 30,
@@ -2072,8 +2083,8 @@ Constants.Technologies = {
             "RNS-fluid-transfer-bonus-1",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 2,
         unit = {
             count = 300,
             time = 30,
@@ -2098,8 +2109,8 @@ Constants.Technologies = {
             "RNS-fluid-transfer-bonus-2",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 3,
         unit = {
             count = 400,
             time = 30,
@@ -2125,8 +2136,8 @@ Constants.Technologies = {
             "RNS-fluid-transfer-bonus-3",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 4,
         unit = {
             count = 500,
             time = 30,
@@ -2152,8 +2163,8 @@ Constants.Technologies = {
             "RNS-fluid-transfer-bonus-4",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 5,
         unit = {
             count = 600,
             time = 30,
@@ -2179,8 +2190,8 @@ Constants.Technologies = {
             "RNS-fluid-transfer-bonus-5",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 6,
         unit = {
             count = 700,
             time = 30,
@@ -2207,8 +2218,8 @@ Constants.Technologies = {
             "RNS-fluid-transfer-bonus-6",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 7,
         unit = {
             count = 800,
             time = 30,
@@ -2235,8 +2246,8 @@ Constants.Technologies = {
             "RNS-fluid-transfer-bonus-7",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 8,
         unit = {
             count = 900,
             time = 30,
@@ -2246,6 +2257,35 @@ Constants.Technologies = {
                 {"chemical-science-pack", 1},
                 {"production-science-pack", 1},
                 {"utility-science-pack", 1},
+            }
+        }
+    },
+    FluidTransferBonusInfinite = {
+        name = "RNS-fluid-transfer-bonus-infinite",
+        icons = {
+            {
+                icon = Constants.MOD_ID .. "/graphics/Cables/IO/FluidIO.png",
+            },
+            {
+                icon = Constants.MOD_ID .. "/graphics/upgrade_icon.png",
+            }
+        },
+        prerequisites = {
+            "RNS-fluid-transfer-bonus-8",
+        },
+        effects = {},
+        upgrade = true,
+        max_level = "infinite",
+        unit = {
+            count_formula = "(2^L)*1000",
+            time = 60,
+            ingredients = {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1},
+                {"chemical-science-pack", 1},
+                {"production-science-pack", 1},
+                {"utility-science-pack", 1},
+                {"space-science-pack", 1},
             }
         }
     },
@@ -2263,8 +2303,8 @@ Constants.Technologies = {
             "RNS-advanced-storage-handling-1",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 1,
         unit = {
             count = 400,
             time = 30,
@@ -2289,8 +2329,8 @@ Constants.Technologies = {
             "RNS-wireless-range-bonus-1",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 2,
         unit = {
             count = 600,
             time = 30,
@@ -2316,8 +2356,8 @@ Constants.Technologies = {
             "RNS-wireless-range-bonus-2",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 3,
         unit = {
             count = 800,
             time = 30,
@@ -2343,8 +2383,8 @@ Constants.Technologies = {
             "RNS-wireless-range-bonus-3",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 4,
         unit = {
             count = 1200,
             time = 30,
@@ -2371,8 +2411,8 @@ Constants.Technologies = {
             "RNS-wireless-range-bonus-4",
         },
         effects = {},
-        upgrade = false,
-        max_level = 0,
+        upgrade = true,
+        max_level = 1,
         unit = {
             count = 4000,
             time = 60,
