@@ -156,7 +156,7 @@ ioE.animation =
 					x=0
 				},
                 {
-					filename = Constants.MOD_ID.."/graphics/testC.png",
+					filename = Constants.MOD_ID.."/graphics/Cables/IO/FluidIO_Box_S.png",
 					priority = "high",
                     size = 512,
 					draw_as_shadow = true,

@@ -64,7 +64,7 @@ function RNSP:update()
         local entity = self.thisEntity.selected
         if string.match(entity.name, "RNS_NetworkCableIO") or string.match(entity.name, "RNS_NetworkCableRamp") then
             local obj = global.entityTable[entity.unit_number]
-            if obj.valid and obj ~= nil and obj.toggleHoverIcon then
+            if obj ~= nil and obj.valid and obj.toggleHoverIcon then
                 obj:toggleHoverIcon(true)
             end
         end

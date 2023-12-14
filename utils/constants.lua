@@ -433,8 +433,8 @@ Constants.NetworkCables = {
     fluidIO = {
         name = "RNS_NetworkCableIOFluid",
         itemIcon = Constants.MOD_ID.."/graphics/Cables/IO/FluidIO.png",
-        entityE =  Constants.MOD_ID.."/graphics/test_spritesheet.png", --"/graphics/Cables/IO/FluidIOSheet_E.png",
-        entityS =  Constants.MOD_ID.."/graphics/test_spritesheet2_s.png" --"/graphics/Cables/IO/IOSheet_S.png"
+        entityE =  Constants.MOD_ID.."/graphics/Cables/IO/FluidIOSheet_E.png",
+        entityS =  Constants.MOD_ID.."/graphics/Cables/IO/FluidIOSheet_S.png"
     },
     externalIO = {
         name = "RNS_NetworkCableIOExternal",
