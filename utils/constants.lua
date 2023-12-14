@@ -1004,8 +1004,8 @@ Constants.Recipies = {
         craft_time = 2.5,
         enabled = false,
         category = "crafting",
-        ingredients = {{"stone", 10}},
-        count = 1
+        ingredients = {{"stone", 15}},
+        count = 3
     },
     CalculatorProcessor = {
         name = Constants.Intermediates.CalculatorProcessor.name,
@@ -1015,7 +1015,7 @@ Constants.Recipies = {
         ingredients = {
             {"electronic-circuit", 1},
             {Constants.Intermediates.SiliconWafer.name, 1},
-            {"copper-cable", 3},
+            --{"copper-cable", 3},
             {"arithmetic-combinator", 1},
         },
         count = 1
@@ -1028,7 +1028,7 @@ Constants.Recipies = {
         ingredients = {
             {"advanced-circuit", 1},
             {Constants.Intermediates.SiliconWafer.name, 1},
-            {"copper-cable", 3},
+            --{"copper-cable", 3},
             {"decider-combinator", 1},
         },
         count = 1
@@ -1041,7 +1041,7 @@ Constants.Recipies = {
         ingredients = {
             {"processing-unit", 1},
             {Constants.Intermediates.SiliconWafer.name, 1},
-            {"copper-cable", 3},
+            --{"copper-cable", 3},
             {"arithmetic-combinator", 1},
             {"decider-combinator", 1},
         },
@@ -1127,7 +1127,7 @@ Constants.Recipies = {
             {"radar", 2},
             {"substation", 4},
             {"big-electric-pole", 1},
-            {"copper-cable", 50},
+            --{"copper-cable", 50},
             {Constants.Intermediates.EngineeringProcessor.name, 4},
         },
         count = 1
@@ -1149,12 +1149,12 @@ Constants.Recipies = {
     },
     Detector = {
         name = Constants.Detector.name,
-        craft_time = 2,
+        craft_time = 1,
         enabled = false,
         category = "crafting",
         ingredients = {
-            {"copper-cable", 12},
-            {"plastic-bar", 6},
+            {"copper-cable", 6},
+            --{"plastic-bar", 6},
             {"decider-combinator", 1},
             {Constants.NetworkCables.Cables.RED.cable.name, 2},
             {Constants.Intermediates.LogicProcessor.name, 4},
@@ -1163,7 +1163,7 @@ Constants.Recipies = {
     },
     RED_Cable = {
         name = Constants.NetworkCables.Cables.RED.cable.name,
-        craft_time = 1,
+        craft_time = 0.5,
         enabled = false,
         category = "crafting",
         ingredients = {
@@ -1180,7 +1180,7 @@ Constants.Recipies = {
         category = "crafting",
         ingredients = {
             {"fast-inserter", 10},
-            {"engine-unit", 10},
+            {"engine-unit", 5},
             {Constants.NetworkCables.Cables.RED.cable.name, 2},
             {Constants.Intermediates.CalculatorProcessor.name, 1},
             {Constants.Intermediates.LogicProcessor.name, 1},
@@ -1194,7 +1194,7 @@ Constants.Recipies = {
         category = "crafting",
         ingredients = {
             {"pump", 10},
-            {"engine-unit", 10},
+            {"engine-unit", 5},
             {Constants.NetworkCables.Cables.RED.cable.name, 2},
             {Constants.Intermediates.CalculatorProcessor.name, 1},
             {Constants.Intermediates.LogicProcessor.name, 1},
@@ -1209,7 +1209,7 @@ Constants.Recipies = {
         ingredients = {
             {"pump", 5},
             {"fast-inserter", 5},
-            {"engine-unit", 10},
+            {"engine-unit", 5},
             {Constants.NetworkCables.Cables.RED.cable.name, 2},
             {Constants.Intermediates.CalculatorProcessor.name, 1},
             {Constants.Intermediates.LogicProcessor.name, 1},
@@ -1231,7 +1231,7 @@ Constants.Recipies = {
     },
     ItemDrive16k = {
         name = Constants.Drives.ItemDrive.ItemDrive16k.name,
-        craft_time = 1,
+        craft_time = 5,
         enabled = false,
         category = "crafting",
         ingredients = {
@@ -1244,7 +1244,7 @@ Constants.Recipies = {
     },
     ItemDrive64k = {
         name = Constants.Drives.ItemDrive.ItemDrive64k.name,
-        craft_time = 1,
+        craft_time = 10,
         enabled = false,
         category = "crafting",
         ingredients = {
@@ -1257,7 +1257,7 @@ Constants.Recipies = {
     },
     ItemDrive256k = {
         name = Constants.Drives.ItemDrive.ItemDrive256k.name,
-        craft_time = 1,
+        craft_time = 15,
         enabled = false,
         category = "crafting",
         ingredients = {
@@ -1283,7 +1283,7 @@ Constants.Recipies = {
     },
     FluidDrive100k = {
         name = Constants.Drives.FluidDrive.FluidDrive100k.name,
-        craft_time = 1,
+        craft_time = 5,
         enabled = false,
         category = "crafting",
         ingredients = {
@@ -1296,7 +1296,7 @@ Constants.Recipies = {
     },
     FluidDrive400k = {
         name = Constants.Drives.FluidDrive.FluidDrive400k.name,
-        craft_time = 1,
+        craft_time = 10,
         enabled = false,
         category = "crafting",
         ingredients = {
@@ -1309,7 +1309,7 @@ Constants.Recipies = {
     },
     FluidDrive1600k = {
         name = Constants.Drives.FluidDrive.FluidDrive1600k.name,
-        craft_time = 1,
+        craft_time = 15,
         enabled = false,
         category = "crafting",
         ingredients = {
