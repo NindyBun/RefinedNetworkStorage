@@ -144,29 +144,36 @@ ioE.animation =
 					filename = Constants.NetworkCables.fluidIO.entityE,
 					priority = "extra-high",
                     size = 512,
-					scale = 1/8,
+					scale = 1/16,
 					x=0
 				},
 				{
 					filename = Constants.NetworkCables.fluidIO.entityS,
 					priority = "high",
+                    size = 128,
+					draw_as_shadow = true,
+					scale = 1/2,
+					x=0
+				},
+                {
+					filename = Constants.MOD_ID.."/graphics/testC.png",
+					priority = "high",
                     size = 512,
 					draw_as_shadow = true,
 					scale = 1/8,
-					x=0
 				}
 			}
 		}
     }
 ioE.animation.east = table.deepcopy(ioE.animation.north)
 ioE.animation.east.layers[1].x = 512
-ioE.animation.east.layers[2].x = 512
+ioE.animation.east.layers[2].x = 128
 ioE.animation.south = table.deepcopy(ioE.animation.north)
 ioE.animation.south.layers[1].x = 512*2
-ioE.animation.south.layers[2].x = 512*2
+ioE.animation.south.layers[2].x = 128*2
 ioE.animation.west = table.deepcopy(ioE.animation.north)
 ioE.animation.west.layers[1].x = 512*3
-ioE.animation.west.layers[2].x = 512*3
+ioE.animation.west.layers[2].x = 128*3
 ioE.crafting_categories = {"RNS-Nothing"}
 ioE.crafting_speed = 1
 ioE.energy_source =
@@ -181,6 +188,7 @@ ioE.fluid_boxes = {
         pipe_connections = {
             {type = "output", position = {0, -1}}
         },
+        pipe_covers = pipecoverspictures(),
         production_type = "output"
     }
 }

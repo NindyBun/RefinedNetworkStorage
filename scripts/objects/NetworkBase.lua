@@ -166,21 +166,20 @@ function BaseNet.generateArms(object)
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true then
                 if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil then
-                    if area.direction ~= object:getDirection() then --Prevent cable connection on the IO port
-                        local obj = global.entityTable[ent.unit_number]
-                        if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
-                            --Do nothing
-                        else
-                            if obj.color == nil then
-                                object.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[object.color].sprites[area.direction].name, target=object.thisEntity, surface=object.thisEntity.surface, render_layer="lower-object-above-shadow"}
-                                object.connectedObjs[area.direction] = {obj}
-                            elseif obj.color ~= "" and obj.color == self.color then
-                                object.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[object.color].sprites[area.direction].name, target=object.thisEntity, surface=object.thisEntity.surface, render_layer="lower-object-above-shadow"}
-                                object.connectedObjs[area.direction] = {obj}
-                            end
+                    if object.getDirection ~= nil and area.direction == object:getDirection() then break end--Prevent cable connection on the IO port
+                    local obj = global.entityTable[ent.unit_number]
+                    if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
+                        --Do nothing
+                    else
+                        if obj.color == nil then
+                            object.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[object.color].sprites[area.direction].name, target=object.thisEntity, surface=object.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                            object.connectedObjs[area.direction] = {obj}
+                        elseif obj.color ~= "" and obj.color == object.color then
+                            object.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[object.color].sprites[area.direction].name, target=object.thisEntity, surface=object.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                            object.connectedObjs[area.direction] = {obj}
                         end
-                        break
                     end
+                    break
                 end
             end
         end
