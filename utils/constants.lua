@@ -1348,8 +1348,8 @@ for color, cables in pairs(Constants.NetworkCables.Cables) do
     ::continue::
 end
 Constants.Technologies = {
-    AdvancedStorageHandling1 = {
-        name = "RNS-advanced-storage-handling-1",
+    AdvancedStorageHandling = {
+        name = "RNS-advanced-storage-handling",
         icon = Constants.MOD_ID .. "/graphics/Networks/NetworkController/NetworkControllerI.png",
         icon_size = 256,
         prerequisites = {
@@ -1494,7 +1494,7 @@ Constants.Technologies = {
         name = "RNS-circuit-handling",
         icon = Constants.MOD_ID .. "/graphics/Networks/Detector/DetectorI.png",
         prerequisites = {
-            "RNS-advanced-storage-handling-1",
+            "RNS-advanced-storage-handling",
             "circuit-network",
             "advanced-electronics",
         },
@@ -1519,7 +1519,7 @@ Constants.Technologies = {
         name = "RNS-engineering-processor",
         icon = Constants.MOD_ID .. "/graphics/engineering_processor.png",
         prerequisites = {
-            "RNS-advanced-storage-handling-1",
+            "RNS-advanced-storage-handling",
             "advanced-electronics-2",
         },
         effects = {
@@ -1604,7 +1604,7 @@ Constants.Technologies = {
         name = "RNS-long-distance-connections",
         icon = Constants.MOD_ID .. "/graphics/Networks/TransReceiver/NetworkTransmitterI.png",
         prerequisites = {
-            "RNS-advanced-storage-handling-1",
+            "RNS-advanced-storage-handling",
             "RNS-engineering-processor",
             "space-science-pack",
         },
@@ -1637,7 +1637,7 @@ Constants.Technologies = {
         name = "RNS-itemdrive-1",
         icon = Constants.MOD_ID .. "/graphics/Drives/ItemDrive2I.png",
         prerequisites = {
-            "RNS-advanced-storage-handling-1",
+            "RNS-advanced-storage-handling",
         },
         effects = {
             {
@@ -1710,7 +1710,7 @@ Constants.Technologies = {
         name = "RNS-fluiddrive-1",
         icon = Constants.MOD_ID .. "/graphics/Drives/FluidDrive2I.png",
         prerequisites = {
-            "RNS-advanced-storage-handling-1",
+            "RNS-advanced-storage-handling",
         },
         effects = {
             {
@@ -1790,7 +1790,7 @@ Constants.Technologies = {
             }
         },
         prerequisites = {
-            "RNS-advanced-storage-handling-1",
+            "RNS-advanced-storage-handling",
         },
         effects = {},
         upgrade = true,
@@ -2035,7 +2035,7 @@ Constants.Technologies = {
             }
         },
         prerequisites = {
-            "RNS-advanced-storage-handling-1",
+            "RNS-advanced-storage-handling",
         },
         effects = {},
         upgrade = true,
@@ -2280,7 +2280,7 @@ Constants.Technologies = {
             }
         },
         prerequisites = {
-            "RNS-advanced-storage-handling-1",
+            "RNS-advanced-storage-handling",
         },
         effects = {},
         upgrade = true,
