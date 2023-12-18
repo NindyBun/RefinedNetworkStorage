@@ -1354,7 +1354,8 @@ Constants.Technologies = {
         icon_size = 256,
         prerequisites = {
             "circuit-network",
-            "optics"
+            "optics",
+            "fast-inserter"
         },
         effects = {
             {
@@ -1372,6 +1373,14 @@ Constants.Technologies = {
             {
                 type  = "unlock-recipe",
                 recipe = Constants.Recipies.ExternalIO.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.ItemIO.name
+            },
+            {
+                type  = "unlock-recipe",
+                recipe = Constants.Recipies.FluidIO.name
             },
             {
                 type  = "unlock-recipe",
@@ -1473,40 +1482,11 @@ Constants.Technologies = {
         upgrade = false,
         max_level = 1,
         unit = {
-            count = 100,
+            count = 150,
             time = 45,
             ingredients = {
                 {"automation-science-pack", 1},
                 {"logistic-science-pack", 1}
-            }
-        }
-    },
-    AdvancedStorageHandling2 = {
-        name = "RNS-advanced-storage-handling-2",
-        icon = Constants.MOD_ID .. "/graphics/Networks/NetworkController/NetworkControllerI.png",
-        icon_size = 256,
-        prerequisites = {
-            "RNS-advanced-storage-handling-1",
-        },
-        effects = {
-            {
-                type  = "unlock-recipe",
-                recipe = Constants.Recipies.ItemIO.name
-            },
-            {
-                type  = "unlock-recipe",
-                recipe = Constants.Recipies.FluidIO.name
-            },
-        },
-        upgrade = false,
-        max_level = 2,
-        unit = {
-            count = 200,
-            time = 45,
-            ingredients = {
-                {"automation-science-pack", 1},
-                {"logistic-science-pack", 1},
-                {"chemical-science-pack", 1}
             }
         }
     },
