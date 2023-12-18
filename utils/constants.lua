@@ -1355,7 +1355,8 @@ Constants.Technologies = {
         prerequisites = {
             "circuit-network",
             "optics",
-            "fast-inserter"
+            "fast-inserter",
+            "fluid-handling"
         },
         effects = {
             {
