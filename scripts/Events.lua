@@ -114,6 +114,7 @@ function Event.onBlueprintSetup(event)
 	if blueprint == nil or blueprint.valid_for_read == false then return end
 
 	for index, ent in pairs(mapping) do
+		if ent == nil or ent.unit_number == nil then goto continue end
 		local tags = ((global.entityTable[ent.unit_number] ~= nil and global.entityTable[ent.unit_number].serialize_settings ~= nil) and {global.entityTable[ent.unit_number]:serialize_settings()} or {nil})[1]
         if tags ~= nil then
             getRNSPlayer(event.player_index):push_varTable("BlueprintTags", tags)
@@ -121,6 +122,7 @@ function Event.onBlueprintSetup(event)
 				blueprint.set_blueprint_entity_tag(index, tag, value)
 			end
 		end
+		::continue::
 	end
 end
 
@@ -137,12 +139,14 @@ function Event.onBlueprintConfigured(event)
 	if blueprint == nil or blueprint.valid_for_read == false then return end
 
 	for index, ent in pairs(getRNSPlayer(event.player_index):pull_varTable("BlueprintTags")) do
+		if ent == nil or ent.unit_number == nil then goto continue end --Will throw a "boolean value" error. Not something to worry about
 		local tags = ((global.entityTable[ent.unit_number] ~= nil and global.entityTable[ent.unit_number].serialize_settings ~= nil) and {global.entityTable[ent.unit_number]:serialize_settings()} or {nil})[1]
         if tags ~= nil then
 			for tag, value in pairs(tags) do
 				blueprint.set_blueprint_entity_tag(index, tag, value)
 			end
 		end
+		::continue::
 	end
     getRNSPlayer(event.player_index):remove_varTable("BlueprintTags")
 end

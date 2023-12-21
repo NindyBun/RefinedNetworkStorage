@@ -259,13 +259,13 @@ function NC:updateItemIO()
     local import = {}
     local export = {}
     local processed = 0
-    for p, priority in pairs(BaseNet.getOperableObjects(self.network.ItemIOTable)) do
-        import[p] = {}
-        export[p] = {}
-        for _, item in pairs(priority) do
+    for p, priority in pairs(BaseNet.getOperableObjects(self.network.ItemIOTable, true)) do
+        import[p] = priority.input
+        export[p] = priority.output
+        --[[for _, item in pairs(priority) do
             if item.io == "input" then table.insert(import[p], item) end
             if item.io == "output" then table.insert(export[p], item) end
-        end
+        end]]
     end
     for _, priority in pairs(import) do
         for _, item in pairs(priority) do
@@ -295,13 +295,13 @@ function NC:updateFluidIO()
     local import = {}
     local export = {}
     local processed = 0
-    for p, priority in pairs(BaseNet.getOperableObjects(self.network.FluidIOTable)) do
-        import[p] = {}
-        export[p] = {}
-        for _, fluid in pairs(priority) do
-            if fluid.io == "input" then table.insert(import[p], fluid) end
-            if fluid.io == "output" then table.insert(export[p], fluid) end
-        end
+    for p, priority in pairs(BaseNet.getOperableObjects(self.network.FluidIOTable, true)) do
+        import[p] = priority.input
+        export[p] = priority.output
+        --for _, fluid in pairs(priority) do
+        --    if fluid.io == "input" then table.insert(import[p], fluid) end
+        --    if fluid.io == "output" then table.insert(export[p], fluid) end
+        --end
     end
     for _, priority in pairs(import) do
         for _, fluid in pairs(priority) do
@@ -445,7 +445,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         end
     end
 
-    local itemIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ItemIOTable))
+    local itemIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ItemIOTable, true), true)
     if itemIOcount > 0 then
         local name = Constants.NetworkCables.itemIO.name
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
@@ -455,7 +455,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_item_frame(guiTable, "", section, _G.IIO3.powerUsage*global.IIOMultiplier .. "/t", name, itemIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
-    local itemIOV2count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ItemIOV2Table))
+    --[[local itemIOV2count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ItemIOV2Table))
     if itemIOV2count > 0 then
         local name = "RNS_NetworkCableIOV2_Item"
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
@@ -463,9 +463,9 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         section.style.minimal_width = 200
         GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
         GuiApi.add_item_frame(guiTable, "", section, _G.IIO2.powerUsage*global.IIOMultiplier .. "/t", name, itemIOV2count .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
-    end
+    end]]
 
-    local fluidIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.FluidIOTable))
+    local fluidIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.FluidIOTable, true), true)
     if fluidIOcount > 0 then
         local name = Constants.NetworkCables.fluidIO.name
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
@@ -475,7 +475,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_item_frame(guiTable, "", section, _G.FIO.powerUsage*global.FIOMultiplier .. "/t", name, fluidIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
-    local fluidIOV2count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.FluidIOV2Table))
+    --[[local fluidIOV2count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.FluidIOV2Table))
     if fluidIOV2count > 0 then
         local name = "RNS_NetworkCableIOV2_Fluid"
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
@@ -483,7 +483,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         section.style.minimal_width = 200
         GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
         GuiApi.add_item_frame(guiTable, "", section, _G.FIO2.powerUsage*global.FIOMultiplier .. "/t", name, fluidIOV2count .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
-    end
+    end]]
 
     local externalIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ExternalIOTable))
     if externalIOcount > 0 then

@@ -612,8 +612,8 @@ function FIO.interaction(event, RNSPlayer)
             local oldP = 1+Constants.Settings.RNS_Max_Priority-io.priority
             io.priority = priority
             if io.networkController ~= nil and io.networkController.valid == true then
-                io.networkController.network.FluidIOTable[oldP][io.entID] = nil
-                io.networkController.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-priority][io.entID] = io
+                io.networkController.network.FluidIOTable[oldP][io.io][io.entID] = nil
+                io.networkController.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-priority][io.io][io.entID] = io
             end
             io.processed = false
         end
@@ -624,7 +624,12 @@ function FIO.interaction(event, RNSPlayer)
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        io.io = event.element.switch_state == "left" and "input" or "output"
+        local from = io.io
+        local to = event.element.switch_state == "left" and "input" or "output"
+        if io.networkController ~= nil then
+            io.networkController.network:transfer_io_mode(io, "fluid", from, to)
+        end
+        io.io = to
         io.processed = false
         io:generateModeIcon()
 		return

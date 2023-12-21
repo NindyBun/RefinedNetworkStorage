@@ -50,9 +50,16 @@ function BaseNet:update()
     self.lastUpdate = game.tick
 end
 
-function generate_priority_table(array)
+function generate_priority_table(array, ioGroup)
     for i=1, Constants.Settings.RNS_Max_Priority*2 + 1 do
-        array[i] = {}
+        if ioGroup then
+            array[i] = {
+                input = {},
+                output = {}
+            }
+        else
+            array[i] = {}
+        end
     end
 end
 
@@ -62,13 +69,13 @@ function BaseNet:resetTables()
     self.FluidDriveTable = {}
     generate_priority_table(self.FluidDriveTable)
     self.ItemIOTable = {}
-    generate_priority_table(self.ItemIOTable)
-    self.ItemIOV2Table = {}
-    generate_priority_table(self.ItemIOV2Table)
+    generate_priority_table(self.ItemIOTable, true)
+    --self.ItemIOV2Table = {}
+    --generate_priority_table(self.ItemIOV2Table)
     self.FluidIOTable = {}
-    generate_priority_table(self.FluidIOTable)
-    self.FluidIOV2Table = {}
-    generate_priority_table(self.FluidIOV2Table)
+    generate_priority_table(self.FluidIOTable, true)
+    --self.FluidIOV2Table = {}
+    --generate_priority_table(self.FluidIOV2Table)
     self.ExternalIOTable = {}
     generate_priority_table(self.ExternalIOTable)
     self.NetworkInventoryInterfaceTable = {}
@@ -118,13 +125,13 @@ function addConnectables(source, connections, master)
                 master.network.FluidDriveTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
 
             elseif con.thisEntity.name == Constants.NetworkCables.itemIO.name then
-                master.network.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
+                master.network.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.io][con.entID] = con
 
             --elseif con.thisEntity.name == "RNS_NetworkCableIOV2_Item" then
             --    master.network.ItemIOV2Table[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
 
             elseif con.thisEntity.name == Constants.NetworkCables.fluidIO.name then
-                master.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
+                master.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.io][con.entID] = con
 
             --elseif con.thisEntity.name == "RNS_NetworkCableIOV2_Fluid" then
             --    master.network.FluidIOV2Table[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
@@ -183,6 +190,27 @@ function BaseNet.generateArms(object)
                 end
             end
         end
+    end
+end
+
+function BaseNet:transfer_io_mode(obj, type, from, to)
+    if type == "item" then
+        if self.ItemIOTable[obj.priority][from][obj.entID] ~= nil then
+            self.ItemIOTable[obj.priority][from][obj.entID] = nil 
+            self.ItemIOTable[obj.priority][to][obj.entID] = obj
+        end
+        return
+    end
+    if type == "fluid" then
+        if self.FluidIOTable[obj.priority][from][obj.entID] ~= nil then
+            self.FluidIOTable[obj.priority][from][obj.entID] = nil
+            self.FluidIOTable[obj.priority][to][obj.entID] = obj
+        end
+        return
+    end
+    if type == "external" then
+     
+        return
     end
 end
 
@@ -765,13 +793,27 @@ function BaseNet.transfer_advanced_item(from_inv_itemstack, to_inv, itemstack_da
 end
 ]]
 
-function BaseNet.getOperableObjects(array)
+function BaseNet.getOperableObjects(array, hasIOGroup)
     local objs = {}
     for p, priority in pairs(array) do
-        objs[p] = {}
-        for _, o in pairs(priority) do
-            if o.thisEntity.valid and o.thisEntity.to_be_deconstructed() == false then
-                objs[p][o.entID] = o
+        if hasIOGroup then
+            objs[p] = {
+                input = {},
+                output = {}
+            }
+            for mode, io in pairs(priority) do
+                for _, o in pairs(io) do
+                    if o.thisEntity.valid and o.thisEntity.to_be_deconstructed() == false then
+                        objs[p][mode][o.entID] = o
+                    end
+                end
+            end
+        else
+            objs[p] = {}
+            for _, o in pairs(priority) do
+                if o.thisEntity.valid and o.thisEntity.to_be_deconstructed() == false then
+                    objs[p][o.entID] = o
+                end
             end
         end
     end
@@ -792,6 +834,7 @@ function BaseNet:filter_externalIO_by_valid_signal()
     return objs
 end
 
+--Used for the External Bus
 function BaseNet.filter_by_mode(mode, array)
     local objs = {}
     for p, priority in pairs(array) do
@@ -805,6 +848,7 @@ function BaseNet.filter_by_mode(mode, array)
     return objs
 end
 
+--Used for the External Bus
 function BaseNet.filter_by_type(type, array)
     local objs = {}
     for p, priority in pairs(array) do
@@ -818,6 +862,7 @@ function BaseNet.filter_by_type(type, array)
     return objs
 end
 
+--Used for the Drives
 function BaseNet.filter_by_name(name, array)
     local objs = {}
     for p, priority in pairs(array) do
@@ -843,20 +888,35 @@ function BaseNet:get_item_storage_size()
     return t, m
 end
 
-function BaseNet.get_table_length_in_priority(array)
+function BaseNet.get_table_length_in_priority(array, hasIOGroup)
     local count = 0
     for _, p in pairs(array) do
-        count = count + Util.getTableLength(p)
+        if hasIOGroup then
+            for _, io in pairs(p) do
+                count = count + Util.getTableLength(io)
+            end
+        else
+            count = count + Util.getTableLength(p)
+        end
     end
     return count
 end
 
-function BaseNet.get_powerusage(array)
+function BaseNet.get_powerusage(array, hasIOGroup)
     local power = 0
     for _, p in pairs(array) do
-        for _, o in pairs(p) do
-            power = power + o.powerUsage
+        if hasIOGroup then
+            for _, io in pairs(p) do
+                for _, o in pairs(io) do
+                    power = power + o.powerUsage
+                end
+            end
+        else
+            for _, o in pairs(p) do
+                power = power + o.powerUsage
+            end
         end
+        
     end
     return power
 end
@@ -864,9 +924,8 @@ end
 --Get connected objects
 function BaseNet:getTotalObjects()
     return  BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ItemDriveTable)) + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.FluidDriveTable))
-            + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ItemIOTable))*global.IIOMultiplier + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.FluidIOTable))*global.FIOMultiplier
+            + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ItemIOTable, true), true)*global.IIOMultiplier + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.FluidIOTable, true), true)*global.FIOMultiplier
             + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ExternalIOTable)) + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.NetworkInventoryInterfaceTable))
             + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.WirelessTransmitterTable))*global.WTRangeMultiplier + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.DetectorTable))
             + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.TransmitterTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ReceiverTable))
-            + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ItemIOV2Table))*global.IIOMultiplier
 end
