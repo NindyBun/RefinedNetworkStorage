@@ -839,7 +839,7 @@ function IIO3.interaction(event, RNSPlayer)
             io.priority = priority
             local oldP = 1+Constants.Settings.RNS_Max_Priority-io.priority
             io.priority = priority
-            if io.networkController ~= nil and io.networkController.valid == true then
+            if io.networkController ~= nil and io.networkController.valid == true and io.networkController.network.ItemIOTable[oldP][io.io][io.entID] ~= nil then
                 io.networkController.network.ItemIOTable[oldP][io.io][io.entID] = nil
                 io.networkController.network.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-priority][io.io][io.entID] = io
             end

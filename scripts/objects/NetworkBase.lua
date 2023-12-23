@@ -195,16 +195,16 @@ end
 
 function BaseNet:transfer_io_mode(obj, type, from, to)
     if type == "item" then
-        if self.ItemIOTable[obj.priority][from][obj.entID] ~= nil then
-            self.ItemIOTable[obj.priority][from][obj.entID] = nil 
-            self.ItemIOTable[obj.priority][to][obj.entID] = obj
+        if self.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][from][obj.entID] ~= nil then
+            self.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][from][obj.entID] = nil
+            self.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][to][obj.entID] = obj
         end
         return
     end
     if type == "fluid" then
-        if self.FluidIOTable[obj.priority][from][obj.entID] ~= nil then
-            self.FluidIOTable[obj.priority][from][obj.entID] = nil
-            self.FluidIOTable[obj.priority][to][obj.entID] = obj
+        if self.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][from][obj.entID] ~= nil then
+            self.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][from][obj.entID] = nil
+            self.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][to][obj.entID] = obj
         end
         return
     end
