@@ -260,7 +260,7 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 			table.insert(buttonText, {"gui-description.RNS_linked"})
 			table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
 		end
-		GuiApi.add_button(guiTable, "RNS_NII_PInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or item.ammo ~= game.item_prototypes[item.cont.name].magazine_size or item.durability ~= game.item_prototypes[item.cont.name].durability) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.entID, name=(item.cont.name), stack=item})
+		GuiApi.add_button(guiTable, "RNS_NII_PInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or (item.cont.ammo and item.cont.ammo < game.item_prototypes[item.cont.name].magazine_size) or (item.cont.durability and item.cont.durability < game.item_prototypes[item.cont.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.entID, name=(item.cont.name), stack=item})
 		
 		::continue::
 	end
@@ -391,7 +391,7 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 				table.insert(buttonText, {"gui-description.RNS_linked"})
 				table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
 			end
-			GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or item.ammo ~= game.item_prototypes[item.cont.name].magazine_size or item.durability ~= game.item_prototypes[item.cont.name].durability) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.entID, name=(item.cont.name), stack=item})
+			GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or (item.cont.ammo and item.cont.ammo < game.item_prototypes[item.cont.name].magazine_size) or (item.cont.durability and item.cont.durability < game.item_prototypes[item.cont.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.entID, name=(item.cont.name), stack=item})
 			::continue::
 		end
 	end
