@@ -121,7 +121,7 @@ function DT:update_signal()
 end
 
 function DT:set_icons(index, name, type)
-    self.combinator.get_or_create_control_behavior().set_signal(index, name ~= "" and {signal={type=type, name=name}, count=1} or nil)
+    self.combinator.get_or_create_control_behavior().set_signal(index, name ~= nil and {signal={type=type, name=name}, count=1} or nil)
 end
 
 function DT:copy_settings(obj)
@@ -147,8 +147,8 @@ function DT:deserialize_settings(tags)
     self.type = tags["type"]
     self.enabler = tags["enabler"]
     self.filters = tags["filters"]
-    self:set_icons(1, self.filters[self.type], self.type)
-    self:set_icons(2, self.enabler.filter.name, self.enabler.filter.type)
+    self:set_icons(1, self.filters[self.type] ~= "" and self.filters[self.type] or nil, self.type)
+    self:set_icons(2, self.enabler.filter.name ~= "" and self.enabler.filter.name or nil, self.enabler.filter.type)
 end
 
 function DT:resetConnection()
