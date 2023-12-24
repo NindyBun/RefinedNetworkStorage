@@ -84,7 +84,8 @@ Constants.Settings = {
         ["!="] = 6,
     },
     RNS_RoundRobin = "RNS_RoundRobin",
-    RNS_BlankIcon = Constants.MOD_ID.."/graphics/blank.png",
+    RNS_BlankIcon32 = Constants.MOD_ID.."/graphics/blank32.png",
+    RNS_BlankIcon128 = Constants.MOD_ID.."/graphics/blank128.png",
     RNS_FR_Cable = "RNS_FR_NetworkCable",
     RNS_Tag = "RNS_DataTag",
     RNS_BeltSides = {

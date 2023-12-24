@@ -8,7 +8,7 @@ data:extend
         heat_capacity = "0.2KJ",
         base_color = {r=0, g=0.34, b=0.6},
         flow_color = {r=0.7, g=0.7, b=0.7},
-        icon = Constants.Settings.RNS_BlankIcon,
+        icon = Constants.Settings.RNS_BlankIcon32,
         icon_size = 32,
         hidden = true,
         auto_barrel = false

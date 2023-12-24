@@ -138,13 +138,33 @@ local connection_points  = {
 	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}}
 }
 
+--[[local pole = {}
+pole.type = "electric-pole"
+pole.name = "rns_Pole"
+pole.icon = Constants.Settings.RNS_BlankIcon32
+pole.icon_size = 32
+pole.connection_points = connection_points
+pole.flags = {'placeable-neutral', 'hidden', 'not-upgradable', 'not-rotatable'}
+pole.maximum_wire_distance = 0
+pole.collision_box = {{-0.5, -0.5}, {0.5, 0.5}}
+pole.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
+pole.supply_area_distance = 1
+pole.selection_priority = 51
+pole.pictures = {
+    direction_count = 4,
+	filename = Constants.Settings.RNS_BlankIcon128,
+	priority = 'extra-high',
+	size = 32
+}
+data:extend{pole}]]
+
 local combinator = {}
 combinator.circuit_wire_connection_points = connection_points
 combinator.circuit_wire_max_distance = 0
 combinator.collision_box = {{-0.5, -0.5}, {0.5, 0.5}}
 combinator.selection_box = {{-0.5, -0.5}, {0.5, 0.5}}
 combinator.flags = {'placeable-neutral', 'hidden', 'not-upgradable', 'not-rotatable'}
-combinator.icon = Constants.Settings.RNS_BlankIcon
+combinator.icon = Constants.Settings.RNS_BlankIcon32
 combinator.icon_size = 32
 combinator.item_slot_count = 10
 combinator.name = 'rns_Combinator'
@@ -152,12 +172,12 @@ combinator.type = 'constant-combinator'
 combinator.collision_mask = {}
 combinator.remove_decoratives = 'false'
 combinator.sprites = {
-	filename = Constants.Settings.RNS_BlankIcon,
+	filename = Constants.Settings.RNS_BlankIcon32,
 	priority = 'extra-high',
 	size = 32
 }
 combinator.activity_led_sprites = {
-	filename = Constants.Settings.RNS_BlankIcon,
+	filename = Constants.Settings.RNS_BlankIcon32,
 	priority = 'extra-high',
 	size = 32
 }
@@ -174,7 +194,7 @@ combinator1.circuit_wire_max_distance = 9
 combinator1.collision_box = {{-0.25, -0.25}, {0.25, 0.25}}
 combinator1.selection_box = {{-0.25, -0.25}, {0.25, 0.25}}
 combinator1.flags = {'placeable-neutral', 'hidden', 'not-upgradable', 'not-rotatable', 'hide-alt-info'}
-combinator1.icon = Constants.Settings.RNS_BlankIcon
+combinator1.icon = Constants.Settings.RNS_BlankIcon32
 combinator1.icon_size = 32
 combinator1.item_slot_count = 1
 combinator1.name = 'rns_Combinator_1'
@@ -182,12 +202,12 @@ combinator1.type = 'constant-combinator'
 combinator1.collision_mask = {}
 combinator1.remove_decoratives = 'false'
 combinator1.sprites = {
-	filename = Constants.Settings.RNS_BlankIcon,
+	filename = Constants.Settings.RNS_BlankIcon32,
 	priority = 'extra-high',
 	size = 32
 }
 combinator1.activity_led_sprites = {
-	filename = Constants.Settings.RNS_BlankIcon,
+	filename = Constants.Settings.RNS_BlankIcon32,
 	priority = 'extra-high',
 	size = 32
 }
@@ -201,7 +221,7 @@ combinator1.circuit_wire_max_distance = 9
 combinator1.collision_box = {{-0.25, -0.25}, {0.25, 0.25}}
 combinator1.selection_box = {{-0.25, -0.25}, {0.25, 0.25}}
 combinator1.flags = {'placeable-neutral', 'hidden', 'not-upgradable', 'not-rotatable', 'hide-alt-info'}
-combinator1.icon = Constants.Settings.RNS_BlankIcon
+combinator1.icon = Constants.Settings.RNS_BlankIcon32
 combinator1.icon_size = 32
 combinator1.item_slot_count = 1
 combinator1.name = 'rns_Combinator_2'
@@ -209,12 +229,12 @@ combinator1.type = 'constant-combinator'
 combinator1.collision_mask = {}
 combinator1.remove_decoratives = 'false'
 combinator1.sprites = {
-	filename = Constants.Settings.RNS_BlankIcon,
+	filename = Constants.Settings.RNS_BlankIcon32,
 	priority = 'extra-high',
 	size = 32
 }
 combinator1.activity_led_sprites = {
-	filename = Constants.Settings.RNS_BlankIcon,
+	filename = Constants.Settings.RNS_BlankIcon32,
 	priority = 'extra-high',
 	size = 32
 }
