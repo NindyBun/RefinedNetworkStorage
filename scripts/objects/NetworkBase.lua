@@ -446,7 +446,7 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
                 list[itemstack_data.cont.name] = nil
             end
         end
-        if amount <= 0 then break end
+        if amount <= 0 then amount = 0 break end
         --[[
         for k=1, #inventory do
             local item1 = inventory[k]
@@ -581,7 +581,7 @@ function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, exte
                 end
             end
         end
-        if amount <= 0 then break end
+        if amount <= 0 then amount = 0 break end
         ::continue::
     end
     return count - amount
@@ -888,15 +888,15 @@ function BaseNet:get_item_storage_size()
     return t, m
 end
 
-function BaseNet.get_table_length_in_priority(array, hasIOGroup)
+function BaseNet.get_table_length_in_priority(array, hasIOGroup, getNil)
     local count = 0
     for _, p in pairs(array) do
         if hasIOGroup then
             for _, io in pairs(p) do
-                count = count + Util.getTableLength(io)
+                count = count + (getNil and {Util.getTableLength_non_nil(io)} or {Util.getTableLength(io)})[1]
             end
         else
-            count = count + Util.getTableLength(p)
+            count = count + (getNil and {Util.getTableLength_non_nil(p)} or {Util.getTableLength(p)})[1]
         end
     end
     return count

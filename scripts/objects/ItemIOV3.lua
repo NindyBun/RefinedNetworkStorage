@@ -254,7 +254,7 @@ function IIO3:IO()
     if self.focusedEntity.thisEntity == nil then self.processed = true return end
     if self.io == "input" and self.focusedEntity.inventory.output.values == nil then self.processed = true return end
     if self.io == "output" and self.focusedEntity.inventory.input.values == nil then self.processed = true return end
-    if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then self.processed = true return end
+    if self.networkController == nil or (self.networkController ~= nil and self.networkController.valid) == false or (self.networkController ~= nil and self.networkController.stable == false) then self.processed = true return end
     local network = self.networkController.network
     if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
         if self.enabler.filter == nil then self.processed = true return end
