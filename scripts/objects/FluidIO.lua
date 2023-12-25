@@ -17,7 +17,7 @@ FIO = {
     combinator=nil,
     priority = 0,
     powerUsage = 8,
-    fluidSize = 1
+    fluidSize = global.FIOMultiplier
 }
 
 function FIO:new(object)
@@ -30,7 +30,6 @@ function FIO:new(object)
     t.entID = object.unit_number
     rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
     t:generateModeIcon()
-    t.fluidSize = global.FIOMultiplier
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E

@@ -18,7 +18,7 @@ IIO3 = {
     processed = false,
     priority = 0,
     powerUsage = 8,
-    stackSize = 1
+    stackSize = global.IIOMultiplier
 }
 
 function IIO3:new(object)
@@ -31,7 +31,6 @@ function IIO3:new(object)
     t.entID = object.unit_number
     rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
     t:generateModeIcon()
-    t.stackSize = Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
