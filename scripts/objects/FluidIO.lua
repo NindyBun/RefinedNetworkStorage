@@ -457,7 +457,7 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 		rateFrame.style.left_padding = 3
 		rateFrame.style.right_padding = 3
 		rateFrame.style.right_margin = 3
-        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", self.stackSize*12}, Constants.Settings.RNS_Gui.white, "", true)
+        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", self.fluidSize*12}, Constants.Settings.RNS_Gui.white, "", true)
 
         local stackFrame = GuiApi.add_frame(guiTable, "", rateFlow, "horizontal")
 		stackFrame.style = Constants.Settings.RNS_Gui.frame_1
