@@ -18,6 +18,7 @@ IIO3 = {
     processed = false,
     priority = 0,
     powerUsage = 8,
+    stackSize = 1
 }
 
 function IIO3:new(object)
@@ -30,6 +31,7 @@ function IIO3:new(object)
     t.entID = object.unit_number
     rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
     t:generateModeIcon()
+    t.stackSize = Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -122,6 +124,7 @@ function IIO3:copy_settings(obj)
     self.whitelist = obj.whitelist
     self.io = obj.io
     self.enabler = obj.enabler
+    self.stackSize = obj.stackSize
 
     self.filters = obj.filters
     self:set_icons(1, self.filters.values[1] ~= "" and self.filters.values[1] or nil)
@@ -141,6 +144,7 @@ function IIO3:serialize_settings()
     tags["io"] = self.io
     tags["priority"] = self.priority
     tags["enabler"] = self.enabler
+    tags["stackSize"] = self.stackSize
 
     return tags
 end
@@ -151,6 +155,7 @@ function IIO3:deserialize_settings(tags)
     self.whitelist = tags["whitelist"]
     self.io = tags["io"]
     self.enabler = tags["enabler"]
+    self.stackSize = tags["stackSize"]
 
     self.filters = tags["filters"]
     self:set_icons(1, self.filters.values[1] ~= "" and self.filters.values[1] or nil)
@@ -262,7 +267,7 @@ function IIO3:IO()
         if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then self.processed = true return end
     end
 
-    local transportCapacity = Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier
+    local transportCapacity = self.stackSize --Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier
     for k=1, 1 do
         if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true then
             local foc = self.focusedEntity.thisEntity
@@ -495,7 +500,7 @@ function IIO3:IO()
         end
         ::exit::
     end
-    self.processed = transportCapacity < Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier or
+    self.processed = transportCapacity < self.stackSize or --Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier or
         (self.focusedEntity.thisEntity ~= nil and self:checkFullness())
 end
 
@@ -644,13 +649,28 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
         local mainFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
 
         local rateFlow = GuiApi.add_flow(guiTable, "", mainFlow, "vertical")
-        local rateFrame = GuiApi.add_frame(guiTable, "", rateFlow, "vertical")
+        local rateFrame = GuiApi.add_frame(guiTable, "", rateFlow, "horizontal")
 		rateFrame.style = Constants.Settings.RNS_Gui.frame_1
 		rateFrame.style.vertically_stretchable = true
 		rateFrame.style.left_padding = 3
 		rateFrame.style.right_padding = 3
 		rateFrame.style.right_margin = 3
-        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_ItemTransferRate", Constants.Settings.RNS_BaseItemIO_TransferCapacity*15*global.IIOMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
+        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_ItemTransferRate", self.stackSize*15}, Constants.Settings.RNS_Gui.white, "", true)
+
+        local stackFrame = GuiApi.add_frame(guiTable, "", rateFlow, "horizontal")
+		stackFrame.style = Constants.Settings.RNS_Gui.frame_1
+		stackFrame.style.vertically_stretchable = true
+		stackFrame.style.left_padding = 3
+		stackFrame.style.right_padding = 3
+		stackFrame.style.right_margin = 3
+        GuiApi.add_label(guiTable, "", stackFrame, {"gui-description.RNS_ItemStackSize"}, Constants.Settings.RNS_Gui.white, "")
+        
+        local slider = GuiApi.add_slider(guiTable, "RNS_NetworkCableIO_Item_StackSizeSlider", stackFrame, 1, Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier, self.stackSize, 1, true, "", {ID=self.thisEntity.unit_number})
+        slider.style = "notched_slider"
+        slider.style.minimal_width = 250
+        slider.style.maximal_width = 300
+        GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Item_StackSizeText", stackFrame, tostring(self.stackSize), "", true, true, false, false, false, {ID=self.thisEntity.unit_number})
+        --GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_ItemTransferRate", Constants.Settings.RNS_BaseItemIO_TransferCapacity*15*global.IIOMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
 
         local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
         local bottomFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
@@ -707,9 +727,11 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_line(guiTable, "", settingsFrame, "horizontal")
 
         -- Whitelist/Blacklist mode
-        local state = "left"
-		if self.whitelist == false then state = "right" end
-		GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_Item_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
+        if self.io == "input" then
+            local state = "left"
+		    if self.whitelist == false then state = "right" end
+		    GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_Item_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
+        end
         
         -- Input/Output mode
         local state1 = "left"
@@ -744,7 +766,7 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
         end
     end
 
-    guiTable.vars.TransferRate.caption = {"gui-description.RNS_ItemTransferRate", Constants.Settings.RNS_BaseItemIO_TransferCapacity*15*global.IIOMultiplier}
+    guiTable.vars.TransferRate.caption = {"gui-description.RNS_ItemTransferRate", self.stackSize*15}
 
     if self.filters.values[1] ~= "" then
         guiTable.vars.filter1.elem_value = self.filters.values[1]
@@ -762,6 +784,24 @@ function IIO3:set_icons(index, name)
 end
 
 function IIO3.interaction(event, RNSPlayer)
+    local guiTable = RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip]
+    if string.match(event.element.name, "RNS_NetworkCableIO_Item_StackSizeSlider") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.stackSize = event.element.slider_value
+        guiTable.vars["RNS_NetworkCableIO_Item_StackSizeText"].text = tostring(io.stackSize)
+        return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_Item_StackSizeText") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.stackSize = math.max(1, math.min(tonumber(event.element.text) or 0, Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier))
+        guiTable.vars["RNS_NetworkCableIO_Item_StackSizeSlider"].slider_value = io.stackSize
+        guiTable.vars["RNS_NetworkCableIO_Item_StackSizeText"].text = tostring(io.stackSize)
+        return
+    end
     if string.match(event.element.name, "RNS_NetworkCableIO_Item_Number") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
