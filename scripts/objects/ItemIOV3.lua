@@ -267,7 +267,7 @@ function IIO3:IO()
         if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then self.processed = true return end
     end
 
-    local transportCapacity = self.stackSize --Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier
+    local transportCapacity = self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity--*global.IIOMultiplier
     for k=1, 1 do
         if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true then
             local foc = self.focusedEntity.thisEntity
@@ -500,8 +500,8 @@ function IIO3:IO()
         end
         ::exit::
     end
-    self.processed = transportCapacity < self.stackSize or --Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier or
-        (self.focusedEntity.thisEntity ~= nil and self:checkFullness())
+    self.processed = transportCapacity < self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity --*global.IIOMultiplier
+        or (self.focusedEntity.thisEntity ~= nil and self:checkFullness())
 end
 
 function IIO3:checkFullness()

@@ -17,6 +17,7 @@ FIO = {
     combinator=nil,
     priority = 0,
     powerUsage = 8,
+    fluidSize = 1
 }
 
 function FIO:new(object)
@@ -29,6 +30,7 @@ function FIO:new(object)
     t.entID = object.unit_number
     rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
     t:generateModeIcon()
+    t.fluidSize = Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -125,6 +127,7 @@ function FIO:copy_settings(obj)
     self.whitelist = obj.whitelist
     self.io = obj.io
     self.enabler = obj.enabler
+    self.fluidSize = obj.fluidSize
 
     self.filter = obj.filter
     self:set_icons(1, self.filter ~= "" and self.filter or nil)
@@ -142,6 +145,7 @@ function FIO:serialize_settings()
     tags["io"] = self.io
     tags["priority"] = self.priority
     tags["enabler"] = self.enabler
+    tags["fluidSize"] = self.fluidSize
 
     return tags
 end
@@ -151,6 +155,7 @@ function FIO:deserialize_settings(tags)
     self.whitelist = tags["whitelist"]
     self.io = tags["io"]
     self.enabler = tags["enabler"]
+    self.fluidSize = tags["fluidSize"]
 
     self.filter = tags["filter"]
     self:set_icons(1, self.filter ~= "" and self.filter or nil)
@@ -207,7 +212,7 @@ function FIO:IO()
     local fluid_box = self.focusedEntity.fluid_box
     if self.thisEntity.position.x ~= fluid_box.target_position.x or self.thisEntity.position.y ~= fluid_box.target_position.y then self.processed = true return end
     
-    local transportCapacity = Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier
+    local transportCapacity = self.fluidSize * Constants.Settings.RNS_BaseFluidIO_TransferCapacity --*global.FIOMultiplier
     --#tank.fluidbox returns number of pipe connections
     --tank.fluidbox.get_locked_fluid(index) returns filtered fluid at an index
     --tank.fluidbox[index] returns the contents of the fluidbox at an index
@@ -289,7 +294,8 @@ function FIO:IO()
         end
         ::exit::
     end
-    self.processed = transportCapacity < Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier or (self.focusedEntity.thisEntity ~= nil and self:checkFullness())
+    self.processed = transportCapacity < self.fluidSize * Constants.Settings.RNS_BaseFluidIO_TransferCapacity --*global.FIOMultiplier
+        or (self.focusedEntity.thisEntity ~= nil and self:checkFullness())
 end
 
 function FIO:checkFullness()
@@ -445,13 +451,28 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
         local mainFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
 
         local rateFlow = GuiApi.add_flow(guiTable, "", mainFlow, "vertical")
-        local rateFrame = GuiApi.add_frame(guiTable, "", rateFlow, "vertical")
+        local rateFrame = GuiApi.add_frame(guiTable, "", rateFlow, "horizontal")
 		rateFrame.style = Constants.Settings.RNS_Gui.frame_1
 		rateFrame.style.vertically_stretchable = true
 		rateFrame.style.left_padding = 3
 		rateFrame.style.right_padding = 3
 		rateFrame.style.right_margin = 3
-        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIOMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
+        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", self.stackSize*12}, Constants.Settings.RNS_Gui.white, "", true)
+
+        local stackFrame = GuiApi.add_frame(guiTable, "", rateFlow, "horizontal")
+		stackFrame.style = Constants.Settings.RNS_Gui.frame_1
+		stackFrame.style.vertically_stretchable = true
+		stackFrame.style.left_padding = 3
+		stackFrame.style.right_padding = 3
+		stackFrame.style.right_margin = 3
+        GuiApi.add_label(guiTable, "", stackFrame, {"gui-description.RNS_FluidFluidSize"}, Constants.Settings.RNS_Gui.white, "")
+        
+        local slider = GuiApi.add_slider(guiTable, "RNS_NetworkCableIO_Fluid_FluidSizeSlider", stackFrame, 1, Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier, self.fluidSize, 1, true, "", {ID=self.thisEntity.unit_number})
+        slider.style = "notched_slider"
+        slider.style.minimal_width = 250
+        slider.style.maximal_width = 300
+        GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Fluid_FluidSizeText", stackFrame, tostring(self.fluidSize), "", true, true, false, false, false, {ID=self.thisEntity.unit_number})
+        --GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIOMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
 
         local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
         local bottomFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
@@ -545,6 +566,24 @@ end
 
 
 function FIO.interaction(event, RNSPlayer)
+    local guiTable = RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip]
+    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_FluidSizeSlider") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.fluidSize = event.element.slider_value
+        guiTable.vars["RNS_NetworkCableIO_Fluid_FluidSizeText"].text = tostring(io.fluidSize)
+        return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_FluidSizeText") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.fluidSize = math.max(1, math.min(tonumber(event.element.text) or 0, Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier))
+        guiTable.vars["RNS_NetworkCableIO_Fluid_FluidSizeSlider"].slider_value = io.fluidSize
+        guiTable.vars["RNS_NetworkCableIO_Fluid_FluidSizeText"].text = tostring(io.fluidSize)
+        return
+    end
     if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Number") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
