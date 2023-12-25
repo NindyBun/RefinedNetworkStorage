@@ -30,7 +30,7 @@ function FIO:new(object)
     t.entID = object.unit_number
     rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
     t:generateModeIcon()
-    t.fluidSize = Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier
+    t.fluidSize = global.FIOMultiplier
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -457,7 +457,7 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 		rateFrame.style.left_padding = 3
 		rateFrame.style.right_padding = 3
 		rateFrame.style.right_margin = 3
-        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", self.fluidSize*12}, Constants.Settings.RNS_Gui.white, "", true)
+        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", self.fluidSize*12*Constants.Settings.RNS_BaseFluidIO_TransferCapacity}, Constants.Settings.RNS_Gui.white, "", true)
 
         local stackFrame = GuiApi.add_frame(guiTable, "", rateFlow, "horizontal")
 		stackFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -467,7 +467,7 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 		stackFrame.style.right_margin = 3
         GuiApi.add_label(guiTable, "", stackFrame, {"gui-description.RNS_FluidFluidSize"}, Constants.Settings.RNS_Gui.white, "")
         
-        local slider = GuiApi.add_slider(guiTable, "RNS_NetworkCableIO_Fluid_FluidSizeSlider", stackFrame, 1, Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier, self.fluidSize, 1, true, "", {ID=self.thisEntity.unit_number})
+        local slider = GuiApi.add_slider(guiTable, "RNS_NetworkCableIO_Fluid_FluidSizeSlider", stackFrame, 1, global.FIOMultiplier, self.fluidSize, 1, true, "", {ID=self.thisEntity.unit_number})
         slider.style = "notched_slider"
         slider.style.minimal_width = 250
         slider.style.maximal_width = 300
@@ -553,7 +553,7 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
         end
     end
 
-    guiTable.vars.TransferRate.caption = {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIOMultiplier}
+    guiTable.vars.TransferRate.caption = {"gui-description.RNS_FluidTransferRate", self.fluidSize*12*Constants.Settings.RNS_BaseFluidIO_TransferCapacity}
 
     if self.filter ~= "" then
         guiTable.vars.filter.elem_value = self.filter
@@ -579,7 +579,7 @@ function FIO.interaction(event, RNSPlayer)
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        io.fluidSize = math.max(1, math.min(tonumber(event.element.text) or 0, Constants.Settings.RNS_BaseFluidIO_TransferCapacity*global.FIOMultiplier))
+        io.fluidSize = math.max(1, math.min(tonumber(event.element.text) or 0, global.FIOMultiplier))
         guiTable.vars["RNS_NetworkCableIO_Fluid_FluidSizeSlider"].slider_value = io.fluidSize
         guiTable.vars["RNS_NetworkCableIO_Fluid_FluidSizeText"].text = tostring(io.fluidSize)
         return

@@ -655,7 +655,7 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
 		rateFrame.style.left_padding = 3
 		rateFrame.style.right_padding = 3
 		rateFrame.style.right_margin = 3
-        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_ItemTransferRate", self.stackSize*15}, Constants.Settings.RNS_Gui.white, "", true)
+        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_ItemTransferRate", self.stackSize*15*Constants.Settings.RNS_BaseItemIO_TransferCapacity}, Constants.Settings.RNS_Gui.white, "", true)
 
         local stackFrame = GuiApi.add_frame(guiTable, "", rateFlow, "horizontal")
 		stackFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -665,7 +665,7 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
 		stackFrame.style.right_margin = 3
         GuiApi.add_label(guiTable, "", stackFrame, {"gui-description.RNS_ItemStackSize"}, Constants.Settings.RNS_Gui.white, "")
         
-        local slider = GuiApi.add_slider(guiTable, "RNS_NetworkCableIO_Item_StackSizeSlider", stackFrame, 1, Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier, self.stackSize, 1, true, "", {ID=self.thisEntity.unit_number})
+        local slider = GuiApi.add_slider(guiTable, "RNS_NetworkCableIO_Item_StackSizeSlider", stackFrame, 1, global.IIOMultiplier, self.stackSize, 1, true, "", {ID=self.thisEntity.unit_number})
         slider.style = "notched_slider"
         slider.style.minimal_width = 250
         slider.style.maximal_width = 300
@@ -766,7 +766,7 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
         end
     end
 
-    guiTable.vars.TransferRate.caption = {"gui-description.RNS_ItemTransferRate", self.stackSize*15}
+    guiTable.vars.TransferRate.caption = {"gui-description.RNS_ItemTransferRate", self.stackSize*15*Constants.Settings.RNS_BaseItemIO_TransferCapacity}
 
     if self.filters.values[1] ~= "" then
         guiTable.vars.filter1.elem_value = self.filters.values[1]
@@ -797,7 +797,7 @@ function IIO3.interaction(event, RNSPlayer)
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        io.stackSize = math.max(1, math.min(tonumber(event.element.text) or 0, Constants.Settings.RNS_BaseItemIO_TransferCapacity*global.IIOMultiplier))
+        io.stackSize = math.max(1, math.min(tonumber(event.element.text) or 0, global.IIOMultiplier))
         guiTable.vars["RNS_NetworkCableIO_Item_StackSizeSlider"].slider_value = io.stackSize
         guiTable.vars["RNS_NetworkCableIO_Item_StackSizeText"].text = tostring(io.stackSize)
         return
