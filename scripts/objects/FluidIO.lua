@@ -16,7 +16,7 @@ FIO = {
     enablerCombinator = nil,
     combinator=nil,
     priority = 0,
-    powerUsage = 4,
+    powerUsage = 8,
 }
 
 function FIO:new(object)

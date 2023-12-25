@@ -17,7 +17,7 @@ IIO3 = {
     combinator = nil,
     processed = false,
     priority = 0,
-    powerUsage = 4,
+    powerUsage = 8,
 }
 
 function IIO3:new(object)

@@ -6,7 +6,7 @@ WT = {
     color = "RED",
     networkController = nil,
     cardinals = nil,
-    powerUsage = 2,
+    powerUsage = 64,
     rangeArea = nil,
     showArea = false
 }

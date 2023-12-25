@@ -5,7 +5,8 @@ TR = {
     connectedObjs = nil,
     cardinals = nil,
     type = "",
-    receiver = nil
+    receiver = nil,
+    powerUsage = 256
 }
 --Constructor
 function TR:new(object)

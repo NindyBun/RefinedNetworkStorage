@@ -921,11 +921,11 @@ function BaseNet.get_powerusage(array, hasIOGroup)
     return power
 end
 
---Get connected objects
+--Get total powerusage of connected objects
 function BaseNet:getTotalObjects()
     return  BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ItemDriveTable)) + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.FluidDriveTable))
             + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ItemIOTable, true), true)*global.IIOMultiplier + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.FluidIOTable, true), true)*global.FIOMultiplier
             + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ExternalIOTable)) + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.NetworkInventoryInterfaceTable))
             + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.WirelessTransmitterTable))*global.WTRangeMultiplier + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.DetectorTable))
-            + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.TransmitterTable)) + BaseNet.get_table_length_in_priority(BaseNet.getOperableObjects(self.ReceiverTable))
+            + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.TransmitterTable)) + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ReceiverTable))
 end

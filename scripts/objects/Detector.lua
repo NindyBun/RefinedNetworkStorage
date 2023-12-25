@@ -10,7 +10,7 @@ DT = {
     enabler = nil,
     cardinals = nil,
     combinator = nil,
-    powerUsage = 2,
+    powerUsage = 4,
 }
 
 function DT:new(object)

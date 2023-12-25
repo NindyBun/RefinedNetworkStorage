@@ -914,7 +914,7 @@ Constants.Drives = {
             entityS =  Constants.MOD_ID.."/graphics/Drives/DriveS.png",
             size = "4k",
             max_size = 4000,
-            powerUsage = 2,
+            powerUsage = 4,
             subgroup = Constants.ItemGroup.Category.ItemDrive_subgroup,
             order = "i-i[1]"
         },
@@ -925,7 +925,7 @@ Constants.Drives = {
             entityS =  Constants.MOD_ID.."/graphics/Drives/DriveS.png",
             size = "16k",
             max_size = 16000,
-            powerUsage = 4,
+            powerUsage = 16,
             subgroup = Constants.ItemGroup.Category.ItemDrive_subgroup,
             order = "i-i[2]"
         },
@@ -936,7 +936,7 @@ Constants.Drives = {
             entityS =  Constants.MOD_ID.."/graphics/Drives/DriveS.png",
             size = "64k",
             max_size = 64000,
-            powerUsage = 6,
+            powerUsage = 64,
             subgroup = Constants.ItemGroup.Category.ItemDrive_subgroup,
             order = "i-i[3]"
         },
@@ -947,7 +947,7 @@ Constants.Drives = {
             entityS =  Constants.MOD_ID.."/graphics/Drives/DriveS.png",
             size = "256k",
             max_size = 256000,
-            powerUsage = 8,
+            powerUsage = 256,
             subgroup = Constants.ItemGroup.Category.ItemDrive_subgroup,
             order = "i-i[4]"
         }
@@ -960,7 +960,7 @@ Constants.Drives = {
             entityS =  Constants.MOD_ID.."/graphics/Drives/DriveS.png",
             size = "25k",
             max_size = 25000,
-            powerUsage = 2,
+            powerUsage = 4,
             subgroup = Constants.ItemGroup.Category.FluidDrive_subgroup,
             order = "f-f[1]"
         },
@@ -971,7 +971,7 @@ Constants.Drives = {
             entityS =  Constants.MOD_ID.."/graphics/Drives/DriveS.png",
             size = "100k",
             max_size = 100000,
-            powerUsage = 4,
+            powerUsage = 16,
             subgroup = Constants.ItemGroup.Category.FluidDrive_subgroup,
             order = "f-f[2]"
         },
@@ -982,7 +982,7 @@ Constants.Drives = {
             entityS =  Constants.MOD_ID.."/graphics/Drives/DriveS.png",
             size = "400k",
             max_size = 400000,
-            powerUsage = 6,
+            powerUsage = 64,
             subgroup = Constants.ItemGroup.Category.FluidDrive_subgroup,
             order = "f-f[3]"
         },
@@ -993,7 +993,7 @@ Constants.Drives = {
             entityS =  Constants.MOD_ID.."/graphics/Drives/DriveS.png",
             size = "1600k",
             max_size = 1600000,
-            powerUsage = 8,
+            powerUsage = 256,
             subgroup = Constants.ItemGroup.Category.FluidDrive_subgroup,
             order = "f-f[4]"
         }
