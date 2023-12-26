@@ -4,7 +4,7 @@ NII = {
     networkController = nil,
     connectedObjs = nil,
     cardinals = nil,
-    powerUsage = 2
+    powerUsage = 20
 }
 
 function NII:new(object)

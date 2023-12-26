@@ -6,7 +6,7 @@ TR = {
     cardinals = nil,
     type = "",
     receiver = nil,
-    powerUsage = 256
+    powerUsage = 2560
 }
 --Constructor
 function TR:new(object)

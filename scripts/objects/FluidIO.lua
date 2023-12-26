@@ -16,7 +16,7 @@ FIO = {
     enablerCombinator = nil,
     combinator=nil,
     priority = 0,
-    powerUsage = 8,
+    powerUsage = 80,
     fluidSize = 1
 }
 

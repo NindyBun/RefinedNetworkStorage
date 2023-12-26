@@ -17,7 +17,7 @@ IIO3 = {
     combinator = nil,
     processed = false,
     priority = 0,
-    powerUsage = 8,
+    powerUsage = 80,
     stackSize = 1
 }
 

@@ -884,7 +884,6 @@ Constants.NetworkTransReceiver = {
         itemIcon = Constants.MOD_ID.."/graphics/Networks/TransReceiver/NetworkTransmitterI.png",
         entityE =  Constants.MOD_ID.."/graphics/Networks/TransReceiver/NetworkTransmitterE.png",
         entityS =  Constants.MOD_ID.."/graphics/Networks/TransReceiver/NetworkTransReceiverS.png",
-        powerUsage = 64,
     },
     receiver = {
         name = "RNS_NetworkReceiver",
@@ -914,7 +913,7 @@ Constants.Drives = {
             entityS =  Constants.MOD_ID.."/graphics/Drives/DriveS.png",
             size = "4k",
             max_size = 4000,
-            powerUsage = 4,
+            powerUsage = 40,
             subgroup = Constants.ItemGroup.Category.ItemDrive_subgroup,
             order = "i-i[1]"
         },
@@ -925,7 +924,7 @@ Constants.Drives = {
             entityS =  Constants.MOD_ID.."/graphics/Drives/DriveS.png",
             size = "16k",
             max_size = 16000,
-            powerUsage = 16,
+            powerUsage = 160,
             subgroup = Constants.ItemGroup.Category.ItemDrive_subgroup,
             order = "i-i[2]"
         },
@@ -936,7 +935,7 @@ Constants.Drives = {
             entityS =  Constants.MOD_ID.."/graphics/Drives/DriveS.png",
             size = "64k",
             max_size = 64000,
-            powerUsage = 64,
+            powerUsage = 640,
             subgroup = Constants.ItemGroup.Category.ItemDrive_subgroup,
             order = "i-i[3]"
         },
@@ -947,7 +946,7 @@ Constants.Drives = {
             entityS =  Constants.MOD_ID.."/graphics/Drives/DriveS.png",
             size = "256k",
             max_size = 256000,
-            powerUsage = 256,
+            powerUsage = 2560,
             subgroup = Constants.ItemGroup.Category.ItemDrive_subgroup,
             order = "i-i[4]"
         }
@@ -960,7 +959,7 @@ Constants.Drives = {
             entityS =  Constants.MOD_ID.."/graphics/Drives/DriveS.png",
             size = "25k",
             max_size = 25000,
-            powerUsage = 4,
+            powerUsage = 40,
             subgroup = Constants.ItemGroup.Category.FluidDrive_subgroup,
             order = "f-f[1]"
         },
@@ -971,7 +970,7 @@ Constants.Drives = {
             entityS =  Constants.MOD_ID.."/graphics/Drives/DriveS.png",
             size = "100k",
             max_size = 100000,
-            powerUsage = 16,
+            powerUsage = 160,
             subgroup = Constants.ItemGroup.Category.FluidDrive_subgroup,
             order = "f-f[2]"
         },
@@ -982,7 +981,7 @@ Constants.Drives = {
             entityS =  Constants.MOD_ID.."/graphics/Drives/DriveS.png",
             size = "400k",
             max_size = 400000,
-            powerUsage = 64,
+            powerUsage = 640,
             subgroup = Constants.ItemGroup.Category.FluidDrive_subgroup,
             order = "f-f[3]"
         },
@@ -993,7 +992,7 @@ Constants.Drives = {
             entityS =  Constants.MOD_ID.."/graphics/Drives/DriveS.png",
             size = "1600k",
             max_size = 1600000,
-            powerUsage = 256,
+            powerUsage = 2560,
             subgroup = Constants.ItemGroup.Category.FluidDrive_subgroup,
             order = "f-f[4]"
         }

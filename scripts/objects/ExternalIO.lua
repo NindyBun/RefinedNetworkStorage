@@ -23,7 +23,7 @@ EIO = {
     onlyModified = true,
     whitelist = true,
     priority = 0,
-    powerUsage = 16
+    powerUsage = 160
 }
 
 function EIO:new(object)
