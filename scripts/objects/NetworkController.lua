@@ -132,21 +132,21 @@ function NC:collectContents()
         local priorityInvs = externalInvs[i]
         local priorityTanks = externalTanks[i]
 
-        if Util.getTableLength(priorityItems) > 0 then
+        --if Util.getTableLength(priorityItems) > 0 then
             for _, drive in pairs(priorityItems) do
                 for name, content in pairs(drive.storageArray) do
                     self.network.Contents.item[name] = math.min((self.network.Contents.item[name] or 0) + content.count, 2^32)
                 end
             end
-        end
-        if Util.getTableLength(priorityFluids) > 0 then
+        --end
+        --if Util.getTableLength(priorityFluids) > 0 then
             for _, drive in pairs(priorityFluids) do
                 for name, content in pairs(drive.fluidArray) do
                     self.network.Contents.fluid[name] = math.min((self.network.Contents.fluid[name] or 0) + content.amount, 2^32)
                 end
             end
-        end
-        if Util.getTableLength(priorityInvs) > 0 then
+        --end
+        --if Util.getTableLength(priorityInvs) > 0 then
             for _, eInv in pairs(priorityInvs) do
                 if string.match(eInv.io, "output") == nil then goto next end
                 if eInv.focusedEntity.thisEntity ~= nil and eInv.focusedEntity.thisEntity.valid == true and eInv.focusedEntity.thisEntity.to_be_deconstructed() == false and eInv.focusedEntity.inventory.values ~= nil then
@@ -164,8 +164,8 @@ function NC:collectContents()
                 end
                 ::next::
             end
-        end
-        if Util.getTableLength(priorityTanks) > 0 then
+        --end
+        --if Util.getTableLength(priorityTanks) > 0 then
             for _, eTank in pairs(priorityTanks) do
                 local fluid_box = eTank.focusedEntity.fluid_box
                 if string.match(fluid_box.flow, "output") == nil then goto next end
@@ -176,7 +176,7 @@ function NC:collectContents()
                 end
                 ::next::
             end
-        end
+        --end
     end
 end
 
