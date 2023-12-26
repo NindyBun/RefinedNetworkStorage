@@ -476,7 +476,7 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
             GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Fluid_FluidSizeText", stackFrame, tostring(self.fluidSize), "", true, true, false, false, false, {ID=self.thisEntity.unit_number})
             --GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIOMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
         end
-        
+
         local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
         local bottomFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
         

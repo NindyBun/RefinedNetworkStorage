@@ -154,7 +154,20 @@ function EIO:copy_settings(obj)
     self.type = obj.type
     self.enabler = obj.enabler
 
-    self.filters = obj.filters
+    self.filters = {
+        item = {
+            index = 1,
+            values = {}
+        },
+        fluid = {
+            index = 1,
+            values = {}
+        }
+    }
+    for i=1, 10 do
+        self.filters.item.values[i] = obj.filters.item.values[i]
+        self.filters.fluid.values[i] = obj.filters.fluid.values[i]
+    end
     for i=1, 10 do
         self:set_icons(i, self.filters[self.type].values[i] ~= "" and self.filters[self.type].values[i] or nil, self.type)
     end

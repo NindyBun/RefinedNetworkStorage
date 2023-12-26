@@ -126,7 +126,14 @@ function IIO3:copy_settings(obj)
     self.enabler = obj.enabler
     self.stackSize = obj.stackSize
 
-    self.filters = obj.filters
+    --Filters has do be done this way because for some reason they link to other objects
+    self.filters = {
+        index = 1,
+        values = {
+            [1] = obj.filters.values[1],
+            [2] = obj.filters.values[2]
+        }
+    }
     self:set_icons(1, self.filters.values[1] ~= "" and self.filters.values[1] or nil)
     self:set_icons(2, self.filters.values[2] ~= "" and self.filters.values[2] or nil)
 
@@ -694,7 +701,7 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
         colorDD.style.minimal_width = 100
 
         --Filters 2 max
-        local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", topFrame, "vertical", true)
+        local filtersFrame = GuiApi.add_frame(guiTable, "", topFrame, "vertical")
 		filtersFrame.style = Constants.Settings.RNS_Gui.frame_1
 		filtersFrame.style.vertically_stretchable = true
 		filtersFrame.style.left_padding = 3
@@ -715,7 +722,7 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
 		guiTable.vars.filter2 = filter2
 		if self.filters.values[2] ~= "" then filter2.elem_value = self.filters.values[2] end
 
-        local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", topFrame, "vertical", true)
+        local settingsFrame = GuiApi.add_frame(guiTable, "", topFrame, "vertical")
 		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
 		settingsFrame.style.vertically_stretchable = true
 		settingsFrame.style.left_padding = 3
@@ -725,7 +732,7 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
 
 		GuiApi.add_subtitle(guiTable, "", settingsFrame, {"gui-description.RNS_Setting"})
 
-        local priorityFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
+        local priorityFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal")
         GuiApi.add_label(guiTable, "", priorityFlow, {"gui-description.RNS_Priority"}, Constants.Settings.RNS_Gui.white)
         local priorityDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Item_Priority", priorityFlow, Constants.Settings.RNS_Priorities, ((#Constants.Settings.RNS_Priorities+1)/2)-self.priority, false, "", {ID=self.thisEntity.unit_number})
         priorityDD.style.minimal_width = 100
