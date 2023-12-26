@@ -288,6 +288,8 @@ function IIO3:IO()
                                 local nextItem = Util.next_non_nil(self.filters)
                                 if nextItem ~= "" then
                                     filterstack = Util.itemstack_template(nextItem)
+                                else
+                                    goto exit
                                 end
             
                                 local index1 = 0
@@ -372,6 +374,8 @@ function IIO3:IO()
                                     local filterstack = nil
                                     if nextItem ~= "" then
                                         filterstack = Util.itemstack_template(nextItem)
+                                    else
+                                        goto exit
                                     end
 
                                     if Util.getTableLength_non_nil(externalInv.filters.item.values) > 0 then
