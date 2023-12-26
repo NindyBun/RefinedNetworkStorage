@@ -43,7 +43,7 @@ inventoryBlockE.picture =
         {
             {
                 filename = Constants.NetworkInventoryInterface.entityE,
-                priority = "extra-high",
+                priority = "medium",
                 width = 512,
                 height = 512,
                 shift = {0,-0.2355},
@@ -51,7 +51,7 @@ inventoryBlockE.picture =
             },
             {
                 filename = Constants.NetworkInventoryInterface.entityS,
-                priority = "high",
+                priority = "medium",
                 width = 512,
                 height = 512,
                 shift = {0.5,-0.2355},

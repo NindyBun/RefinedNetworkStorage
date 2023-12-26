@@ -53,7 +53,7 @@ e.platform_picture = {
         layers = {
             {
                 filename = Constants.Settings.RNS_BlankIcon,
-                priority = 'extra-high',
+                priority = 'high',
                 size = 32
             }
         }
@@ -82,7 +82,7 @@ c.inventory_size = 10
 c.picture =
     {
         filename = Constants.Settings.RNS_BlankIcon,
-        priority = 'extra-high',
+        priority = 'high',
         size = 32
     }
 c.draw_copper_wires = false
@@ -113,14 +113,14 @@ ioE.animation =
 			layers = {
 				{
 					filename = Constants.NetworkCables.itemIO.entityE,
-					priority = "extra-high",
+					priority = "medium",
                     size = 512,
 					scale = 1/8,
 					x=0
 				},
 				{
 					filename = Constants.NetworkCables.itemIO.entityS,
-					priority = "high",
+					priority = "medium",
                     size = 512,
 					draw_as_shadow = true,
 					scale = 1/8,

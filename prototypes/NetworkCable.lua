@@ -50,7 +50,7 @@ for _, color in pairs(Constants.NetworkCables.Cables) do
             {
                 {
                     filename =color.cable.entityE,
-                    priority = "extra-high",
+                    priority = "medium",
                     width = 512,
                     height = 512,
                     shift = {0,0},
@@ -58,7 +58,7 @@ for _, color in pairs(Constants.NetworkCables.Cables) do
                 },
                 {
                     filename = Constants.MOD_ID .. "/graphics/Cables/NetworkCableDot_S.png",
-                    priority = "high",
+                    priority = "medium",
                     width = 512,
                     height = 512,
                     shift = {0,0},
@@ -121,14 +121,14 @@ for _, color in pairs(Constants.NetworkCables.Cables) do
                 layers = {
                     {
                         filename = color.underground.entityE,
-                        priority = "extra-high",
+                        priority = "medium",
                         size = 512,
                         scale = 1/16,
                         x=0
                     },
                     {
                         filename = color.underground.entityS,
-                        priority = "high",
+                        priority = "medium",
                         size = 512,
                         draw_as_shadow = true,
                         scale = 1/16,

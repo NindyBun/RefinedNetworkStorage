@@ -43,7 +43,7 @@ wirelessGridE.picture =
         {
             {
                 filename = Constants.WirelessGrid.entityE,
-                priority = "extra-high",
+                priority = "medium",
                 width = 512,
                 height = 512,
                 shift = {0,-0.123},
@@ -51,7 +51,7 @@ wirelessGridE.picture =
             },
             {
                 filename = Constants.WirelessGrid.entityS,
-                priority = "high",
+                priority = "medium",
                 width = 512,
                 height = 512,
                 shift = {0,-0.123},
@@ -109,7 +109,7 @@ wirelessTransmitter_E.picture =
         {
             {
                 filename = Constants.NetworkCables.wirelessTransmitter.entityE,
-                priority = "extra-high",
+                priority = "medium",
                 width = 512,
                 height = 512,
                 shift = {0,0},
@@ -117,7 +117,7 @@ wirelessTransmitter_E.picture =
             },
             {
                 filename = Constants.NetworkCables.wirelessTransmitter.entityS,
-                priority = "high",
+                priority = "medium",
                 width = 512,
                 height = 512,
                 shift = {0,0},
@@ -160,7 +160,7 @@ playerportE.localised_description = {"item-description.RNS_PlayerPort", Constant
 playerportE.localised_description = {"equipment-description.RNS_PlayerPort", Constants.Settings.RNS_PlayerPort_Consumption}
 playerportE.sprite = {
     filename = Constants.PlayerPort.itemIcon,
-    priority = "extra-high",
+    priority = "medium",
     size = 256,
 }
 playerportE.shape = {
@@ -235,7 +235,7 @@ for _, tr in pairs(Constants.NetworkTransReceiver) do
             {
                 {
                     filename = tr.entityE,
-                    priority = "extra-high",
+                    priority = "medium",
                     width = 512,
                     height = 512,
                     shift = {0,-13/32},
@@ -243,7 +243,7 @@ for _, tr in pairs(Constants.NetworkTransReceiver) do
                 },
                 {
                     filename = tr.entityS,
-                    priority = "high",
+                    priority = "medium",
                     width = 512,
                     height = 512,
                     shift = {0,-13/32},

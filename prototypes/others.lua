@@ -4,7 +4,7 @@ sprite1.name = Constants.Icons.check_mark.name
 sprite1.layers = {
     {
         filename = Constants.Icons.check_mark.sprite,
-        priority = "high",
+        priority = "medium",
         size = 32,
         scale = 1
     }
@@ -17,7 +17,7 @@ sprite2.name = Constants.Icons.x_mark.name
 sprite2.layers = {
     {
         filename = Constants.Icons.x_mark.sprite,
-        priority = "high",
+        priority = "medium",
         size = 32,
         scale = 1
     }
@@ -30,7 +30,7 @@ sprite3.name = Constants.Icons.underground.target.name
 sprite3.layers = {
     {
         filename = Constants.Icons.underground.target.sprite,
-        priority = "high",
+        priority = "medium",
         size = 64,
         scale = 0.5,
         x=192
@@ -44,7 +44,7 @@ sprite4.name = Constants.Icons.underground.gap.name
 sprite4.layers = {
     {
         filename = Constants.Icons.underground.gap.sprite,
-        priority = "high",
+        priority = "medium",
         size = 64,
         scale = 0.5,
         x=0
@@ -58,7 +58,7 @@ sprite5.name = Constants.Icons.storage.name
 sprite5.layers = {
     {
         filename = Constants.Icons.storage.sprite,
-        priority = "high",
+        priority = "medium",
         size = 48,
         scale = 24/48
     }
@@ -71,7 +71,7 @@ sprite6.name = Constants.Icons.storage_bothways.name
 sprite6.layers = {
     {
         filename = Constants.Icons.storage_bothways.sprite,
-        priority = "high",
+        priority = "medium",
         size = 48,
         scale = 24/48
     }
@@ -85,7 +85,7 @@ sprite7.name = Constants.NetworkController.states.stable
 sprite7.layers = {
     {
         filename = Constants.NetworkController.states.stableE,
-        priority = "extra-high",
+        priority = "medium",
         size = 512,
         scale = (96 * 3)/512
     }
@@ -98,7 +98,7 @@ sprite8.name = Constants.NetworkController.states.unstable
 sprite8.layers = {
     {
         filename = Constants.NetworkController.states.unstableE,
-        priority = "extra-high",
+        priority = "medium",
         size = 512,
         scale = (96 * 3)/512
     }
@@ -113,14 +113,14 @@ for _, color in pairs(Constants.NetworkCables.Cables) do
         sprite9.layers = {
             {
                 filename = tex.sprite_E,
-                priority = "extra-high",
+                priority = "medium",
                 size = 512,
                 shift = {0,0},
                 scale = 1/16
             },
             {
                 filename = tex.sprite_S,
-                priority = "high",
+                priority = "medium",
                 size = 512,
                 shift = {0,0},
                 draw_as_shadow = true,

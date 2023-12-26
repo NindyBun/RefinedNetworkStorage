@@ -48,13 +48,13 @@ cE0.picture =
         {
             {
                 filename = Constants.NetworkController.main.entityE,
-                priority = "extra-high",
+                priority = "medium",
                 size = 512,
                 scale = 192/512
             },
             {
                 filename = Constants.NetworkController.main.entityS,
-                priority = "extra-high",
+                priority = "medium",
                 draw_as_shadow = true,
                 size = 512,
                 scale = (96 * 3)/512

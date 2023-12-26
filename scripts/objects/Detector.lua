@@ -128,7 +128,10 @@ function DT:copy_settings(obj)
     self.color = obj.color
     self.enabler = obj.enabler
     self.type = obj.type
-    self.filters = obj.filters
+    self.filters = {
+        item = obj.filters.item,
+        fluid = obj.filters.fluid
+    }
     self:set_icons(1, self.filters[self.type] ~= "" and self.filters[self.type] or nil, self.type)
     self:set_icons(2, self.enabler.filter.name ~= "" and self.enabler.filter.name or nil, self.enabler.filter.type)
 end

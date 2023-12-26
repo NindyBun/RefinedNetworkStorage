@@ -53,7 +53,7 @@ ioE.animation =
 				},
 				{
 					filename = Constants.NetworkCables.fluidIO.entityS,
-					priority = "high",
+					priority = "medium",
                     size = 512,
 					draw_as_shadow = true,
 					scale = 1/8,
@@ -311,14 +311,14 @@ tE.animations = {
         layers = {
             {
                 filename = Constants.MOD_ID.."/graphics/test"..d..".png",
-                priority = "extra-high",
+                priority = "medium",
                 size = 512,
                 scale = 1/16,
                 x = 0
             },
             {
                 filename = Constants.MOD_ID.."/graphics/test"..d.."_s.png",
-                priority = "high",
+                priority = "medium",
                 draw_as_shadow = true,
                 size = 512,
                 scale = 3/16,

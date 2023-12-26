@@ -71,14 +71,14 @@ ioE.pictures =
                 layers = {
                     {
                         filename = Constants.NetworkCables.fluidIO.entityE,
-                        priority = "extra-high",
+                        priority = "medium",
                         size = 512,
                         scale = 1/8,
                         x=0
                     },
                     {
                         filename = Constants.NetworkCables.fluidIO.entityS,
-                        priority = "high",
+                        priority = "medium",
                         size = 512,
                         draw_as_shadow = true,
                         scale = 1/8,
@@ -142,14 +142,14 @@ ioE.animation =
 			layers = {
 				{
 					filename = Constants.NetworkCables.fluidIO.entityE,
-					priority = "extra-high",
+					priority = "medium",
                     size = 512,
 					scale = 1/16,
 					x=0
 				},
 				{
 					filename = Constants.NetworkCables.fluidIO.entityS,
-					priority = "high",
+					priority = "medium",
                     size = 128,
 					draw_as_shadow = true,
 					scale = 1/2,
@@ -157,7 +157,7 @@ ioE.animation =
 				},
                 {
 					filename = Constants.MOD_ID.."/graphics/Cables/IO/FluidIO_Box_S.png",
-					priority = "high",
+					priority = "medium",
                     size = 512,
 					draw_as_shadow = true,
 					scale = 1/8,

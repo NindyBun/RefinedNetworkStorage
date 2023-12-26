@@ -61,7 +61,7 @@ function createDriveEntity(drive)
 			{
 				{
 					filename = drive.entityE,
-					priority = "extra-high",
+					priority = "medium",
 					width = 512,
 					height = 512,
 					shift = {0,-138/512},
@@ -69,7 +69,7 @@ function createDriveEntity(drive)
 				},
 				{
 					filename = drive.entityS,
-					priority = "high",
+					priority = "medium",
 					width = 256,
 					height = 256,
 					shift = {1,-0.47225},

@@ -44,7 +44,7 @@ detector_E.picture =
         {
             {
                 filename = Constants.Detector.entityE,
-                priority = "extra-high",
+                priority = "medium",
                 width = 512,
                 height = 512,
                 shift = {0,0},
@@ -52,7 +52,7 @@ detector_E.picture =
             },
             {
                 filename = Constants.Detector.entityS,
-                priority = "high",
+                priority = "medium",
                 width = 512,
                 height = 512,
                 shift = {0,0},

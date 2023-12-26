@@ -36,6 +36,10 @@ function RNSP:update_gui_distance_validity()
     for _, guiTable in pairs(self.GUI or {}) do
         if guiTable.gui ~= nil and guiTable.gui.valid == true then
             local obj = guiTable.vars.currentObject
+            if obj == nil then goto next end
+            if obj ~= nil and obj.thisEntity == nil then goto next end
+            if obj ~= nil and obj.thisEntity ~= nil and obj.thisEntity.valid == false then goto next end
+            
             local characters = obj.thisEntity.surface.find_entities_filtered{
                 type = "character",
                 area = {
@@ -55,6 +59,7 @@ function RNSP:update_gui_distance_validity()
                 return
             end
         end
+        ::next::
     end
 end
 

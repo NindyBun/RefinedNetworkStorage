@@ -43,14 +43,14 @@ ioE.animation =
 			layers = {
 				{
 					filename = Constants.NetworkCables.itemIO.entityE,
-					priority = "extra-high",
+					priority = "medium",
                     size = 512,
 					scale = 1/8,
 					x=0
 				},
 				{
 					filename = Constants.NetworkCables.itemIO.entityS,
-					priority = "high",
+					priority = "medium",
                     size = 512,
 					draw_as_shadow = true,
 					scale = 1/8,
