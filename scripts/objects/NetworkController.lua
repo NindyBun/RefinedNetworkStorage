@@ -256,24 +256,32 @@ function NC:find_wirelessgrid_with_wirelessTransmitter(id)
 end
 
 function NC:updateItemIO()
-    local import = {}
+    --local import = {}
     local export = {}
     local processed = 0
     for p, priority in pairs(BaseNet.getOperableObjects(self.network.ItemIOTable, true)) do
-        import[p] = priority.input
+        --import[p] = priority.input
+        for _, item in pairs(priority.input) do
+            item:IO()
+            item.processed = false
+        end
         export[p] = {}
         --export[p] = priority.output
         for _, item in pairs(priority.output) do
-            if item.io == "output" then table.insert(export[p], ((settings.global[Constants.Settings.RNS_RoundRobin].value == true and item.processed == false) and {1} or {Util.getTableLength(export[p])})[1], item) end
+            table.insert(export[p], ((settings.global[Constants.Settings.RNS_RoundRobin].value == true and item.processed == false) and {1} or {Util.getTableLength(export[p])})[1], item)
+        end
+        for _, item in pairs(export[p]) do
+            item:IO()
+            if item.processed == true then processed = processed + 1 end
         end
     end
-    for _, priority in pairs(import) do
+    --[[for _, priority in pairs(import) do
         for _, item in pairs(priority) do
             item:IO()
             item.processed = false
         end
-    end
-    for _, priority in pairs(export) do
+    end]]
+    --[[for _, priority in pairs(export) do
         for _, item in pairs(priority) do
             --if item.processed == false and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
             --    item:IO()
@@ -283,7 +291,7 @@ function NC:updateItemIO()
             item:IO()
             if item.processed == true then processed = processed + 1 end
         end
-    end
+    end]]
     local len = BaseNet.get_table_length_in_priority(export)
     if processed >= len and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(export) do
@@ -295,34 +303,43 @@ function NC:updateItemIO()
 end
 
 function NC:updateFluidIO()
-    local import = {}
+    --local import = {}
     local export = {}
     local processed = 0
     for p, priority in pairs(BaseNet.getOperableObjects(self.network.FluidIOTable, true)) do
-        import[p] = priority.input
-        export[p] = {}
-        --export[p] = priority.output
-        for _, fluid in pairs(priority.output) do
-            if fluid.io == "output" then table.insert(export[p], ((settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == false) and {1} or {Util.getTableLength(export[p])})[1], fluid) end
-        end
-    end
-    for _, priority in pairs(import) do
-        for _, fluid in pairs(priority) do
+        --import[p] = priority.input
+        for _, fluid in pairs(priority.input) do
             fluid:IO()
             fluid.processed = false
         end
-    end
-    for _, priority in pairs(export) do
-        for _, fluid in pairs(priority) do
-            --[[f fluid.processed == false and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
-                fluid:IO()
-            elseif settings.global[Constants.Settings.RNS_RoundRobin].value == false then
-                fluid:IO()
-            end]]
+        export[p] = {}
+        --export[p] = priority.output
+        for _, fluid in pairs(priority.output) do
+            table.insert(export[p], ((settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == false) and {1} or {Util.getTableLength(export[p])})[1], fluid)
+            
+        end
+        for _, fluid in pairs(export[p]) do
             fluid:IO()
             if fluid.processed == true then processed = processed + 1 end
         end
     end
+    --[[for _, priority in pairs(import) do
+        for _, fluid in pairs(priority) do
+            fluid:IO()
+            fluid.processed = false
+        end
+    end]]
+    --[[for _, priority in pairs(export) do
+        for _, fluid in pairs(priority) do
+            --if fluid.processed == false and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+            --    fluid:IO()
+            --elseif settings.global[Constants.Settings.RNS_RoundRobin].value == false then
+            --    fluid:IO()
+            --end
+            fluid:IO()
+            if fluid.processed == true then processed = processed + 1 end
+        end
+    end]]
     local len = BaseNet.get_table_length_in_priority(export)
     if processed >= len and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(export) do
