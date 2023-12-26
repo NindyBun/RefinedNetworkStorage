@@ -156,6 +156,8 @@ data:extend{playerportR}
 local playerportE = {}
 playerportE.type = "active-defense-equipment"
 playerportE.name = Constants.PlayerPort.name
+playerportE.localised_description = {"item-description.RNS_PlayerPort", Constants.Settings.RNS_PlayerPort_Consumption}
+playerportE.localised_description = {"equipment-description.RNS_PlayerPort", Constants.Settings.RNS_PlayerPort_Consumption}
 playerportE.sprite = {
     filename = Constants.PlayerPort.itemIcon,
     priority = "extra-high",
