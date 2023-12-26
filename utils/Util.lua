@@ -172,7 +172,7 @@ end
 -- Doesn't check linked entity or if an item is modified or it's item number
 function Util.itemstack_matches(itemstack_data, itemstack_to_be_checked, allowMetadata)
 	allowMetadata = allowMetadata or false
-	--Need to fix, it doesn't work properly for advanced items
+
 	if itemstack_data.cont == nil or itemstack_to_be_checked.cont == nil then return false end
 
 	if game.item_prototypes[itemstack_data.cont.name] ~= game.item_prototypes[itemstack_to_be_checked.cont.name] then return false end
