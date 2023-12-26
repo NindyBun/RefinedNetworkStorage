@@ -25,7 +25,7 @@ data:extend{
 		icon =
 		{
 		  filename = Constants.MOD_ID.."/graphics/playerportIcon.png",
-		  priority = "medium-no-scale",
+		  priority = "extra-high-no-scale",
 		  size = 40,
 		  flags = {"gui-icon"}
 		},
