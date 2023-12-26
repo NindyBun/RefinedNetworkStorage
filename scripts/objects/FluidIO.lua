@@ -460,21 +460,23 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 		rateFrame.style.right_margin = 3
         GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", self.fluidSize*12*Constants.Settings.RNS_BaseFluidIO_TransferCapacity}, Constants.Settings.RNS_Gui.white, "", true)
 
-        local stackFrame = GuiApi.add_frame(guiTable, "", rateFlow, "horizontal")
-		stackFrame.style = Constants.Settings.RNS_Gui.frame_1
-		stackFrame.style.vertically_stretchable = true
-		stackFrame.style.left_padding = 3
-		stackFrame.style.right_padding = 3
-		stackFrame.style.right_margin = 3
-        GuiApi.add_label(guiTable, "", stackFrame, {"gui-description.RNS_FluidFluidSize"}, Constants.Settings.RNS_Gui.white, "")
+        if global.FIOMultiplier > 1 then
+            local stackFrame = GuiApi.add_frame(guiTable, "", rateFlow, "horizontal")
+		    stackFrame.style = Constants.Settings.RNS_Gui.frame_1
+		    stackFrame.style.vertically_stretchable = true
+		    stackFrame.style.left_padding = 3
+		    stackFrame.style.right_padding = 3
+		    stackFrame.style.right_margin = 3
+            GuiApi.add_label(guiTable, "", stackFrame, {"gui-description.RNS_FluidFluidSize"}, Constants.Settings.RNS_Gui.white, "")
+            
+            local slider = GuiApi.add_slider(guiTable, "RNS_NetworkCableIO_Fluid_FluidSizeSlider", stackFrame, 1, global.FIOMultiplier, self.fluidSize, 1, true, "", {ID=self.thisEntity.unit_number})
+            slider.style = "notched_slider"
+            slider.style.minimal_width = 250
+            slider.style.maximal_width = 300
+            GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Fluid_FluidSizeText", stackFrame, tostring(self.fluidSize), "", true, true, false, false, false, {ID=self.thisEntity.unit_number})
+            --GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIOMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
+        end
         
-        local slider = GuiApi.add_slider(guiTable, "RNS_NetworkCableIO_Fluid_FluidSizeSlider", stackFrame, 1, global.FIOMultiplier, self.fluidSize, 1, true, "", {ID=self.thisEntity.unit_number})
-        slider.style = "notched_slider"
-        slider.style.minimal_width = 250
-        slider.style.maximal_width = 300
-        GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Fluid_FluidSizeText", stackFrame, tostring(self.fluidSize), "", true, true, false, false, false, {ID=self.thisEntity.unit_number})
-        --GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIOMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
-
         local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
         local bottomFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
         
