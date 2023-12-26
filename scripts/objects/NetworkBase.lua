@@ -371,7 +371,11 @@ function BaseNet.transfer_from_drive_to_tank(drive, tank_entity, index, name, am
         elseif tank_entity.fluidbox[index] ~= nil and tank_entity.fluidbox[index].name == name then
             local a0 = tank_entity.fluidbox[index].amount
             local t0 = tank_entity.fluidbox[index].temperature
-            local transfer = math.abs(amount - a0)
+            local transfer = amount
+            if transfer + a0 >= capacity then
+                transfer = capacity - a0
+                if transfer <= 0 then break end
+            end
             tank_entity.fluidbox[index] = {
                 name = name,
                 amount = transfer + a0,
