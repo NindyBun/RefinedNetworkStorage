@@ -445,9 +445,9 @@ Constants.NetworkCables = {
     },
     wirelessTransmitter = {
         name = "RNS_WirelessTransmitter",
-        itemIcon = Constants.MOD_ID.."/graphics/Networks/Wireless/wirelessTransmitterI.png",
-        entityE =  Constants.MOD_ID.."/graphics/Networks/Wireless/wirelessTransmitterE.png",
-        entityS =  Constants.MOD_ID.."/graphics/Networks/Wireless/wirelessTransmitterS.png"
+        itemIcon = Constants.MOD_ID.."/graphics/Networks/Wireless/WirelessTransmitterI.png",
+        entityE =  Constants.MOD_ID.."/graphics/Networks/Wireless/WirelessTransmitterE.png",
+        entityS =  Constants.MOD_ID.."/graphics/Networks/Wireless/WirelessTransmitterS.png"
     },
     Cables = {
         RED = {
