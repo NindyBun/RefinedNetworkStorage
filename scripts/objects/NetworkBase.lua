@@ -414,6 +414,15 @@ function BaseNet.transfer_from_tank_to_drive(tank_entity, drive, index, name, am
     return amount_to_transfer - amount
 end
 
+function BaseNet.inventory_is_sortable(inv)
+    return BaseNet.entity_is_sortable(inv.entity_owner)
+end
+
+function BaseNet.entity_is_sortable(ent)
+    if ent.prototype.type == "lab" then return false end
+    return true
+end
+
 --Meant for exporting from the network. Exporting is always whitelisted
 function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, count, allowMetadata)
     allowMetadata = allowMetadata or false
@@ -422,7 +431,7 @@ function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, c
     local list = drive_inv.storageArray
     --local inventory = drive_inv.storageArray.inventory
     for i=1, 1 do
-        to_inv.sort_and_merge()
+        if BaseNet.inventory_is_sortable(to_inv) then to_inv.sort_and_merge() end
         if list[itemstack_data.cont.name] ~= nil and itemstack_data.modified == false then
             local item = list[itemstack_data.cont.name]
             local min = math.min(item.count, amount)
@@ -493,12 +502,12 @@ function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, exte
     local amount = count
     allowModified = allowModified or false
     whitelist = whitelist or false
-    from_inv.sort_and_merge()
-    to_inv.sort_and_merge()
+    if BaseNet.inventory_is_sortable(from_inv) then from_inv.sort_and_merge() end
+    if BaseNet.inventory_is_sortable(to_inv) then to_inv.sort_and_merge() end
     
     for i = 1, #from_inv do
         local mod = false
-        local itemstack = from_inv[i]
+        local itemstack = from_inv[1]
         if itemstack_data ~= nil and whitelist == true then
             itemstack, i = from_inv.find_item_stack(itemstack_data.cont.name)
             if itemstack == nil then break end
@@ -597,7 +606,7 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
     allowMetadata = allowMetadata or false
     --drive_inv:get_sorted_and_merged_inventory()
     local amount = count
-    from_inv.sort_and_merge()
+    if BaseNet.inventory_is_sortable(from_inv) then from_inv.sort_and_merge() end
 
     for i=1, #from_inv do
         local mod = false

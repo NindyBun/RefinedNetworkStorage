@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.2
+Date: 29 January 2024
+  Info:
+    - Fixed issue when exporting science packs into labs not putting it in the right slots
+    - Fixed ItemIOV3.lua:522 error nil inventory slot
+---------------------------------------------------------------------------------------------------
 Version: 1.0.1
 Date: 26 December 2023
   Info:

@@ -518,10 +518,17 @@ end
 
 function IIO3:checkFullness()
     local i = 0
+    local ii = #self.focusedEntity.inventory["output"].values
     for _, slot in pairs(self.focusedEntity.inventory[self.io].values) do
+        if self.io == "output" and self.focusedEntity.thisEntity.get_inventory(slot) == nil then
+            ii = ii - 1
+            goto next
+        end
         if self.io == "output" and self.focusedEntity.thisEntity.get_inventory(slot).is_full() then i = i + 1 end
-        if self.io == "output" and i == #self.focusedEntity.inventory["output"].values then return true end
+        if self.io == "output" and i == ii then return true end
+        ::next::
     end
+
     return false
 end
 
