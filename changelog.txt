@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.3
+Date: 08 February 2024
+  Info:
+    - Fixed ItemIOV3.lua not importing items with an empty blacklist
+    - Optimized the way updates are done thus improving ups usage by ~50%
+    - Changed some IO logic for Item and Fluid Bus
+---------------------------------------------------------------------------------------------------
 Version: 1.0.2
 Date: 29 January 2024
   Info:
