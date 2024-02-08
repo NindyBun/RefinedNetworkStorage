@@ -105,8 +105,11 @@ function EIO:new(object)
     t.enablerCombinator.destructible = false
     t.enablerCombinator.operable = false
     t.enablerCombinator.minable = false
+    UpdateSys.add_to_entity_table(t)
     t:createArms()
-    UpdateSys.addEntity(t)
+    BaseNet.postArms(t)
+    BaseNet.update_network_controller(t.networkController)
+    --UpdateSys.addEntity(t)
     return t
 end
 
@@ -120,18 +123,19 @@ end
 function EIO:remove()
     if self.combinator ~= nil then self.combinator.destroy() end
     if self.enablerCombinator ~= nil then self.enablerCombinator.destroy() end
-    UpdateSys.remove(self)
-    if self.networkController ~= nil then
+    UpdateSys.remove_from_entity_table(self)
+    --[[if self.networkController ~= nil then
         self.networkController.network.ExternalIOTable[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil
         self.networkController.network.shouldRefresh = true
-    end
+    end]]
+    BaseNet.update_network_controller(self.networkController)
 end
 
 function EIO:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
-function EIO:update()
+--[[function EIO:update()
     if valid(self) == false then
         self:remove()
         return
@@ -144,7 +148,7 @@ function EIO:update()
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
     --if game.tick % 25 then self:createArms() end
-end
+end]]
 
 function EIO:copy_settings(obj)
     self.color = obj.color

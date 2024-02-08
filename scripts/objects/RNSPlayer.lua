@@ -21,6 +21,7 @@ function RNSP:new(player)
     t.GUI = {}
     t.varTable = {}
     UpdateSys.addEntity(t)
+    UpdateSys.add_to_entity_table(t)
     return t
 end
 
@@ -68,7 +69,7 @@ function RNSP:update()
     if self.thisEntity.selected ~= nil then
         local entity = self.thisEntity.selected
         if string.match(entity.name, "RNS_NetworkCableIO") or string.match(entity.name, "RNS_NetworkCableRamp") then
-            local obj = global.entityTable[entity.unit_number]
+            local obj = global[global.objectTables[entity.name].tableName][entity.unit_number]
             if obj ~= nil and obj.valid and obj.toggleHoverIcon then
                 obj:toggleHoverIcon(true)
             end
@@ -79,6 +80,10 @@ end
 --Deconstructor
 function RNSP:remove()
     
+end
+
+function RNSP:resetConnection()
+
 end
 
 --Is valid

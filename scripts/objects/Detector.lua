@@ -40,7 +40,6 @@ function DT:new(object)
         [3] = false, --S
         [4] = false, --W
     }
-    t:createArms()
     t.filters = {
         item = "",
         fluid = ""
@@ -67,7 +66,11 @@ function DT:new(object)
     t.enablerCombinator.destructible = false
     t.enablerCombinator.operable = false
     t.enablerCombinator.minable = false
-    UpdateSys.addEntity(t)
+    UpdateSys.add_to_entity_table(t)
+    t:createArms()
+    BaseNet.postArms(t)
+    BaseNet.update_network_controller(t.networkController)
+    --UpdateSys.addEntity(t)
     return t
 end
 
@@ -81,18 +84,19 @@ end
 function DT:remove()
     if self.combinator ~= nil then self.combinator.destroy() end
     if self.enablerCombinator ~= nil then self.enablerCombinator.destroy() end
-    UpdateSys.remove(self)
-    if self.networkController ~= nil then
+    --UpdateSys.remove(self)
+    --[[if self.networkController ~= nil then
         self.networkController.network.DetectorTable[1][self.entID] = nil
         self.networkController.network.shouldRefresh = true
-    end
+    end]]
+    BaseNet.update_network_controller(self.networkController)
 end
 
 function DT:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
-function DT:update()
+--[[function DT:update()
     --if game.tick % 60 then
         self.lastUpdate = game.tick
         if valid(self) == false then
@@ -105,7 +109,7 @@ function DT:update()
         if self.thisEntity.to_be_deconstructed() == true then return end
         --if game.tick % 25 then self:createArms() end
     --end
-end
+end]]
 
 function DT:update_signal()
     if self.filters[self.type] == "" or self.output == "" or self.enabler.filter == "" then return end

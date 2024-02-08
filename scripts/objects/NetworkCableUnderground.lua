@@ -45,8 +45,11 @@ function NCug:new(object)
         [3] = false, --S
         [4] = false, --W
     }
+    UpdateSys.add_to_entity_table(t)
     t:createArms()
-    UpdateSys.addEntity(t)
+    BaseNet.postArms(t)
+    BaseNet.update_network_controller(t.networkController)
+    --UpdateSys.addEntity(t)
     return t
 end
 
@@ -61,17 +64,19 @@ function NCug:remove()
     if self.targetIcon ~= nil then
         rendering.destroy(self.targetIcon)
     end
-    UpdateSys.remove(self)
-    if self.networkController ~= nil then
+    UpdateSys.remove_from_entity_table(self)
+    --UpdateSys.remove(self)
+    --[[if self.networkController ~= nil then
         self.networkController.network.shouldRefresh = true
-    end
+    end]]
+    BaseNet.update_network_controller(self.networkController)
 end
 
 function NCug:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
-function NCug:update()
+--[[function NCug:update()
     --if game.tick % 60 then
         self.lastUpdate = game.tick
         if valid(self) == false then
@@ -84,7 +89,7 @@ function NCug:update()
         if self.thisEntity.to_be_deconstructed() == true then return end
         --if game.tick % 25 then self:createArms() end
     --end
-end
+end]]
 
 function NCug:toggleHoverIcon(hovering)
     if hovering then

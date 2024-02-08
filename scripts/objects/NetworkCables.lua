@@ -41,8 +41,11 @@ function NCbl:new(object)
         [3] = false, --S
         [4] = false, --W
     }
+    UpdateSys.add_to_entity_table(t)
     t:createArms()
-    UpdateSys.addEntity(t)
+    BaseNet.postArms(t)
+    BaseNet.update_network_controller(t.networkController)
+    --UpdateSys.addEntity(t)
     return t
 end
 
@@ -60,17 +63,17 @@ function NCbl:remove()
         end
     end]]
     --global.placedCablesTable[self.thisEntity.surface.index][tostring(self.thisEntity.position)] = nil
-    UpdateSys.remove(self)
-    if self.networkController ~= nil then
-        self.networkController.network.shouldRefresh = true
-    end
+    UpdateSys.remove_from_entity_table(self)
+    BaseNet.postArms(self)
+    --UpdateSys.remove(self)
+    BaseNet.update_network_controller(self.networkController)
 end
 
 function NCbl:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
-function NCbl:update()
+--[[function NCbl:update()
     --if game.tick % 60 then
         self.lastUpdate = game.tick
         if valid(self) == false then
@@ -83,7 +86,7 @@ function NCbl:update()
         if self.thisEntity.to_be_deconstructed() == true then return end
         --if game.tick % 25 then self:createArms() end
     --end
-end
+end]]
 
 function NCbl:resetConnection()
     self.connectedObjs = {

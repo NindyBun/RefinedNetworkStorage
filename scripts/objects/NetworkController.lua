@@ -27,7 +27,9 @@ function NC:new(object)
         [3] = {}, --S
         [4] = {}, --W
     }
+    UpdateSys.add_to_entity_table(t)
     t:createArms()
+    BaseNet.postArms(t)
     t.network.shouldRefresh = true
     UpdateSys.addEntity(t)
     return t
@@ -46,6 +48,7 @@ end
 function NC:remove()
     self.network:doRefresh(self)
     if self.state ~= nil then rendering.destroy(self.state) end
+    UpdateSys.remove_from_entity_table(self)
     UpdateSys.remove(self)
 end
 --Is valid
@@ -75,7 +78,7 @@ function NC:update()
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
     --if game.tick % 25 then self:createArms() end
-    if game.tick % self.updateTick == 0 or self.network.shouldRefresh == true or game.tick > self.lastUpdate then --Refreshes connections every 10 seconds
+    if game.tick % self.updateTick == 0 or self.network.shouldRefresh == true then --Refreshes connections every 10 seconds
         self.network:doRefresh(self)
     end
     local powerDraw = self.network:getTotalObjects()
@@ -120,6 +123,7 @@ function NC:collectContents()
         item = {},
         fluid = {}
     }
+
     local itemDrives = BaseNet.getOperableObjects(self.network.ItemDriveTable)
     local fluidDrives = BaseNet.getOperableObjects(self.network.FluidDriveTable)
     local validExternals = self.network:filter_externalIO_by_valid_signal()
@@ -231,7 +235,7 @@ function NC:find_wirelessgrid_with_wirelessTransmitter(id)
                 }
             for _, interface in pairs(interfaces) do
                 if interface.unit_number == id then
-                    local inter = global.entityTable[interface.unit_number]
+                    local inter = Util.get_rns_entity(interface)
                     if inter ~= nil and inter.thisEntity ~= nil and inter.thisEntity.valid == true then
                         if inter.network_controller_position.x ~= nil and inter.network_controller_position.y ~= nil and inter.network_controller_surface ~= nil then
                             if inter.network_controller_surface == self.thisEntity.surface.index and Util.positions_match(inter.network_controller_position, self.thisEntity.position) == true then
@@ -256,44 +260,52 @@ function NC:find_wirelessgrid_with_wirelessTransmitter(id)
 end
 
 function NC:updateItemIO()
-    --local import = {}
+    local import = {}
+    local import_length = 0
+    local import_processed = 0
     local export = {}
-    local processed = 0
-    for p, priority in pairs(BaseNet.getOperableObjects(self.network.ItemIOTable, true)) do
-        --import[p] = priority.input
+    local export_length = 0
+    local export_processed = 0
+    for p, priority in pairs(self.network.ItemIOTable) do
+        import[p] = {}
         for _, item in pairs(priority.input) do
-            item:IO()
-            item.processed = false
+            table.insert(import[p], ((settings.global[Constants.Settings.RNS_RoundRobin].value == true and item.processed == false) and {1} or {Util.getTableLength(import[p])})[1], item)
         end
+        for _, item in pairs(import[p]) do
+            if item.thisEntity.valid and item.thisEntity.to_be_deconstructed() == false then
+                item:IO()
+                if item.focusedEntity.inventory.input.values ~= nil then
+                    import_length = import_length + 1
+                end
+                if item.processed == true then import_processed = import_processed + 1 end
+            end
+        end
+    end
+    for p, priority in pairs(self.network.ItemIOTable) do
         export[p] = {}
-        --export[p] = priority.output
         for _, item in pairs(priority.output) do
             table.insert(export[p], ((settings.global[Constants.Settings.RNS_RoundRobin].value == true and item.processed == false) and {1} or {Util.getTableLength(export[p])})[1], item)
         end
         for _, item in pairs(export[p]) do
-            item:IO()
-            if item.processed == true then processed = processed + 1 end
+            if item.thisEntity.valid and item.thisEntity.to_be_deconstructed() == false then
+                item:IO()
+                if item.focusedEntity.inventory.output.values ~= nil then
+                    export_length = export_length + 1
+                end
+                if item.processed == true then export_processed = export_processed + 1 end
+            end
         end
     end
-    --[[for _, priority in pairs(import) do
-        for _, item in pairs(priority) do
-            item:IO()
-            item.processed = false
+    local e_len = import_length --BaseNet.get_table_length_in_priority(export)
+    if import_processed >= e_len and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+        for _, priority in pairs(import) do
+            for _, item in pairs(priority) do
+                item.processed = false
+            end
         end
-    end]]
-    --[[for _, priority in pairs(export) do
-        for _, item in pairs(priority) do
-            --if item.processed == false and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
-            --    item:IO()
-            --elseif settings.global[Constants.Settings.RNS_RoundRobin].value == false then
-            --    item:IO()
-            --end
-            item:IO()
-            if item.processed == true then processed = processed + 1 end
-        end
-    end]]
-    local len = BaseNet.get_table_length_in_priority(export)
-    if processed >= len and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+    end
+    local e_len = export_length --BaseNet.get_table_length_in_priority(export)
+    if export_processed >= e_len and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(export) do
             for _, item in pairs(priority) do
                 item.processed = false
@@ -303,45 +315,52 @@ function NC:updateItemIO()
 end
 
 function NC:updateFluidIO()
-    --local import = {}
+    local import = {}
+    local import_length = 0
+    local import_processed = 0
     local export = {}
-    local processed = 0
-    for p, priority in pairs(BaseNet.getOperableObjects(self.network.FluidIOTable, true)) do
-        --import[p] = priority.input
+    local export_length = 0
+    local export_processed = 0
+    for p, priority in pairs(self.network.FluidIOTable) do
+        import[p] = {}
         for _, fluid in pairs(priority.input) do
-            fluid:IO()
-            fluid.processed = false
+            table.insert(import[p], ((settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == false) and {1} or {Util.getTableLength(import[p])})[1], fluid)
         end
-        export[p] = {}
-        --export[p] = priority.output
-        for _, fluid in pairs(priority.output) do
-            table.insert(export[p], ((settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == false) and {1} or {Util.getTableLength(export[p])})[1], fluid)
-            
-        end
-        for _, fluid in pairs(export[p]) do
-            fluid:IO()
-            if fluid.processed == true then processed = processed + 1 end
+        for _, fluid in pairs(import[p]) do
+            if fluid.thisEntity.valid and fluid.thisEntity.to_be_deconstructed() == false then
+                fluid:IO()
+                if fluid.thisEntity.position.x ~= fluid.focusedEntity.fluid_box.target_position.x or fluid.thisEntity.position.y ~= fluid.focusedEntity.fluid_box.target_position.y then
+                    import_length = import_length + 1
+                end
+                if fluid.processed == true then import_processed = import_processed + 1 end
+            end
         end
     end
-    --[[for _, priority in pairs(import) do
-        for _, fluid in pairs(priority) do
-            fluid:IO()
-            fluid.processed = false
+    for p, priority in pairs(self.network.FluidIOTable) do
+        export[p] = {}
+        for _, fluid in pairs(priority.output) do
+            table.insert(export[p], ((settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == false) and {1} or {Util.getTableLength(export[p])})[1], fluid)
         end
-    end]]
-    --[[for _, priority in pairs(export) do
-        for _, fluid in pairs(priority) do
-            --if fluid.processed == false and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
-            --    fluid:IO()
-            --elseif settings.global[Constants.Settings.RNS_RoundRobin].value == false then
-            --    fluid:IO()
-            --end
-            fluid:IO()
-            if fluid.processed == true then processed = processed + 1 end
+        for _, fluid in pairs(export[p]) do
+            if fluid.thisEntity.valid and fluid.thisEntity.to_be_deconstructed() == false then
+                fluid:IO()
+                if fluid.thisEntity.position.x ~= fluid.focusedEntity.fluid_box.target_position.x or fluid.thisEntity.position.y ~= fluid.focusedEntity.fluid_box.target_position.y then
+                    export_length = export_length + 1
+                end
+                if fluid.processed == true then export_processed = export_processed + 1 end
+            end
         end
-    end]]
-    local len = BaseNet.get_table_length_in_priority(export)
-    if processed >= len and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+    end
+    local e_len = import_length --BaseNet.get_table_length_in_priority(export)
+    if import_processed >= e_len and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+        for _, priority in pairs(import) do
+            for _, fluid in pairs(priority) do
+                fluid.processed = false
+            end
+        end
+    end
+    local e_len = export_length --BaseNet.get_table_length_in_priority(export)
+    if export_processed >= e_len and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(export) do
             for _, fluid in pairs(priority) do
                 fluid.processed = false

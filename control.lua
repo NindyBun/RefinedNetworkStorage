@@ -36,6 +36,7 @@ function onInit()
     end]]
 
 	global.entityTable = global.entityTable or {}
+    global.updateTable = global.updateTable or {}
     global.IIOMultiplier = global.IIOMultiplier or 1
     global.FIOMultiplier = global.FIOMultiplier or 1
     global.WTRangeMultiplier = global.WTRangeMultiplier or 1

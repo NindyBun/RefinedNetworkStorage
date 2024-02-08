@@ -38,7 +38,10 @@ function WT:new(object)
         [3] = false, --S
         [4] = false, --W
     }
+    UpdateSys.add_to_entity_table(t)
     t:createArms()
+    BaseNet.postArms(t)
+    BaseNet.update_network_controller(t.networkController)
     UpdateSys.addEntity(t)
     return t
 end
@@ -52,10 +55,12 @@ end
 
 function WT:remove()
     UpdateSys.remove(self)
-    if self.networkController ~= nil then
+    UpdateSys.remove_from_entity_table(self)
+    --[[if self.networkController ~= nil then
         self.networkController.network.WirelessTransmitterTable[1][self.entID] = nil
         self.networkController.network.shouldRefresh = true
-    end
+    end]]
+    BaseNet.update_network_controller(self.networkController)
     if self.rangeArea ~= nil then rendering.destroy(self.rangeArea) end
 end
 
@@ -171,7 +176,7 @@ function WT:getTooltips(guiTable, mainFrame, justCreated)
 		colorFrame.style.minimal_width = 150
 
         GuiApi.add_subtitle(guiTable, "", colorFrame, {"gui-description.RNS_Connection_Color"})
-        local colorDD = GuiApi.add_dropdown(guiTable, "RNS_WirelessTransmitter_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
+        local colorDD = GuiApi.add_dropdown(guiTable, "RNS_WirelessTransmitter_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID={name=self.thisEntity.name, number=self.thisEntity.unit_number}})
         colorDD.style.minimal_width = 100
 
         local infoFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
@@ -187,7 +192,7 @@ function WT:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_label(guiTable, "TransmitterRange", infoFrame, {"gui-description.RNS_WirelessTransmitterRange", Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
         
         GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_WirelessTransmitterArea"}, Constants.Settings.RNS_Gui.white)
-        GuiApi.add_switch(guiTable, "RNS_WT_RangeAreaSwitch", infoFrame, {"gui-description.RNS_Off"}, {"gui-description.RNS_On"}, "", "", self.showArea == true and "right", false, {ID=self.thisEntity.unit_number})
+        GuiApi.add_switch(guiTable, "RNS_WT_RangeAreaSwitch", infoFrame, {"gui-description.RNS_Off"}, {"gui-description.RNS_On"}, "", "", self.showArea == true and "right", false, {ID={name=self.thisEntity.name, number=self.thisEntity.unit_number}})
 
         local playerFrame = GuiApi.add_frame(guiTable, "PlayerFrame", mainFrame, "vertical", true)
 		playerFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -203,9 +208,9 @@ function WT:getTooltips(guiTable, mainFrame, justCreated)
 		local textField = GuiApi.add_text_field(guiTable, "RNS_PlayerField", flow, "", "", true, false, false, false, false)
 		textField.style.maximal_width = 140
         --GuiApi.add_label(guiTable, "", flow, "  ")
-        local checkMark = GuiApi.add_button(guiTable, "RNS_WT_Checkmark", flow, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, {"gui-description.RNS_Add"}, 30, false, true, nil, nil, {ID=self.thisEntity.unit_number})
+        local checkMark = GuiApi.add_button(guiTable, "RNS_WT_Checkmark", flow, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, {"gui-description.RNS_Add"}, 30, false, true, nil, nil, {ID={name=self.thisEntity.name, number=self.thisEntity.unit_number}})
         --GuiApi.add_label(guiTable, "", flow, "  ")
-        local xMark = GuiApi.add_button(guiTable, "RNS_WT_Xmark", flow, Constants.Icons.x_mark.name, Constants.Icons.x_mark.name, Constants.Icons.x_mark.name, {"gui-description.RNS_Remove"}, 30, false, true, nil, nil, {ID=self.thisEntity.unit_number})
+        local xMark = GuiApi.add_button(guiTable, "RNS_WT_Xmark", flow, Constants.Icons.x_mark.name, Constants.Icons.x_mark.name, Constants.Icons.x_mark.name, {"gui-description.RNS_Remove"}, 30, false, true, nil, nil, {ID={name=self.thisEntity.name, number=self.thisEntity.unit_number}})
 
         GuiApi.add_line(guiTable, "", playerFrame, "horizontal")
         local playerScrollPane = GuiApi.add_scroll_pane(guiTable, "PlayerScrollPane", playerFrame, 300, true)
@@ -258,7 +263,7 @@ function WT.interaction(event, RNSPlayer)
 		if io == nil then return end
         for _, guiTable in pairs(RNSPlayer.GUI or {}) do
             if guiTable.gui ~= nil and guiTable.gui.valid == true then
-                if guiTable.vars.currentObject.thisEntity ~= nil and guiTable.vars.currentObject.thisEntity.valid == true and guiTable.vars.currentObject.thisEntity.unit_number == id then
+                if guiTable.vars.currentObject.thisEntity ~= nil and guiTable.vars.currentObject.thisEntity.valid == true and guiTable.vars.currentObject.thisEntity.unit_number == id.number then
                     local text = guiTable.vars.RNS_PlayerField.text
                     if game.players[text] ~= nil and io.networkController ~= nil and io.networkController.thisEntity ~= nil and io.networkController.thisEntity.valid == true and io.networkController.network.PlayerPorts[text] == nil then
                         io.networkController.network.PlayerPorts[text] = RNSPlayer
@@ -274,7 +279,7 @@ function WT.interaction(event, RNSPlayer)
 		if io == nil then return end
         for _, guiTable in pairs(RNSPlayer.GUI or {}) do
             if guiTable.gui ~= nil and guiTable.gui.valid == true then
-                if guiTable.vars.currentObject.thisEntity ~= nil and guiTable.vars.currentObject.thisEntity.valid == true and guiTable.vars.currentObject.thisEntity.unit_number == id then
+                if guiTable.vars.currentObject.thisEntity ~= nil and guiTable.vars.currentObject.thisEntity.valid == true and guiTable.vars.currentObject.thisEntity.unit_number == id.number then
                     local text = guiTable.vars.RNS_PlayerField.text
                     if game.players[text] ~= nil and io.networkController ~= nil and io.networkController.thisEntity ~= nil and io.networkController.thisEntity.valid == true and io.networkController.network.PlayerPorts[text] ~= nil then
                         io.networkController.network.PlayerPorts[text] = nil

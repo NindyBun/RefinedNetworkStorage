@@ -33,8 +33,11 @@ function FD:new(object)
         [3] = {}, --S
         [4] = {}, --W
     }
+    UpdateSys.add_to_entity_table(t)
     t:createArms()
-    UpdateSys.addEntity(t)
+    BaseNet.postArms(t)
+    BaseNet.update_network_controller(t.networkController)
+    --UpdateSys.addEntity(t)
     return t
 end
 
@@ -46,18 +49,19 @@ function FD:rebuild(object)
 end
 
 function FD:remove()
-    UpdateSys.remove(self)
-    if self.networkController ~= nil then
+    UpdateSys.remove_from_entity_table(self)
+    --[[if self.networkController ~= nil then
         self.networkController.network.FluidDriveTable[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil
         self.networkController.network.shouldRefresh = true
-    end
+    end]]
+    BaseNet.update_network_controller(self.networkController)
 end
 
 function FD:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
-function FD:update()
+--[[function FD:update()
     self.lastUpdate = game.tick
     if valid(self) == false then
         self:remove()
@@ -68,7 +72,7 @@ function FD:update()
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
     --if game.tick % 25 then self:createArms() end
-end
+end]]
 
 function FD:copy_settings(obj)
     self.priority = obj.priority
@@ -116,6 +120,11 @@ function FD:createArms()
                     --Do nothing
                 else
                     table.insert(self.connectedObjs[area.direction], obj)
+                    if obj.thisEntity.name == Constants.NetworkController.main.name then
+                        self.networkController = obj
+                    else
+                        self.networkController = obj.networkController
+                    end
                 end
             end
         end

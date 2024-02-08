@@ -27,8 +27,11 @@ function NII:new(object)
         [3] = {}, --S
         [4] = {}, --W
     }
+    UpdateSys.add_to_entity_table(t)
     t:createArms()
-    UpdateSys.addEntity(t)
+    BaseNet.postArms(t)
+    BaseNet.update_network_controller(t.networkController)
+    --UpdateSys.addEntity(t)
     return t
 end
 
@@ -40,18 +43,19 @@ function NII:rebuild(object)
 end
 
 function NII:remove()
-    UpdateSys.remove(self)
-    if self.networkController ~= nil then
+    UpdateSys.remove_from_entity_table(self)
+    --[[if self.networkController ~= nil then
         self.networkController.network.NetworkInventoryInterfaceTable[1][self.entID] = nil
         self.networkController.network.shouldRefresh = true
-    end
+    end]]
+    BaseNet.update_network_controller(self.networkController)
 end
 
 function NII:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
-function NII:update()
+--[[function NII:update()
     if valid(self) == false then
         self:remove()
         return
@@ -61,7 +65,7 @@ function NII:update()
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
 	--if game.tick % 25 then self:createArms() end
-end
+end]]
 
 function NII:resetCollection()
     self.connectedObjs = {
@@ -95,6 +99,11 @@ function NII:createArms()
                     --Do nothing
                 else
                     table.insert(self.connectedObjs[area.direction], obj)
+                    if obj.thisEntity.name == Constants.NetworkController.main.name then
+                        self.networkController = obj
+                    else
+                        self.networkController = obj.networkController
+                    end
                 end
             end
         end
@@ -260,7 +269,7 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 			table.insert(buttonText, {"gui-description.RNS_linked"})
 			table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
 		end
-		GuiApi.add_button(guiTable, "RNS_NII_PInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or (item.cont.ammo and item.cont.ammo < game.item_prototypes[item.cont.name].magazine_size) or (item.cont.durability and item.cont.durability < game.item_prototypes[item.cont.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.entID, name=(item.cont.name), stack=item})
+		GuiApi.add_button(guiTable, "RNS_NII_PInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or (item.cont.ammo and item.cont.ammo < game.item_prototypes[item.cont.name].magazine_size) or (item.cont.durability and item.cont.durability < game.item_prototypes[item.cont.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.cont.name), stack=item})
 		
 		::continue::
 	end
@@ -391,7 +400,7 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 				table.insert(buttonText, {"gui-description.RNS_linked"})
 				table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
 			end
-			GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or (item.cont.ammo and item.cont.ammo < game.item_prototypes[item.cont.name].magazine_size) or (item.cont.durability and item.cont.durability < game.item_prototypes[item.cont.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.entID, name=(item.cont.name), stack=item})
+			GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or (item.cont.ammo and item.cont.ammo < game.item_prototypes[item.cont.name].magazine_size) or (item.cont.durability and item.cont.durability < game.item_prototypes[item.cont.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.cont.name), stack=item})
 			::continue::
 		end
 	end

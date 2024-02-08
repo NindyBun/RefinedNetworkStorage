@@ -59,7 +59,6 @@ function FIO:new(object)
             flow = ""
         }
     }
-    t:createArms()
     t.combinator = object.surface.create_entity{
         name="rns_Combinator",
         position=object.position,
@@ -82,7 +81,11 @@ function FIO:new(object)
     t.enablerCombinator.destructible = false
     t.enablerCombinator.operable = false
     t.enablerCombinator.minable = false
-    UpdateSys.addEntity(t)
+    UpdateSys.add_to_entity_table(t)
+    t:createArms()
+    BaseNet.postArms(t)
+    BaseNet.update_network_controller(t.networkController)
+    --UpdateSys.addEntity(t)
     return t
 end
 
@@ -96,18 +99,20 @@ end
 function FIO:remove()
     if self.combinator ~= nil then self.combinator.destroy() end
     if self.enablerCombinator ~= nil then self.enablerCombinator.destroy() end
-    UpdateSys.remove(self)
-    if self.networkController ~= nil then
+    --UpdateSys.remove(self)
+    UpdateSys.remove_from_entity_table(self)
+    --[[if self.networkController ~= nil then
         self.networkController.network.FluidIOTable[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil
         self.networkController.network.shouldRefresh = true
-    end
+    end]]
+    BaseNet.update_network_controller(self.networkController)
 end
 
 function FIO:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
-function FIO:update()
+--[[function FIO:update()
     if valid(self) == false then
         self:remove()
         return
@@ -120,7 +125,7 @@ function FIO:update()
         self:reset_focused_entity()
     end
     --if game.tick % 25 then self:createArms() end
-end
+end]]
 
 function FIO:copy_settings(obj)
     self.color = obj.color
@@ -505,7 +510,7 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
         local filterFlow = GuiApi.add_flow(guiTable, "", filtersFrame, "vertical")
         filterFlow.style.horizontal_align = "center"
 
-        local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Fluid_Filter", filterFlow, "", true, "fluid", 40, {ID=self.thisEntity.unit_number})
+        local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Fluid_Filter", filterFlow, "", true, "fluid", 40, {ID=self.thisEntity})
 		guiTable.vars.filter = filter
 		if self.filter ~= "" then filter.elem_value = self.filter end
 
@@ -549,7 +554,7 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
             end
             local opDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Fluid_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.enabler.operator], false, "", {ID=self.thisEntity.unit_number})
             opDD.style.minimal_width = 50
-            --local number = GuiApi.add_filter(guiTable, "RNS_Detector_Number", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+            --local number = GuiApi.add_filter(guiTable, "RNS_Detector_Number", cFlow, "", true, "signal", 40, {ID=self.thisEntity})
             --number.elem_value = {type="virtual", name="constant-number"}
             local number = GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Fluid_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
             number.style.minimal_width = 100

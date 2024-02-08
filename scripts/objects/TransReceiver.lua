@@ -36,8 +36,11 @@ function TR:new(object)
         [4] = false, --W
         [5] = false  --Receiver
     }
+    UpdateSys.add_to_entity_table(t)
     t:createArms()
-    UpdateSys.addEntity(t)
+    BaseNet.postArms(t)
+    BaseNet.update_network_controller(t.networkController)
+    --UpdateSys.addEntity(t)
     return t
 end
 
@@ -51,29 +54,31 @@ end
 
 --Deconstructor
 function TR:remove()
-    UpdateSys.remove(self)
-    if self.networkController ~= nil then
+    UpdateSys.remove_from_entity_table(self)
+    --UpdateSys.remove(self)
+    --[[if self.networkController ~= nil then
         if self.type == "transmitter" then
             self.networkController.network.TransmitterTable[1][self.entID] = nil
         else
             self.networkController.network.ReceiverTable[1][self.entID] = nil
         end
         self.networkController.network.shouldRefresh = true
-    end
+    end]]
+    BaseNet.update_network_controller(self.networkController)
 end
 --Is valid
 function TR:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
-function TR:update()
+--[[function TR:update()
     if valid(self) == false then
         self:remove()
         return
     end
     if self.thisEntity.to_be_deconstructed() == true then return end
     --if game.tick % 25 then self:createArms() end
-end
+end]]
 
 function TR:resetCollection()
     self.connectedObjs = {
@@ -102,12 +107,17 @@ function TR:createArms()
     for _, area in pairs(areas) do
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
-            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and global.entityTable[ent.unit_number] ~= nil then
-                local obj = global.entityTable[ent.unit_number]
+            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and Util.get_rns_entity(ent) ~= nil then
+                local obj = Util.get_rns_entity(ent)
                 if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
                     --Do nothing
                 else
                     table.insert(self.connectedObjs[area.direction], obj)
+                    if obj.thisEntity.name == Constants.NetworkController.main.name then
+                        self.networkController = obj
+                    else
+                        self.networkController = obj.networkController
+                    end
                     --[[if self.cardinals[area.direction] == false then
                         self.cardinals[area.direction] = true
                         if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
@@ -131,8 +141,8 @@ function TR:createArms()
     if self.receiver.position.x == nil or self.receiver.position.y == nil then return end
 
     local rec = game.surfaces[self.receiver.surface].find_entity(Constants.NetworkTransReceiver.receiver.name, self.receiver.position)
-    if rec ~= nil and global.entityTable[rec.unit_number] ~= nil then
-        self.connectedObjs[5] = {global.entityTable[rec.unit_number]}
+    if rec ~= nil and Util.get_rns_entity(rec) ~= nil then
+        self.connectedObjs[5] = {Util.get_rns_entity(rec)}
         --[[if self.cardinals[5] == false then
             self.cardinals[5] = true
             if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
@@ -168,17 +178,17 @@ function TR:getTooltips(guiTable, mainFrame, justCreated)
         if self.type == "transmitter" then
             local xflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
             GuiApi.add_label(guiTable, "", xflow, {"gui-description.RNS_xPos"}, Constants.Settings.RNS_Gui.white)
-            local xPos = GuiApi.add_text_field(guiTable, "RNS_TransReceiver_xPos", xflow, self.receiver.position.x == nil and "" or tostring(self.receiver.position.x), {"gui-description.RNS_xPos_tooltip"}, true, true, true, true, false, {ID=self.entID})
+            local xPos = GuiApi.add_text_field(guiTable, "RNS_TransReceiver_xPos", xflow, self.receiver.position.x == nil and "" or tostring(self.receiver.position.x), {"gui-description.RNS_xPos_tooltip"}, true, true, true, true, false, {ID=self.thisEntity.unit_number})
             xPos.style.maximal_width = 50
 
             local yflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
             GuiApi.add_label(guiTable, "", yflow, {"gui-description.RNS_yPos"}, Constants.Settings.RNS_Gui.white)
-            local yPos = GuiApi.add_text_field(guiTable, "RNS_TransReceiver_yPos", yflow, self.receiver.position.y == nil and "" or tostring(self.receiver.position.y), {"gui-description.RNS_yPos_tooltip"}, true, true, true, true, false, {ID=self.entID})
+            local yPos = GuiApi.add_text_field(guiTable, "RNS_TransReceiver_yPos", yflow, self.receiver.position.y == nil and "" or tostring(self.receiver.position.y), {"gui-description.RNS_yPos_tooltip"}, true, true, true, true, false, {ID=self.thisEntity.unit_number})
             yPos.style.maximal_width = 50
 
             local surfIDflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
             GuiApi.add_label(guiTable, "", surfIDflow, {"gui-description.RNS_ReceiverSurfaceID"}, Constants.Settings.RNS_Gui.white)
-            local surfID = GuiApi.add_text_field(guiTable, "RNS_TransReceiver_SurfaceID", surfIDflow, self.receiver.surface == nil and "" or tostring(self.receiver.surface), {"gui-description.RNS_ReceiverSurfaceID_tooltip"}, true, true, false, false, false, {ID=self.entID})
+            local surfID = GuiApi.add_text_field(guiTable, "RNS_TransReceiver_SurfaceID", surfIDflow, self.receiver.surface == nil and "" or tostring(self.receiver.surface), {"gui-description.RNS_ReceiverSurfaceID_tooltip"}, true, true, false, false, false, {ID=self.thisEntity.unit_number})
             surfID.style.maximal_width = 50
         else
             GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)

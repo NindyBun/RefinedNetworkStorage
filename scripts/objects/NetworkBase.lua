@@ -181,14 +181,41 @@ function BaseNet.generateArms(object)
                         if obj.color == nil then
                             object.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[object.color].sprites[area.direction].name, target=object.thisEntity, surface=object.thisEntity.surface, render_layer="lower-object-above-shadow"}
                             object.connectedObjs[area.direction] = {obj}
+                            if obj.thisEntity.name == Constants.NetworkController.main.name then
+                                object.networkController = obj
+                            else
+                                object.networkController = obj.networkController
+                            end
                         elseif obj.color ~= "" and obj.color == object.color then
                             object.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[object.color].sprites[area.direction].name, target=object.thisEntity, surface=object.thisEntity.surface, render_layer="lower-object-above-shadow"}
                             object.connectedObjs[area.direction] = {obj}
+                            if obj.thisEntity.name == Constants.NetworkController.main.name then
+                                object.networkController = obj
+                            else
+                                object.networkController = obj.networkController
+                            end
                         end
                     end
                     break
                 end
             end
+        end
+    end
+end
+
+function BaseNet.update_network_controller(controller)
+    if controller ~= nil then
+        controller.network.shouldRefresh = true
+    end
+end
+
+function BaseNet.postArms(object)
+    for _, connected in pairs(object.connectedObjs) do
+        for _, con in pairs(connected) do
+            if valid(con) == false then return end
+            if con.thisEntity == nil and con.thisEntity.valid == false then return end
+            if con.createArms == nil then return end
+            con:createArms()
         end
     end
 end
@@ -419,7 +446,7 @@ function BaseNet.inventory_is_sortable(inv)
 end
 
 function BaseNet.entity_is_sortable(ent)
-    if ent.prototype.type == "lab" then return false end
+    if ent ~= nil and ent.prototype.type == "lab" then return false end
     return true
 end
 
