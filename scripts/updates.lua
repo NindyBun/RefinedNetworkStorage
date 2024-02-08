@@ -47,7 +47,6 @@ function UpdateSys.update(event)
                 game.print({"gui-description.RNS_UpdateSysEntity_Failed", obj.thisEntity.name})
             end
         end
-        if obj.update == nil then UpdateSys.remove(obj) end
     end
     --[[
     for _, obj in pairs(global.itemTable) do
