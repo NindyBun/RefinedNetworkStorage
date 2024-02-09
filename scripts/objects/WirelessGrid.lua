@@ -242,7 +242,7 @@ function WG:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 			if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
 		end
 
-		local buttonText = {"", "[color=blue]", item.label or Util.get_item_name(item.cont.name), "[/color]"}
+		local buttonText = {"", "[color=blue]", item.label or Util.get_item_name(item.cont.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(item.cont.count)}
 		if item.cont.health < 1 then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_health"})
@@ -358,7 +358,7 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 				local locName = Util.get_fluid_name(c.name)[1]
 				if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
 			end
-			local buttonText = {"", "[color=blue]", Util.get_fluid_name(c.name), "[/color]\n", {"gui-description.RNS_Temperature"}, c.temperature or game.fluid_prototypes[c.name].default_temperature}
+			local buttonText = {"", "[color=blue]", Util.get_fluid_name(c.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(c.amount)"\n", {"gui-description.RNS_Temperature"}, c.temperature or game.fluid_prototypes[c.name].default_temperature}
 			GuiApi.add_button(guiTable, "RNS_WG_FDInv_".. k, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
 			::continue::
 		end
@@ -373,7 +373,7 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 				if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
 			end
 
-			local buttonText = {"", "[color=blue]", item.label or Util.get_item_name(item.cont.name), "[/color]"}
+			local buttonText = {"", "[color=blue]", item.label or Util.get_item_name(item.cont.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(item.cont.count)}
 			if item.cont.health < 1 then
 				table.insert(buttonText, "\n")
 				table.insert(buttonText, {"gui-description.RNS_health"})

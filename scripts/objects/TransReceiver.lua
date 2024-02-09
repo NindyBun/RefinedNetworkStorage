@@ -107,8 +107,8 @@ function TR:createArms()
     for _, area in pairs(areas) do
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
-            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and Util.get_rns_entity(ent) ~= nil then
-                local obj = Util.get_rns_entity(ent)
+            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and global.entityTable[ent.unit_number] ~= nil then
+                local obj = global.entityTable[ent.unit_number]
                 if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
                     --Do nothing
                 else
@@ -141,8 +141,8 @@ function TR:createArms()
     if self.receiver.position.x == nil or self.receiver.position.y == nil then return end
 
     local rec = game.surfaces[self.receiver.surface].find_entity(Constants.NetworkTransReceiver.receiver.name, self.receiver.position)
-    if rec ~= nil and Util.get_rns_entity(rec) ~= nil then
-        self.connectedObjs[5] = {Util.get_rns_entity(rec)}
+    if rec ~= nil and global.entityTable[rec.unit_number] ~= nil then
+        self.connectedObjs[5] = {global.entityTable[rec.unit_number]}
         --[[if self.cardinals[5] == false then
             self.cardinals[5] = true
             if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
@@ -198,9 +198,7 @@ function TR:getTooltips(guiTable, mainFrame, justCreated)
 end
 
 function TR:force_controller_update()
-    if self.networkController ~= nil then
-        self.networkController.network.shouldRefresh = true
-    end
+    BaseNet.update_network_controller(self.networkController)
 end
 
 function TR.interaction(event, RNSPlayer)

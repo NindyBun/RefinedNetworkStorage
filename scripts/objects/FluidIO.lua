@@ -227,27 +227,29 @@ function FIO:IO()
     --tank.fluidbox[index] = {name?, amount?, tempurature?} sets the fluidbox
     for i=1, 1 do
         if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true then
-            local fluidDrives = BaseNet.getOperableObjects(network.FluidDriveTable)
-            local externalTanks = BaseNet.filter_by_type("fluid", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal()))
+            local fluidDrives = network.FluidDriveTable --BaseNet.getOperableObjects(network.FluidDriveTable)
+            local externalTanks = network:filter_externalIO_by_valid_signal() --BaseNet.filter_by_type("fluid", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal()))
             for p = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
                 local priorityF = fluidDrives[p]
                 local priorityE = externalTanks[p]
                 --if Util.getTableLength(priorityF) > 0 then
                     for _, drive in pairs(priorityF) do
-                        if self.io == "input" then
-                            if string.match(fluid_box.flow, "output") == nil then goto exit end
-                            local remaining = drive:getRemainingStorageSize()
-                            if remaining <= 0 then goto continue end
-                            if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") or (self.focusedEntity.thisEntity.fluidbox[fluid_box.index] ~= nil and self.filter == self.focusedEntity.thisEntity.fluidbox[fluid_box.index].name) then
-                                transportCapacity = transportCapacity - BaseNet.transfer_from_tank_to_drive(self.focusedEntity.thisEntity, drive, fluid_box.index, self.filter, math.min(transportCapacity, remaining))
-                                if transportCapacity <= 0 or self.focusedEntity.thisEntity.fluidbox[fluid_box.index] == nil then goto exit end
-                            end
-                        elseif self.io == "output" then
-                            if string.match(fluid_box.flow, "input") == nil then goto exit end
-                            if drive:has_fluid(self.filter) == 0 then goto continue end
-                            if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") or (self.focusedEntity.thisEntity.fluidbox[fluid_box.index] ~= nil and self.filter == self.focusedEntity.thisEntity.fluidbox[fluid_box.index].name) then
-                                transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_tank(drive, self.focusedEntity.thisEntity, fluid_box.index, self.filter, math.min(transportCapacity, drive:has_fluid(self.filter)))
-                                if transportCapacity <= 0 or (self.focusedEntity.thisEntity.fluidbox[fluid_box.index] ~= nil and self.focusedEntity.thisEntity.fluidbox[fluid_box.index].amount == self.focusedEntity.thisEntity.fluidbox.get_capacity(fluid_box.index)) then goto exit end
+                        if drive.thisEntity ~= nil and drive.thisEntity.valid and drive.thisEntity.to_be_deconstructed() == false then
+                            if self.io == "input" then
+                                if string.match(fluid_box.flow, "output") == nil then goto exit end
+                                local remaining = drive:getRemainingStorageSize()
+                                if remaining <= 0 then goto continue end
+                                if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") or (self.focusedEntity.thisEntity.fluidbox[fluid_box.index] ~= nil and self.filter == self.focusedEntity.thisEntity.fluidbox[fluid_box.index].name) then
+                                    transportCapacity = transportCapacity - BaseNet.transfer_from_tank_to_drive(self.focusedEntity.thisEntity, drive, fluid_box.index, self.filter, math.min(transportCapacity, remaining))
+                                    if transportCapacity <= 0 or self.focusedEntity.thisEntity.fluidbox[fluid_box.index] == nil then goto exit end
+                                end
+                            elseif self.io == "output" then
+                                if string.match(fluid_box.flow, "input") == nil then goto exit end
+                                if drive:has_fluid(self.filter) == 0 then goto continue end
+                                if (self.filter == fluid_box.filter and fluid_box.filter ~= "") or (self.filter ~= fluid_box.filter and fluid_box.filter == "") or (self.focusedEntity.thisEntity.fluidbox[fluid_box.index] ~= nil and self.filter == self.focusedEntity.thisEntity.fluidbox[fluid_box.index].name) then
+                                    transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_tank(drive, self.focusedEntity.thisEntity, fluid_box.index, self.filter, math.min(transportCapacity, drive:has_fluid(self.filter)))
+                                    if transportCapacity <= 0 or (self.focusedEntity.thisEntity.fluidbox[fluid_box.index] ~= nil and self.focusedEntity.thisEntity.fluidbox[fluid_box.index].amount == self.focusedEntity.thisEntity.fluidbox.get_capacity(fluid_box.index)) then goto exit end
+                                end
                             end
                         end
                         ::continue::
@@ -255,7 +257,7 @@ function FIO:IO()
                 --end
                 --if Util.getTableLength(priorityE) > 0 then
                     for _, externalTank in pairs(priorityE) do
-                        if  externalTank.focusedEntity.thisEntity ~= nil and externalTank.focusedEntity.thisEntity.valid and externalTank.focusedEntity.thisEntity.to_be_deconstructed() == false and externalTank.focusedEntity.fluid_box.index ~= nil then
+                        if externalTank.type == "fluid" and externalTank.thisEntity ~= nil and externalTank.thisEntity.valid and externalTank.thisEntity.to_be_deconstructed() == false and externalTank.focusedEntity.thisEntity ~= nil and externalTank.focusedEntity.thisEntity.valid and externalTank.focusedEntity.thisEntity.to_be_deconstructed() == false and externalTank.focusedEntity.fluid_box.index ~= nil then
                             local fluid_boxE = externalTank.focusedEntity.fluid_box
                             if self.io == "input" then
                                 if string.match(fluid_box.flow, "output") == nil then goto exit end

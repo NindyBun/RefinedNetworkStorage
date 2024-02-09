@@ -7,7 +7,8 @@ NC = {
     stable = false,
     state = nil,
     network = nil,
-    connectedObjs = nil
+    connectedObjs = nil,
+    powerDraw = 0
 }
 --Constructor
 function NC:new(object)
@@ -80,17 +81,18 @@ function NC:update()
     --if game.tick % 25 then self:createArms() end
     if game.tick % self.updateTick == 0 or self.network.shouldRefresh == true then --Refreshes connections every 10 seconds
         self.network:doRefresh(self)
-    end
-    local powerDraw = self.network:getTotalObjects()
-    --1.8MW buffer but 15KW energy at 900KMW- input
-    --1.8MW buffer but 30KW energy at 1.8MW- input
-    --1.8MW buffer but 1.8MW energy at 1.8MW+ input
-    --Can check if energy*60 >= buffer then NC is stable
-    --1 Joule converts to 60 Watts? How strange
-    self.thisEntity.power_usage = powerDraw --Takes Joules as a param
-    self.thisEntity.electric_buffer_size = math.max(powerDraw*300, 300) --Takes Joules as a param
+        self.powerDraw = self.network:getTotalObjects()
+        --1.8MW buffer but 15KW energy at 900KMW- input
+        --1.8MW buffer but 30KW energy at 1.8MW- input
+        --1.8MW buffer but 1.8MW energy at 1.8MW+ input
+        --Can check if energy*60 >= buffer then NC is stable
+        --1 Joule converts to 60 Watts? How strange
+        self.thisEntity.power_usage = self.powerDraw --Takes Joules as a param
+        self.thisEntity.electric_buffer_size = math.max(self.powerDraw*300, 300) --Takes Joules as a param
     
-    if self.thisEntity.energy >= powerDraw and self.thisEntity.energy ~= 0 then
+    end
+
+    if self.thisEntity.energy >= self.powerDraw and self.thisEntity.energy ~= 0 then
         self:setActive(true)
     else
         self:setActive(false)
@@ -111,7 +113,7 @@ function NC:update()
 end
 
 function NC:updateDetectors()
-    for _, detector in pairs(BaseNet.getOperableObjects(self.network.DetectorTable)[1]) do
+    for _, detector in pairs(self.network.DetectorTable[1]) do
         if detector.thisEntity ~= nil and detector.thisEntity.valid == true and detector.thisEntity.to_be_deconstructed() == false then
             detector:update_signal()
         end
@@ -124,17 +126,18 @@ function NC:collectContents()
         fluid = {}
     }
 
-    local itemDrives = BaseNet.getOperableObjects(self.network.ItemDriveTable)
-    local fluidDrives = BaseNet.getOperableObjects(self.network.FluidDriveTable)
+    --local itemDrives = BaseNet.getOperableObjects(self.network.ItemDriveTable)
+    --local fluidDrives = BaseNet.getOperableObjects(self.network.FluidDriveTable)
     local validExternals = self.network:filter_externalIO_by_valid_signal()
     local externalInvs = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(validExternals)))
     local externalTanks = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("fluid", BaseNet.getOperableObjects(validExternals)))
 
     for i = 1, Constants.Settings.RNS_Max_Priority*2+1 do
-        local priorityItems = itemDrives[i]
-        local priorityFluids = fluidDrives[i]
-        local priorityInvs = externalInvs[i]
-        local priorityTanks = externalTanks[i]
+        local priorityItems = self.network.ItemDriveTable[i] --itemDrives[i]
+        local priorityFluids = self.network.FluidDriveTable[i] --fluidDrives[i]
+        --local priorityInvs = --externalInvs[i]
+        --local priorityTanks = --externalTanks[i]
+        local priorityExternals = validExternals[i]
 
         --if Util.getTableLength(priorityItems) > 0 then
             for _, drive in pairs(priorityItems) do
@@ -150,7 +153,30 @@ function NC:collectContents()
                 end
             end
         --end
-        --if Util.getTableLength(priorityInvs) > 0 then
+            for _, e in pairs(priorityExternals) do
+                if e.thisEntity ~= nil and e.thisEntity.valid == true and e.thisEntity.to_be_deconstructed() == false and e.focusedEntity.thisEntity ~= nil and e.focusedEntity.thisEntity.valid == true and e.focusedEntity.thisEntity.to_be_deconstructed() == false and string.match(e.io, "output") ~= nil then
+                    if e.type == "item" and e.focusedEntity.inventory.values ~= nil then
+                        local index = 0
+                        repeat
+                            local ii = Util.next(e.focusedEntity.inventory)
+                            local inv = e.focusedEntity.thisEntity.get_inventory(ii.slot)
+                            if inv ~= nil and IIO.check_operable_mode(ii.io, "output") then
+                                for name, count in pairs(inv.get_contents()) do
+                                    self.network.Contents.item[name] = math.min((self.network.Contents.item[name] or 0) + count, 2^32)
+                                end
+                            end
+                            index = index + 1
+                        until index == Util.getTableLength(e.focusedEntity.inventory.values)
+                    elseif e.type == "fluid" and e.focusedEntity.fluid_box.index ~= nil and string.match(e.focusedEntity.fluid_box.flow, "output") ~= nil then
+                        local fluid_box = e.focusedEntity.fluid_box
+                        local tank = e.focusedEntity.thisEntity.fluidbox[fluid_box.index]
+                        if tank ~= nil then
+                            self.network.Contents.fluid[tank.name] = math.min((self.network.Contents.fluid[tank.name] or 0) + tank.amount, 2^32)
+                        end
+                    end
+                end
+            end
+        --[[if Util.getTableLength(priorityInvs) > 0 then
             for _, eInv in pairs(priorityInvs) do
                 if string.match(eInv.io, "output") == nil then goto next end
                 if eInv.focusedEntity.thisEntity ~= nil and eInv.focusedEntity.thisEntity.valid == true and eInv.focusedEntity.thisEntity.to_be_deconstructed() == false and eInv.focusedEntity.inventory.values ~= nil then
@@ -180,42 +206,44 @@ function NC:collectContents()
                 end
                 ::next::
             end
-        --end
+        --end]]
     end
 end
 
 function NC:find_players_with_wirelessTransmitter()
     local processed_players = {}
-    for _, transmitter in pairs(BaseNet.getOperableObjects(self.network.WirelessTransmitterTable)[1]) do
-        --For Players
-        if global.WTRangeMultiplier ~= -1 then
-            local characters = self.thisEntity.surface.find_entities_filtered{
-                type = "character",
-                area = {
-                    {transmitter.thisEntity.position.x-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, transmitter.thisEntity.position.y-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier}, --top left
-                    {transmitter.thisEntity.position.x+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, transmitter.thisEntity.position.y+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier} --bottom right
+    for _, transmitter in pairs(self.network.WirelessTransmitterTable[1]) do
+        if transmitter.thisEntity ~= nil and transmitter.thisEntity.valid and transmitter.thisEntity.to_be_deconstructed() == false then
+            --For Players
+            if global.WTRangeMultiplier ~= -1 then
+                local characters = self.thisEntity.surface.find_entities_filtered{
+                    type = "character",
+                    area = {
+                        {transmitter.thisEntity.position.x-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, transmitter.thisEntity.position.y-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier}, --top left
+                        {transmitter.thisEntity.position.x+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, transmitter.thisEntity.position.y+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier} --bottom right
+                    }
                 }
-            }
-            for _, character in pairs(characters) do
-                if character.player ~= nil and self.network.PlayerPorts[character.player.name] ~= nil then
-                    local RNSPlayer = getRNSPlayer(character.player.index)
-                    if RNSPlayer ~= nil and RNSPlayer.thisEntity ~= nil and RNSPlayer.thisEntity.valid == true and processed_players[character.player.index] == nil then
-                        RNSPlayer:process_logistic_slots(self.network)
-                        processed_players[character.player.index] = RNSPlayer
+                for _, character in pairs(characters) do
+                    if character.player ~= nil and self.network.PlayerPorts[character.player.name] ~= nil then
+                        local RNSPlayer = getRNSPlayer(character.player.index)
+                        if RNSPlayer ~= nil and RNSPlayer.thisEntity ~= nil and RNSPlayer.thisEntity.valid == true and processed_players[character.player.index] == nil then
+                            RNSPlayer:process_logistic_slots(self.network)
+                            processed_players[character.player.index] = RNSPlayer
+                        end
                     end
                 end
-            end
-        else
-            for _, RNSPlayer in pairs(global.playerTable) do
-                if RNSPlayer ~= nil and RNSPlayer.thisEntity ~= nil and RNSPlayer.thisEntity.valid == true and self.network.PlayerPorts[RNSPlayer.thisEntity.name] ~= nil and processed_players[RNSPlayer.thisEntity.name] == nil then
-                    if RNSPlayer.thisEntity.surface.index ~= transmitter.thisEntity.surface.index then goto next end
-                    --local RNSPlayer = getRNSPlayer(player.index)
-                    --if RNSPlayer ~= nil and RNSPlayer.thisEntity ~= nil and RNSPlayer.thisEntity.valid == true and processed_players[RNSPlayer.thisEntity.name] == nil then
-                        RNSPlayer:process_logistic_slots(self.network)
-                        processed_players[RNSPlayer.thisEntity.name] = RNSPlayer
-                    --end
+            else
+                for _, RNSPlayer in pairs(global.playerTable) do
+                    if RNSPlayer ~= nil and RNSPlayer.thisEntity ~= nil and RNSPlayer.thisEntity.valid == true and self.network.PlayerPorts[RNSPlayer.thisEntity.name] ~= nil and processed_players[RNSPlayer.thisEntity.name] == nil then
+                        if RNSPlayer.thisEntity.surface.index ~= transmitter.thisEntity.surface.index then goto next end
+                        --local RNSPlayer = getRNSPlayer(player.index)
+                        --if RNSPlayer ~= nil and RNSPlayer.thisEntity ~= nil and RNSPlayer.thisEntity.valid == true and processed_players[RNSPlayer.thisEntity.name] == nil then
+                            RNSPlayer:process_logistic_slots(self.network)
+                            processed_players[RNSPlayer.thisEntity.name] = RNSPlayer
+                        --end
+                    end
+                    ::next::
                 end
-                ::next::
             end
         end
     end
@@ -223,34 +251,36 @@ function NC:find_players_with_wirelessTransmitter()
 end
 
 function NC:find_wirelessgrid_with_wirelessTransmitter(id)
-    for _, transmitter in pairs(BaseNet.getOperableObjects(self.network.WirelessTransmitterTable)[1]) do
-        --For Portable Wireless Grids
-        if global.WTRangeMultiplier ~= -1 then
-            local interfaces = self.thisEntity.surface.find_entities_filtered{
-                    name = Constants.WirelessGrid.name,
-                    area = {
-                        {transmitter.thisEntity.position.x-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, transmitter.thisEntity.position.y-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier}, --top left
-                        {transmitter.thisEntity.position.x+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, transmitter.thisEntity.position.y+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier} --bottom right
+    for _, transmitter in pairs(self.network.WirelessTransmitterTable[1]) do
+        if transmitter.thisEntity ~= nil and transmitter.thisEntity.valid and transmitter.thisEntity.to_be_deconstructed() == false then
+            --For Portable Wireless Grids
+            if global.WTRangeMultiplier ~= -1 then
+                local interfaces = self.thisEntity.surface.find_entities_filtered{
+                        name = Constants.WirelessGrid.name,
+                        area = {
+                            {transmitter.thisEntity.position.x-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, transmitter.thisEntity.position.y-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier}, --top left
+                            {transmitter.thisEntity.position.x+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, transmitter.thisEntity.position.y+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier} --bottom right
+                        }
                     }
-                }
-            for _, interface in pairs(interfaces) do
-                if interface.unit_number == id then
-                    local inter = Util.get_rns_entity(interface)
-                    if inter ~= nil and inter.thisEntity ~= nil and inter.thisEntity.valid == true then
-                        if inter.network_controller_position.x ~= nil and inter.network_controller_position.y ~= nil and inter.network_controller_surface ~= nil then
-                            if inter.network_controller_surface == self.thisEntity.surface.index and Util.positions_match(inter.network_controller_position, self.thisEntity.position) == true then
-                                return true
+                for _, interface in pairs(interfaces) do
+                    if interface.unit_number == id then
+                        local inter = Util.get_rns_entity(interface)
+                        if inter ~= nil and inter.thisEntity ~= nil and inter.thisEntity.valid == true then
+                            if inter.network_controller_position.x ~= nil and inter.network_controller_position.y ~= nil and inter.network_controller_surface ~= nil then
+                                if inter.network_controller_surface == self.thisEntity.surface.index and Util.positions_match(inter.network_controller_position, self.thisEntity.position) == true then
+                                    return true
+                                end
                             end
                         end
                     end
                 end
-            end
-        else
-            local inter = global.entityTable[id]
-            if inter ~= nil and inter.thisEntity ~= nil and inter.thisEntity.valid == true then
-                if inter.network_controller_position.x ~= nil and inter.network_controller_position.y ~= nil and inter.network_controller_surface ~= nil then
-                    if inter.network_controller_surface == self.thisEntity.surface.index and Util.positions_match(inter.network_controller_position, self.thisEntity.position) == true then
-                        return true
+            else
+                local inter = global.entityTable[id]
+                if inter ~= nil and inter.thisEntity ~= nil and inter.thisEntity.valid == true then
+                    if inter.network_controller_position.x ~= nil and inter.network_controller_position.y ~= nil and inter.network_controller_surface ~= nil then
+                        if inter.network_controller_surface == self.thisEntity.surface.index and Util.positions_match(inter.network_controller_position, self.thisEntity.position) == true then
+                            return true
+                        end
                     end
                 end
             end
@@ -574,7 +604,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         section.style = Constants.Settings.RNS_Gui.frame_1
         section.style.minimal_width = 200
         GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
-        GuiApi.add_item_frame(guiTable, "", section, Constants.NetworkTransReceiver.transmitter.powerUsage .. "/t", name, transmittercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, _G.TR.powerUsage .. "/t", name, transmittercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local receivercount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ReceiverTable))
