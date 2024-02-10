@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.6
+Date: 10 February 2024
+  Info:
+    - Fixed issue where the network doesn't transfer between the Transmitter and Reciever
+    - Added more logic when determining how each entity joins the network
+---------------------------------------------------------------------------------------------------
 Version: 1.0.5
 Date: 10 February 2024
   Info:

@@ -190,20 +190,24 @@ function NCug:createArms()
                 if obj.color == nil and self:getDirection() ~= area.direction then
                     self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
                     self.connectedObjs[area.direction] = {obj}
+                    BaseNet.join_network(self, obj)
                 elseif obj.color ~= "" and obj.color == self.color then
                     if string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil then
                         if self:getDirection() == area.direction then
                             if self:getDirection() == obj:getConnectionDirection() then
                                 self.targetEntity = obj
                                 self.connectedObjs[area.direction] = {obj}
+                                BaseNet.join_network(self, obj)
                             end
                         elseif area.direction ~= obj:getConnectionDirection() then
                             self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
                             self.connectedObjs[area.direction] = {obj}
+                            BaseNet.join_network(self, obj)
                         end
                     else
                         self.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[self.color].sprites[area.direction].name, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
                         self.connectedObjs[area.direction] = {obj}
+                        BaseNet.join_network(self, obj)
                     end
                 end
             end

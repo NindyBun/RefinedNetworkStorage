@@ -114,11 +114,7 @@ function TR:createArms()
                     --Do nothing
                 else
                     table.insert(self.connectedObjs[area.direction], obj)
-                    if obj.thisEntity.name == Constants.NetworkController.main.name then
-                        self.networkController = obj
-                    else
-                        self.networkController = obj.networkController
-                    end
+                    BaseNet.join_network(self, obj)
                     --[[if self.cardinals[area.direction] == false then
                         self.cardinals[area.direction] = true
                         if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
@@ -143,7 +139,9 @@ function TR:createArms()
 
     local rec = game.surfaces[self.receiver.surface].find_entity(Constants.NetworkTransReceiver.receiver.name, self.receiver.position)
     if rec ~= nil and global.entityTable[rec.unit_number] ~= nil then
-        self.connectedObjs[5] = {global.entityTable[rec.unit_number]}
+        local obj = global.entityTable[rec.unit_number]
+        self.connectedObjs[5] = {obj}
+        BaseNet.join_network(self, obj)
         --[[if self.cardinals[5] == false then
             self.cardinals[5] = true
             if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then

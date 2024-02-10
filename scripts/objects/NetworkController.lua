@@ -432,7 +432,12 @@ function NC:createArms()
                     if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
                         --Do nothing
                     else
-                        table.insert(self.connectedObjs[area.direction], obj)
+                        if BaseNet.exists_in_network(obj.networkController, obj.entID) and obj.networkController.entID ~= self.entID then
+                            self.thisEntity.order_deconstruction("player")
+                        else
+                            table.insert(self.connectedObjs[area.direction], obj)
+                            obj.networkController = self
+                        end
                     end
                 end
             end

@@ -100,11 +100,7 @@ function NII:createArms()
                     --Do nothing
                 else
                     table.insert(self.connectedObjs[area.direction], obj)
-                    if obj.thisEntity.name == Constants.NetworkController.main.name then
-                        self.networkController = obj
-                    else
-                        self.networkController = obj.networkController
-                    end
+                    BaseNet.join_network(self, obj)
                 end
             end
         end
