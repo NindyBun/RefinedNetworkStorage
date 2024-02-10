@@ -47,9 +47,10 @@ end
 
 --Deconstructor
 function NC:remove()
-    self.network:doRefresh(self)
+    --self.network:doRefresh(self)
     if self.state ~= nil then rendering.destroy(self.state) end
     UpdateSys.remove_from_entity_table(self)
+    BaseNet.postArms(self)
     UpdateSys.remove(self)
 end
 --Is valid
@@ -425,7 +426,7 @@ function NC:createArms()
     for _, area in pairs(areas) do
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
-            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil then
+            if ent ~= nil and ent.valid == true and ent.to_be_deconstructed() == false and string.match(ent.name, "RNS_") ~= nil then
                 if global.entityTable[ent.unit_number] ~= nil then
                     local obj = global.entityTable[ent.unit_number]
                     if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then

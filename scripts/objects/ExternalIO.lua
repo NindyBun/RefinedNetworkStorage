@@ -124,11 +124,12 @@ function EIO:remove()
     if self.combinator ~= nil then self.combinator.destroy() end
     if self.enablerCombinator ~= nil then self.enablerCombinator.destroy() end
     UpdateSys.remove_from_entity_table(self)
+    BaseNet.postArms(self)
     --[[if self.networkController ~= nil then
         self.networkController.network.ExternalIOTable[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil
         self.networkController.network.shouldRefresh = true
     end]]
-    BaseNet.update_network_controller(self.networkController)
+    BaseNet.update_network_controller(self.networkController, self.entID)
 end
 
 function EIO:valid()

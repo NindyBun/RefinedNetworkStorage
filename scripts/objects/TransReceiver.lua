@@ -55,6 +55,7 @@ end
 --Deconstructor
 function TR:remove()
     UpdateSys.remove_from_entity_table(self)
+    BaseNet.postArms(self)
     --UpdateSys.remove(self)
     --[[if self.networkController ~= nil then
         if self.type == "transmitter" then
@@ -64,7 +65,7 @@ function TR:remove()
         end
         self.networkController.network.shouldRefresh = true
     end]]
-    BaseNet.update_network_controller(self.networkController)
+    BaseNet.update_network_controller(self.networkController, self.entID)
 end
 --Is valid
 function TR:valid()
@@ -107,7 +108,7 @@ function TR:createArms()
     for _, area in pairs(areas) do
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
-            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil and global.entityTable[ent.unit_number] ~= nil then
+            if ent ~= nil and ent.valid == true and ent.to_be_deconstructed() == false and string.match(ent.name, "RNS_") ~= nil and global.entityTable[ent.unit_number] ~= nil then
                 local obj = global.entityTable[ent.unit_number]
                 if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
                     --Do nothing

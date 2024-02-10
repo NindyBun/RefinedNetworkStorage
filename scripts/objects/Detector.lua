@@ -82,6 +82,8 @@ function DT:rebuild(object)
 end
 
 function DT:remove()
+    UpdateSys.remove_from_entity_table(self)
+    BaseNet.postArms(self)
     if self.combinator ~= nil then self.combinator.destroy() end
     if self.enablerCombinator ~= nil then self.enablerCombinator.destroy() end
     --UpdateSys.remove(self)
@@ -89,7 +91,7 @@ function DT:remove()
         self.networkController.network.DetectorTable[1][self.entID] = nil
         self.networkController.network.shouldRefresh = true
     end]]
-    BaseNet.update_network_controller(self.networkController)
+    BaseNet.update_network_controller(self.networkController, self.entID)
 end
 
 function DT:valid()

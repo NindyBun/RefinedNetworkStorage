@@ -66,7 +66,7 @@ function NCbl:remove()
     UpdateSys.remove_from_entity_table(self)
     BaseNet.postArms(self)
     --UpdateSys.remove(self)
-    BaseNet.update_network_controller(self.networkController)
+    BaseNet.update_network_controller(self.networkController, self.entID)
 end
 
 function NCbl:valid()

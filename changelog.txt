@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.5
+Date: 10 February 2024
+  Info:
+    - Added compatibility with [Space Exploration >= 0.6.125]
+    - Fixed issue when two or more network controllers are on the same network and all are marked for decontstruction
+---------------------------------------------------------------------------------------------------
 Version: 1.0.4
 Date: 09 February 2024
   Info:

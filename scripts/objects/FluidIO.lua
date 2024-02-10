@@ -101,11 +101,12 @@ function FIO:remove()
     if self.enablerCombinator ~= nil then self.enablerCombinator.destroy() end
     --UpdateSys.remove(self)
     UpdateSys.remove_from_entity_table(self)
+    BaseNet.postArms(self)
     --[[if self.networkController ~= nil then
         self.networkController.network.FluidIOTable[Constants.Settings.RNS_Max_Priority+1-self.priority][self.entID] = nil
         self.networkController.network.shouldRefresh = true
     end]]
-    BaseNet.update_network_controller(self.networkController)
+    BaseNet.update_network_controller(self.networkController, self.entID)
 end
 
 function FIO:valid()
@@ -343,7 +344,7 @@ function FIO:reset_focused_entity()
     local nearest = nil
 
     for _, ent in pairs(ents) do
-        if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") == nil and ent.operable and global.entityTable[ent.unit_number] == nil then
+        if ent ~= nil and ent.valid == true and ent.to_be_deconstructed() == false and string.match(ent.name, "RNS_") == nil and ent.operable and global.entityTable[ent.unit_number] == nil then
             if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then
                 nearest = ent
             end

@@ -65,11 +65,12 @@ function NCug:remove()
         rendering.destroy(self.targetIcon)
     end
     UpdateSys.remove_from_entity_table(self)
+    BaseNet.postArms(self)
     --UpdateSys.remove(self)
     --[[if self.networkController ~= nil then
         self.networkController.network.shouldRefresh = true
     end]]
-    BaseNet.update_network_controller(self.networkController)
+    BaseNet.update_network_controller(self.networkController, self.entID)
 end
 
 function NCug:valid()
@@ -168,7 +169,7 @@ function NCug:createArms()
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         local nearest = nil
         for _, ent in pairs(ents) do
-            if ent ~= nil and ent.valid == true and string.match(ent.name, "RNS_") ~= nil then
+            if ent ~= nil and ent.valid == true and ent.to_be_deconstructed() == false and string.match(ent.name, "RNS_") ~= nil then
                 local obj = global.entityTable[ent.unit_number]
                 if area.direction == self:getDirection() then
                     if string.match(ent.name, "RNS_NetworkCableRamp") ~= nil and obj.color == self.color and (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then

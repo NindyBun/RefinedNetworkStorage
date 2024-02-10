@@ -56,11 +56,12 @@ end
 function WT:remove()
     UpdateSys.remove(self)
     UpdateSys.remove_from_entity_table(self)
+    BaseNet.postArms(self)
     --[[if self.networkController ~= nil then
         self.networkController.network.WirelessTransmitterTable[1][self.entID] = nil
         self.networkController.network.shouldRefresh = true
     end]]
-    BaseNet.update_network_controller(self.networkController)
+    BaseNet.update_network_controller(self.networkController, self.entID)
     if self.rangeArea ~= nil then rendering.destroy(self.rangeArea) end
 end
 

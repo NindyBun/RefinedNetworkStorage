@@ -16,6 +16,7 @@ BaseNet = {
     PlayerPorts = nil,
     Contents = nil,
     shouldRefresh = false,
+    connectedEntities = nil
 }
 
 function BaseNet:new()
@@ -88,12 +89,13 @@ function BaseNet:resetTables()
     self.TransmitterTable[1] = {}
     self.ReceiverTable = {}
     self.ReceiverTable[1] = {}
+    self.connectedEntities = {}
 end
 
 --Refreshes laser connections
 function BaseNet:doRefresh(controller)
     self:resetTables()
-    addConnectables(controller, {}, controller)
+    addConnectables(controller, self.connectedEntities, controller)
     self.shouldRefresh = false
 end
 
@@ -166,56 +168,63 @@ end
 
 function BaseNet.generateArms(object)
     if object == nil then return end
-    local areas = object:getCheckArea()
-    object:resetConnection()
-    for _, area in pairs(areas) do
-        local ents = object.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
-        for _, ent in pairs(ents) do
-            if ent ~= nil and ent.valid == true then
-                if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil then
-                    if object.getDirection ~= nil and area.direction == object:getDirection() then break end--Prevent cable connection on the IO port
-                    local obj = global.entityTable[ent.unit_number]
-                    if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
-                        --Do nothing
-                    else
-                        if obj.color == nil then
-                            object.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[object.color].sprites[area.direction].name, target=object.thisEntity, surface=object.thisEntity.surface, render_layer="lower-object-above-shadow"}
-                            object.connectedObjs[area.direction] = {obj}
-                            if obj.thisEntity.name == Constants.NetworkController.main.name then
-                                object.networkController = obj
-                            else
-                                object.networkController = obj.networkController
-                            end
-                        elseif obj.color ~= "" and obj.color == object.color then
-                            object.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[object.color].sprites[area.direction].name, target=object.thisEntity, surface=object.thisEntity.surface, render_layer="lower-object-above-shadow"}
-                            object.connectedObjs[area.direction] = {obj}
-                            if obj.thisEntity.name == Constants.NetworkController.main.name then
-                                object.networkController = obj
-                            else
-                                object.networkController = obj.networkController
+    if object.thisEntity ~= nil and object.thisEntity.valid and object.thisEntity.to_be_deconstructed() == false then
+        local areas = object:getCheckArea()
+        object:resetConnection()
+        for _, area in pairs(areas) do
+            local ents = object.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
+            for _, ent in pairs(ents) do
+                if ent ~= nil and ent.valid == true and ent.to_be_deconstructed() == false then
+                    if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil then
+                        if object.getDirection ~= nil and area.direction == object:getDirection() then break end--Prevent cable connection on the IO port
+                        local obj = global.entityTable[ent.unit_number]
+                        if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
+                            --Do nothing
+                        else
+                            if obj.color == nil then
+                                object.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[object.color].sprites[area.direction].name, target=object.thisEntity, surface=object.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                                object.connectedObjs[area.direction] = {obj}
+                                if obj.thisEntity.name == Constants.NetworkController.main.name then
+                                    object.networkController = obj
+                                else
+                                    object.networkController = obj.networkController
+                                end
+                            elseif obj.color ~= "" and obj.color == object.color then
+                                object.arms[area.direction] = rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[object.color].sprites[area.direction].name, target=object.thisEntity, surface=object.thisEntity.surface, render_layer="lower-object-above-shadow"}
+                                object.connectedObjs[area.direction] = {obj}
+                                if obj.thisEntity.name == Constants.NetworkController.main.name then
+                                    object.networkController = obj
+                                else
+                                    object.networkController = obj.networkController
+                                end
                             end
                         end
+                        break
                     end
-                    break
                 end
             end
         end
     end
 end
 
-function BaseNet.update_network_controller(controller)
+function BaseNet.update_network_controller(controller, objectID)
     if controller ~= nil then
-        controller.network.shouldRefresh = true
+        if objectID == nil or controller.network.connectedEntities[objectID] ~= nil then
+            controller.network.shouldRefresh = true
+        end
     end
 end
 
 function BaseNet.postArms(object)
     for _, connected in pairs(object.connectedObjs) do
         for _, con in pairs(connected) do
-            if valid(con) == false then return end
-            if con.thisEntity == nil and con.thisEntity.valid == false then return end
-            if con.createArms == nil then return end
+            if valid(con) == false then goto next end
+            if con.thisEntity == nil then goto next end
+            if con.thisEntity ~= nil and con.thisEntity.valid == false then goto next end
+            if con.thisEntity ~= nil and con.thisEntity.valid and con.thisEntity.to_be_deconstructed() == true then goto next end
+            if con.createArms == nil then goto next end
             con:createArms()
+            ::next::
         end
     end
 end
