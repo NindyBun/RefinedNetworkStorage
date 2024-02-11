@@ -115,23 +115,9 @@ function TR:createArms()
                 else
                     table.insert(self.connectedObjs[area.direction], obj)
                     BaseNet.join_network(self, obj)
-                    --[[if self.cardinals[area.direction] == false then
-                        self.cardinals[area.direction] = true
-                        if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
-                            self.networkController.network.shouldRefresh = true
-                        elseif obj.thisEntity.name == Constants.NetworkController.main.name then
-                            obj.network.shouldRefresh = true
-                        end
-                    end]]
                 end
             end
         end
-        --[[if self.cardinals[area.direction] == true and enti == 0 then
-            self.cardinals[area.direction] = false
-            if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
-                self.networkController.network.shouldRefresh = true
-            end
-        end]]
     end
     if self.type ~= "transmitter" then return end
     if self.receiver.surface == nil or (self.receiver.surface ~= nil and game.surfaces[self.receiver.surface] == nil) then return end
@@ -140,21 +126,12 @@ function TR:createArms()
     local rec = game.surfaces[self.receiver.surface].find_entity(Constants.NetworkTransReceiver.receiver.name, self.receiver.position)
     if rec ~= nil and global.entityTable[rec.unit_number] ~= nil then
         local obj = global.entityTable[rec.unit_number]
-        self.connectedObjs[5] = {obj}
-        BaseNet.join_network(self, obj)
-        --[[if self.cardinals[5] == false then
-            self.cardinals[5] = true
-            if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
-                self.networkController.network.shouldRefresh = true
-            end
+        if BaseNet.exists_in_network(obj.networkController, obj.entID) and obj.networkController.entID ~= self.networkController.entID then
+            self.thisEntity.order_deconstruction("player")
+        else
+            self.connectedObjs[5] = {obj}
+            BaseNet.join_network(self, obj)
         end
-    else
-        if self.cardinals[5] == true then
-            self.cardinals[5] = false
-            if valid(self.networkController) == true and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true then
-                self.networkController.network.shouldRefresh = true
-            end
-        end]]
     end
     
 end
