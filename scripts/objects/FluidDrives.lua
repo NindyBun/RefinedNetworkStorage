@@ -7,7 +7,9 @@ FD = {
     fluidArray = nil,
     connectedObjs = nil,
     cardinals = nil,
-    priority = 0
+    priority = 0,
+    guiFilters = nil,
+    filters = nil,
 }
 
 function FD:new(object)
@@ -21,6 +23,11 @@ function FD:new(object)
     t.maxStorage = Constants.Drives.FluidDrive[string.sub(object.name, 5)].max_size
     t.powerUsage = Constants.Drives.FluidDrive[string.sub(object.name, 5)].powerUsage
     t.fluidArray = {}
+    t.filters = {}
+    t.guiFilters = {}
+    for i=1, 5 do
+        t.guiFilters[i] = ""
+    end
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -200,6 +207,10 @@ function FD:DataConvert_EntityToItem(tag)
     end
 end
 
+function FD:matches_filter(name)
+    return self.filters[name] and true or false
+end
+
 function FD:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
         guiTable.vars.Gui_Title.caption = {"gui-description.RNS_FluidDrive_Title"}
@@ -221,8 +232,35 @@ function FD:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_label(guiTable, "", priorityFlow, {"gui-description.RNS_Priority"}, Constants.Settings.RNS_Gui.white)
         local priorityDD = GuiApi.add_dropdown(guiTable, "RNS_FluidDrive_Priority", priorityFlow, Constants.Settings.RNS_Priorities, ((#Constants.Settings.RNS_Priorities+1)/2)-self.priority, false, "", {ID=self.thisEntity.unit_number})
         priorityDD.style.minimal_width = 100
+
+        local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", mainFrame, "vertical", true)
+		filtersFrame.style = Constants.Settings.RNS_Gui.frame_1
+		filtersFrame.style.vertically_stretchable = true
+		filtersFrame.style.left_padding = 3
+		filtersFrame.style.right_padding = 3
+		filtersFrame.style.right_margin = 3
+		filtersFrame.style.width = 100
+
+        GuiApi.add_subtitle(guiTable, "", filtersFrame, {"gui-description.RNS_Filter"})
+
+        local filterFlow = GuiApi.add_flow(guiTable, "", filtersFrame, "vertical")
+        filterFlow.style.horizontal_align = "center"
+        --local filterTable = GuiApi.add_table(guiTable, "", filtersFrame, 1, false)
+        guiTable.vars.filters = {}
+        for i=1, 5 do
+            local filter = GuiApi.add_filter(guiTable, "RNS_FluidDrive_Filter_"..i, filterFlow, "", true, "fluid", 40, {ID=self.thisEntity.unit_number, index=i})
+            guiTable.vars.filters[i] = filter
+            if self.guiFilters[i] ~= "" then
+                filter.elem_value = self.guiFilters[i]
+            end
+        end
     end
 
+    for i=1, 5 do
+        if self.guiFilters[i] ~= "" then
+            guiTable.vars.filters[i].elem_value = self.guiFilters[i]
+        end
+    end
     local capacity = guiTable.vars.Capacity
     local capacityBar = guiTable.vars.CapacityBar
 
@@ -232,6 +270,8 @@ function FD:getTooltips(guiTable, mainFrame, justCreated)
 end
 
 function FD.interaction(event, RNSPlayer)
+    local guiTable = RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip]
+
     if string.match(event.element.name, "RNS_FluidDrive_Priority") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
@@ -243,6 +283,26 @@ function FD.interaction(event, RNSPlayer)
             if io.networkController ~= nil and io.networkController.valid == true then
                 io.networkController.network.FluidDriveTable[oldP][io.entID] = nil
                 io.networkController.network.FluidDriveTable[1+Constants.Settings.RNS_Max_Priority-priority][io.entID] = io
+            end
+        end
+		return
+    end
+
+    if string.match(event.element.name, "RNS_FluidDrive_Filter") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        if event.element.elem_value ~= nil then
+            io.guiFilters[event.element.tags.index] = event.element.elem_value
+        else
+            io.guiFilters[event.element.tags.index] = ""
+        end
+
+        io.filters = {}
+        for i = 1, 5 do
+            local filter = guiTable.vars.filters[i]
+            if filter ~= nil and filter.elem_value ~= "" then
+                io.filters[filter] = true
             end
         end
 		return
