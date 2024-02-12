@@ -71,18 +71,16 @@ function EIO:new(object)
     }
     --10 filters
     t.filters = {
-        item = {
-            index = 1,
-            values = {}
-        },
-        fluid = {
-            index = 1,
-            values = {}
-        }
+        item = {},
+        fluid = {}
+    }
+    t.guiFilters = {
+        item = {},
+        fluid = {}
     }
     for i=1, 10 do
-        t.filters.item.values[i] = ""
-        t.filters.fluid.values[i] = ""
+        t.guiFilters.item[i] = ""
+        t.guiFilters.fluid[i] = ""
     end
     t.combinator = object.surface.create_entity{
         name="rns_Combinator",
@@ -278,15 +276,10 @@ end
 function EIO:reset_focused_entity()
     self.focusedEntity = {
         thisEntity = nil,
+        oldPosition = nil,
         inventory = {
-            input = {
-                index = 1,
-                values = nil
-            },
-            output = {
-                index = 1,
-                values = nil
-            }
+            input = nil,
+            output = nil
         },
         fluid_box = {
             index = nil,
@@ -311,6 +304,7 @@ function EIO:reset_focused_entity()
 
     if nearest == nil then return end
     self.focusedEntity.thisEntity = nearest
+    self.focusedEntity.oldPosition = nearest.position
     if #nearest.fluidbox ~= 0 then
         for i=1, #nearest.fluidbox do
             for j=1, #nearest.fluidbox.get_pipe_connections(i) do
@@ -325,9 +319,19 @@ function EIO:reset_focused_entity()
         end
     end
     if Constants.Settings.RNS_TypesWithContainer[nearest.type] == true then
-        self.focusedEntity.inventory.input.values = Constants.Settings.RNS_Inventory_Types[nearest.type].input
-        self.focusedEntity.inventory.output.values = Constants.Settings.RNS_Inventory_Types[nearest.type].output
+        self.focusedEntity.inventory.input = Constants.Settings.RNS_Inventory_Types[nearest.type].input
+        self.focusedEntity.inventory.output = Constants.Settings.RNS_Inventory_Types[nearest.type].output
     end
+end
+
+--Makes sure the focused entity is still in front or else try to search for a new one
+function EIO:check_focused_entity()
+    if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false then self:reset_focused_entity() return end
+    if Util.positions_match(self.focusedEntity.thisEntity.position, self.focusedEntity.oldPosition) == false then self:reset_focused_entity() return end
+
+    if self.type ~= "fluid" then return end
+    if self.focusedEntity.fluid_box.target_position == nil then self:reset_focused_entity() return end
+    if Util.positions_match(self.thisEntity.position, self.focusedEntity.fluid_box.target_position) == false then self:reset_focused_entity() return end
 end
 
 function EIO:getCheckArea()
