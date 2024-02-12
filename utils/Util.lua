@@ -390,3 +390,9 @@ function Util.add_or_merge(itemstack, list, bypass)
 		return
 	end
 end
+
+function Util.add_list_into_table(tab, list)
+	for _, i in pairs(list) do
+		table.insert(tab, i)
+	end
+end

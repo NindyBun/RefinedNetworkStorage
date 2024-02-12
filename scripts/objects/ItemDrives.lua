@@ -9,6 +9,7 @@ ID = {
     cardinals = nil,
     guiFilters = nil,
     filters = nil,
+    whitelist = false,
     priority = 0
 }
 
@@ -84,16 +85,28 @@ end]]
 
 function ID:copy_settings(obj)
     self.priority = obj.priority
+    self.whitelist = obj.whitelist
+    self.filters = obj.filters
+    self.guiFilters = {}
+    for i = 1, 5 do
+        self.guiFilters[i] = obj.guiFilters[i]
+    end
 end
 
 function ID:serialize_settings()
     local tags = {}
     tags["priority"] = self.priority
+    tags["whitelist"] = self.whitelist
+    tags["filters"] = self.filters
+    tags["guiFilters"] = self.guiFilters
     return tags
 end
 
 function ID:deserialize_settings(tags)
     self.priority = tags["priority"]
+    self.whitelist = tags["whitelist"]
+    self.filters = tags["filters"]
+    self.guiFilters = tags["guiFilters"]
 end
 
 function ID:resetCollection()
@@ -209,15 +222,42 @@ function ID:getRemainingStorageSize()
 end
 
 function ID:DataConvert_ItemToEntity(tag)
-    self.storageArray = tag or {}
+    self.storageArray = tag.storage or {}
+    if tag.filters ~= nil then
+        self.filters = tag.filters
+        self.guiFilters = tag.guiFilters
+    end
+    if tag.priority ~= nil then self.priority = tag.priority end
+    if tag.whitelist ~= nil then self.whitelist = tag.whitelist end
 end
 
-function ID:DataConvert_EntityToItem(item)
-    if self.storageArray ~= nil then
-        if self:getStorageSize() == 0 then return end
-        item.set_tag(Constants.Settings.RNS_Tag, self.storageArray)
-        item.custom_description = {"", item.prototype.localised_description, {"item-description.RNS_ItemDriveTag", self:getStorageSize(), self.maxStorage}}
+function ID:DataConvert_EntityToItem(tag)
+    local tags = {}
+    local description = {"", tag.prototype.localised_description}
+
+    tags.storage = self.storageArray
+    Util.add_list_into_table(description, {{"item-description.RNS_DriveTag_Storage", self:getStorageSize(), self.maxStorage}})
+
+    tags.filters = self.filters
+    tags.guiFilters = self.guiFilters
+    local filterString = "{"
+    local i = 1
+    local ind = Util.getTableLength(self.filters)
+    for n, _ in pairs(self.filters) do
+        filterString = filterString .. "[color=yellow]" .. n .. "[/color]" .. (i < ind and ", " or "")
+        i = i + 1
     end
+    filterString = filterString .. "}"
+    Util.add_list_into_table(description, {{"item-description.RNS_DriveTag_Filters", filterString}})
+
+    tags.priority = self.priority
+    Util.add_list_into_table(description, {{"item-description.RNS_DriveTag_Priority", self.priority}})
+
+    tags.whitelist = self.whitelist
+    Util.add_list_into_table(description, {{"item-description.RNS_DriveTag_Whitelist", self.whitelist}})
+
+    tag.set_tag(Constants.Settings.RNS_Tag, tags)
+    tag.custom_description = description
 end
 
 function ID:matches_filter(name)
@@ -239,13 +279,6 @@ function ID:getTooltips(guiTable, mainFrame, justCreated)
      
         GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_ItemDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
         GuiApi.add_progress_bar(guiTable, "CapacityBar", infoFrame, "", self:getStorageSize() .. "/" .. self.maxStorage, true, nil, self:getStorageSize()/self.maxStorage, 200, 25)
-
-        GuiApi.add_line(guiTable, "", infoFrame, "horizontal")
-
-        local priorityFlow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal", false)
-        GuiApi.add_label(guiTable, "", priorityFlow, {"gui-description.RNS_Priority"}, Constants.Settings.RNS_Gui.white)
-        local priorityDD = GuiApi.add_dropdown(guiTable, "RNS_ItemDrive_Priority", priorityFlow, Constants.Settings.RNS_Priorities, ((#Constants.Settings.RNS_Priorities+1)/2)-self.priority, false, "", {ID=self.thisEntity.unit_number})
-        priorityDD.style.minimal_width = 100
     
         local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", mainFrame, "vertical", true)
 		filtersFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -268,6 +301,28 @@ function ID:getTooltips(guiTable, mainFrame, justCreated)
                 filter.elem_value = self.guiFilters[i]
             end
         end
+
+        local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", mainFrame, "vertical", true)
+		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
+		settingsFrame.style.vertically_stretchable = true
+		settingsFrame.style.left_padding = 3
+		settingsFrame.style.right_padding = 3
+		settingsFrame.style.right_margin = 3
+		settingsFrame.style.minimal_width = 200
+
+        GuiApi.add_subtitle(guiTable, "", settingsFrame, {"gui-description.RNS_Setting"})
+
+        local priorityFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
+        GuiApi.add_label(guiTable, "", priorityFlow, {"gui-description.RNS_Priority"}, Constants.Settings.RNS_Gui.white)
+        local priorityDD = GuiApi.add_dropdown(guiTable, "RNS_ItemDrive_Priority", priorityFlow, Constants.Settings.RNS_Priorities, ((#Constants.Settings.RNS_Priorities+1)/2)-self.priority, false, "", {ID=self.thisEntity.unit_number})
+        priorityDD.style.minimal_width = 100
+
+        GuiApi.add_line(guiTable, "", settingsFrame, "horizontal")
+
+        local state = "left"
+        if self.whitelist == false then state = "right" end
+        GuiApi.add_switch(guiTable, "RNS_ItemDrive_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
+
     end
 
     for i=1, 5 do
@@ -317,10 +372,18 @@ function ID.interaction(event, RNSPlayer)
         io.filters = {}
         for i = 1, 5 do
             local filter = guiTable.vars.filters[i]
-            if filter ~= nil and filter.elem_value ~= "" then
-                io.filters[filter] = true
+            if filter ~= nil and filter.elem_value ~= nil then
+                io.filters[filter.elem_value] = true
             end
         end
+		return
+    end
+
+    if string.match(event.element.name, "RNS_ItemDrive_Whitelist") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.whitelist = event.element.switch_state == "left" and true or false
 		return
     end
 end

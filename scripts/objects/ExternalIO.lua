@@ -12,6 +12,7 @@ EIO = {
     connectedObjs = nil,
     focusedEntity = nil,
     cardinals = nil,
+    guiFilters = nil,
     filters = nil,
     color = "RED",
     io = "input/output",
@@ -21,7 +22,7 @@ EIO = {
     enablerCombinator = nil,
     combinator = nil,
     onlyModified = true,
-    whitelist = true,
+    whitelist = false,
     priority = 0,
     powerUsage = 160
 }
