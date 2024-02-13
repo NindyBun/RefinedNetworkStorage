@@ -10,7 +10,7 @@ FD = {
     priority = 0,
     guiFilters = nil,
     filters = nil,
-    whitelist = false,
+    whitelistBlacklist = "blacklist",
 }
 
 function FD:new(object)
@@ -70,6 +70,10 @@ function FD:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
+function FD:interactable()
+    return self.thisEntity ~= nil and self.thisEntity.valid and self.thisEntity.to_be_deconstructed() == false
+end
+
 --[[function FD:update()
     self.lastUpdate = game.tick
     if valid(self) == false then
@@ -85,7 +89,7 @@ end]]
 
 function FD:copy_settings(obj)
     self.priority = obj.priority
-    self.whitelist = obj.whitelist
+    self.whitelistBlacklist = obj.whitelistBlacklist
     self.filters = obj.filters
     self.guiFilters = {}
     for i = 1, 5 do
@@ -96,7 +100,7 @@ end
 function FD:serialize_settings()
     local tags = {}
     tags["priority"] = self.priority
-    tags["whitelist"] = self.whitelist
+    tags["whitelistBlacklist"] = self.whitelistBlacklist
     tags["filters"] = self.filters
     tags["guiFilters"] = self.guiFilters
     return tags
@@ -104,7 +108,7 @@ end
 
 function FD:deserialize_settings(tags)
     self.priority = tags["priority"]
-    self.whitelist = tags["whitelist"]
+    self.whitelistBlacklist = tags["whitelistBlacklist"]
     self.filters = tags["filters"]
     self.guiFilters = tags["guiFilters"]
 end
@@ -215,7 +219,7 @@ function FD:DataConvert_ItemToEntity(tag)
         self.guiFilters = tag.guiFilters
     end
     if tag.priority ~= nil then self.priority = tag.priority end
-    if tag.whitelist ~= nil then self.whitelist = tag.whitelist end
+    if tag.whitelistBlacklist ~= nil then self.whitelistBlacklist = tag.whitelistBlacklist end
 end
 
 function FD:DataConvert_EntityToItem(tag)
@@ -240,15 +244,11 @@ function FD:DataConvert_EntityToItem(tag)
     tags.priority = self.priority
     Util.add_list_into_table(description, {{"item-description.RNS_DriveTag_Priority", self.priority}})
 
-    tags.whitelist = self.whitelist
-    Util.add_list_into_table(description, {{"item-description.RNS_DriveTag_Whitelist", self.whitelist}})
+    tags.whitelistBlacklist = self.whitelistBlacklist
+    Util.add_list_into_table(description, {{"item-description.RNS_DriveTag_WhitelistBlacklist", self.whitelistBlacklist}})
 
     tag.set_tag(Constants.Settings.RNS_Tag, tags)
     tag.custom_description = description
-end
-
-function FD:matches_filter(name)
-    return self.filters[name] ~= nil and true or false
 end
 
 function FD:getTooltips(guiTable, mainFrame, justCreated)
@@ -306,8 +306,8 @@ function FD:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_line(guiTable, "", mainFrame, "horizontal")
 
         local state = "left"
-        if self.whitelist == false then state = "right" end
-        GuiApi.add_switch(guiTable, "RNS_FluidDrive_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
+        if self.whitelistBlacklist == "blacklist" then state = "right" end
+        GuiApi.add_switch(guiTable, "RNS_FluidDrive_WhitelistBlacklist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
 
     end
 
@@ -363,11 +363,11 @@ function FD.interaction(event, RNSPlayer)
 		return
     end
 
-    if string.match(event.element.name, "RNS_FluidDrive_Whitelist") then
+    if string.match(event.element.name, "RNS_FluidDrive_WhitelistBlacklist") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        io.whitelist = event.element.switch_state == "left" and true or false
+        io.whitelistBlacklist = event.element.switch_state == "left" and "whitelist" or "blacklist"
 		return
     end
 end

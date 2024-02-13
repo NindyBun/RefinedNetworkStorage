@@ -396,3 +396,17 @@ function Util.add_list_into_table(tab, list)
 		table.insert(tab, i)
 	end
 end
+
+function Util.filter_accepts_item(filter, allowModified, mode, itemname)
+
+end
+
+function Util.filter_accepts_fluid(filter, mode, fluidname)
+	if mode == "whitelist" then
+		return (filter[fluidname] ~= nil and {true} or {false})[1]
+	elseif mode == "blacklist" then
+		return (filter[fluidname] ~= nil and {false} or {true})[1]
+	end
+
+	return false
+end

@@ -71,12 +71,13 @@ end
 
 function Event.rotated(event)
     if global.entityTable[event.unit_number] == nil then return end
-    local obj = Util.get_rns_entity(event)
+    local obj = global.entityTable[event.unit_number]
     if obj.generateModeIcon then
         obj:generateModeIcon()
     end
-	if obj.rotate then
-		obj:rotate()
+	if obj.createArms then
+		obj:createArms()
+		BaseNet.postArms(obj)
 	end
 end
 

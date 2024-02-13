@@ -8,8 +8,9 @@ IIO3 = {
     focusedEntity = nil,
     cardinals = nil,
     filters = nil,
+    guiFilters = nil,
     metadataMode = false,
-    whitelist = true,
+    whitelistBlacklist = "blacklist",
     io = "output",
     ioIcon = nil,
     enabler = nil,
@@ -50,15 +51,17 @@ function IIO3:new(object)
         [3] = {}, --S
         [4] = {}, --W
     }
-    t.filters = {
+    t.guiFilters = {
         index = 1,
         values = {
             [1] = "",
             [2] = ""
         }
     }
+    t.filters = {}
     t.focusedEntity = {
         thisEntity = nil,
+        oldPosition = nil,
         inventory = {
             input = {
                 index = 1,
@@ -126,19 +129,20 @@ end
 function IIO3:copy_settings(obj)
     self.color = obj.color
     self.metadataMode = obj.metadataMode
-    self.whitelist = obj.whitelist
+    self.whitelistBlacklist = obj.whitelistBlacklist
     self.io = obj.io
     self.enabler = obj.enabler
     self.stackSize = obj.stackSize
 
     --Filters has do be done this way because for some reason they link to other objects
-    self.filters = {
+    self.guiFilters = {
         index = 1,
         values = {
             [1] = obj.filters.values[1],
             [2] = obj.filters.values[2]
         }
     }
+    self.filters = obj.filters
     self:set_icons(1, self.filters.values[1] ~= "" and self.filters.values[1] or nil)
     self:set_icons(2, self.filters.values[2] ~= "" and self.filters.values[2] or nil)
 
@@ -151,8 +155,9 @@ function IIO3:serialize_settings()
 
     tags["color"] = self.color
     tags["filters"] = self.filters
+    tags["guiFilters"] = self.guiFilters
     tags["metadataMode"] = self.metadataMode
-    tags["whitelist"] = self.whitelist
+    tags["whitelistBlacklist"] = self.whitelistBlacklist
     tags["io"] = self.io
     tags["priority"] = self.priority
     tags["enabler"] = self.enabler
@@ -164,14 +169,15 @@ end
 function IIO3:deserialize_settings(tags)
     self.color = tags["color"]
     self.metadataMode = tags["metadataMode"]
-    self.whitelist = tags["whitelist"]
+    self.whitelistBlacklist = tags["whitelistBlacklist"]
     self.io = tags["io"]
     self.enabler = tags["enabler"]
     self.stackSize = tags["stackSize"]
 
     self.filters = tags["filters"]
-    self:set_icons(1, self.filters.values[1] ~= "" and self.filters.values[1] or nil)
-    self:set_icons(2, self.filters.values[2] ~= "" and self.filters.values[2] or nil)
+    self.guiFilters = tags["guiFilters"]
+    self:set_icons(1, self.guiFilters.values[1] ~= "" and self.guiFilters.values[1] or nil)
+    self:set_icons(2, self.guiFilters.values[2] ~= "" and self.guiFilters.values[2] or nil)
 
     self.priority = tags["priority"]
     self:generateModeIcon()
@@ -222,38 +228,6 @@ function IIO3:generateModeIcon()
         orientation=self.io == "input" and ((self:getRealDirection()*0.25)+0.25)%1.00 or ((self:getRealDirection()*0.25)-0.25)
     }
 end
-
---[[function IIO3.has_item(inv, itemstack_data, metadataMode)
-    local amount = 0
-    for i = 1, #inv do
-        local itemstack = inv[i]
-        if itemstack.count <= 0 then goto continue end
-        local itemstackC = Util.itemstack_convert(itemstack)
-        if Util.itemstack_matches(itemstack_data, itemstackC, metadataMode) then
-            if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
-                if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo < game.item_prototypes[itemstackC.cont.name].magazine_size then
-                    amount = amount + 1
-                    goto continue
-                end
-                if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability < game.item_prototypes[itemstackC.cont.name].durability then
-                    amount = amount + 1
-                    goto continue
-                end
-            end
-            amount = amount + itemstack.count
-        elseif game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
-            if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo > itemstackC.cont.ammo and itemstackC.cont.count > 1 then
-                amount = amount + itemstack.count - 1
-            end
-            if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability > itemstackC.cont.durability and itemstackC.cont.count > 1 then
-                amount = amount + itemstack.count - 1
-            end
-        end
-        if amount > 0 then break end
-        ::continue::
-    end
-    return amount
-end]]
 
 function IIO3.check_operable_mode(io, mode)
     return string.match(io, mode) ~= nil
@@ -476,6 +450,7 @@ end
 function IIO3:reset_focused_entity()
     self.focusedEntity = {
         thisEntity = nil,
+        oldPosition = nil,
         inventory = {
             input = {
                 index = 1,
@@ -494,7 +469,7 @@ function IIO3:reset_focused_entity()
     local nearest = nil
 
     for _, ent in pairs(ents) do
-        if ent ~= nil and ent.valid == true and ent.to_be_deconstructed() == false and string.match(ent.name, "RNS_") == nil and ent.operable and global.entityTable[ent.unit_number] == nil then
+        if ent ~= nil and ent.valid == true and ent.to_be_deconstructed() == false and string.match(string.upper(ent.name), "RNS_") == nil and ent.operable and global.entityTable[ent.unit_number] == nil then
             if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then
                 nearest = ent
             end
@@ -504,6 +479,7 @@ function IIO3:reset_focused_entity()
     if nearest == nil then return end
     if Constants.Settings.RNS_TypesWithContainer[nearest.type] == true then
         self.focusedEntity.thisEntity = nearest
+        self.focusedEntity.oldPosition = nearest.position
         self.focusedEntity.inventory.input.values = Constants.Settings.RNS_Inventory_Types[nearest.type].input
         self.focusedEntity.inventory.output.values = Constants.Settings.RNS_Inventory_Types[nearest.type].output
     end
@@ -639,11 +615,11 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
 
         local filter1 = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_1", filterFlow, "", true, "item", 40, {ID=self.thisEntity.unit_number})
 		guiTable.vars.filter1 = filter1
-		if self.filters.values[1] ~= "" then filter1.elem_value = self.filters.values[1] end
+		if self.guiFilters.values[1] ~= "" then filter1.elem_value = self.guiFilters.values[1] end
 
         local filter2 = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_2", filterFlow, "", true, "item", 40, {ID=self.thisEntityr})
 		guiTable.vars.filter2 = filter2
-		if self.filters.values[2] ~= "" then filter2.elem_value = self.filters.values[2] end
+		if self.guiFilters.values[2] ~= "" then filter2.elem_value = self.guiFilters.values[2] end
 
         local settingsFrame = GuiApi.add_frame(guiTable, "", topFrame, "vertical")
 		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -665,8 +641,8 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
         -- Whitelist/Blacklist mode
         if self.io == "input" then
             local state = "left"
-		    if self.whitelist == false then state = "right" end
-		    GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_Item_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
+		    if self.whitelistBlacklist == "blacklist" then state = "right" end
+		    GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_Item_WhitelistBlacklist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
         end
         
         -- Input/Output mode
@@ -704,11 +680,11 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
 
     guiTable.vars.TransferRate.caption = {"gui-description.RNS_ItemTransferRate", self.stackSize*15*Constants.Settings.RNS_BaseItemIO_TransferCapacity}
 
-    if self.filters.values[1] ~= "" then
-        guiTable.vars.filter1.elem_value = self.filters.values[1]
+    if self.guiFilters.values[1] ~= "" then
+        guiTable.vars.filter1.elem_value = self.guiFilters.values[1]
     end
-    if self.filters.values[2] ~= "" then
-        guiTable.vars.filter2.elem_value = self.filters.values[2]
+    if self.guiFilters.values[2] ~= "" then
+        guiTable.vars.filter2.elem_value = self.guiFilters.values[2]
     end
     if self.enabler.filter ~= nil and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
         guiTable.vars.enabler.elem_value = self.enabler.filter
@@ -780,16 +756,18 @@ function IIO3.interaction(event, RNSPlayer)
         end
         if index ~= 0 then
             if event.element.elem_value ~= nil then
-                io.filters.values[index] = event.element.elem_value
-                --io.combinator.get_or_create_control_behavior().set_signal(index, {signal={type="item", name=event.element.elem_value}, count=1})
+                io.guiFilters.values[index] = event.element.elem_value
                 io:set_icons(index, event.element.elem_value)
             else
-                io.filters.values[index] = ""
-                --io.combinator.get_or_create_control_behavior().set_signal(index, nil)
+                io.guiFilters.values[index] = ""
                 io:set_icons(index, nil)
             end
             io.processed = false
         end
+
+        io.filters = {}
+        if io.guiFilters.values[1] ~= "" then io.filters[io.guiFilters.values[1]] = true end
+        if io.guiFilters.values[2] ~= "" then io.filters[io.guiFilters.values[2]] = true end
 		return
 	end
 
@@ -824,11 +802,11 @@ function IIO3.interaction(event, RNSPlayer)
 		return
     end
 
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Whitelist") then
+    if string.match(event.element.name, "RNS_NetworkCableIO_Item_WhitelistBlacklist") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        io.whitelist = event.element.switch_state == "left" and true or false
+        io.whitelistBlacklist = event.element.switch_state == "left" and "whitelist" or "blacklist"
         io.processed = false
 		return
     end

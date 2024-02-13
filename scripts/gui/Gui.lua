@@ -123,12 +123,6 @@ function GUI.on_gui_clicked(event)
         GUI.update(true)
         return
     end
-
-    if string.match(event.element.name, "RNS_NetworkCableIOV2") then
-        IIO2.interaction(event, RNSPlayer)
-        GUI.update(true)
-        return
-    end
 end
 
 function GUI.on_gui_element_changed(event)
@@ -142,24 +136,12 @@ function GUI.on_gui_element_changed(event)
         return
     end
 
-    if string.match(event.element.name, "RNS_NetworkCableIOV2_Item") then
-        IIO2.interaction(event, RNSPlayer)
-        GUI.update(true)
-        return
-    end
-
     if string.match(event.element.name, "RNS_NetworkCableIO_Fluid") then
         FIO.interaction(event, RNSPlayer)
         GUI.update(true)
         return
     end
-
-    if string.match(event.element.name, "RNS_NetworkCableIOV2_Fluid") then
-        FIO2.interaction(event, RNSPlayer)
-        GUI.update(true)
-        return
-    end
-
+    
     if string.match(event.element.name, "RNS_NetworkCableIO_External") then
         EIO.interaction(event, RNSPlayer)
         GUI.update(true)
