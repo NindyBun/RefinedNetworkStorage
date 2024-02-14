@@ -896,6 +896,10 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
     return count - amount
 end
 
+function BaseNet.transfer_from_inv_to_network(network, filters, whitelistBlacklist, allowMetadata, transferCapacity)
+    
+end
+
 function BaseNet.getOperableObjects(array, group)
     local objs = {}
     for p, priority in pairs(array) do

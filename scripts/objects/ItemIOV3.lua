@@ -240,7 +240,16 @@ function IIO3.matches_filters(name, filters)
     return false
 end
 
-function IIO3:IO()
+function IIO3:interactable()
+    return self.thisEntity ~= nil and self.thisEntity.valid and self.thisEntity.to_be_deconstructed() == false
+end
+
+function IIO3:target_interactable()
+    self:check_focused_entity()
+    return self.focusedEntity.thisEntity ~= nil
+end
+
+--[[function IIO3:IO()
     if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
         if self.enabler.filter == nil then self.processed = true return end
         local amount = self.enablerCombinator.get_merged_signal({type=self.enabler.filter.type, name=self.enabler.filter.name}, defines.circuit_connector_id.constant_combinator)
@@ -404,6 +413,37 @@ function IIO3:IO()
     end
     self.processed = transportCapacity < self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity --*global.IIOMultiplier
         or (self.focusedEntity.thisEntity ~= nil and self:checkFullness())
+end]]
+
+function IIO3:IO()
+    if self:interactable() == false then self.processed = true return end
+    if self:target_interactable() == false then self.processed = true return end
+
+    if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
+        if self.enabler.filter == nil then self.processed = true return end
+        local amount = self.enablerCombinator.get_merged_signal({type=self.enabler.filter.type, name=self.enabler.filter.name}, defines.circuit_connector_id.constant_combinator)
+        if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then self.processed = true return end
+    end
+    
+    if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then self.processed = true return end
+    local network = self.networkController.network
+
+    local target = self.focusedEntity
+    if self.io == "input" and target.thisEntity.is_empty() then self.processed = true return end
+    if self.io == "output" and target.thisEntity.is_full() then self.processed = true return end
+
+    local storedAmount = target.thisEntity.get_item_count()
+    local transportCapacity = self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity--*global.IIOMultiplier
+
+    if self.io == "input" and target.inventory.output.values ~= nil then
+        BaseNet.transfer_from_inv_to_network(network, self.filters, self.whitelistBlacklist, self.metadataMode, transportCapacity)
+    elseif self.io == "output" and target.inventory.input.values ~= nil then
+        BaseNet.transfer_from_network_to_inv()
+    end
+
+    if self.io == "input" and target.thisEntity.get_item_count() < storedAmount then self.processed = true return end
+    if self.io == "output" and target.thisEntity.get_item_count() > storedAmount then self.processed = true return end
+    self.processed = false
 end
 
 function IIO3:checkFullness()
@@ -483,6 +523,14 @@ function IIO3:reset_focused_entity()
         self.focusedEntity.inventory.input.values = Constants.Settings.RNS_Inventory_Types[nearest.type].input
         self.focusedEntity.inventory.output.values = Constants.Settings.RNS_Inventory_Types[nearest.type].output
     end
+end
+
+function IIO3:check_focused_entity()
+    if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false or self.focusedEntity.thisEntity.to_be_deconstructed() then self:reset_focused_entity() return end
+    if Util.positions_match(self.focusedEntity.thisEntity.position, self.focusedEntity.oldPosition) == false then self:reset_focused_entity() return end
+
+    if self.focusedEntity.fluid_box.target_position == nil then self:reset_focused_entity() return end
+    if Util.positions_match(self.thisEntity.position, self.focusedEntity.fluid_box.target_position) == false then self:reset_focused_entity() return end
 end
 
 function IIO3:createArms()

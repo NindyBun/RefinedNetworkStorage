@@ -312,9 +312,11 @@ function FIO:target_interactable()
 end
 
 function FIO:IO()
+    --Make sure there is a working entity in front of the io bus
     if self:interactable() == false then self.processed = true return end
     if self:target_interactable() == false then self.processed = true return end
 
+    --Make sure that the circuit condition isn't disabling the io bus
     if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
         if self.enabler.filter == nil then self.processed = true return end
         local amount = self.enablerCombinator.get_merged_signal({type=self.enabler.filter.type, name=self.enabler.filter.name}, defines.circuit_connector_id.constant_combinator)
@@ -335,9 +337,9 @@ function FIO:IO()
     local transportCapacity = self.fluidSize * Constants.Settings.RNS_BaseFluidIO_TransferCapacity
 
     if self.io == "input" and string.match(fluid_box.flow, "output") ~= nil and fluid ~= nil and self.filter == fluid.name then
-        transportCapacity = BaseNet.transfer_from_tank_to_network(network, self.focusedEntity, transportCapacity)
+        BaseNet.transfer_from_tank_to_network(network, self.focusedEntity, transportCapacity)
     elseif self.io == "output" and string.match(fluid_box.flow, "input") ~= nil and self.filter ~= "" and (network.Contents[self.filter] or 0) > 0 then
-        transportCapacity = BaseNet.transfer_from_network_to_tank(network, self.focusedEntity, transportCapacity, self.filter)
+        BaseNet.transfer_from_network_to_tank(network, self.focusedEntity, transportCapacity, self.filter)
     end
 
     if self.io == "input" and target.thisEntity.fluidbox[fluid_box.index] == nil then self.processed = true return end
