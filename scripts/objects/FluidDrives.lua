@@ -7,7 +7,10 @@ FD = {
     fluidArray = nil,
     connectedObjs = nil,
     cardinals = nil,
-    priority = 0
+    priority = 0,
+    guiFilters = nil,
+    filters = nil,
+    whitelistBlacklist = "blacklist",
 }
 
 function FD:new(object)
@@ -21,6 +24,11 @@ function FD:new(object)
     t.maxStorage = Constants.Drives.FluidDrive[string.sub(object.name, 5)].max_size
     t.powerUsage = Constants.Drives.FluidDrive[string.sub(object.name, 5)].powerUsage
     t.fluidArray = {}
+    t.filters = {}
+    t.guiFilters = {}
+    for i=1, 5 do
+        t.guiFilters[i] = ""
+    end
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -62,6 +70,10 @@ function FD:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
+function FD:interactable()
+    return self.thisEntity ~= nil and self.thisEntity.valid and self.thisEntity.to_be_deconstructed() == false
+end
+
 --[[function FD:update()
     self.lastUpdate = game.tick
     if valid(self) == false then
@@ -77,16 +89,28 @@ end]]
 
 function FD:copy_settings(obj)
     self.priority = obj.priority
+    self.whitelistBlacklist = obj.whitelistBlacklist
+    self.filters = obj.filters
+    self.guiFilters = {}
+    for i = 1, 5 do
+        self.guiFilters[i] = obj.guiFilters[i]
+    end
 end
 
 function FD:serialize_settings()
     local tags = {}
     tags["priority"] = self.priority
+    tags["whitelistBlacklist"] = self.whitelistBlacklist
+    tags["filters"] = self.filters
+    tags["guiFilters"] = self.guiFilters
     return tags
 end
 
 function FD:deserialize_settings(tags)
     self.priority = tags["priority"]
+    self.whitelistBlacklist = tags["whitelistBlacklist"]
+    self.filters = tags["filters"]
+    self.guiFilters = tags["guiFilters"]
 end
 
 function FD:resetCollection()
@@ -189,15 +213,42 @@ function FD:getRemainingStorageSize()
 end
 
 function FD:DataConvert_ItemToEntity(tag)
-    self.fluidArray = tag or {}
+    self.fluidArray = tag.storage or {}
+    if tag.filters ~= nil then
+        self.filters = tag.filters
+        self.guiFilters = tag.guiFilters
+    end
+    if tag.priority ~= nil then self.priority = tag.priority end
+    if tag.whitelistBlacklist ~= nil then self.whitelistBlacklist = tag.whitelistBlacklist end
 end
 
 function FD:DataConvert_EntityToItem(tag)
-    if self.fluidArray ~= nil then
-        if self:getStorageSize() == 0 then return end
-        tag.set_tag(Constants.Settings.RNS_Tag, self.fluidArray)
-        tag.custom_description = {"", tag.prototype.localised_description, {"item-description.RNS_FluidDriveTag", self:getStorageSize(), self.maxStorage}}
+    local tags = {}
+    local description = {"", tag.prototype.localised_description}
+
+    tags.storage = self.fluidArray
+    Util.add_list_into_table(description, {{"item-description.RNS_DriveTag_Storage", self:getStorageSize(), self.maxStorage}})
+
+    tags.filters = self.filters
+    tags.guiFilters = self.guiFilters
+    local filterString = "{"
+    local i = 1
+    local ind = Util.getTableLength(self.filters)
+    for n, _ in pairs(self.filters) do
+        filterString = filterString .. "[color=yellow]" .. n .. "[/color]" .. (i < ind and ", " or "")
+        i = i + 1
     end
+    filterString = filterString .. "}"
+    Util.add_list_into_table(description, {{"item-description.RNS_DriveTag_Filters", filterString}})
+
+    tags.priority = self.priority
+    Util.add_list_into_table(description, {{"item-description.RNS_DriveTag_Priority", self.priority}})
+
+    tags.whitelistBlacklist = self.whitelistBlacklist
+    Util.add_list_into_table(description, {{"item-description.RNS_DriveTag_WhitelistBlacklist", self.whitelistBlacklist}})
+
+    tag.set_tag(Constants.Settings.RNS_Tag, tags)
+    tag.custom_description = description
 end
 
 function FD:getTooltips(guiTable, mainFrame, justCreated)
@@ -215,14 +266,56 @@ function FD:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_label(guiTable, "Capacity", infoFrame, {"gui-description.RNS_FluidDrive_Capacity", self:getStorageSize(), self.maxStorage}, Constants.Settings.RNS_Gui.orange, nil, true)
         GuiApi.add_progress_bar(guiTable, "CapacityBar", infoFrame, "", self:getStorageSize() .. "/" .. self.maxStorage, true, nil, self:getStorageSize()/self.maxStorage, 200, 25)
 
-        GuiApi.add_line(guiTable, "", infoFrame, "horizontal")
+        local filtersFrame = GuiApi.add_frame(guiTable, "FiltersFrame", mainFrame, "vertical", true)
+		filtersFrame.style = Constants.Settings.RNS_Gui.frame_1
+		filtersFrame.style.vertically_stretchable = true
+		filtersFrame.style.left_padding = 3
+		filtersFrame.style.right_padding = 3
+		filtersFrame.style.right_margin = 3
+		filtersFrame.style.width = 100
 
-        local priorityFlow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal", false)
+        GuiApi.add_subtitle(guiTable, "", filtersFrame, {"gui-description.RNS_Filter"})
+
+        local filterFlow = GuiApi.add_flow(guiTable, "", filtersFrame, "vertical")
+        filterFlow.style.horizontal_align = "center"
+        --local filterTable = GuiApi.add_table(guiTable, "", filtersFrame, 1, false)
+        guiTable.vars.filters = {}
+        for i=1, 5 do
+            local filter = GuiApi.add_filter(guiTable, "RNS_FluidDrive_Filter_"..i, filterFlow, "", true, "fluid", 40, {ID=self.thisEntity.unit_number, index=i})
+            guiTable.vars.filters[i] = filter
+            if self.guiFilters[i] ~= "" then
+                filter.elem_value = self.guiFilters[i]
+            end
+        end
+
+        local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", mainFrame, "vertical", true)
+		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
+		settingsFrame.style.vertically_stretchable = true
+		settingsFrame.style.left_padding = 3
+		settingsFrame.style.right_padding = 3
+		settingsFrame.style.right_margin = 3
+		settingsFrame.style.minimal_width = 200
+
+        GuiApi.add_subtitle(guiTable, "", settingsFrame, {"gui-description.RNS_Setting"})
+
+        local priorityFlow = GuiApi.add_flow(guiTable, "", mainFrame, "horizontal", false)
         GuiApi.add_label(guiTable, "", priorityFlow, {"gui-description.RNS_Priority"}, Constants.Settings.RNS_Gui.white)
         local priorityDD = GuiApi.add_dropdown(guiTable, "RNS_FluidDrive_Priority", priorityFlow, Constants.Settings.RNS_Priorities, ((#Constants.Settings.RNS_Priorities+1)/2)-self.priority, false, "", {ID=self.thisEntity.unit_number})
         priorityDD.style.minimal_width = 100
+
+        GuiApi.add_line(guiTable, "", mainFrame, "horizontal")
+
+        local state = "left"
+        if self.whitelistBlacklist == "blacklist" then state = "right" end
+        GuiApi.add_switch(guiTable, "RNS_FluidDrive_WhitelistBlacklist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
+
     end
 
+    for i=1, 5 do
+        if self.guiFilters[i] ~= "" then
+            guiTable.vars.filters[i].elem_value = self.guiFilters[i]
+        end
+    end
     local capacity = guiTable.vars.Capacity
     local capacityBar = guiTable.vars.CapacityBar
 
@@ -232,6 +325,8 @@ function FD:getTooltips(guiTable, mainFrame, justCreated)
 end
 
 function FD.interaction(event, RNSPlayer)
+    local guiTable = RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip]
+
     if string.match(event.element.name, "RNS_FluidDrive_Priority") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
@@ -245,6 +340,34 @@ function FD.interaction(event, RNSPlayer)
                 io.networkController.network.FluidDriveTable[1+Constants.Settings.RNS_Max_Priority-priority][io.entID] = io
             end
         end
+		return
+    end
+
+    if string.match(event.element.name, "RNS_FluidDrive_Filter") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        if event.element.elem_value ~= nil then
+            io.guiFilters[event.element.tags.index] = event.element.elem_value
+        else
+            io.guiFilters[event.element.tags.index] = ""
+        end
+
+        io.filters = {}
+        for i = 1, 5 do
+            local filter = guiTable.vars.filters[i]
+            if filter ~= nil and filter.elem_value ~= nil then
+                io.filters[filter.elem_value] = true
+            end
+        end
+		return
+    end
+
+    if string.match(event.element.name, "RNS_FluidDrive_WhitelistBlacklist") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.whitelistBlacklist = event.element.switch_state == "left" and "whitelist" or "blacklist"
 		return
     end
 end

@@ -12,6 +12,7 @@ EIO = {
     connectedObjs = nil,
     focusedEntity = nil,
     cardinals = nil,
+    guiFilters = nil,
     filters = nil,
     color = "RED",
     io = "input/output",
@@ -21,7 +22,7 @@ EIO = {
     enablerCombinator = nil,
     combinator = nil,
     onlyModified = true,
-    whitelist = true,
+    whitelistBlacklist = "blacklist",
     priority = 0,
     powerUsage = 160
 }
@@ -57,9 +58,16 @@ function EIO:new(object)
     }
     t.focusedEntity = {
         thisEntity = nil,
+        oldPosition = nil,
         inventory = {
-            index = 1,
-            values = nil
+            input = {
+                index = 1,
+                values = nil
+            },
+            output = {
+                index = 1,
+                values = nil
+            }
         },
         fluid_box = {
             index = nil,
@@ -70,18 +78,16 @@ function EIO:new(object)
     }
     --10 filters
     t.filters = {
-        item = {
-            index = 1,
-            values = {}
-        },
-        fluid = {
-            index = 1,
-            values = {}
-        }
+        item = {},
+        fluid = {}
+    }
+    t.guiFilters = {
+        item = {},
+        fluid = {}
     }
     for i=1, 10 do
-        t.filters.item.values[i] = ""
-        t.filters.fluid.values[i] = ""
+        t.guiFilters.item[i] = ""
+        t.guiFilters.fluid[i] = ""
     end
     t.combinator = object.surface.create_entity{
         name="rns_Combinator",
@@ -136,6 +142,15 @@ function EIO:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
+function EIO:interactable()
+    return self.thisEntity ~= nil and self.thisEntity.valid and self.thisEntity.to_be_deconstructed() == false
+end
+
+function EIO:target_interactable()
+    self:check_focused_entity()
+    return self.focusedEntity.thisEntity ~= nil
+end
+
 --[[function EIO:update()
     if valid(self) == false then
         self:remove()
@@ -154,27 +169,26 @@ end]]
 function EIO:copy_settings(obj)
     self.color = obj.color
     self.onlyModified = obj.onlyModified
-    self.whitelist = obj.whitelist
+    self.whitelistBlacklist = obj.whitelistBlacklist
     self.io = obj.io
     self.type = obj.type
     self.enabler = obj.enabler
 
     self.filters = {
-        item = {
-            index = 1,
-            values = {}
-        },
-        fluid = {
-            index = 1,
-            values = {}
-        }
+        item = obj.filters.item,
+        fluid = obj.filters.fluid
+    }
+
+    self.guiFilters ={
+        item = {},
+        fluid = {}
     }
     for i=1, 10 do
-        self.filters.item.values[i] = obj.filters.item.values[i]
-        self.filters.fluid.values[i] = obj.filters.fluid.values[i]
+        self.guiFilters.item[i] = obj.guiFilters.item[i]
+        self.guiFilters.fluid[i] = obj.guiFilters.fluid[i]
     end
     for i=1, 10 do
-        self:set_icons(i, self.filters[self.type].values[i] ~= "" and self.filters[self.type].values[i] or nil, self.type)
+        self:set_icons(i, self.guiFilters[self.type][i] ~= "" and self.guiFilters[self.type][i] or nil, self.type)
     end
 
     self.priority = obj.priority
@@ -190,8 +204,9 @@ function EIO:serialize_settings()
 
     tags["color"] = self.color
     tags["filters"] = self.filters
+    tags["guiFilters"] = self.guiFilters
     tags["onlyModified"] = self.onlyModified
-    tags["whitelist"] = self.whitelist
+    tags["whitelistBlacklist"] = self.whitelistBlacklist
     tags["io"] = self.io
     tags["priority"] = self.priority
     tags["type"] = self.type
@@ -203,14 +218,15 @@ end
 function EIO:deserialize_settings(tags)
     self.color = tags["color"]
     self.onlyModified = tags["onlyModified"]
-    self.whitelist = tags["whitelist"]
+    self.whitelistBlacklist = tags["whitelistBlacklist"]
     self.io = tags["io"]
     self.type = tags["type"]
     self.enabler = tags["enabler"]
 
     self.filters = tags["filters"]
+    self.guiFilters = tags["guiFilters"]
     for i=1, 10 do
-        self:set_icons(i, self.filters[self.type].values[i] ~= "" and self.filters[self.type].values[i] or nil, self.type)
+        self:set_icons(i, self.guiFilters[self.type][i] ~= "" and self.guiFilters[self.type][i] or nil, self.type)
     end
 
     self.priority = tags["priority"]
@@ -277,6 +293,7 @@ end
 function EIO:reset_focused_entity()
     self.focusedEntity = {
         thisEntity = nil,
+        oldPosition = nil,
         inventory = {
             input = {
                 index = 1,
@@ -285,7 +302,7 @@ function EIO:reset_focused_entity()
             output = {
                 index = 1,
                 values = nil
-            }
+            },
         },
         fluid_box = {
             index = nil,
@@ -301,7 +318,7 @@ function EIO:reset_focused_entity()
     local nearest = nil
 
     for _, ent in pairs(ents) do
-        if ent ~= nil and ent.valid == true and string.match(string.upper(ent.name), "RNS_") == nil and global.entityTable[ent.unit_number] == nil then
+        if ent ~= nil and ent.valid == true and ent.to_be_deconstructed() == false and string.match(string.upper(ent.name), "RNS_") == nil and global.entityTable[ent.unit_number] == nil then
             if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then
                 nearest = ent
             end
@@ -309,12 +326,13 @@ function EIO:reset_focused_entity()
     end
 
     if nearest == nil then return end
-    self.focusedEntity.thisEntity = nearest
     if #nearest.fluidbox ~= 0 then
         for i=1, #nearest.fluidbox do
             for j=1, #nearest.fluidbox.get_pipe_connections(i) do
                 local target = nearest.fluidbox.get_pipe_connections(i)[j]
-                if target.target_position.x == self.thisEntity.position.x and target.target_position.y == self.thisEntity.position.y then
+                if Util.positions_match(target.target_position, self.thisEntity.position) then
+                    self.focusedEntity.thisEntity = nearest
+                    self.focusedEntity.oldPosition = nearest.position
                     self.focusedEntity.fluid_box.index = i
                     self.focusedEntity.fluid_box.flow =  target.flow_direction
                     self.focusedEntity.fluid_box.target_position = target.target_position
@@ -324,8 +342,21 @@ function EIO:reset_focused_entity()
         end
     end
     if Constants.Settings.RNS_TypesWithContainer[nearest.type] == true then
+        self.focusedEntity.thisEntity = nearest
+        self.focusedEntity.oldPosition = nearest.position
         self.focusedEntity.inventory.input.values = Constants.Settings.RNS_Inventory_Types[nearest.type].input
         self.focusedEntity.inventory.output.values = Constants.Settings.RNS_Inventory_Types[nearest.type].output
+    end
+end
+
+--Makes sure the focused entity is still in front or else try to search for a new one
+function EIO:check_focused_entity()
+    if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false or self.focusedEntity.thisEntity.to_be_deconstructed() then self:reset_focused_entity() return end
+    if Util.positions_match(self.focusedEntity.thisEntity.position, self.focusedEntity.oldPosition) == false then self:reset_focused_entity() return end
+
+    if self.type == "fluid" then
+        if self.focusedEntity.fluid_box.target_position == nil then self:reset_focused_entity() return end
+        if Util.positions_match(self.thisEntity.position, self.focusedEntity.fluid_box.target_position) == false then self:reset_focused_entity() return end
     end
 end
 
@@ -428,13 +459,6 @@ function EIO.has_item_room(inv)
     return false
 end
 
-function EIO:matches_filters(type, filter)
-    for _, name in pairs(self.filters[type].values) do
-        if name == filter then return true end
-    end
-    return false
-end
-
 function EIO.has_item(inv, itemstack_data, getModified)
     local amount = 0
     if inv.is_empty() then return 0 end
@@ -505,10 +529,9 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
         guiTable.vars.filters[self.type] = {}
         for i=1, 10 do
             local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_External_Filter_"..i, filterTable, "", true, self.type, 40, {ID=self.thisEntity.unit_number, type=self.type, index=i})
-            guiTable.vars.filters[self.type][i] = {}
-            guiTable.vars.filters[self.type][i].filter = filter
-            if self.filters[self.type].values[i] ~= "" then
-                filter.elem_value = self.filters[self.type].values[i]
+            guiTable.vars.filters[self.type][i] = filter
+            if self.guiFilters[self.type][i] ~= "" then
+                filter.elem_value = self.guiFilters[self.type][i]
             end
         end
 
@@ -543,8 +566,8 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
 
         -- Whitelist/Blacklist mode
         local state = "left"
-        if self.whitelist == false then state = "right" end
-        GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_External_Whitelist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
+        if self.whitelistBlacklist == "blacklist" then state = "right" end
+        GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_External_WhitelistBlacklist", settingsFrame, {"gui-description.RNS_Whitelist"}, {"gui-description.RNS_Blacklist"}, "", "", state, false, {ID=self.thisEntity.unit_number})
 
         if self.type == "item" and string.match(self.io, "input") ~= nil then
             -- Match metadata mode
@@ -577,8 +600,8 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
     end
 
     for i=1, 10 do
-        if self.filters[self.type].values[i] ~= "" then
-            guiTable.vars.filters[self.type][i].elem_value = self.filters[self.type].values[i]
+        if self.guiFilters[self.type][i] ~= "" then
+            guiTable.vars.filters[self.type][i].elem_value = self.guiFilters[self.type][i]
         end
     end
     if self.enabler.filter ~= nil and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
@@ -587,6 +610,8 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
 end
 
 function EIO.interaction(event, RNSPlayer)
+    local guiTable = RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip]
+
     if string.match(event.element.name, "RNS_NetworkCableIO_External_Number") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
@@ -623,11 +648,19 @@ function EIO.interaction(event, RNSPlayer)
 		local io = global.entityTable[id]
 		if io == nil then return end
         if event.element.elem_value ~= nil then
-            io.filters[event.element.tags.type].values[event.element.tags.index] = event.element.elem_value
+            io.guiFilters[event.element.tags.type][event.element.tags.index] = event.element.elem_value
             io.combinator.get_or_create_control_behavior().set_signal(event.element.tags.index, {signal={type=event.element.tags.type, name=event.element.elem_value}, count=1})
         else
-            io.filters[event.element.tags.type].values[event.element.tags.index] = ""
+            io.guiFilters[event.element.tags.type][event.element.tags.index] = ""
             io.combinator.get_or_create_control_behavior().set_signal(event.element.tags.index, nil)
+        end
+
+        io.filters = {}
+        for i = 1, 10 do
+            local filter = guiTable.vars.filters[event.element.tags.type][i]
+            if filter ~= nil and filter.elem_value ~= nil then
+                io.filters[filter.elem_value] = true
+            end
         end
 		return
     end
@@ -688,11 +721,11 @@ function EIO.interaction(event, RNSPlayer)
 		return
     end
 
-    if string.match(event.element.name, "RNS_NetworkCableIO_External_Whitelist") then
+    if string.match(event.element.name, "RNS_NetworkCableIO_External_WhitelistBlacklist") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        io.whitelist = event.element.switch_state == "left" and true or false
+        io.whitelistBlacklist = event.element.switch_state == "left" and "whitelist" or "blacklist"
 		return
     end
 

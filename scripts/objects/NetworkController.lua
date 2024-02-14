@@ -122,16 +122,13 @@ function NC:updateDetectors()
 end
 
 function NC:collectContents()
-    self.network.Contents = {
-        item = {},
-        fluid = {}
-    }
+    self.network.Contents = {}
 
     --local itemDrives = BaseNet.getOperableObjects(self.network.ItemDriveTable)
     --local fluidDrives = BaseNet.getOperableObjects(self.network.FluidDriveTable)
     local validExternals = self.network:filter_externalIO_by_valid_signal()
-    local externalInvs = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(validExternals)))
-    local externalTanks = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("fluid", BaseNet.getOperableObjects(validExternals)))
+    --local externalInvs = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(validExternals)))
+    --local externalTanks = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("fluid", BaseNet.getOperableObjects(validExternals)))
 
     for i = 1, Constants.Settings.RNS_Max_Priority*2+1 do
         local priorityItems = self.network.ItemDriveTable[i] --itemDrives[i]
@@ -143,71 +140,42 @@ function NC:collectContents()
         --if Util.getTableLength(priorityItems) > 0 then
             for _, drive in pairs(priorityItems) do
                 for name, content in pairs(drive.storageArray) do
-                    self.network.Contents.item[name] = math.min((self.network.Contents.item[name] or 0) + content.count, 2^32)
+                    self.network.Contents[name] = math.min((self.network.Contents[name] or 0) + content.count, 2^32)
                 end
             end
         --end
         --if Util.getTableLength(priorityFluids) > 0 then
             for _, drive in pairs(priorityFluids) do
                 for name, content in pairs(drive.fluidArray) do
-                    self.network.Contents.fluid[name] = math.min((self.network.Contents.fluid[name] or 0) + content.amount, 2^32)
+                    self.network.Contents[name] = math.min((self.network.Contents[name] or 0) + content.amount, 2^32)
                 end
             end
         --end
-            for _, e in pairs(priorityExternals) do
-                if e.thisEntity ~= nil and e.thisEntity.valid == true and e.thisEntity.to_be_deconstructed() == false and e.focusedEntity.thisEntity ~= nil and e.focusedEntity.thisEntity.valid == true and e.focusedEntity.thisEntity.to_be_deconstructed() == false and string.match(e.io, "output") ~= nil then
-                    if e.type == "item" and e.focusedEntity.inventory.values ~= nil then
-                        local index = 0
-                        repeat
-                            local ii = Util.next(e.focusedEntity.inventory)
-                            local inv = e.focusedEntity.thisEntity.get_inventory(ii.slot)
-                            if inv ~= nil and IIO.check_operable_mode(ii.io, "output") then
-                                for name, count in pairs(inv.get_contents()) do
-                                    self.network.Contents.item[name] = math.min((self.network.Contents.item[name] or 0) + count, 2^32)
+            for _, external in pairs(priorityExternals) do
+                for _, e in pairs(external) do
+                    if e.thisEntity ~= nil and e.thisEntity.valid == true and e.thisEntity.to_be_deconstructed() == false and e.focusedEntity.thisEntity ~= nil and e.focusedEntity.thisEntity.valid == true and e.focusedEntity.thisEntity.to_be_deconstructed() == false and string.match(e.io, "output") ~= nil then
+                        if e.type == "item" and e.focusedEntity.inventory.values ~= nil then
+                            local index = 0
+                            repeat
+                                local ii = Util.next(e.focusedEntity.inventory)
+                                local inv = e.focusedEntity.thisEntity.get_inventory(ii.slot)
+                                if inv ~= nil and IIO.check_operable_mode(ii.io, "output") then
+                                    for name, count in pairs(inv.get_contents()) do
+                                        self.network.Contents.item[name] = math.min((self.network.Contents.item[name] or 0) + count, 2^32)
+                                    end
                                 end
+                                index = index + 1
+                            until index == Util.getTableLength(e.focusedEntity.inventory.values)
+                        elseif e.type == "fluid" and e.focusedEntity.fluid_box.index ~= nil and string.match(e.focusedEntity.fluid_box.flow, "output") ~= nil then
+                            local fluid_box = e.focusedEntity.fluid_box
+                            local tank = e.focusedEntity.thisEntity.fluidbox[fluid_box.index]
+                            if tank ~= nil then
+                                self.network.Contents[tank.name] = math.min((self.network.Contents[tank.name] or 0) + tank.amount, 2^32)
                             end
-                            index = index + 1
-                        until index == Util.getTableLength(e.focusedEntity.inventory.values)
-                    elseif e.type == "fluid" and e.focusedEntity.fluid_box.index ~= nil and string.match(e.focusedEntity.fluid_box.flow, "output") ~= nil then
-                        local fluid_box = e.focusedEntity.fluid_box
-                        local tank = e.focusedEntity.thisEntity.fluidbox[fluid_box.index]
-                        if tank ~= nil then
-                            self.network.Contents.fluid[tank.name] = math.min((self.network.Contents.fluid[tank.name] or 0) + tank.amount, 2^32)
                         end
                     end
                 end
             end
-        --[[if Util.getTableLength(priorityInvs) > 0 then
-            for _, eInv in pairs(priorityInvs) do
-                if string.match(eInv.io, "output") == nil then goto next end
-                if eInv.focusedEntity.thisEntity ~= nil and eInv.focusedEntity.thisEntity.valid == true and eInv.focusedEntity.thisEntity.to_be_deconstructed() == false and eInv.focusedEntity.inventory.values ~= nil then
-                    local index = 0
-                    repeat
-                        local ii = Util.next(eInv.focusedEntity.inventory)
-                        local inv = eInv.focusedEntity.thisEntity.get_inventory(ii.slot)
-                        if inv ~= nil and IIO.check_operable_mode(ii.io, "output") then
-                            for name, count in pairs(inv.get_contents()) do
-                                self.network.Contents.item[name] = math.min((self.network.Contents.item[name] or 0) + count, 2^32)
-                            end
-                        end
-                        index = index + 1
-                    until index == Util.getTableLength(eInv.focusedEntity.inventory.values)
-                end
-                ::next::
-            end
-        --end
-        --if Util.getTableLength(priorityTanks) > 0 then
-            for _, eTank in pairs(priorityTanks) do
-                local fluid_box = eTank.focusedEntity.fluid_box
-                if string.match(fluid_box.flow, "output") == nil then goto next end
-                if eTank.focusedEntity.thisEntity ~= nil and eTank.focusedEntity.thisEntity.valid == true and eTank.focusedEntity.thisEntity.to_be_deconstructed() == false and eTank.focusedEntity.fluid_box.index ~= nil then
-                    local tank = eTank.focusedEntity.thisEntity.fluidbox[fluid_box.index]
-                    if tank == nil then goto next end
-                    self.network.Contents.fluid[tank.name] = math.min((self.network.Contents.fluid[tank.name] or 0) + tank.amount, 2^32)
-                end
-                ::next::
-            end
-        --end]]
     end
 end
 
@@ -523,7 +491,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         end
     end
 
-    local itemIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ItemIOTable, true), true)
+    local itemIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ItemIOTable, "io"), true)
     if itemIOcount > 0 then
         local name = Constants.NetworkCables.itemIO.name
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
@@ -543,7 +511,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_item_frame(guiTable, "", section, _G.IIO2.powerUsage*global.IIOMultiplier .. "/t", name, itemIOV2count .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end]]
 
-    local fluidIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.FluidIOTable, true), true)
+    local fluidIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.FluidIOTable, "io"), true)
     if fluidIOcount > 0 then
         local name = Constants.NetworkCables.fluidIO.name
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
@@ -563,7 +531,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_item_frame(guiTable, "", section, _G.FIO2.powerUsage*global.FIOMultiplier .. "/t", name, fluidIOV2count .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end]]
 
-    local externalIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ExternalIOTable))
+    local externalIOcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ExternalIOTable, "eo"), true)
     if externalIOcount > 0 then
         local name = Constants.NetworkCables.externalIO.name
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")
