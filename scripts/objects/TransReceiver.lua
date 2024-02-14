@@ -197,7 +197,7 @@ function TR:getTooltips(guiTable, mainFrame, justCreated)
 end
 
 function TR:force_controller_update()
-    BaseNet.update_network_controller(self.networkController)
+    BaseNet.update_network_controller(self.networkController, self.entID)
 end
 
 function TR.interaction(event, RNSPlayer)
