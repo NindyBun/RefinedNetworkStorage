@@ -413,7 +413,7 @@ function BaseNet.transfer_from_tank_to_drive(tank_entity, drive, index, name, am
     return amount_to_transfer - amount
 end
 
-function BaseNet.transfer_from_drive_to_tank_v2(network, to_tank, transportCapacity, filter)
+function BaseNet.transfer_from_network_to_tank(network, to_tank, transportCapacity, filter)
     local fluid_box = to_tank.fluid_box
     local fluid = to_tank.thisEntity.fluidbox[fluid_box.index]
     local networkAmount = network.Contents[filter]
@@ -508,7 +508,7 @@ function BaseNet.transfer_from_drive_to_tank_v2(network, to_tank, transportCapac
     return extractSize
 end
 
-function BaseNet.transfer_from_tank_to_drive_v2(network, from_tank, transportCapacity)
+function BaseNet.transfer_from_tank_to_network(network, from_tank, transportCapacity)
     local fluid_box = from_tank.fluid_box
     local fluid = from_tank.thisEntity.fluidbox[fluid_box.index]
     local storedFluidAmount = fluid.amount
@@ -517,7 +517,7 @@ function BaseNet.transfer_from_tank_to_drive_v2(network, from_tank, transportCap
 
     if network:has_cache("drive", fluid.name) then
         local drive = network:get_cache("drive", fluid.name)
-        if drive == nil then
+        if drive.valid == nil then
             network:remove_cache("drive", fluid.name)
         else
             if drive:interactable() and Util.filter_accepts_fluid(drive.filters, drive.whitelistBlacklist, fluid.name) and drive:getRemainingStorageSize() > 0 then
@@ -538,7 +538,7 @@ function BaseNet.transfer_from_tank_to_drive_v2(network, from_tank, transportCap
         end
     elseif network:has_cache("external", fluid.name) then
         local external = network:get_cache("external", fluid.name)
-        if external == nil then
+        if external.valid == nil then
             network:remove_cache("external", fluid.name)
         else
             if external.type == "fluid" and string.match(external.io, "input") ~= nil and string.match(external.focusedEntity.fluid_box.flow, "input")
@@ -940,6 +940,7 @@ function BaseNet:filter_externalIO_by_valid_signal()
     for p, priority in pairs(self.ExternalIOTable) do
         objs[p] = {}
         for m, mode in pairs(priority) do
+            objs[p][m] = {}
             for _, o in pairs(mode) do
                 if o:signal_valid() == true then
                     o:check_focused_entity()

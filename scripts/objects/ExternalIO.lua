@@ -655,11 +655,14 @@ function EIO.interaction(event, RNSPlayer)
             io.combinator.get_or_create_control_behavior().set_signal(event.element.tags.index, nil)
         end
 
-        io.filters = {}
+        io.filters = {
+            item = {},
+            fluid = {}
+        }
         for i = 1, 10 do
             local filter = guiTable.vars.filters[event.element.tags.type][i]
             if filter ~= nil and filter.elem_value ~= nil then
-                io.filters[filter.elem_value] = true
+                io.filters[event.element.tags.type][filter.elem_value] = true
             end
         end
 		return
@@ -698,7 +701,7 @@ function EIO.interaction(event, RNSPlayer)
             io.type = type
             RNSPlayer:push_varTable(id, true)
             for i=1, 10 do
-                local filter = io.filters[io.type].values[i]
+                local filter = io.guiFilters[io.type][i]
                 io.combinator.get_or_create_control_behavior().set_signal(i, filter ~= "" and {signal={type=io.type, name=filter}, count=1} or nil)
             end
         end

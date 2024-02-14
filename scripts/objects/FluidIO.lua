@@ -172,7 +172,7 @@ function FIO:deserialize_settings(tags)
 end
 
 function FIO:set_icons(index, name)
-    self.combinator.get_or_create_control_behavior().set_signal(index, name ~= nil and {signal={type="fluid", name=name}, count=1} or nil)
+    self.combinator.get_or_create_control_behavior().set_signal(index, name ~= "" and {signal={type="fluid", name=name}, count=1} or nil)
 end
 
 function FIO:toggleHoverIcon(hovering)
@@ -330,14 +330,14 @@ function FIO:IO()
     local fluid = target.thisEntity.fluidbox[fluid_box.index]
     if fluid == nil and self.io == "input" then self.processed = true return end
 
-    local storedAmount = fluid.amount
+    local storedAmount = self.io == "input" and fluid.amount or 0
 
     local transportCapacity = self.fluidSize * Constants.Settings.RNS_BaseFluidIO_TransferCapacity
 
     if self.io == "input" and string.match(fluid_box.flow, "output") ~= nil and fluid ~= nil and self.filter == fluid.name then
-        transportCapacity = BaseNet.transfer_from_tank_to_drive_v2(network, self.focusedEntity, transportCapacity)
-    elseif self.io == "output" and string.match(fluid_box.flow, "input") ~= nil and self.filter ~= "" and network.Contents[self.filter] > 0 then
-        transportCapacity = BaseNet.transfer_from_drive_to_tank_v2(network, self.focusedEntity, transportCapacity, self.filter)
+        transportCapacity = BaseNet.transfer_from_tank_to_network(network, self.focusedEntity, transportCapacity)
+    elseif self.io == "output" and string.match(fluid_box.flow, "input") ~= nil and self.filter ~= "" and (network.Contents[self.filter] or 0) > 0 then
+        transportCapacity = BaseNet.transfer_from_network_to_tank(network, self.focusedEntity, transportCapacity, self.filter)
     end
 
     if self.io == "input" and target.thisEntity.fluidbox[fluid_box.index] == nil then self.processed = true return end
@@ -672,10 +672,12 @@ function FIO.interaction(event, RNSPlayer)
 		if io == nil then return end
         if event.element.elem_value ~= nil then
             io.filter = event.element.elem_value
-            io.combinator.get_or_create_control_behavior().set_signal(1, {signal={type="fluid", name=event.element.elem_value}, count=1})
+            io:set_icons(1, io.filter)
+            --io.combinator.get_or_create_control_behavior().set_signal(1, {signal={type="fluid", name=event.element.elem_value}, count=1})
         else
             io.filter = ""
-            io.combinator.get_or_create_control_behavior().set_signal(1, nil)
+            io:set_icons(1, io.filter)
+            --io.combinator.get_or_create_control_behavior().set_signal(1, nil)
         end
         io.processed = false
 		return
