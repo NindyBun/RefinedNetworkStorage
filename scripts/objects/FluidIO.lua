@@ -308,7 +308,7 @@ end
 
 function FIO:target_interactable()
     self:check_focused_entity()
-    return self.focusedEntity.thisEntity ~= nil
+    return self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid and self.focusedEntity.thisEntity.to_be_deconstructed() == false
 end
 
 function FIO:IO()
@@ -333,13 +333,15 @@ function FIO:IO()
     if fluid == nil and self.io == "input" then self.processed = true return end
 
     local storedAmount = self.io == "input" and fluid.amount or 0
+    if storedAmount <= 0 and self.io == "input" then self.processed = true return end
+    if storedAmount == target.thisEntity.fluidbox.get_capacity(fluid_box.index) and self.io == "output" then self.processed = true return end
 
     local transportCapacity = self.fluidSize * Constants.Settings.RNS_BaseFluidIO_TransferCapacity
 
     if self.io == "input" and string.match(fluid_box.flow, "output") ~= nil and fluid ~= nil and self.filter == fluid.name then
-        BaseNet.transfer_from_tank_to_network(network, self.focusedEntity, transportCapacity)
+        BaseNet.transfer_from_tank_to_network(network, target, transportCapacity)
     elseif self.io == "output" and string.match(fluid_box.flow, "input") ~= nil and self.filter ~= "" and (network.Contents[self.filter] or 0) > 0 then
-        BaseNet.transfer_from_network_to_tank(network, self.focusedEntity, transportCapacity, self.filter)
+        BaseNet.transfer_from_network_to_tank(network, target, transportCapacity, self.filter)
     end
 
     if self.io == "input" and target.thisEntity.fluidbox[fluid_box.index] == nil then self.processed = true return end

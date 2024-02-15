@@ -91,6 +91,13 @@ function Util.next(array)
 	return value
 end
 
+function Util.next_index(arrayTable)
+	local old = arrayTable.index
+	local max = arrayTable.max
+	local new = (old % max) + 1
+	arrayTable.index = new
+end
+
 function Util.getTableLength(array)
 	local count = 0
 	for _, _ in pairs(array) do
@@ -102,7 +109,13 @@ end
 function Util.getTableLength_non_nil(array)
 	local count = 0
 	for _, v in pairs(array) do
-		if v ~= nil and v ~= "" then
+		if type(v) == "table" then
+			if #v > 0 then
+				count = count + #v
+			else
+				count = count + Util.getTableLength_non_nil(v)
+			end
+		elseif v ~= nil and v ~= "" then
 			count = count + 1
 		end
 	end
@@ -397,8 +410,14 @@ function Util.add_list_into_table(tab, list)
 	end
 end
 
-function Util.filter_accepts_item(filter, allowModified, mode, itemname)
+function Util.filter_accepts_item(filter, mode, itemname)
+	if mode == "whitelist" then
+		return (filter[itemname] ~= nil and {true} or {false})[1]
+	elseif mode == "blacklist" then
+		return (filter[itemname] ~= nil and {false} or {true})[1]
+	end
 
+	return false
 end
 
 function Util.filter_accepts_fluid(filter, mode, fluidname)

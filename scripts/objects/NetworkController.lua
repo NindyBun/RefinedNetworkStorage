@@ -58,6 +58,10 @@ function NC:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
+function NC:interactable()
+    return self.thisEntity ~= nil and self.thisEntity.valid and self.thisEntity.to_be_deconstructed() == false
+end
+
 function NC:setState(state)
     if self.state ~= nil then rendering.destroy(self.state) end
     self.state = rendering.draw_sprite{sprite=state, target=self.thisEntity, surface=self.thisEntity.surface, render_layer="lower-object-above-shadow"}
@@ -401,6 +405,7 @@ function NC:createArms()
                         --Do nothing
                     else
                         if BaseNet.exists_in_network(obj.networkController, obj.entID) and obj.networkController.entID ~= self.entID then
+                            game.print(BaseNet.exists_in_network(obj.networkController, obj.entID))
                             self.thisEntity.order_deconstruction("player")
                         else
                             table.insert(self.connectedObjs[area.direction], obj)

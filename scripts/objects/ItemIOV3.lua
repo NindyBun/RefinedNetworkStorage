@@ -52,23 +52,26 @@ function IIO3:new(object)
         [4] = {}, --W
     }
     t.guiFilters = {
-        index = 1,
-        values = {
-            [1] = "",
-            [2] = ""
-        }
+        [1] = "",
+        [2] = ""
     }
-    t.filters = {}
+    t.filters = {
+        index = 0,
+        max = 0,
+        values = {}
+    }
     t.focusedEntity = {
         thisEntity = nil,
         oldPosition = nil,
         inventory = {
             input = {
-                index = 1,
+                index = 0,
+                max = 0,
                 values = nil
             },
             output = {
-                index = 1,
+                index = 0,
+                max = 0,
                 values = nil
             }
         }
@@ -136,15 +139,16 @@ function IIO3:copy_settings(obj)
 
     --Filters has do be done this way because for some reason they link to other objects
     self.guiFilters = {
-        index = 1,
-        values = {
-            [1] = obj.filters.values[1],
-            [2] = obj.filters.values[2]
-        }
+        [1] = obj.guiFilters.values[1],
+        [2] = obj.guiFilters.values[2]
     }
-    self.filters = obj.filters
-    self:set_icons(1, self.filters.values[1] ~= "" and self.filters.values[1] or nil)
-    self:set_icons(2, self.filters.values[2] ~= "" and self.filters.values[2] or nil)
+    self.filters = {
+        index = obj.filters.max == 0 and 0 or 1,
+        max = obj.filters.max,
+        values = obj.filters.values
+    }
+    self:set_icons(1, self.guiFilters[1] ~= "" and self.guiFilters[1] or nil)
+    self:set_icons(2, self.guiFilters[2] ~= "" and self.guiFilters[2] or nil)
 
     self.priority = obj.priority
     self:generateModeIcon()
@@ -154,7 +158,10 @@ function IIO3:serialize_settings()
     local tags = {}
 
     tags["color"] = self.color
-    tags["filters"] = self.filters
+    tags["filters"] = {
+        max = self.filters.max,
+        values = self.filters.values
+    }
     tags["guiFilters"] = self.guiFilters
     tags["metadataMode"] = self.metadataMode
     tags["whitelistBlacklist"] = self.whitelistBlacklist
@@ -174,7 +181,11 @@ function IIO3:deserialize_settings(tags)
     self.enabler = tags["enabler"]
     self.stackSize = tags["stackSize"]
 
-    self.filters = tags["filters"]
+    self.filters = {
+        index = tags["filters"].max == 0 and 0 or 1,
+        max = tags["filters"].max,
+        values = tags["filters"].values
+    }
     self.guiFilters = tags["guiFilters"]
     self:set_icons(1, self.guiFilters.values[1] ~= "" and self.guiFilters.values[1] or nil)
     self:set_icons(2, self.guiFilters.values[2] ~= "" and self.guiFilters.values[2] or nil)
@@ -246,7 +257,7 @@ end
 
 function IIO3:target_interactable()
     self:check_focused_entity()
-    return self.focusedEntity.thisEntity ~= nil
+    return self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid and self.focusedEntity.thisEntity.to_be_deconstructed() == false
 end
 
 --[[function IIO3:IO()
@@ -435,9 +446,9 @@ function IIO3:IO()
     local storedAmount = target.thisEntity.get_item_count()
     local transportCapacity = self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity--*global.IIOMultiplier
 
-    if self.io == "input" and target.inventory.output.values ~= nil then
-        BaseNet.transfer_from_inv_to_network(network, self.filters, self.whitelistBlacklist, self.metadataMode, transportCapacity)
-    elseif self.io == "output" and target.inventory.input.values ~= nil then
+    if self.io == "input" and target.inventory.output.max ~= 0 then
+        BaseNet.transfer_from_inv_to_network(network, target, nil, self.filters, self.whitelistBlacklist, self.metadataMode, transportCapacity)
+    elseif self.io == "output" and target.inventory.input.max ~= 0 ~= nil then
         BaseNet.transfer_from_network_to_inv()
     end
 
@@ -493,11 +504,13 @@ function IIO3:reset_focused_entity()
         oldPosition = nil,
         inventory = {
             input = {
-                index = 1,
+                index = 0,
+                max = 0,
                 values = nil
             },
             output = {
-                index = 1,
+                index = 0,
+                max = 0,
                 values = nil
             }
         }
@@ -520,8 +533,20 @@ function IIO3:reset_focused_entity()
     if Constants.Settings.RNS_TypesWithContainer[nearest.type] == true then
         self.focusedEntity.thisEntity = nearest
         self.focusedEntity.oldPosition = nearest.position
-        self.focusedEntity.inventory.input.values = Constants.Settings.RNS_Inventory_Types[nearest.type].input
-        self.focusedEntity.inventory.output.values = Constants.Settings.RNS_Inventory_Types[nearest.type].output
+        for _, inv_index in pairs(Constants.Settings.RNS_Inventory_Types[nearest.type].input) do
+            if nearest.get_inventory(inv_index) ~= nil then
+                self.focusedEntity.inventory.input.max = self.focusedEntity.inventory.input.max + 1
+                table.insert(self.focusedEntity.inventory.input.values, inv_index)
+            end
+        end
+        for _, inv_index in pairs(Constants.Settings.RNS_Inventory_Types[nearest.type].output) do
+            if nearest.get_inventory(inv_index) ~= nil then
+                self.focusedEntity.inventory.output.max = self.focusedEntity.inventory.output.max + 1
+                table.insert(self.focusedEntity.inventory.output.values, inv_index)
+            end
+        end
+        if self.focusedEntity.inventory.input.max ~= 0 then self.focusedEntity.inventory.input.index = 1 end
+        if self.focusedEntity.inventory.output.max ~= 0 then self.focusedEntity.inventory.output.index = 1 end
     end
 end
 
@@ -663,11 +688,11 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
 
         local filter1 = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_1", filterFlow, "", true, "item", 40, {ID=self.thisEntity.unit_number})
 		guiTable.vars.filter1 = filter1
-		if self.guiFilters.values[1] ~= "" then filter1.elem_value = self.guiFilters.values[1] end
+		if self.guiFilters[1] ~= "" then filter1.elem_value = self.guiFilters[1] end
 
         local filter2 = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_2", filterFlow, "", true, "item", 40, {ID=self.thisEntityr})
 		guiTable.vars.filter2 = filter2
-		if self.guiFilters.values[2] ~= "" then filter2.elem_value = self.guiFilters.values[2] end
+		if self.guiFilters[2] ~= "" then filter2.elem_value = self.guiFilters[2] end
 
         local settingsFrame = GuiApi.add_frame(guiTable, "", topFrame, "vertical")
 		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -728,11 +753,11 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
 
     guiTable.vars.TransferRate.caption = {"gui-description.RNS_ItemTransferRate", self.stackSize*15*Constants.Settings.RNS_BaseItemIO_TransferCapacity}
 
-    if self.guiFilters.values[1] ~= "" then
-        guiTable.vars.filter1.elem_value = self.guiFilters.values[1]
+    if self.guiFilters[1] ~= "" then
+        guiTable.vars.filter1.elem_value = self.guiFilters[1]
     end
-    if self.guiFilters.values[2] ~= "" then
-        guiTable.vars.filter2.elem_value = self.guiFilters.values[2]
+    if self.guiFilters[2] ~= "" then
+        guiTable.vars.filter2.elem_value = self.guiFilters[2]
     end
     if self.enabler.filter ~= nil and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
         guiTable.vars.enabler.elem_value = self.enabler.filter
@@ -804,19 +829,29 @@ function IIO3.interaction(event, RNSPlayer)
         end
         if index ~= 0 then
             if event.element.elem_value ~= nil then
-                io.guiFilters.values[index] = event.element.elem_value
+                io.guiFilters[index] = event.element.elem_value
                 io:set_icons(index, event.element.elem_value)
             else
-                io.guiFilters.values[index] = ""
+                io.guiFilters[index] = ""
                 io:set_icons(index, nil)
             end
             io.processed = false
         end
 
-        io.filters = {}
-        if io.guiFilters.values[1] ~= "" then io.filters[io.guiFilters.values[1]] = true end
-        if io.guiFilters.values[2] ~= "" then io.filters[io.guiFilters.values[2]] = true end
-		return
+        io.filters = {
+            index = 0,
+            max = 0,
+            values = {}
+        }
+        for _, filter in pairs(io.guiFilters) do
+            if filter ~= "" then
+                io.filters.max = io.filters.max + 1
+                io.filters.values[filter] = true --For filtering blacklisted imports
+                io.filters.values[io.filters.max] = filter --For specific exports and imports
+            end
+		end
+        io.filters.index = io.filters.max == 0 and 0 or 1
+        return
 	end
 
     if string.match(event.element.name, "RNS_NetworkCableIO_Item_Color") then

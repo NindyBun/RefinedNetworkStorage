@@ -61,11 +61,13 @@ function EIO:new(object)
         oldPosition = nil,
         inventory = {
             input = {
-                index = 1,
+                index = 0,
+                max = 0,
                 values = nil
             },
             output = {
-                index = 1,
+                index = 0,
+                max = 0,
                 values = nil
             }
         },
@@ -148,7 +150,7 @@ end
 
 function EIO:target_interactable()
     self:check_focused_entity()
-    return self.focusedEntity.thisEntity ~= nil
+    return  self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid and self.focusedEntity.thisEntity.to_be_deconstructed() == false
 end
 
 --[[function EIO:update()
@@ -296,11 +298,13 @@ function EIO:reset_focused_entity()
         oldPosition = nil,
         inventory = {
             input = {
-                index = 1,
+                index = 0,
+                max = 0,
                 values = nil
             },
             output = {
-                index = 1,
+                index = 0,
+                max = 0,
                 values = nil
             },
         },
@@ -344,8 +348,20 @@ function EIO:reset_focused_entity()
     if Constants.Settings.RNS_TypesWithContainer[nearest.type] == true then
         self.focusedEntity.thisEntity = nearest
         self.focusedEntity.oldPosition = nearest.position
-        self.focusedEntity.inventory.input.values = Constants.Settings.RNS_Inventory_Types[nearest.type].input
-        self.focusedEntity.inventory.output.values = Constants.Settings.RNS_Inventory_Types[nearest.type].output
+        for _, inv_index in pairs(Constants.Settings.RNS_Inventory_Types[nearest.type].input) do
+            if nearest.get_inventory(inv_index) ~= nil then
+                self.focusedEntity.inventory.input.max = self.focusedEntity.inventory.input.max + 1
+                table.insert(self.focusedEntity.inventory.input.values, inv_index)
+            end
+        end
+        for _, inv_index in pairs(Constants.Settings.RNS_Inventory_Types[nearest.type].output) do
+            if nearest.get_inventory(inv_index) ~= nil then
+                self.focusedEntity.inventory.output.max = self.focusedEntity.inventory.output.max + 1
+                table.insert(self.focusedEntity.inventory.output.values, inv_index)
+            end
+        end
+        if self.focusedEntity.inventory.input.max ~= 0 then self.focusedEntity.inventory.input.index = 1 end
+        if self.focusedEntity.inventory.output.max ~= 0 then self.focusedEntity.inventory.output.index = 1 end
     end
 end
 
