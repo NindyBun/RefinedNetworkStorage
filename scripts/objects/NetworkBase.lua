@@ -981,37 +981,50 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
     return count - amount
 end
 
-function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_master, filters, whitelistBlacklist, exactMetadata, transferCapacity)
+function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_master, filters, whitelistBlacklist, exact, transferCapacity)
     if BaseNet.inventory_is_sortable(from_inv.thisEntity) then from_inv.thisEntity.sort_and_merge() end
-    for i = 1, from_inv.inventory.input.max do
-        local inv = from_inv.thisEntity.get_inventory(from_inv.inventory.input.index)
+    for i = 1, from_inv.inventory.output.max do
+        if transferCapacity <= 0 then return 0 end
+        local inv = from_inv.thisEntity.get_inventory(from_inv.inventory.output.index)
         for j = 1, #inv do
             local item = inv[j]
             itemstack_master = itemstack_master or Itemstack:new(item)
-            item, j = from_inv.find_item_stack(itemstack_master.name)
-            if item == nil or item.count <= 0 or item.valid_for_read == false then return 0 end
+            if whitelistBlacklist == "whitelist" then item, j = from_inv.find_item_stack(itemstack_master.name) end
+            if item == nil then return 0 end
+            if item.valid_for_read == false or item.count <= 0 then return 0 end
 
             if Util.filter_accepts_item(filters, whitelistBlacklist, item.name) then
                 local inv_item = Itemstack:new(item)
+
                 if network:has_cache("import", "drive", item.name) and inv_item.modified == false then
                     local drive = network:get_cache("import", "drive", item.name)
                     if drive.valid == false then
                         network:remove_cache("import", "drive", item.name)
                     else
                         if drive:interactable() and Util.filter_accepts_item(drive.filters, drive.whitelistBlacklist, item.name) and drive:getRemainingStorageSize() > 0
-                        and itemstack_master:compare_itemstacks(inv_item, false, false, exactMetadata) then
+                        and itemstack_master:compare_itemstacks(inv_item, exact) then
                             local extractSize = math.min(transferCapacity, item.count)
-                            
+                            local splitStack, remainingStack = Itemstack.splice(inv_item, extractSize, exact, false)
+                            local insertedAmount = drive:add_or_merge_basic_item(splitStack, splitStack.count)
+                            transferCapacity = transferCapacity - insertedAmount
+                            item.count = remainingStack.count - insertedAmount
+                            if item.ammo ~= nil then item.ammo = remainingStack.ammo end
+                            if item.durability ~= nil then item.durability = remainingStack.ammo end
+                            if transferCapacity <= 0 then return 0 end
                         else
                             network:remove_cache("import", "drive", item.name)
                         end
                     end
                 end
+
+                if network:has_cache("import", "external", item.name) then
+                    
+                end
             end
         end
-        Util.next_index(from_inv.inventory.input)
+        Util.next_index(from_inv.inventory.output)
     end
-    
+    return transferCapacity
 end
 
 function BaseNet.getOperableObjects(array, group)

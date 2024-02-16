@@ -9,7 +9,7 @@ IIO3 = {
     cardinals = nil,
     filters = nil,
     guiFilters = nil,
-    metadataMode = false,
+    --metadataMode = false,
     whitelistBlacklist = "blacklist",
     io = "output",
     ioIcon = nil,
@@ -67,12 +67,12 @@ function IIO3:new(object)
             input = {
                 index = 0,
                 max = 0,
-                values = nil
+                values = {}
             },
             output = {
                 index = 0,
                 max = 0,
-                values = nil
+                values = {}
             }
         }
     }
@@ -131,7 +131,7 @@ end
 
 function IIO3:copy_settings(obj)
     self.color = obj.color
-    self.metadataMode = obj.metadataMode
+    --self.metadataMode = obj.metadataMode
     self.whitelistBlacklist = obj.whitelistBlacklist
     self.io = obj.io
     self.enabler = obj.enabler
@@ -163,7 +163,7 @@ function IIO3:serialize_settings()
         values = self.filters.values
     }
     tags["guiFilters"] = self.guiFilters
-    tags["metadataMode"] = self.metadataMode
+    --tags["metadataMode"] = self.metadataMode
     tags["whitelistBlacklist"] = self.whitelistBlacklist
     tags["io"] = self.io
     tags["priority"] = self.priority
@@ -175,7 +175,7 @@ end
 
 function IIO3:deserialize_settings(tags)
     self.color = tags["color"]
-    self.metadataMode = tags["metadataMode"]
+    --self.metadataMode = tags["metadataMode"]
     self.whitelistBlacklist = tags["whitelistBlacklist"]
     self.io = tags["io"]
     self.enabler = tags["enabler"]
@@ -440,16 +440,14 @@ function IIO3:IO()
     local network = self.networkController.network
 
     local target = self.focusedEntity
-    if self.io == "input" and target.thisEntity.is_empty() then self.processed = true return end
-    if self.io == "output" and target.thisEntity.is_full() then self.processed = true return end
 
     local storedAmount = target.thisEntity.get_item_count()
     local transportCapacity = self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity--*global.IIOMultiplier
 
     if self.io == "input" and target.inventory.output.max ~= 0 then
-        BaseNet.transfer_from_inv_to_network(network, target, nil, self.filters, self.whitelistBlacklist, self.metadataMode, transportCapacity)
+        BaseNet.transfer_from_inv_to_network(network, target, nil, self.filters, self.whitelistBlacklist, false, transportCapacity)
     elseif self.io == "output" and target.inventory.input.max ~= 0 ~= nil then
-        BaseNet.transfer_from_network_to_inv()
+        --BaseNet.transfer_from_network_to_inv()
     end
 
     if self.io == "input" and target.thisEntity.get_item_count() < storedAmount then self.processed = true return end
@@ -506,12 +504,12 @@ function IIO3:reset_focused_entity()
             input = {
                 index = 0,
                 max = 0,
-                values = nil
+                values = {}
             },
             output = {
                 index = 0,
                 max = 0,
-                values = nil
+                values = {}
             }
         }
     }
@@ -553,9 +551,6 @@ end
 function IIO3:check_focused_entity()
     if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false or self.focusedEntity.thisEntity.to_be_deconstructed() then self:reset_focused_entity() return end
     if Util.positions_match(self.focusedEntity.thisEntity.position, self.focusedEntity.oldPosition) == false then self:reset_focused_entity() return end
-
-    if self.focusedEntity.fluid_box.target_position == nil then self:reset_focused_entity() return end
-    if Util.positions_match(self.thisEntity.position, self.focusedEntity.fluid_box.target_position) == false then self:reset_focused_entity() return end
 end
 
 function IIO3:createArms()
@@ -724,7 +719,7 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
 		GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_Item_IO", settingsFrame, {"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, "", "", state1, false, {ID=self.thisEntity.unit_number})
 
         -- Match metadata mode
-        GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Item_Metadata", settingsFrame, {"gui-description.RNS_Modified_2"}, {"gui-description.RNS_Modified_2_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
+        --GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Item_Metadata", settingsFrame, {"gui-description.RNS_Modified_2"}, {"gui-description.RNS_Modified_2_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
     
         if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
             local enableFrame = GuiApi.add_frame(guiTable, "EnableFrame", bottomFrame, "vertical")
@@ -894,14 +889,14 @@ function IIO3.interaction(event, RNSPlayer)
 		return
     end
 
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Metadata") then
+    --[[if string.match(event.element.name, "RNS_NetworkCableIO_Item_Metadata") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
         io.metadataMode = event.element.state
         io.processed = false
 		return
-    end
+    end]]
 
     if string.match(event.element.name, "RNS_NetworkCableIO_Item_IO") then
         local id = event.element.tags.ID

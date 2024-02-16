@@ -106,17 +106,17 @@ function Itemstack:new(item)
     t.extras.entity_label = item.is_item_with_entity_data and item.entity_label or nil
     t.extras.entity_color = item.is_item_with_entity_data and item.entity_color or nil
 
-    t.modified = Util.getTableLength_non_nil(t.extras) > 0 or t.ammo ~= t.prototype.magazine_size or t.durability ~= t.prototype.durability or t.health ~= 1.0
+    t.modified = Util.getTableLength_non_nil(t.extras) > 0 or t.ammo ~= t.prototype.magazine_size or t.durability ~= t.prototype.durability or t.health ~= 1.0 or Util.getTableLength_non_nil(t.tags) > 0
     return t
 end
 
 --Requires item1 and item2 to be instances of class Itemstack
-function Itemstack:compare_itemstacks(itemstack, checkTags, checkExtras, exactMetadata)
+function Itemstack:compare_itemstacks(itemstack, exact)
     if self.name ~= itemstack.name then return false end
     if self.prototype ~= itemstack.prototype then return false end
     if self.type ~= itemstack.type then return false end
 
-    if exactMetadata then
+    if exact then
         if self.health ~= itemstack.health then return false end
         if self.ammo ~= itemstack.ammo then
             if self.ammo > itemstack.ammo and itemstack.count == 1 then return false end
@@ -126,10 +126,11 @@ function Itemstack:compare_itemstacks(itemstack, checkTags, checkExtras, exactMe
             if self.durability > itemstack.durability and itemstack.count == 1 then return false end
             if self.durability < itemstack.durability and self.count == 1 then return false end
         end
-    end
 
-    if checkTags and Itemstack.compare_tags(self.tags, itemstack.tags) == false then return false end
-    if checkExtras and Itemstack.compare_tags(self.extras, itemstack.extras) == false then return false end
+        if self.modified ~= itemstack.modified and self.modified == true then return false end
+        if Itemstack.compare_tags(self.tags, itemstack.tags) == false then return false end
+        if Itemstack.compare_tags(self.extras, itemstack.extras) == false then return false end
+    end
 
     return true
 end
@@ -150,14 +151,33 @@ function Itemstack.compare_tags(tag1, tag2)
     return true
 end
 
-function Itemstack.splice(itemstack)
+function Itemstack.splice(itemstack, amount, exact, decreaseCount)
     local split = table.deepcopy(itemstack)
-    split.count = 1
-
     local original = table.deepcopy(itemstack)
-    original.count = original.count - 1
-    original.ammo = original.ammo ~= nil and original.prototype.magazine_size or nil
-    original.durability = original.durability ~= nil and original.prototype.durability or nil
+    local splitAmount = math.min(itemstack.count, amount)
+
+    split.count = splitAmount
+    original.count = original.count - (decreaseCount and splitAmount or 0)
+
+    if exact then
+        if itemstack.ammo ~= nil then
+            original.ammo = itemstack.ammo ~= itemstack.prototype.magazine_size and itemstack.prototype.magazine_size or itemstack.ammo
+            split.ammo = itemstack.ammo ~= itemstack.prototype.magazine_size and itemstack.ammo or itemstack.prototype.magazine_size
+        end
+        if itemstack.durability ~= nil then
+            original.durability = itemstack.durability ~= itemstack.prototype.durability and itemstack.prototype.durability or itemstack.durability
+            split.durability = itemstack.durability ~= itemstack.prototype.durability and itemstack.durability or itemstack.prototype.durability
+        end
+    else
+        if itemstack.ammo ~= nil then
+            original.ammo = itemstack.ammo ~= itemstack.prototype.magazine_size and itemstack.prototype.magazine_size or itemstack.ammo
+            split.ammo = itemstack.ammo ~= itemstack.prototype.magazine_size and itemstack.ammo or itemstack.prototype.magazine_size
+        end
+        if itemstack.durability ~= nil then
+            original.durability = itemstack.durability ~= itemstack.prototype.durability and itemstack.prototype.durability or itemstack.durability
+            split.durability = itemstack.durability ~= itemstack.prototype.durability and itemstack.durability or itemstack.prototype.durability
+        end
+    end
 
     return split, original
 end
