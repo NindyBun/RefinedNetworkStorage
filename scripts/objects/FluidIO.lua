@@ -55,6 +55,7 @@ function FIO:new(object)
         oldPosition = nil,
         fluid_box = {
             index = nil,
+            pipe_index = nil,
             filter = "",
             target_position = nil,
             flow = ""
@@ -367,9 +368,10 @@ end
 function FIO:reset_focused_entity()
     self.focusedEntity = {
         thisEntity = nil,
-        oldPosition = nil,
+        --oldPosition = nil,
         fluid_box = {
-            index = 1,
+            index = nil,
+            pipe_index = nil,
             filter = "",
             target_position = {},
             flow = ""
@@ -396,8 +398,9 @@ function FIO:reset_focused_entity()
                 local target = nearest.fluidbox.get_pipe_connections(i)[j]
                 if Util.positions_match(target.target_position, self.thisEntity.position) then
                     self.focusedEntity.thisEntity = nearest
-                    self.focusedEntity.oldPosition = nearest.position
+                    --self.focusedEntity.oldPosition = nearest.position
                     self.focusedEntity.fluid_box.index = i
+                    self.focusedEntity.fluid_box.pipe_index = j
                     self.focusedEntity.fluid_box.flow =  target.flow_direction
                     self.focusedEntity.fluid_box.target_position = target.target_position
                     self.focusedEntity.fluid_box.filter =  (nearest.fluidbox.get_locked_fluid(i) ~= nil and {nearest.fluidbox.get_locked_fluid(i)} or {""})[1]
@@ -410,10 +413,14 @@ end
 
 function FIO:check_focused_entity()
     if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false or self.focusedEntity.thisEntity.to_be_deconstructed() then self:reset_focused_entity() return end
-    if Util.positions_match(self.focusedEntity.thisEntity.position, self.focusedEntity.oldPosition) == false then self:reset_focused_entity() return end
+    --if Util.positions_match(self.focusedEntity.thisEntity.position, self.focusedEntity.oldPosition) == false then self:reset_focused_entity() return end
 
     if self.focusedEntity.fluid_box.target_position == nil then self:reset_focused_entity() return end
     if Util.positions_match(self.thisEntity.position, self.focusedEntity.fluid_box.target_position) == false then self:reset_focused_entity() return end
+    if self.focusedEntity.thisEntity.fluidbox.get_pipe_connections(self.focusedEntity.fluid_box.index) == nil then self:reset_focused_entity() return end
+    if self.focusedEntity.fluid_box.flow ~= self.focusedEntity.thisEntity.fluidbox.get_pipe_connections(self.focusedEntity.fluid_box.index)[self.focusedEntity.fluid_box.pipe_index].flow then self:reset_focused_entity() return end
+    if self.focusedEntity.fluid_box.filter ~= (self.focusedEntity.thisEntity.fluidbox.get_locked_fluid(self.focusedEntity.fluid_box.index) or "") then self:reset_focused_entity() return end
+
 end
 
 function FIO:getCheckArea()

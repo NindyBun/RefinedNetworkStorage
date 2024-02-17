@@ -982,10 +982,10 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
 end
 
 function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_master, filters, whitelistBlacklist, exact, transferCapacity)
-    if BaseNet.inventory_is_sortable(from_inv.thisEntity) then from_inv.thisEntity.sort_and_merge() end
     for i = 1, from_inv.inventory.output.max do
         if transferCapacity <= 0 then return 0 end
         local inv = from_inv.thisEntity.get_inventory(from_inv.inventory.output.index)
+        if BaseNet.inventory_is_sortable(inv) then inv.sort_and_merge() end
         for j = 1, #inv do
             local item = inv[j]
             itemstack_master = itemstack_master or Itemstack:new(item)
