@@ -70,6 +70,10 @@ function ID:valid()
     return self.thisEntity ~= nil and self.thisEntity.valid == true
 end
 
+function ID:interactable()
+    return self.thisEntity ~= nil and self.thisEntity.valid and self.thisEntity.to_be_deconstructed() == false
+end
+
 --[[function ID:update()
     self.lastUpdate = game.tick
     if valid(self) == false then

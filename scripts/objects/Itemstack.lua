@@ -25,13 +25,13 @@ function Itemstack:new(item)
     t.prototype = item.prototype
 
     t.health = item.health
-    if t.health < 1.0 then t.modified = true end
+    --if t.health < 1.0 then t.modified = true end
 
     t.count = item.count
     t.ammo = item.type == "ammo" and item.ammo or nil
     t.durability = item.is_tool and item.durability or nil
 
-    t.tags = item.is_item_with_tags and table.deepcopy(item.tags) or nil
+    t.tags = item.is_item_with_tags and table.deepcopy(item.tags or {}) or nil
     --if Util.getTableLength_non_nil(t.tags) > 0 then t.modified = true end
 
     t.item_number = item.item_number
@@ -106,7 +106,8 @@ function Itemstack:new(item)
     t.extras.entity_label = item.is_item_with_entity_data and item.entity_label or nil
     t.extras.entity_color = item.is_item_with_entity_data and item.entity_color or nil
 
-    t.modified = Util.getTableLength_non_nil(t.extras) > 0 or t.ammo ~= t.prototype.magazine_size or t.durability ~= t.prototype.durability or t.health ~= 1.0 or Util.getTableLength_non_nil(t.tags) > 0
+    --doesn't include those with ammo or durability because I can easily store them in code
+    t.modified = Util.getTableLength_non_nil(t.extras) > 0 or t.health ~= 1.0 or Util.getTableLength_non_nil(t.tags or {}) > 0
     return t
 end
 
@@ -151,33 +152,32 @@ function Itemstack.compare_tags(tag1, tag2)
     return true
 end
 
-function Itemstack.splice(itemstack, amount, exact, decreaseCount)
-    local split = table.deepcopy(itemstack)
-    local original = table.deepcopy(itemstack)
-    local splitAmount = math.min(itemstack.count, amount)
+function Itemstack.splice(item, amount, exact, decreaseCount)
+    local split = Itemstack:new(item)
+    local splitAmount = math.min(item.count, amount)
 
     split.count = splitAmount
-    original.count = original.count - (decreaseCount and splitAmount or 0)
+    item.count = item.count - (decreaseCount and splitAmount or 0)
 
     if exact then
-        if itemstack.ammo ~= nil then
-            original.ammo = itemstack.ammo ~= itemstack.prototype.magazine_size and itemstack.prototype.magazine_size or itemstack.ammo
-            split.ammo = itemstack.ammo ~= itemstack.prototype.magazine_size and itemstack.ammo or itemstack.prototype.magazine_size
+        if split.ammo ~= nil then
+            item.ammo = item.ammo ~= item.prototype.magazine_size and item.prototype.magazine_size or item.ammo
+            split.ammo = item.ammo ~= item.prototype.magazine_size and item.ammo or item.prototype.magazine_size
         end
-        if itemstack.durability ~= nil then
-            original.durability = itemstack.durability ~= itemstack.prototype.durability and itemstack.prototype.durability or itemstack.durability
-            split.durability = itemstack.durability ~= itemstack.prototype.durability and itemstack.durability or itemstack.prototype.durability
+        if split.durability ~= nil then
+            item.durability = item.durability ~= item.prototype.durability and item.prototype.durability or item.durability
+            split.durability = item.durability ~= item.prototype.durability and item.durability or item.prototype.durability
         end
     else
-        if itemstack.ammo ~= nil then
-            original.ammo = itemstack.ammo ~= itemstack.prototype.magazine_size and itemstack.prototype.magazine_size or itemstack.ammo
-            split.ammo = itemstack.ammo ~= itemstack.prototype.magazine_size and itemstack.ammo or itemstack.prototype.magazine_size
+        if split.ammo ~= nil then
+            item.ammo = item.ammo ~= item.prototype.magazine_size and item.prototype.magazine_size or item.ammo
+            split.ammo = item.ammo ~= item.prototype.magazine_size and item.ammo or item.prototype.magazine_size
         end
-        if itemstack.durability ~= nil then
-            original.durability = itemstack.durability ~= itemstack.prototype.durability and itemstack.prototype.durability or itemstack.durability
-            split.durability = itemstack.durability ~= itemstack.prototype.durability and itemstack.durability or itemstack.prototype.durability
+        if split.durability ~= nil then
+            item.durability = item.durability ~= item.prototype.durability and item.prototype.durability or item.durability
+            split.durability = item.durability ~= item.prototype.durability and item.durability or item.prototype.durability
         end
     end
 
-    return split, original
+    return split, Itemstack:new(item)
 end
