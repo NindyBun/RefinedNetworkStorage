@@ -981,7 +981,7 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
     return count - amount
 end
 
-function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_master, filters, whitelistBlacklist, exact, transferCapacity)
+function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_master, filters, whitelistBlacklist, transferCapacity)
     for i = 1, from_inv.inventory.output.max do
         if transferCapacity <= 0 then return 0 end
         local inv = from_inv.thisEntity.get_inventory(from_inv.inventory.output.index)
@@ -997,23 +997,23 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                 local inv_item = Itemstack:new(item)
                 if inv_item == nil then goto next end
 
-                if network:has_cache("import", "drive", item.name) and inv_item.modified == false then
-                    local drive = network:get_cache("import", "drive", item.name)
+                if network:has_cache("import", "drive", inv_item.name) and inv_item.modified == false then
+                    local drive = network:get_cache("import", "drive", inv_item.name)
                     if drive.valid == false then
-                        network:remove_cache("import", "drive", item.name)
+                        network:remove_cache("import", "drive", inv_item.name)
                     else
-                        if drive:interactable() and Util.filter_accepts_item(drive.filters, drive.whitelistBlacklist, item.name) and drive:getRemainingStorageSize() > 0
-                        and itemstack_master:compare_itemstacks(inv_item, exact) then
-                            local extractSize = math.min(transferCapacity, item.count)
-                            local splitStack, inv_item = Itemstack.splice(item, extractSize, exact, false)
-                            local insertedAmount = drive:add_or_merge_basic_item(splitStack, splitStack.count)
-                            transferCapacity = transferCapacity - insertedAmount
-                            item.count = inv_item.count - insertedAmount
-                            inv_item.count = item.count
+                        local remainingStorage = drive:getRemainingStorageSize()
+                        if drive:interactable() and Util.filter_accepts_item(drive.filters, drive.whitelistBlacklist, inv_item.name) and remainingStorage > 0
+                        and itemstack_master:compare_itemstacks(inv_item) then
+                            local extractSize = math.min(math.min(transferCapacity, inv_item.count), remainingStorage)
+                            local splitStack = inv_item:split(itemstack_master, extractSize, false)
+                            transferCapacity = transferCapacity - drive:add_or_merge_basic_item(splitStack, extractSize)
+                            item.count = inv_item.count
+                            if item.count > 0 then
+                                if inv_item.ammo ~= nil then item.ammo = inv_item.ammo end
+                                if inv_item.durability ~= nil then item.durability = inv_item.durability end
+                            end
                             if transferCapacity <= 0 then return 0 end
-                            if inv_item.count <= 0 then goto next end
-                            if splitStack.ammo ~= nil then item.ammo = inv_item.ammo end
-                            if splitStack.durability ~= nil then item.durability = inv_item.ammo end
                         else
                             network:remove_cache("import", "drive", item.name)
                         end
@@ -1030,21 +1030,21 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
 
                     if inv_item.modified == false then
                         for _, drive in pairs(priorityD) do
-                            if drive:interactable() and Util.filter_accepts_item(drive.filters, drive.whitelistBlacklist, item.name) and drive:getRemainingStorageSize() > 0
-                            and itemstack_master:compare_itemstacks(inv_item, exact) then
-                                local extractSize = math.min(transferCapacity, item.count)
-                                local splitStack, inv_item = Itemstack.splice(item, extractSize, exact, false)
-                                local insertedAmount = drive:add_or_merge_basic_item(splitStack, splitStack.count)
-                                transferCapacity = transferCapacity - insertedAmount
-                                item.count = inv_item.count - insertedAmount
-                                inv_item.count = item.count
+                            local remainingStorage = drive:getRemainingStorageSize()
+                            if drive:interactable() and Util.filter_accepts_item(drive.filters, drive.whitelistBlacklist, item.name) and remainingStorage > 0
+                            and itemstack_master:compare_itemstacks(inv_item) then
+                                local extractSize = math.min(math.min(transferCapacity, inv_item.count), remainingStorage)
+                                local splitStack = inv_item:split(itemstack_master, extractSize, false)
+                                transferCapacity = transferCapacity - drive:add_or_merge_basic_item(splitStack, extractSize)
+                                item.count = inv_item.count
+                                if item.count > 0 then
+                                    if inv_item.ammo ~= nil then item.ammo = inv_item.ammo end
+                                    if inv_item.durability ~= nil then item.durability = inv_item.durability end
+                                end
                                 if transferCapacity <= 0 then
                                     network:put_cache("import", "drive", drive)
                                     return 0
                                 end
-                                if inv_item.count <= 0 then goto next end
-                                if splitStack.ammo ~= nil then item.ammo = inv_item.ammo end
-                                if splitStack.durability ~= nil then item.durability = inv_item.ammo end
                             end
                         end
                     end

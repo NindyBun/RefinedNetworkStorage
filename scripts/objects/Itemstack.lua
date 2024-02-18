@@ -152,32 +152,27 @@ function Itemstack.compare_tags(tag1, tag2)
     return true
 end
 
-function Itemstack.splice(item, amount, exact, decreaseCount)
-    local split = Itemstack:new(item)
-    local splitAmount = math.min(item.count, amount)
+function Itemstack:split(itemstack_master, amount, simulate)
+    local split = self:copy()
+    local splitAmount = math.min(self.count, amount)
 
     split.count = splitAmount
-    item.count = item.count - (decreaseCount and splitAmount or 0)
 
-    if exact then
-        if split.ammo ~= nil then
-            item.ammo = item.ammo ~= item.prototype.magazine_size and item.prototype.magazine_size or item.ammo
-            split.ammo = item.ammo ~= item.prototype.magazine_size and item.ammo or item.prototype.magazine_size
+    if not simulate then
+        self.count = self.count - splitAmount
+        if self.ammo ~= nil then
+            split.ammo = itemstack_master.ammo ~= itemstack_master.prototype.magazine_size and self.ammo or itemstack_master.prototype.magazine_size
+            self.ammo = itemstack_master.ammo ~= itemstack_master.prototype.magazine_size and itemstack_master.prototype.magazine_size or self.ammo
         end
-        if split.durability ~= nil then
-            item.durability = item.durability ~= item.prototype.durability and item.prototype.durability or item.durability
-            split.durability = item.durability ~= item.prototype.durability and item.durability or item.prototype.durability
-        end
-    else
-        if split.ammo ~= nil then
-            item.ammo = item.ammo ~= item.prototype.magazine_size and item.prototype.magazine_size or item.ammo
-            split.ammo = item.ammo ~= item.prototype.magazine_size and item.ammo or item.prototype.magazine_size
-        end
-        if split.durability ~= nil then
-            item.durability = item.durability ~= item.prototype.durability and item.prototype.durability or item.durability
-            split.durability = item.durability ~= item.prototype.durability and item.durability or item.prototype.durability
+        if self.durability ~= nil then
+            split.durability = itemstack_master.durability ~= itemstack_master.prototype.durability and self.durability or itemstack_master.prototype.durability
+            self.durability = itemstack_master.durability ~= itemstack_master.prototype.durability and itemstack_master.prototype.durability or self.durability
         end
     end
 
-    return split, Itemstack:new(item)
+    return split
+end
+
+function Itemstack:copy()
+    return Util.copy(self)
 end

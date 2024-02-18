@@ -445,7 +445,7 @@ function IIO3:IO()
     local transportCapacity = self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity--*global.IIOMultiplier
 
     if self.io == "input" and target.inventory.output.max ~= 0 then
-        BaseNet.transfer_from_inv_to_network(network, target, nil, self.filters, self.whitelistBlacklist, false, transportCapacity)
+        BaseNet.transfer_from_inv_to_network(network, target, nil, self.filters, self.whitelistBlacklist, transportCapacity)
     elseif self.io == "output" and target.inventory.input.max ~= 0 ~= nil then
         --BaseNet.transfer_from_network_to_inv()
     end

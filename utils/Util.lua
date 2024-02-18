@@ -122,6 +122,18 @@ function Util.getTableLength_non_nil(array)
 	return count
 end
 
+function Util.copy(array)
+	local copy = {}
+	for k, v in pairs(array) do
+		if type(v) == "table" then
+			copy[k] = Util.copy(v)
+		else
+			copy[k] = v
+		end
+	end
+	return copy
+end
+
 function Util.tagEquals(tag1, tag2)
 	for n, o in pairs(tag1) do
 		if tag2[n] ~= nil then
