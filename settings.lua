@@ -5,9 +5,15 @@ data:extend({
         name = Constants.Settings.RNS_RoundRobin,
         setting_type = "runtime-global",
         default_value = true
+    },
+    {
+        type = "color-setting",
+        name = Constants.Settings.RNS_WirelessTransmitter_Color,
+        setting_type = "runtime-global",
+        default_value = {r=25, g=0, b=51, 0}
     }
 })
-data:extend({
+--[[data:extend({
     {
         type = "int-setting",
         name = Constants.Settings.RNS_RGBA_A,
@@ -46,4 +52,4 @@ data:extend({
         minimum_value = 0,
         maximum_value = 255
     }
-})
+})]]

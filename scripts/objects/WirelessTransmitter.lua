@@ -82,7 +82,7 @@ function WT:update()
         
         if self.showArea == true and self.rangeArea == nil then
 			self.rangeArea = rendering.draw_rectangle{
-                color=getRGBA(), width=5, filled=true,
+                color=settings.global[Constants.Settings.RNS_WirelessTransmitter_Color].value, width=5, filled=true,
                 left_top={self.thisEntity.position.x-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, self.thisEntity.position.y-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier},
                 right_bottom={self.thisEntity.position.x+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, self.thisEntity.position.y+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier},
                 surface=self.thisEntity.surface
