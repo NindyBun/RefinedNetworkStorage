@@ -107,6 +107,7 @@ function Itemstack:new(item)
     t.extras.entity_color = item.is_item_with_entity_data and item.entity_color or nil
 
     --doesn't include those with ammo or durability because I can easily store them in code
+    --those with different health can't be in drives because they don't stack together with normal ones
     t.modified = Util.getTableLength_non_nil(t.extras) > 0 or t.health ~= 1.0 or Util.getTableLength_non_nil(t.tags or {}) > 0
     return t
 end

@@ -1173,6 +1173,8 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                         and itemstack_master:compare_itemstacks(inv_item) then
                             local extractSize = math.min(transferCapacity, inv_item.count)
                             local splitStack = inv_item:split(itemstack_master, extractSize, false)
+
+                            
                         end
                     end
                 end
