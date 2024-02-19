@@ -425,42 +425,38 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	local externalItems = BaseNet.filter_by_mode("input", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal(), "eo")))
 	for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
 		local priorityD = itemDrives[i]
-		local priorityE = externalItems[i].item
-		if Util.getTableLength(priorityD) > 0 then
-			for _, drive in pairs(priorityD) do
-				if drive:has_room() then
-					amount = amount - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, nil, math.min(amount, drive:getRemainingStorageSize()), false, true)
-					if amount <= 0 then return end
-				end
+		local priorityE = externalItems[i]
+		for _, drive in pairs(priorityD) do
+			if drive:has_room() then
+				amount = amount - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, nil, math.min(amount, drive:getRemainingStorageSize()), false, true)
+				if amount <= 0 then return end
 			end
 		end
-		if Util.getTableLength(priorityE) > 0 then
-			for _, external in pairs(priorityE) do
-				if external.focusedEntity.thisEntity ~= nil and external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false then
-					if external.type == "item" and external.focusedEntity.inventory.item.input.max ~= 0 and string.match(external.io, "input") ~= nil then
-						local index = 0
-						repeat
-							Util.next_index(external.focusedEntity.inventory.item.input)
-							local ii = external.focusedEntity.inventory.item.input.values[external.focusedEntity.inventory.item.input.index]
-							local inv1 = external.focusedEntity.thisEntity.get_inventory(ii)
-							if inv1 ~= nil then
-								inv1.sort_and_merge()
-								if EIO.has_item_room(inv1) == true then
-									--[[if external.metadataMode == false then
-										if itemstack.modified == true then return end
-										if itemstack.cont.ammo ~= game.item_prototypes[itemstack.cont.name].magazine_size then return end
-										if itemstack.cont.durability ~= game.item_prototypes[itemstack.cont.name].durability then return end
-									end]]
-									amount = amount - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, external, amount, false, true)
-									if amount <= 0 then return end
-								end
+		for _, external in pairs(priorityE) do
+			if external.focusedEntity.thisEntity ~= nil and external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false then
+				if external.type == "item" and external.focusedEntity.inventory.item.input.max ~= 0 and string.match(external.io, "input") ~= nil then
+					local index = 0
+					repeat
+						Util.next_index(external.focusedEntity.inventory.item.input)
+						local ii = external.focusedEntity.inventory.item.input.values[external.focusedEntity.inventory.item.input.index]
+						local inv1 = external.focusedEntity.thisEntity.get_inventory(ii)
+						if inv1 ~= nil then
+							inv1.sort_and_merge()
+							if EIO.has_item_room(inv1) == true then
+								--[[if external.metadataMode == false then
+									if itemstack.modified == true then return end
+									if itemstack.cont.ammo ~= game.item_prototypes[itemstack.cont.name].magazine_size then return end
+									if itemstack.cont.durability ~= game.item_prototypes[itemstack.cont.name].durability then return end
+								end]]
+								amount = amount - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, external, amount, false, true)
+								if amount <= 0 then return end
 							end
-							index = index + 1
-						until index == Util.getTableLength(external.focusedEntity.inventory.item.input.max)
-					end
+						end
+						index = index + 1
+					until index == Util.getTableLength(external.focusedEntity.inventory.item.input.max)
 				end
-				::next::
 			end
+			::next::
 		end
 	end
 
@@ -496,44 +492,40 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	local externalItems = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal(), "eo")))
 	for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
 		local priorityD = itemDrives[i]
-		local priorityE = externalItems[i].item
-		if Util.getTableLength(priorityD) > 0 then
-			for _, drive in pairs(priorityD) do
-				local has = drive:has_item(itemstack, true)
-				if has > 0 and RNSPlayer:has_room() == true then
-					amount = amount - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, math.min(amount, has), false)
-					if amount <= 0 then return end
-				end
+		local priorityE = externalItems[i]
+		for _, drive in pairs(priorityD) do
+			local has = drive:has_item(itemstack, true)
+			if has > 0 and RNSPlayer:has_room() == true then
+				amount = amount - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, math.min(amount, has), false)
+				if amount <= 0 then return end
 			end
 		end
-		if Util.getTableLength(priorityE) > 0 then
-			for _, external in pairs(priorityE) do
-				if external.focusedEntity.thisEntity ~= nil and external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false then
-					if external.type == "item" and external.focusedEntity.inventory.item.output.max ~= 0 and string.match(external.io, "output") ~= nil then
-						local index = 0
-						repeat
-							Util.next_index(external.focusedEntity.inventory.item.output)
-							local ii = external.focusedEntity.inventory.item.output.values[external.focusedEntity.inventory.item.output.index]
-							local inv1 = external.focusedEntity.thisEntity.get_inventory(ii)
-							if inv1 ~= nil then
-								inv1.sort_and_merge()
-								local has = EIO.has_item(inv1, itemstack, true)
-								if has > 0 and RNSPlayer:has_room() == true then
-									--[[if external.metadataMode == false then
-										if itemstack.modified == true then return end
-										if itemstack.cont.ammo ~= game.item_prototypes[itemstack.cont.name].magazine_size then return end
-										if itemstack.cont.durability ~= game.item_prototypes[itemstack.cont.name].durability then return end
-									end]]
-									amount = amount - BaseNet.transfer_from_inv_to_inv(inv1, inv, itemstack, nil, math.min(has, amount), false, true)
-									if amount <= 0 then return end
-								end
+		for _, external in pairs(priorityE) do
+			if external.focusedEntity.thisEntity ~= nil and external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false then
+				if external.type == "item" and external.focusedEntity.inventory.item.output.max ~= 0 and string.match(external.io, "output") ~= nil then
+					local index = 0
+					repeat
+						Util.next_index(external.focusedEntity.inventory.item.output)
+						local ii = external.focusedEntity.inventory.item.output.values[external.focusedEntity.inventory.item.output.index]
+						local inv1 = external.focusedEntity.thisEntity.get_inventory(ii)
+						if inv1 ~= nil then
+							inv1.sort_and_merge()
+							local has = EIO.has_item(inv1, itemstack, true)
+							if has > 0 and RNSPlayer:has_room() == true then
+								--[[if external.metadataMode == false then
+									if itemstack.modified == true then return end
+									if itemstack.cont.ammo ~= game.item_prototypes[itemstack.cont.name].magazine_size then return end
+									if itemstack.cont.durability ~= game.item_prototypes[itemstack.cont.name].durability then return end
+								end]]
+								amount = amount - BaseNet.transfer_from_inv_to_inv(inv1, inv, itemstack, nil, math.min(has, amount), false, true)
+								if amount <= 0 then return end
 							end
-							index = index + 1
-						until index == Util.getTableLength(external.focusedEntity.inventory.item.output.max)
-					end
+						end
+						index = index + 1
+					until index == Util.getTableLength(external.focusedEntity.inventory.item.output.max)
 				end
-				::next::
 			end
+			::next::
 		end
 	end
 
