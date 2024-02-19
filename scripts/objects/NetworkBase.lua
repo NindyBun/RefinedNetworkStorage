@@ -1283,7 +1283,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                                 ::next::
                                 Util.next_index(external.focusedEntity.inventory.input)
                             end]]
-                            --BaseNet.insert_item_into_external(external, item, inv_item, itemstack_master, transferCapacity)
+                            BaseNet.insert_item_into_external(external, item, inv_item, itemstack_master, transferCapacity)
                             if transferCapacity <= 0 then
                                 network:put_cache("import", "external", external)
                                 return 0

@@ -70,8 +70,8 @@ function Event.removed(event)
 end
 
 function Event.rotated(event)
-    if global.entityTable[event.unit_number] == nil then return end
-    local obj = global.entityTable[event.unit_number]
+    if global.entityTable[event.entity.unit_number] == nil then return end
+    local obj = global.entityTable[event.entity.unit_number]
     if obj.generateModeIcon then
         obj:generateModeIcon()
     end
