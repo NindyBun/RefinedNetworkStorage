@@ -439,11 +439,11 @@ function WG.transfer_from_pinv(RNSPlayer, WG, tags, count)
 			end
 		end
 		for _, external in pairs(priorityE) do
-			if external:target_interactable() and external:interactable() and string.match(external.io, "input") ~= nil and external.focusedEntity.inventory.item.input.max ~= 0 then
+			if external:target_interactable() and external:interactable() and string.match(external.io, "input") ~= nil and external.focusedEntity.inventory.input.max ~= 0 then
 				local index = 0
 				repeat
-					Util.next_index(external.focusedEntity.inventory.item.input)
-					local ii = external.focusedEntity.inventory.item.input.values[external.focusedEntity.inventory.item.input.index]
+					Util.next_index(external.focusedEntity.inventory.input)
+					local ii = external.focusedEntity.inventory.input.values[external.focusedEntity.inventory.input.index]
 					local inv1 = external.focusedEntity.thisEntity.get_inventory(ii)
 					if inv1 ~= nil then
 						if BaseNet.inventory_is_sortable(inv1) then inv1.sort_and_merge() end
@@ -458,7 +458,7 @@ function WG.transfer_from_pinv(RNSPlayer, WG, tags, count)
 						end
 					end
 					index = index + 1
-				until index == external.focusedEntity.inventory.item.input.max
+				until index == external.focusedEntity.inventory.input.max
 			end
 			::next::
 		end
@@ -494,11 +494,11 @@ function WG.transfer_from_idinv(RNSPlayer, WG, tags, count)
 			end
 		end
 		for _, external in pairs(priorityE) do
-			if external:target_interactable() and external:interactable() and string.match(external.io, "output") ~= nil and external.focusedEntity.inventory.item.output.max ~= 0 then
+			if external:target_interactable() and external:interactable() and string.match(external.io, "output") ~= nil and external.focusedEntity.inventory.output.max ~= 0 then
 				local index = 0
 				repeat
-					Util.next_index(external.focusedEntity.inventory.item.output)
-					local ii = external.focusedEntity.inventory.item.output.values[external.focusedEntity.inventory.item.output.index]
+					Util.next_index(external.focusedEntity.inventory.output)
+					local ii = external.focusedEntity.inventory.output.values[external.focusedEntity.inventory.output.index]
 					local inv1 = external.focusedEntity.thisEntity.get_inventory(ii)
 					if inv1 ~= nil then
 						if BaseNet.inventory_is_sortable(inv1) then inv1.sort_and_merge() end
@@ -514,7 +514,7 @@ function WG.transfer_from_idinv(RNSPlayer, WG, tags, count)
 						end
 					end
 					index = index + 1
-				until index == external.focusedEntity.inventory.item.output.max
+				until index == external.focusedEntity.inventory.output.max
 			end
 			::next::
 		end
