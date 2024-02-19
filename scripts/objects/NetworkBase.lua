@@ -1119,16 +1119,40 @@ function BaseNet.insert_item_into_drive(item, inv_item, drive, transferCapacity,
     end
 end
 
-function BaseNet.insert_item_into_external()
+function BaseNet.insert_item_into_external(external, item, inv_item, itemstack_master, transferCapacity)
+    for k = 1, external.focusedEntity.inventory.input.max do
+        if transferCapacity <= 0 then break end
+        local ext_inv = external.focusedEntity.thisEntity.get_inventory(external.focusedEntity.inventory.input.values[external.focusedEntity.inventory.input.index])
+        local insertableAmount = ext_inv.get_insertable_count(inv_item.name)
+        if insertableAmount > 0 then
+            local extractSize = math.min(math.min(transferCapacity, inv_item.count), insertableAmount)
+            local splitStack = inv_item:split(itemstack_master, extractSize, false)
 
+            if inv_item.modified == false or inv_item.health ~= 1.0 then
+                transferCapacity = transferCapacity - ext_inv.insert(splitStack)
+                item.count = inv_item.count
+                if item.count > 0 then
+                    if inv_item.ammo ~= nil then item.ammo = inv_item.ammo end
+                    if inv_item.durability ~= nil then item.durability = inv_item.durability end
+                end
+            else
+                local slot, index = ext_inv.find_empty_stack(inv_item.name)
+                if slot ~= nil then
+                    transferCapacity = transferCapacity - (ext_inv[index].transfer_stack(item) and item.count or 0)
+                    break
+                end
+            end
+        end
+        Util.next_index(external.focusedEntity.inventory.input)
+    end
 end
 
 function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_master, filters, whitelistBlacklist, transferCapacity)
     for i = 1, from_inv.inventory.output.max do
-        if transferCapacity <= 0 then return 0 end
-        local inv = from_inv.thisEntity.get_inventory(from_inv.inventory.output.index)
+        local inv = from_inv.thisEntity.get_inventory(from_inv.inventory.output.values[from_inv.inventory.output.index])
         if BaseNet.inventory_is_sortable(inv) then inv.sort_and_merge() end
         for j = 1, #inv do
+            if transferCapacity <= 0 then return 0 end
             local item = inv[j]
             itemstack_master = itemstack_master or Itemstack:new(item)
             if whitelistBlacklist == "whitelist" then item, j = inv.find_item_stack(itemstack_master.name) end
@@ -1171,10 +1195,35 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                         if external:interactable() and external:target_interactable() and string.match(external.io, "input") ~= nil and external.type == "item"
                         and Util.filter_accepts_item(external.filters.item, external.whitelistBlacklist, inv_item.name) and external.focusedEntity.inventory.input.max ~= 0
                         and itemstack_master:compare_itemstacks(inv_item) then
-                            local extractSize = math.min(transferCapacity, inv_item.count)
-                            local splitStack = inv_item:split(itemstack_master, extractSize, false)
-                            
-                            
+                            --[[for k = 1, external.focusedEntity.inventory.input.max do
+                                if transferCapacity <= 0 then break end
+                                local ext_inv = external.focusedEntity.thisEntity.get_inventory(external.focusedEntity.inventory.input.values[external.focusedEntity.inventory.input.index])
+                                local insertableAmount = ext_inv.get_insertable_count(inv_item.name)
+                                if insertableAmount <= 0 then goto next end
+                                local extractSize = math.min(math.min(transferCapacity, inv_item.count), insertableAmount)
+                                local splitStack = inv_item:split(itemstack_master, extractSize, false)
+
+                                if inv_item.modified == false or inv_item.health ~= 1.0 then
+                                    transferCapacity = transferCapacity - ext_inv.insert(splitStack)
+                                    item.count = inv_item.count
+                                    if item.count > 0 then
+                                        if inv_item.ammo ~= nil then item.ammo = inv_item.ammo end
+                                        if inv_item.durability ~= nil then item.durability = inv_item.durability end
+                                    end
+                                else
+                                    local slot, index = ext_inv.find_empty_stack(inv_item.name)
+                                    if slot ~= nil then
+                                        transferCapacity = transferCapacity - (ext_inv[index].transfer_stack(item) and item.count or 0)
+                                        break
+                                    end
+                                end
+                                ::next::
+                                Util.next_index(external.focusedEntity.inventory.input)
+                            end]]
+                            BaseNet.insert_item_into_external(external, item, inv_item, itemstack_master, transferCapacity)
+                            if transferCapacity <= 0 then return 0 end
+                        else
+                            network:remove_cache("import", "external", inv_item.name)
                         end
                     end
                 end
@@ -1206,7 +1255,40 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                     end
 
                     for _, external in pairs(priorityE) do
-                    
+                        if external:interactable() and external:target_interactable() and string.match(external.io, "input") ~= nil and external.type == "item"
+                        and Util.filter_accepts_item(external.filters.item, external.whitelistBlacklist, inv_item.name) and external.focusedEntity.inventory.input.max ~= 0
+                        and itemstack_master:compare_itemstacks(inv_item) then
+                            --[[for k = 1, external.focusedEntity.inventory.input.max do
+                                if transferCapacity <= 0 then break end
+                                local ext_inv = external.focusedEntity.thisEntity.get_inventory(external.focusedEntity.inventory.input.values[external.focusedEntity.inventory.input.index])
+                                local insertableAmount = ext_inv.get_insertable_count(inv_item.name)
+                                if insertableAmount <= 0 then goto next end
+                                local extractSize = math.min(math.min(transferCapacity, inv_item.count), insertableAmount)
+                                local splitStack = inv_item:split(itemstack_master, extractSize, false)
+
+                                if inv_item.modified == false or inv_item.health ~= 1.0 then
+                                    transferCapacity = transferCapacity - ext_inv.insert(splitStack)
+                                    item.count = inv_item.count
+                                    if item.count > 0 then
+                                        if inv_item.ammo ~= nil then item.ammo = inv_item.ammo end
+                                        if inv_item.durability ~= nil then item.durability = inv_item.durability end
+                                    end
+                                else
+                                    local slot, index = ext_inv.find_empty_stack(inv_item.name)
+                                    if slot ~= nil then
+                                        transferCapacity = transferCapacity - (ext_inv[index].transfer_stack(item) and item.count or 0)
+                                        break
+                                    end
+                                end
+                                ::next::
+                                Util.next_index(external.focusedEntity.inventory.input)
+                            end]]
+                            --BaseNet.insert_item_into_external(external, item, inv_item, itemstack_master, transferCapacity)
+                            if transferCapacity <= 0 then
+                                network:put_cache("import", "external", external)
+                                return 0
+                            end
+                        end
                     end
                 end
             end

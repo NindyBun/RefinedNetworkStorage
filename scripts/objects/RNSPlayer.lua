@@ -34,6 +34,7 @@ function RNSP:rebuild(object)
 end
 
 function RNSP:update_gui_distance_validity()
+    --Update to use LuaEntity.can_reach_entity(entity) instead
     for _, guiTable in pairs(self.GUI or {}) do
         if guiTable.gui ~= nil and guiTable.gui.valid == true then
             local obj = guiTable.vars.currentObject

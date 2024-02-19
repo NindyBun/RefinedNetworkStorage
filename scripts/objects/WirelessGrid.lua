@@ -448,7 +448,7 @@ function WG.transfer_from_pinv(RNSPlayer, WG, tags, count)
 						repeat
 							local ii = Util.next(external.focusedEntity.inventory)
 							local inv1 = external.focusedEntity.thisEntity.get_inventory(ii.slot)
-							if inv1 ~= nil and IIO.check_operable_mode(ii.io, "input") then
+							if inv1 ~= nil and IIO3.check_operable_mode(ii.io, "input") then
 								inv1.sort_and_merge()
 								if EIO.has_item_room(inv1) == true then
 									--[[if external.metadataMode == false then
@@ -508,7 +508,7 @@ function WG.transfer_from_idinv(RNSPlayer, WG, tags, count)
 						repeat
 							local ii = Util.next(external.focusedEntity.inventory)
 							local inv1 = external.focusedEntity.thisEntity.get_inventory(ii.slot)
-							if inv1 ~= nil and IIO.check_operable_mode(ii.io, "output") then
+							if inv1 ~= nil and IIO3.check_operable_mode(ii.io, "output") then
 								inv1.sort_and_merge()
 								local has = EIO.has_item(inv1, itemstack, true)
 								if has > 0 and RNSPlayer:has_room() == true then

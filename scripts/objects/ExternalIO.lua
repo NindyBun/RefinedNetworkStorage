@@ -63,13 +63,13 @@ function EIO:new(object)
             input = {
                 index = 0,
                 max = 0,
-                values = nil
+                values = {}
             },
             output = {
                 index = 0,
                 max = 0,
-                values = nil
-            }
+                values = {}
+            },
         },
         fluid_box = {
             index = nil,
@@ -300,12 +300,12 @@ function EIO:reset_focused_entity()
             input = {
                 index = 0,
                 max = 0,
-                values = nil
+                values = {}
             },
             output = {
                 index = 0,
                 max = 0,
-                values = nil
+                values = {}
             },
         },
         fluid_box = {
