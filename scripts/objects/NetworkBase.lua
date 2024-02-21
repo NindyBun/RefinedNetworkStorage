@@ -1106,8 +1106,9 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
     return count - amount
 end
 
-function BaseNet.transfer_from_network_to_inv()
+function BaseNet.transfer_from_network_to_inv(network, target, itemstack_master, transferCapacity, supportModified)
 
+    return transferCapacity
 end
 
 function BaseNet.insert_item_into_drive(item, inv_item, drive, transferCapacity, itemstack_master, remainingStorage)
@@ -1151,7 +1152,7 @@ function BaseNet.insert_item_into_external(external, item, inv_item, itemstack_m
     return transferCapacity
 end
 
-function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_master, filters, whitelistBlacklist, transferCapacity)
+function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_master, filters, whitelistBlacklist, transferCapacity, supportModified)
     for i = 1, from_inv.inventory.output.max do
         local inv = from_inv.thisEntity.get_inventory(from_inv.inventory.output.values[from_inv.inventory.output.index])
         if BaseNet.inventory_is_sortable(inv) then inv.sort_and_merge() end
@@ -1174,7 +1175,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                     else
                         local remainingStorage = drive:getRemainingStorageSize()
                         if drive:interactable() and Util.filter_accepts_item(drive.filters, drive.whitelistBlacklist, inv_item.name) and remainingStorage > 0
-                        and itemstack_master:compare_itemstacks(inv_item) then
+                        and itemstack_master:compare_itemstacks(inv_item, supportModified) then
                             --[[local extractSize = math.min(math.min(transferCapacity, inv_item.count), remainingStorage)
                             local splitStack = inv_item:split(itemstack_master, extractSize, false)
                             transferCapacity = transferCapacity - drive:add_or_merge_basic_item(splitStack, extractSize)
@@ -1198,7 +1199,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                     else
                         if external:interactable() and external:target_interactable() and string.match(external.io, "input") ~= nil and external.type == "item"
                         and Util.filter_accepts_item(external.filters.item, external.whitelistBlacklist, inv_item.name) and external.focusedEntity.inventory.input.max ~= 0
-                        and itemstack_master:compare_itemstacks(inv_item) then
+                        and itemstack_master:compare_itemstacks(inv_item, supportModified) then
                             --[[for k = 1, external.focusedEntity.inventory.input.max do
                                 if transferCapacity <= 0 then break end
                                 local ext_inv = external.focusedEntity.thisEntity.get_inventory(external.focusedEntity.inventory.input.values[external.focusedEntity.inventory.input.index])

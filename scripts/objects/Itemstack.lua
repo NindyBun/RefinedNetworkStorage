@@ -112,6 +112,17 @@ function Itemstack:new(item)
     return t
 end
 
+function Itemstack.create_template(name)
+    if name == nil or game.item_prototypes[name] == nil then return nil end
+    local prototype = game.item_prototypes[name]
+    return {
+        name = name,
+        type = prototype.type,
+        prototype = prototype,
+        
+    }
+end
+
 --Requires item1 and item2 to be instances of class Itemstack
 function Itemstack:compare_itemstacks(itemstack, exact)
     if self.name ~= itemstack.name then return false end

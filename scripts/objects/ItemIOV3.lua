@@ -9,7 +9,7 @@ IIO3 = {
     cardinals = nil,
     filters = nil,
     guiFilters = nil,
-    --metadataMode = false,
+    supportModified = false,
     whitelistBlacklist = "blacklist",
     io = "output",
     ioIcon = nil,
@@ -445,9 +445,15 @@ function IIO3:IO()
     local transportCapacity = self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity--*global.IIOMultiplier
 
     if self.io == "input" and target.inventory.output.max ~= 0 then
-        BaseNet.transfer_from_inv_to_network(network, target, nil, self.filters, self.whitelistBlacklist, transportCapacity)
-    elseif self.io == "output" and target.inventory.input.max ~= 0 ~= nil then
-        --BaseNet.transfer_from_network_to_inv()
+        BaseNet.transfer_from_inv_to_network(network, target, nil, self.filters, self.whitelistBlacklist, transportCapacity, self.supportModified)
+    elseif self.io == "output" and target.inventory.input.max ~= 0 ~= nil and self.filters.max ~= 0 and self.whitelistBlacklist == "whitelist" then
+        for i = 1, self.filters.max do
+            local itemstack_master = Itemstack.create_template(self.filters[self.filters.index])
+            if itemstack_master ~= nil then
+                transportCapacity = BaseNet.transfer_from_network_to_inv(network, target, itemstack_master, transportCapacity, self.supportModified)
+            end
+            Util.next_index(self.filters)
+        end
     end
 
     if self.io == "input" and target.thisEntity.get_item_count() < storedAmount then self.processed = true return end
@@ -732,7 +738,7 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
 		GuiApi.add_switch(guiTable, "RNS_NetworkCableIO_Item_IO", settingsFrame, {"gui-description.RNS_Input"}, {"gui-description.RNS_Output"}, "", "", state1, false, {ID=self.thisEntity.unit_number})
 
         -- Match metadata mode
-        --GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Item_Metadata", settingsFrame, {"gui-description.RNS_Modified_2"}, {"gui-description.RNS_Modified_2_description"}, self.metadataMode, false, {ID=self.thisEntity.unit_number})
+        GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Item_Metadata", settingsFrame, {"gui-description.RNS_Modified_2"}, {"gui-description.RNS_Modified_2_description"}, self.supportModified, false, {ID=self.thisEntity.unit_number})
     
         if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
             local enableFrame = GuiApi.add_frame(guiTable, "EnableFrame", bottomFrame, "vertical")
@@ -902,14 +908,14 @@ function IIO3.interaction(event, RNSPlayer)
 		return
     end
 
-    --[[if string.match(event.element.name, "RNS_NetworkCableIO_Item_Metadata") then
+    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Metadata") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        io.metadataMode = event.element.state
+        io.supportModified = event.element.state
         io.processed = false
 		return
-    end]]
+    end
 
     if string.match(event.element.name, "RNS_NetworkCableIO_Item_IO") then
         local id = event.element.tags.ID
