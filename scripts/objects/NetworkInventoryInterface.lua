@@ -305,9 +305,9 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 			end
 		end
 	end
-	for _, priority in pairs(BaseNet.filter_by_mode("output", BaseNet.getOperableObjects(self.networkController.network:filter_externalIO_by_valid_signal(), "eo"))) do
+	for _, priority in pairs(self.networkController.network:filter_externalIO_by_valid_signal()) do
 		for _, external in pairs(priority) do
-			if external.focusedEntity.thisEntity ~= nil and external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false then
+			if external:interactable() and external:target_interactable() and string.match(external.io, "output") then
 				if external.type == "item" and external.focusedEntity.inventory.output.values ~= nil then
 					local index = 0
 					repeat
