@@ -973,13 +973,7 @@ function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, exte
         end
         if external_data ~= nil then
             if external_data.onlyModified == true and itemstack_data.modified == false and string.match(external_data.io, "input") ~= nil then goto continue end
-            if Util.getTableLength_non_nil(external_data.filters.item.values) > 0 then
-                if external_data:matches_filters("item", itemstack_data.cont.name) == true then
-                    if external_data.whitelist == false then goto continue end
-                else
-                    if external_data.whitelist == true then goto continue end
-                end
-            end
+            if not Util.filter_accepts_item(external_data.filters.item, external_data.whitelistBlacklist, itemstack_data.cont.name) then goto continue end
         end
         local min = math.min(itemstackC.cont.count, amount)
         if Util.itemstack_matches(itemstack_data, itemstackC, allowModified) == false then
@@ -1110,6 +1104,10 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
         ::continue::
     end
     return count - amount
+end
+
+function BaseNet.transfer_from_network_to_inv()
+
 end
 
 function BaseNet.insert_item_into_drive(item, inv_item, drive, transferCapacity, itemstack_master, remainingStorage)

@@ -161,15 +161,16 @@ function NC:collectContents()
                         if e.type == "item" and e.focusedEntity.inventory.values ~= nil then
                             local index = 0
                             repeat
-                                local ii = Util.next(e.focusedEntity.inventory)
-                                local inv = e.focusedEntity.thisEntity.get_inventory(ii.slot)
-                                if inv ~= nil and IIO.check_operable_mode(ii.io, "output") then
-                                    for name, count in pairs(inv.get_contents()) do
+                                Util.next_index(e.focusedEntity.inventory.output)
+                                local ii = e.focusedEntity.inventory.input.values[e.focusedEntity.inventory.output.index]
+                                local inv1 = e.focusedEntity.thisEntity.get_inventory(ii)
+                                if inv1 ~= nil  then
+                                    for name, count in pairs(inv1.get_contents()) do
                                         self.network.Contents.item[name] = math.min((self.network.Contents.item[name] or 0) + count, 2^32)
                                     end
                                 end
                                 index = index + 1
-                            until index == Util.getTableLength(e.focusedEntity.inventory.values)
+                            until index == e.focusedEntity.inventory.output.max
                         elseif e.type == "fluid" and e.focusedEntity.fluid_box.index ~= nil and string.match(e.focusedEntity.fluid_box.flow, "output") ~= nil then
                             local fluid_box = e.focusedEntity.fluid_box
                             local tank = e.focusedEntity.thisEntity.fluidbox[fluid_box.index]
