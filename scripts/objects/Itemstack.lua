@@ -115,12 +115,18 @@ end
 function Itemstack.create_template(name)
     if name == nil or game.item_prototypes[name] == nil then return nil end
     local prototype = game.item_prototypes[name]
-    return {
+    local t = {
         name = name,
         type = prototype.type,
         prototype = prototype,
-        
+        ammo = prototype.type == "ammo" and prototype.magazine_size or nil,
+        durability = prototype.durability or nil,
+        modified = false
     }
+    local mt = {}
+    setmetatable(t, mt)
+    mt.__index = Itemstack
+    return t
 end
 
 --Requires item1 and item2 to be instances of class Itemstack
