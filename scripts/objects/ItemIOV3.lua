@@ -446,12 +446,10 @@ function IIO3:IO()
 
     if self.io == "input" and target.inventory.output.max ~= 0 then
         BaseNet.transfer_from_inv_to_network(network, target, nil, self.filters, self.whitelistBlacklist, transportCapacity, self.supportModified)
-    elseif self.io == "output" and target.inventory.input.max ~= 0 ~= nil and self.filters.max ~= 0 and self.whitelistBlacklist == "whitelist" then
+    elseif self.io == "output" and target.inventory.input.max ~= 0 ~= nil and self.filters.max ~= 0 then
         for i = 1, self.filters.max do
             local itemstack_master = Itemstack.create_template(self.filters[self.filters.index])
-            if itemstack_master ~= nil then
-                transportCapacity = BaseNet.transfer_from_network_to_inv(network, target, itemstack_master, transportCapacity, self.supportModified)
-            end
+            transportCapacity = BaseNet.transfer_from_network_to_inv(network, target, itemstack_master, transportCapacity, self.supportModified)
             Util.next_index(self.filters)
         end
     end

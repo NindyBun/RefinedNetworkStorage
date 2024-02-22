@@ -311,16 +311,17 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 			end
 		end
 	end
-	for _, priority in pairs(BaseNet.filter_by_mode("output", BaseNet.getOperableObjects(self.networkController.network:filter_externalIO_by_valid_signal(), "eo"))) do
+	for _, priority in pairs(self.networkController.network:filter_externalIO_by_valid_signal()) do
 		for _, external in pairs(priority) do
-			if external.focusedEntity.thisEntity ~= nil and external.focusedEntity.thisEntity.valid and external.focusedEntity.thisEntity.to_be_deconstructed() == false then
-				if external.type == "item" and external.focusedEntity.inventory.values ~= nil then
+			if external:interactable() and external:target_interactable() and string.match(external.io, "output") then
+				if external.type == "item" and external.focusedEntity.inventory.output.values ~= nil then
 					local index = 0
 					repeat
-						local ii = Util.next(external.focusedEntity.inventory)
-						local inv1 = external.focusedEntity.thisEntity.get_inventory(ii.slot)
-						if inv1 ~= nil and IIO.check_operable_mode(ii.io, "output") then
-							inv1.sort_and_merge()
+						Util.next_index(external.focusedEntity.inventory.output)
+						local ii = external.focusedEntity.inventory.output.values[external.focusedEntity.inventory.output.index]
+						local inv1 = external.focusedEntity.thisEntity.get_inventory(ii)
+						if inv1 ~= nil then
+							if BaseNet.inventory_is_sortable(inv1) then inv1.sort_and_merge() end
 							for i = 1, #inv1 do
 								local itemstack = inv1[i]
 								if itemstack.count <= 0 then goto continue end
@@ -329,7 +330,7 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 							end
 						end
 						index = index + 1
-					until index == Util.getTableLength(external.focusedEntity.inventory.values)
+					until index == external.focusedEntity.inventory.output.max
 				elseif external.type == "fluid" and external.focusedEntity.fluid_box.index ~= nil then
 					if string.match(external.focusedEntity.fluid_box.flow, "output") ~= nil then
 						if external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index] ~= nil then

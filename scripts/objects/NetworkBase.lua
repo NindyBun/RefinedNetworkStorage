@@ -899,7 +899,17 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
     return count - amount
 end
 
-function BaseNet.transfer_from_network_to_inv(network, target, itemstack_master, transferCapacity, supportModified)
+function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master, transferCapacity, supportModified)
+    local storedAmount = network.Contents[itemstack_master.name]
+    if storedAmount <= 0 then return 0 end
+    transferCapacity = math.min(transferCapacity, storedAmount)
+
+    for i = 1, to_inv.inventory.input.max do
+        local inv = to_inv.thisEntity.get_inventory(to_inv.inventory.input.values[to_inv.inventory.input.index])
+        if BaseNet.inventory_is_sortable(inv) then inv.sort_and_merge() end
+        
+        Util.next_index(to_inv.inventory.input)
+    end
 
     return transferCapacity
 end
