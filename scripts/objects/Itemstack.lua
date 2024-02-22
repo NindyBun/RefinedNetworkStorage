@@ -109,6 +109,8 @@ function Itemstack:new(item)
     --doesn't include those with ammo or durability because I can easily store them in code
     --those with different health can't be in drives because they don't stack together with normal ones
     t.modified = Util.getTableLength_non_nil(t.extras) > 0 or t.health ~= 1.0 or Util.getTableLength_non_nil(t.tags or {}) > 0
+        --or (t.ammo ~= nil and t.ammo ~= game.item_prototypes[t.name].magazine_size)
+        --or (t.durability ~= nil and t.durability ~= game.item_prototypes[t.name].durability)
     return t
 end
 
@@ -170,22 +172,20 @@ function Itemstack.compare_tags(tag1, tag2)
     return true
 end
 
-function Itemstack:split(itemstack_master, amount, simulate)
+function Itemstack:split(itemstack_master, amount)
     local split = self:copy()
     local splitAmount = math.min(self.count, amount)
 
     split.count = splitAmount
-
-    if not simulate then
-        self.count = self.count - splitAmount
-        if self.ammo ~= nil then
-            split.ammo = itemstack_master.ammo ~= itemstack_master.prototype.magazine_size and self.ammo or itemstack_master.prototype.magazine_size
-            self.ammo = itemstack_master.ammo ~= itemstack_master.prototype.magazine_size and itemstack_master.prototype.magazine_size or self.ammo
-        end
-        if self.durability ~= nil then
-            split.durability = itemstack_master.durability ~= itemstack_master.prototype.durability and self.durability or itemstack_master.prototype.durability
-            self.durability = itemstack_master.durability ~= itemstack_master.prototype.durability and itemstack_master.prototype.durability or self.durability
-        end
+    self.count = self.count - splitAmount
+    
+    if self.ammo ~= nil then
+        split.ammo = itemstack_master.ammo ~= itemstack_master.prototype.magazine_size and self.ammo or itemstack_master.prototype.magazine_size
+        self.ammo = itemstack_master.ammo ~= itemstack_master.prototype.magazine_size and itemstack_master.prototype.magazine_size or self.ammo
+    end
+    if self.durability ~= nil then
+        split.durability = itemstack_master.durability ~= itemstack_master.prototype.durability and self.durability or itemstack_master.prototype.durability
+        self.durability = itemstack_master.durability ~= itemstack_master.prototype.durability and itemstack_master.prototype.durability or self.durability
     end
 
     return split
