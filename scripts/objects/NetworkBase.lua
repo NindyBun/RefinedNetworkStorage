@@ -29,7 +29,10 @@ function BaseNet:new()
     setmetatable(t, mt)
     mt.__index = BaseNet
     t.PlayerPorts = {}
-    t.Contents = {}
+    t.Contents = {
+        item = {},
+        fluid = {}
+    }
     t.importDriveCache = {}
     t.importExternalCache = {}
     t.exportDriveCache = {}
@@ -475,7 +478,7 @@ end
 
 function BaseNet.transfer_from_network_to_tank(network, to_tank, transportCapacity, filter)
     local fluid_box = to_tank.fluid_box
-    local networkAmount = network.Contents[filter]
+    local networkAmount = network.Contents.fluid[filter]
     if networkAmount <= 0 then return 0 end
     if fluid_box.filter ~= "" and fluid_box.filter ~= filter then return 0 end
 
@@ -900,14 +903,28 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
 end
 
 function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master, transferCapacity, supportModified)
-    local storedAmount = network.Contents[itemstack_master.name]
+    local storedAmount = network.Contents.item[itemstack_master.name]
     if storedAmount <= 0 then return 0 end
     transferCapacity = math.min(transferCapacity, storedAmount)
 
     for i = 1, to_inv.inventory.input.max do
         local inv = to_inv.thisEntity.get_inventory(to_inv.inventory.input.values[to_inv.inventory.input.index])
         if BaseNet.inventory_is_sortable(inv) then inv.sort_and_merge() end
-        
+
+        if network:has_cache("export", "drive", itemstack_master.name) and itemstack_master.modified == false then
+            local drive = network:get_cache("export", "drive", itemstack_master.name)
+            if drive.valid == false then
+                network:remove_cache("export", "drive", itemstack_master.name)
+            else
+                local storedItem = drive.storageArray[itemstack_master.name]
+                if drive:interactable() and storedItem ~= nil and itemstack_master:compare_itemstacks(storedItem) then
+                    local removedAmount = drive:remove_item(itemstack_master, math.min(storedItem.count, transferCapacity))
+                    
+                else
+                    network:remove_cache("export", "drive", itemstack_master.name)
+                end
+            end
+        end
         Util.next_index(to_inv.inventory.input)
     end
 

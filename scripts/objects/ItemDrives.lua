@@ -163,6 +163,7 @@ end
 function ID:add_or_merge_basic_item(itemstack_data, amount)
     local inv = self.storageArray
     local min = math.min(self:getRemainingStorageSize(), amount)
+    if min <= 0 then return 0 end
     if inv[itemstack_data.name] ~= nil then
         local data = inv[itemstack_data.name]
         data.count = data.count + min
@@ -183,6 +184,14 @@ function ID:add_or_merge_basic_item(itemstack_data, amount)
         }
     end
     return min
+end
+
+function ID:remove_item(itemstack_data, amount)
+    local inv = self.storageArray
+    local data = inv[itemstack_data.name]
+    if data == nil or amount <= 0 then return 0 end
+    local min = math.min(data.count, amount)
+    
 end
 
 function ID:has_item(itemstack_data, getModified)
