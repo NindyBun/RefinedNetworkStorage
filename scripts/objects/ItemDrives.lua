@@ -176,25 +176,32 @@ function ID:add_or_merge_basic_item(itemstack_data, amount)
             data.durability = d == 0 and game.item_prototypes[data.name].durability or d
         end
     else
-        inv[itemstack_data.name] = {
-            name = itemstack_data.name,
-            count = min,
-            ammo = itemstack_data.ammo,
-            durability = itemstack_data.durability
-        }
+        inv[itemstack_data.name] = Itemstack.check_instance(itemstack_data)
     end
     return min
 end
 
-function ID:remove_item(itemstack_data, amount)
+function ID:remove_item(itemstack_data, amount, exact)
     local inv = self.storageArray
     local data = inv[itemstack_data.name]
     if data == nil or amount <= 0 then return 0 end
+    Itemstack.check_instance(inv[itemstack_data.name])
     local min = math.min(data.count, amount)
-    
+    local split = data:split(itemstack_data, min, exact)
+    --[[if exact then
+        if itemstack_data.ammo ~= nil and data.ammo ~= itemstack_data.ammo and data.count > 1 then
+            local new_min = math.min(data.count - 1, min)
+            return new_min, data:split(itemstack_data, new_min)
+        else
+            return 0
+        end
+    end]]
+    if split == nil then return 0, nil end
+    if data.count <= 0 then inv[itemstack_data.name] = nil end
+    return split.count, split
 end
 
-function ID:has_item(itemstack_data, getModified)
+--[[function ID:has_item(itemstack_data, getModified)
     local amount = 0
     local list = self.storageArray[itemstack_data.cont.name]
     if list ~= nil and itemstack_data.modified == false then
@@ -211,7 +218,7 @@ function ID:has_item(itemstack_data, getModified)
         end
     end
     return amount
-end
+end]]
 
 function ID:has_room()
     if self:getRemainingStorageSize() > 0 then return true end

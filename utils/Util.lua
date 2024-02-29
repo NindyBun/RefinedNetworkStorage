@@ -110,11 +110,7 @@ function Util.getTableLength_non_nil(array)
 	local count = 0
 	for _, v in pairs(array) do
 		if type(v) == "table" then
-			if #v > 0 then
-				count = count + #v
-			else
-				count = count + Util.getTableLength_non_nil(v)
-			end
+			count = count + Util.getTableLength_non_nil(v)
 		elseif v ~= nil and v ~= "" then
 			count = count + 1
 		end
@@ -247,6 +243,7 @@ function Util.itemstack_template(name)
 	template.cont.health = 1
 	template.cont.tags = {}
 	template.type = item_prototype.type
+	template.prototype = item_prototype.prototype
 	if item_prototype.durability then template.cont.durability = item_prototype.durability end
 	if item_prototype.type == "ammo" then template.cont.ammo = item_prototype.magazine_size end
 	return template
@@ -260,6 +257,7 @@ function Util.itemstack_convert(itemstack)
 	converted.cont.count = itemstack.count
 	converted.cont.health = itemstack.health
 	converted.type = itemstack.type
+	converted.prototype = itemstack.prototype
 	
 	if itemstack.durability then converted.cont.durability = itemstack.durability end
 	if itemstack.type == "ammo" then converted.cont.ammo = itemstack.ammo end
@@ -422,7 +420,33 @@ function Util.add_list_into_table(tab, list)
 	end
 end
 
+function Util.item_add_list_into_table(tab, list)
+	list = list:copy()
+	for _, v in pairs(tab) do
+		if v:compare_itemstacks(list, true, true) then
+			v.count = v.count + list.count
+			return
+		end
+	end
+	if list.ammo ~= nil and list.count > 1 and list.ammo ~= game.item_prototypes[list.name].magazine_size then
+		Util.item_add_list_into_table(tab, list:split(list, 1, true))
+		if list.count > 0 then
+			Util.item_add_list_into_table(tab, list)
+		end
+		return
+	end
+	if list.durability ~= nil and list.count > 1 and list.durability ~= game.item_prototypes[list.name].durability then
+		Util.item_add_list_into_table(tab, list:split(list, 1, true))
+		if list.count > 0 then
+			Util.item_add_list_into_table(tab, list)
+		end
+		return
+	end
+	table.insert(tab, list)
+end
+
 function Util.filter_accepts_item(filter, mode, itemname)
+	if filter == nil then return true end
 	if mode == "whitelist" then
 		return (filter[itemname] ~= nil and {true} or {false})[1]
 	elseif mode == "blacklist" then
@@ -433,6 +457,7 @@ function Util.filter_accepts_item(filter, mode, itemname)
 end
 
 function Util.filter_accepts_fluid(filter, mode, fluidname)
+	if filter == nil then return true end
 	if mode == "whitelist" then
 		return (filter[fluidname] ~= nil and {true} or {false})[1]
 	elseif mode == "blacklist" then

@@ -11,7 +11,8 @@ function GUI.update(force)
                         end
                         local playerVars = false
                         if guiTable.vars.currentObject.thisEntity.name == Constants.NetworkCables.externalIO.name 
-                        or guiTable.vars.currentObject.thisEntity.name == Constants.Detector.name then
+                        or guiTable.vars.currentObject.thisEntity.name == Constants.Detector.name 
+                        or guiTable.vars.currentObject.thisEntity.name == Constants.NetworkCables.itemIO.name then
                             playerVars = RNSPlayer:pull_varTable(guiTable.vars.currentObject.entID)
                             RNSPlayer:remove_varTable(guiTable.vars.currentObject.entID)
                         end

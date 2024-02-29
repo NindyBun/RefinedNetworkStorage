@@ -126,7 +126,10 @@ function NC:updateDetectors()
 end
 
 function NC:collectContents()
-    self.network.Contents = {}
+    self.network.Contents = {
+        item = {},
+        fluid = {}
+    }
 
     --local itemDrives = BaseNet.getOperableObjects(self.network.ItemDriveTable)
     --local fluidDrives = BaseNet.getOperableObjects(self.network.FluidDriveTable)
@@ -144,14 +147,14 @@ function NC:collectContents()
         --if Util.getTableLength(priorityItems) > 0 then
             for _, drive in pairs(priorityItems) do
                 for name, content in pairs(drive.storageArray) do
-                    self.network.Contents[name] = math.min((self.network.Contents[name] or 0) + content.count, 2^32)
+                    self.network.Contents.item[name] = (self.network.Contents.item[name] or 0) + content.count
                 end
             end
         --end
         --if Util.getTableLength(priorityFluids) > 0 then
             for _, drive in pairs(priorityFluids) do
                 for name, content in pairs(drive.fluidArray) do
-                    self.network.Contents[name] = math.min((self.network.Contents[name] or 0) + content.amount, 2^32)
+                    self.network.Contents.fluid[name] = (self.network.Contents.fluid[name] or 0) + content.amount
                 end
             end
         --end
@@ -166,7 +169,7 @@ function NC:collectContents()
                                 local inv1 = e.focusedEntity.thisEntity.get_inventory(ii)
                                 if inv1 ~= nil  then
                                     for name, count in pairs(inv1.get_contents()) do
-                                        self.network.Contents.item[name] = math.min((self.network.Contents.item[name] or 0) + count, 2^32)
+                                        self.network.Contents.item[name] = (self.network.Contents.item[name] or 0) + count
                                     end
                                 end
                                 index = index + 1
@@ -175,7 +178,7 @@ function NC:collectContents()
                             local fluid_box = e.focusedEntity.fluid_box
                             local tank = e.focusedEntity.thisEntity.fluidbox[fluid_box.index]
                             if tank ~= nil then
-                                self.network.Contents[tank.name] = math.min((self.network.Contents[tank.name] or 0) + tank.amount, 2^32)
+                                self.network.Contents.fluid[tank.name] = (self.network.Contents.fluid[tank.name] or 0) + tank.amount
                             end
                         end
                     end

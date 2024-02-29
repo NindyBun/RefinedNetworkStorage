@@ -445,11 +445,11 @@ function IIO3:IO()
     local transportCapacity = self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity--*global.IIOMultiplier
 
     if self.io == "input" and target.inventory.output.max ~= 0 then
-        BaseNet.transfer_from_inv_to_network(network, target, nil, self.filters, self.whitelistBlacklist, transportCapacity, self.supportModified)
+        BaseNet.transfer_from_inv_to_network(network, target, nil, self.filters.values, self.whitelistBlacklist, transportCapacity, self.supportModified)
     elseif self.io == "output" and target.inventory.input.max ~= 0 ~= nil and self.filters.max ~= 0 then
         for i = 1, self.filters.max do
-            local itemstack_master = Itemstack.create_template(self.filters[self.filters.index])
-            transportCapacity = BaseNet.transfer_from_network_to_inv(network, target, itemstack_master, transportCapacity, self.supportModified)
+            local itemstack_master = Itemstack.create_template(self.filters.values[self.filters.index])
+            transportCapacity = BaseNet.transfer_from_network_to_inv(network, target, itemstack_master, transportCapacity, self.supportModified, false)
             Util.next_index(self.filters)
         end
     end
@@ -642,7 +642,7 @@ end
 function IIO3:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
 		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_Item_Title"}
-        local mainFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
+        local mainFlow = GuiApi.add_flow(guiTable, "MainFlow", mainFrame, "vertical")
 
         local rateFlow = GuiApi.add_flow(guiTable, "", mainFlow, "vertical")
         local rateFrame = GuiApi.add_frame(guiTable, "", rateFlow, "horizontal")
@@ -927,6 +927,7 @@ function IIO3.interaction(event, RNSPlayer)
         io.io = to
         io.processed = false
         io:generateModeIcon()
+        RNSPlayer:push_varTable(id, true)
 		return
     end
 
