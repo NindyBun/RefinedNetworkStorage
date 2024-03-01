@@ -920,7 +920,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
             else
                 Itemstack.check_instance(drive.storageArray[itemstack_master.name])
                 local storedItem = drive.storageArray[itemstack_master.name]
-                if drive:interactable() and storedItem ~= nil and itemstack_master:compare_itemstacks(storedItem) then
+                if drive:interactable() and storedItem ~= nil and itemstack_master:compare_itemstacks(storedItem, exact) then
                     local removedAmount, stack = drive:remove_item(itemstack_master, math.min(storedItem.count, transferCapacity), exact)
                     transferCapacity = transferCapacity - removedAmount
                     inv.insert(stack)
@@ -942,7 +942,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
                 for _, drive in pairs(priorityD) do
                     drive.storageArray[itemstack_master.name] = Itemstack.check_instance(drive.storageArray[itemstack_master.name])
                     local storedItem = drive.storageArray[itemstack_master.name]
-                    if drive:interactable() and storedItem ~= nil and itemstack_master:compare_itemstacks(storedItem) then
+                    if drive:interactable() and storedItem ~= nil and itemstack_master:compare_itemstacks(storedItem, exact) then
                         local removedAmount, stack = drive:remove_item(itemstack_master, math.min(storedItem.count, transferCapacity), exact)
                         transferCapacity = transferCapacity - removedAmount
                         inv.insert(stack)

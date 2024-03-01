@@ -192,14 +192,14 @@ function Itemstack:compare_itemstacks(itemstack, exact, exact_exact)
     if exact then
         if self.health ~= itemstack.health then return false end
         if self.ammo ~= itemstack.ammo then
+            if exact_exact then return false end
             if not exact_exact and self.ammo > itemstack.ammo and itemstack.count == 1 then return false end
             if not exact_exact and self.ammo < itemstack.ammo and self.count == 1 then return false end
-            if exact_exact then return false end
         end
         if self.durability ~= itemstack.durability then
+            if exact_exact then return false end
             if not exact_exact and self.durability > itemstack.durability and itemstack.count == 1 then return false end
             if not exact_exact and self.durability < itemstack.durability and self.count == 1 then return false end
-            if exact_exact then return false end
         end
         if self.modified ~= itemstack.modified and self.modified == true then return false end
         if Itemstack.compare_tags(self.tags, itemstack.tags) == false then return false end
