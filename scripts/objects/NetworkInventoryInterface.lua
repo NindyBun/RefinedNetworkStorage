@@ -368,7 +368,7 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 								for i = 1, #inv1 do
 									local itemstack = inv1[i]
 									if itemstack.count <= 0 then goto continue end
-									Util.add_or_merge(itemstack, inv)
+									Util.item_add_list_into_table(inv, Itemstack:new(itemstack))
 									::continue::
 								end
 							end
@@ -396,17 +396,15 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 		end
 	end
 	-----------------------------------------------------------------------------------Fluids----------------------------------------------------------------------------------------
-	if Util.getTableLength(fluid) > 0 then
-		for k, c in pairs(fluid) do
-			RNSPlayer.thisEntity.request_translation(Util.get_fluid_name(c.name))
-			if Util.get_fluid_name(c.name)[1] ~= nil then
-				local locName = Util.get_fluid_name(c.name)[1]
-				if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
-			end
-			local buttonText = {"", "[color=blue]", Util.get_fluid_name(c.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(c.amount), "\n", {"gui-description.RNS_Temperature"}, c.temperature or game.fluid_prototypes[c.name].default_temperature}
-			GuiApi.add_button(guiTable, "RNS_NII_FDInv_".. k, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
-			::continue::
+	for k, c in pairs(fluid) do
+		RNSPlayer.thisEntity.request_translation(Util.get_fluid_name(c.name))
+		if Util.get_fluid_name(c.name)[1] ~= nil then
+			local locName = Util.get_fluid_name(c.name)[1]
+			if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
 		end
+		local buttonText = {"", "[color=blue]", Util.get_fluid_name(c.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(c.amount), "\n", {"gui-description.RNS_Temperature"}, c.temperature or game.fluid_prototypes[c.name].default_temperature}
+		GuiApi.add_button(guiTable, "RNS_NII_FDInv_".. k, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
+		::continue::
 	end
 	-----------------------------------------------------------------------------------Items----------------------------------------------------------------------------------------
 	local itemIndex = 0
@@ -508,7 +506,7 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	if count == -1 then count = game.item_prototypes[itemstack.name].stack_size end
 	if count == -2 then count = math.max(1, game.item_prototypes[itemstack.cont.name].stack_size/2) end
 	if count == -3 then count = game.item_prototypes[itemstack.name].stack_size*10 end
-	if count == -4 then count = (2^32)-1 end
+	if count == -4 then count = (2^32) end
 
 	--local inv = RNSPlayer.thisEntity.get_main_inventory()
 	local amount = math.min(itemstack.count, count)
@@ -570,18 +568,20 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	local network = NII.networkController ~= nil and NII.networkController.network or nil
 	if network == nil then return end
 	if tags == nil then return end
-	local itemstack = tags.stack
+	local itemstack = Itemstack:reload(tags.stack)
 
 	if count == -1 then count = game.item_prototypes[itemstack.name].stack_size end
 	if count == -2 then count = math.max(1, game.item_prototypes[itemstack.name].stack_size/2) end
 	if count == -3 then count = game.item_prototypes[itemstack.name].stack_size*10 end
-	if count == -4 then count = (2^32)-1 end
+	if count == -4 then count = (2^32) end
 
-	local inv = RNSPlayer.thisEntity.get_main_inventory()
+	--local inv = RNSPlayer.thisEntity.get_main_inventory()
 	local amount = math.min(itemstack.count, count)
 	if amount <= 0 then return end
 
-	local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
+	BaseNet.transfer_from_network_to_inv(network, {thisEntity = RNSPlayer.thisEntity,inventory = {input = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, itemstack, amount, true, true)
+
+	--[[local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
 	local externalItems = network:filter_externalIO_by_valid_signal()
 	for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
 		local priorityD = itemDrives[i]
@@ -604,11 +604,11 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 						if BaseNet.inventory_is_sortable(inv1) then inv1.sort_and_merge() end
 						local has = EIO.has_item(inv1, itemstack, true)
 						if has > 0 and RNSPlayer:has_room() == true then
-							--[[if external.metadataMode == false then
-								if itemstack.modified == true then return end
-								if itemstack.cont.ammo ~= game.item_prototypes[itemstack.cont.name].magazine_size then return end
-								if itemstack.cont.durability ~= game.item_prototypes[itemstack.cont.name].durability then return end
-							end]]
+							--if external.metadataMode == false then
+							--	if itemstack.modified == true then return end
+							--	if itemstack.cont.ammo ~= game.item_prototypes[itemstack.cont.name].magazine_size then return end
+							--	if itemstack.cont.durability ~= game.item_prototypes[itemstack.cont.name].durability then return end
+							--end
 							amount = amount - BaseNet.transfer_from_inv_to_inv(inv1, inv, itemstack, nil, math.min(has, amount), false, true)
 							if amount <= 0 then return end
 						end
@@ -618,7 +618,7 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 			end
 			::next::
 		end
-	end
+	end]]
 
 	--[[
 	for _, priority in pairs(network.getOperableObjects(network.ItemDriveTable)) do
