@@ -170,7 +170,7 @@ function Itemstack.migrate(itemstack)
 end
 
 function Itemstack.check_instance(itemstack)
-    if getmetatable(itemstack).__index ~= Itemstack then
+    if itemstack.reload == nil then
         --[[local temp = Itemstack.create_template(itemstack.name)
         temp.health = itemstack.health
         temp.ammo = itemstack.ammo

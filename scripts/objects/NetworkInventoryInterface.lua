@@ -326,7 +326,7 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 	for _, priority in pairs(BaseNet.getOperableObjects(self.networkController.network.ItemDriveTable)) do
 		for _, drive in pairs(priority) do
 			for _, v in pairs(drive.storageArray) do
-				Util.item_add_list_into_table(inv, v)
+				Util.item_add_list_into_table(inv, Itemstack:reload(v))
 				--local c = Util.itemstack_template(v.name)
 				--c.cont.count = v.count
 				--if c.cont.ammo then c.cont.ammo = v.ammo end
