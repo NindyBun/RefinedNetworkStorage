@@ -491,7 +491,7 @@ function BaseNet.transfer_from_network_to_tank(network, to_tank, transportCapaci
     
     if network:has_cache("export", "drive", filter) then
         local drive = network:get_cache("export", "drive", filter)
-        if drive.valid == false then
+        if drive.valid == false  or drive == nil then
             network:remove_cache("export", "drive", filter)
         else
             if drive:interactable() and drive.fluidArray[filter].amount > 0 then
@@ -505,7 +505,7 @@ function BaseNet.transfer_from_network_to_tank(network, to_tank, transportCapaci
 
     if network:has_cache("export", "external", filter) then
         local external = network:get_cache("export", "external", filter)
-        if external.valid == false then
+        if external.valid == false  or external == nil then
             network:remove_cache("export", "external", filter)
         else
             if external:interactable() and external:target_interactable() and external.type == "fluid" and string.match(external.io, "output") ~= nil and string.match(external.focusedEntity.fluid_box.flow, "output") ~= nil
@@ -621,7 +621,7 @@ function BaseNet.transfer_from_tank_to_network(network, from_tank, transportCapa
 
     if network:has_cache("import", "drive", fluid.name) then
         local drive = network:get_cache("import", "drive", fluid.name)
-        if drive.valid == false then
+        if drive.valid == false  or drive == nil then
             network:remove_cache("import", "drive", fluid.name)
         else
             if drive:interactable() and Util.filter_accepts_fluid(drive.filters, drive.whitelistBlacklist, fluid.name) and drive:getRemainingStorageSize() > 0 then
@@ -635,7 +635,7 @@ function BaseNet.transfer_from_tank_to_network(network, from_tank, transportCapa
     
     if network:has_cache("import", "external", fluid.name) then
         local external = network:get_cache("import", "external", fluid.name)
-        if external.valid == false then
+        if external.valid == false  or external == nil then
             network:remove_cache("import", "external", fluid.name)
         else
             if external.type == "fluid" and string.match(external.io, "input") ~= nil and string.match(external.focusedEntity.fluid_box.flow, "input")
@@ -961,7 +961,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
         if network:has_cache("export", "drive", itemstack_master.name) and itemstack_master.modified == false then
             local drive = network:get_cache("export", "drive", itemstack_master.name)
             --ID:rebuild(drive)
-            if drive.valid == false then
+            if drive.valid == false  or drive == nil then
                 network:remove_cache("export", "drive", itemstack_master.name)
             else
                 --Itemstack.check_instance(drive.storageArray[itemstack_master.name])
@@ -977,7 +977,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
 
         if network:has_cache("export", "external", itemstack_master.name) then
             local external = network:get_cache("export", "external", itemstack_master.name)
-            if external.valid == false then
+            if external.valid == false  or external == nil then
                 network:remove_cache("export", "external", itemstack_master.name)
             else
                 if external:interactable() and external:target_interactable() and string.match(external.io, "output") ~= nil and external.type == "item" 
@@ -1089,7 +1089,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
 
                 if network:has_cache("import", "drive", inv_item.name) and inv_item.modified == false then
                     local drive = network:get_cache("import", "drive", inv_item.name)
-                    if drive.valid == false then
+                    if drive.valid == false or drive == nil  then
                         network:remove_cache("import", "drive", inv_item.name)
                     else
                         local remainingStorage = drive:getRemainingStorageSize()
@@ -1105,7 +1105,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                 end
                 if network:has_cache("import", "external", item.name) then
                     local external = network:get_cache("import", "external", inv_item.name)
-                    if external.valid == false then
+                    if external.valid == false or external == nil then
                         network:remove_cache("import", "external", inv_item.name)
                     else
                         if external:interactable() and external:target_interactable() and string.match(external.io, "input") ~= nil and external.type == "item"
