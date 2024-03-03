@@ -960,7 +960,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
 
         if network:has_cache("export", "drive", itemstack_master.name) and itemstack_master.modified == false then
             local drive = network:get_cache("export", "drive", itemstack_master.name)
-            ID:rebuild(drive)
+            --ID:rebuild(drive)
             if drive.valid == false then
                 network:remove_cache("export", "drive", itemstack_master.name)
             else
@@ -997,7 +997,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
             local priorityE = network.ExternalIOTable[p].item
             if itemstack_master.modified == false then
                 for _, drive in pairs(priorityD) do
-                    ID:rebuild(drive)
+                    --ID:rebuild(drive)
                     --drive.storageArray[itemstack_master.name] = Itemstack.check_instance(drive.storageArray[itemstack_master.name])
                     local storedItem = drive.storageArray[itemstack_master.name]
                     if drive:interactable() and storedItem ~= nil and itemstack_master:compare_itemstacks(storedItem, exact) then
