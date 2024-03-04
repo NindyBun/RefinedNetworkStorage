@@ -105,7 +105,7 @@ function NC:update()
 
     if not self.stable then return end
 
-    if game.tick % Constants.Settings.RNS_CollectContents_Tick == 0 then self:collectContents() end
+    --if game.tick % Constants.Settings.RNS_CollectContents_Tick == 0 then self:collectContents() end
     if game.tick % Constants.Settings.RNS_Detector_Tick == 0 then self:updateDetectors() end
 
     if game.tick % Constants.Settings.RNS_ItemIO_Tick == 0 then self:updateItemIO() end --Base is every 4 ticks to match yellow belt speed at 15/s

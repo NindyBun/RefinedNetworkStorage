@@ -272,6 +272,32 @@ function BaseNet:transfer_io_mode(obj, type, from, to)
     end
 end
 
+function BaseNet:increase_item_count(name, count)
+    if name == "" or name == nil then return end
+    local storedAmount = self.Contents.item[name] or 0
+    self.Contents.item[name] = storedAmount + count
+end
+
+function BaseNet:decrease_item_count(name, count)
+    if name == "" or name == nil then return end
+    local storedAmount = self.Contents.item[name]
+    self.Contents.item[name] = storedAmount - count
+    if self.Contents.item[name] <= 0 then self.Contents.item[name] = 0 end
+end
+
+function BaseNet:increase_fluid_amount(name, amount)
+    if name == "" or name == nil then return end
+    local storedAmount = self.Contents.fluid[name] or 0
+    self.Contents.fluid[name] = storedAmount + amount
+end
+
+function BaseNet:decrease_fluid_amount(name, amount)
+    if name == "" or name == nil then return end
+    local storedAmount = self.Contents.fluid[name]
+    self.Contents.fluid[name] = storedAmount - amount
+    if self.Contents.fluid[name] <= 0 then self.Contents.fluid[name] = 0 end
+end
+
 function BaseNet:has_cache(mode, type, key)
     if type == "drive" then
         return (self[mode.."DriveCache"][key] ~= nil and {true} or {false})[1]
@@ -306,7 +332,7 @@ function BaseNet:remove_cache(mode, type, key)
     end
 end
 
-function BaseNet.transfer_from_tank_to_tank(from_tank, to_tank, from_index, to_index, name, amount_to_transfer)
+--[[function BaseNet.transfer_from_tank_to_tank(from_tank, to_tank, from_index, to_index, name, amount_to_transfer)
     local to_tank_capacity = to_tank.fluidbox.get_capacity(to_index)
     local amount = amount_to_transfer
     
@@ -420,14 +446,15 @@ function BaseNet.transfer_from_tank_to_drive(tank_entity, drive, index, name, am
     end
 
     return amount_to_transfer - amount
-end
-
-function BaseNet.extract_fluid_from_drive(to_tank, drive, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
+end]]
+-----------------------------------------------------------------------------------------------Extracting Fluids from the Network---------------------------------------------------------------------------------------------------------------------------
+function BaseNet:extract_fluid_from_drive(to_tank, drive, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
     local takeAmount = math.min(extractSize, drive.fluidArray[filter].amount)
     extractSize = extractSize - takeAmount <= 0 and 0 or extractSize - takeAmount
 
     local takeTemperature = drive.fluidArray[filter].temperature
     drive:remove_fluid(filter, takeAmount)
+    self:decrease_fluid_amount(filter, takeAmount)
 
     local a0 = storedFluidAmount
     local t0 = storedFluidTemperature
@@ -445,7 +472,7 @@ function BaseNet.extract_fluid_from_drive(to_tank, drive, filter, extractSize, s
     return extractSize
 end
 
-function BaseNet.extract_fluid_from_external(to_tank, external, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
+function BaseNet:extract_fluid_from_external(to_tank, external, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
     local takeAmount = math.min(extractSize, external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index].amount)
     extractSize = extractSize - takeAmount <= 0 and 0 or extractSize - takeAmount
 
@@ -460,6 +487,9 @@ function BaseNet.extract_fluid_from_external(to_tank, external, filter, extractS
             temperature = takeTemperature
         }
     end
+
+    self:decrease_fluid_amount(filter, takeAmount)
+
     local a0 = storedFluidAmount
     local t0 = storedFluidTemperature
     local a1 = takeAmount
@@ -495,7 +525,7 @@ function BaseNet.transfer_from_network_to_tank(network, to_tank, transportCapaci
             network:remove_cache("export", "drive", filter)
         else
             if drive:interactable() and drive.fluidArray[filter].amount > 0 then
-                extractSize = BaseNet.extract_fluid_from_drive(to_tank, drive, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
+                extractSize = network:extract_fluid_from_drive(to_tank, drive, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
                 if extractSize <= 0 then return 0 end
             else
                 network:remove_cache("export", "drive", fluid.name)
@@ -511,7 +541,7 @@ function BaseNet.transfer_from_network_to_tank(network, to_tank, transportCapaci
             if external:interactable() and external:target_interactable() and external.type == "fluid" and string.match(external.io, "output") ~= nil and string.match(external.focusedEntity.fluid_box.flow, "output") ~= nil
             and external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index] ~= nil and external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index].name ~= filter 
             and external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index].amount > 0 then
-                extractSize = BaseNet.extract_fluid_from_external(to_tank, external, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
+                extractSize = network:extract_fluid_from_external(to_tank, external, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
                 if extractSize <= 0 then return 0 end
             else
                 network:remove_cache("export", "external", filter)
@@ -525,7 +555,7 @@ function BaseNet.transfer_from_network_to_tank(network, to_tank, transportCapaci
 
         for _, drive in pairs(priorityF) do
             if drive:interactable() and drive.fluidArray[filter].amount > 0 then
-                extractSize = BaseNet.extract_fluid_from_drive(to_tank, drive, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
+                extractSize = network:extract_fluid_from_drive(to_tank, drive, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
                 if extractSize <= 0 then
                     network:put_cache("export", "drive", filter)
                     return 0
@@ -537,7 +567,7 @@ function BaseNet.transfer_from_network_to_tank(network, to_tank, transportCapaci
             if external:interactable() and external:target_interactable() and external.type == "fluid" and string.match(external.io, "output") ~= nil and string.match(external.focusedEntity.fluid_box.flow, "output") ~= nil
             and external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index] ~= nil and external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index].name ~= filter 
             and external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index].amount > 0 then
-                extractSize = BaseNet.extract_fluid_from_external(to_tank, external, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
+                extractSize = network:extract_fluid_from_external(to_tank, external, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
                 if extractSize <= 0 then
                     network:put_cache("export", "external", filter)
                     return 0
@@ -548,8 +578,8 @@ function BaseNet.transfer_from_network_to_tank(network, to_tank, transportCapaci
 
     return extractSize
 end
-
-function BaseNet.insert_fluid_into_drive(drive, fluid, extractSize, storedFluidTemperature, storedFluidAmount, from_tank, fluid_box)
+-------------------------------------------------------------------------------------------------------Inserting Fluids into the Network-------------------------------------------------------------------------------------------------------------------
+function BaseNet:insert_fluid_into_drive(drive, fluid, extractSize, storedFluidTemperature, storedFluidAmount, from_tank, fluid_box)
     local insertedAmount = drive:insert_fluid(fluid.name, extractSize, storedFluidTemperature)
     extractSize = extractSize - insertedAmount <= 0 and 0 or extractSize - insertedAmount
     if storedFluidAmount - insertedAmount <= 0 then
@@ -561,10 +591,12 @@ function BaseNet.insert_fluid_into_drive(drive, fluid, extractSize, storedFluidT
             temperature = storedFluidTemperature
         }
     end
+    
+    self:increase_fluid_amount(fluid.name, insertedAmount)
     return extractSize
 end
 
-function BaseNet.insert_fluid_into_external(external, extractSize, fluid_box, fluid, storedFluidTemperature, storedFluidAmount, from_tank)
+function BaseNet:insert_fluid_into_external(external, extractSize, fluid_box, fluid, storedFluidTemperature, storedFluidAmount, from_tank)
     local e_fluid_box = external.focusedEntity.fluid_box
     local e_fluid = external.focusedEntity.thisEntity.fluidbox[e_fluid_box.index]
     local e_max_capacity = external.focusedEntity.thisEntity.fluidbox.get_capacity(e_fluid_box.index)
@@ -609,9 +641,9 @@ function BaseNet.insert_fluid_into_external(external, extractSize, fluid_box, fl
             }
         end
     end
+    self:increase_fluid_amount(fluid.name, insertedAmount)
     return extractSize
 end
-
 function BaseNet.transfer_from_tank_to_network(network, from_tank, transportCapacity)
     local fluid_box = from_tank.fluid_box
     local fluid = from_tank.thisEntity.fluidbox[fluid_box.index]
@@ -625,7 +657,7 @@ function BaseNet.transfer_from_tank_to_network(network, from_tank, transportCapa
             network:remove_cache("import", "drive", fluid.name)
         else
             if drive:interactable() and Util.filter_accepts_fluid(drive.filters, drive.whitelistBlacklist, fluid.name) and drive:getRemainingStorageSize() > 0 then
-                extractSize = BaseNet.insert_fluid_into_drive(drive, fluid, extractSize, storedFluidTemperature, storedFluidAmount, from_tank, fluid_box)
+                extractSize = network:insert_fluid_into_drive(drive, fluid, extractSize, storedFluidTemperature, storedFluidAmount, from_tank, fluid_box)
                 if extractSize <= 0 then return 0 end
             else
                 network:remove_cache("import", "drive", fluid.name)
@@ -647,7 +679,7 @@ function BaseNet.transfer_from_tank_to_network(network, from_tank, transportCapa
                 elseif e_fluid ~= nil and e_fluid.name ~= fluid.name then
                     network:remove_cache("import", "external", fluid.name)
                 end
-                extractSize = BaseNet.insert_fluid_into_external(external, extractSize, fluid_box, fluid, storedFluidTemperature, storedFluidAmount, from_tank)
+                extractSize = network:insert_fluid_into_external(external, extractSize, fluid_box, fluid, storedFluidTemperature, storedFluidAmount, from_tank)
                 if extractSize <= 0 then return 0 end
             else
                 network:remove_cache("import", "external", fluid.name)
@@ -660,7 +692,7 @@ function BaseNet.transfer_from_tank_to_network(network, from_tank, transportCapa
 
         for _, drive in pairs(priorityF) do
             if drive:interactable() and Util.filter_accepts_fluid(drive.filters, drive.whitelistBlacklist, fluid.name) and drive:getRemainingStorageSize() > 0 then
-                extractSize = BaseNet.insert_fluid_into_drive(drive, fluid, extractSize, storedFluidTemperature, storedFluidAmount, from_tank, fluid_box)
+                extractSize = network:insert_fluid_into_drive(drive, fluid, extractSize, storedFluidTemperature, storedFluidAmount, from_tank, fluid_box)
                 if extractSize <= 0 then
                     network:put_cache("import", "drive", fluid.name, drive)
                     return 0
@@ -678,7 +710,7 @@ function BaseNet.transfer_from_tank_to_network(network, from_tank, transportCapa
                 elseif e_fluid ~= nil and e_fluid.name ~= fluid.name then
                     network:remove_cache("import", "external", fluid.name)
                 end
-                extractSize = BaseNet.insert_fluid_into_external(external, extractSize, fluid_box, fluid, storedFluidTemperature, storedFluidAmount, from_tank)
+                extractSize = network:insert_fluid_into_external(external, extractSize, fluid_box, fluid, storedFluidTemperature, storedFluidAmount, from_tank)
                 if extractSize <= 0 then
                     network:put_cache("import", "external", fluid.name, external)
                     return 0
@@ -689,7 +721,7 @@ function BaseNet.transfer_from_tank_to_network(network, from_tank, transportCapa
 
     return extractSize
 end
-
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function BaseNet.inventory_is_sortable(inv)
     return BaseNet.entity_is_sortable(inv.entity_owner)
 end
@@ -700,7 +732,7 @@ function BaseNet.entity_is_sortable(ent)
 end
 
 --Meant for exporting from the network. Exporting is always whitelisted
-function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, count, allowMetadata)
+--[[function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, count, allowMetadata)
     allowMetadata = allowMetadata or false
     --drive_inv:get_sorted_and_merged_inventory()
     local amount = count
@@ -900,16 +932,17 @@ function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data,
         ::continue::
     end
     return count - amount
-end
-
-function BaseNet.extract_item_from_drive(drive, inv, itemstack_master, storedItem, transferCapacity, exact)
+end]]
+-------------------------------------------------------------------------------------------------Extracting Items from the Network-------------------------------------------------------------------------------------------------------------------------
+function BaseNet:extract_item_from_drive(drive, inv, itemstack_master, storedItem, transferCapacity, exact)
     local removedAmount, stack = drive:remove_item(itemstack_master, math.min(storedItem.count, transferCapacity), exact)
     transferCapacity = transferCapacity - removedAmount
     inv.insert(stack)
+    self:decrease_item_count(itemstack_master.name, removedAmount)
     return transferCapacity
 end
 
-function BaseNet.extract_item_from_external(external, inv, transferCapacity, itemstack_master, supportModified, exact)
+function BaseNet:extract_item_from_external(external, inv, transferCapacity, itemstack_master, supportModified, exact)
     for i = 1, external.focusedEntity.inventory.output.max do
         if transferCapacity <= 0 then break end
         local einv = external.focusedEntity.thisEntity.get_inventory(external.focusedEntity.inventory.output.values[external.focusedEntity.inventory.output.index])
@@ -933,10 +966,13 @@ function BaseNet.extract_item_from_external(external, inv, transferCapacity, ite
                         if inv_item.ammo ~= nil then item.ammo = inv_item.ammo end
                         if inv_item.durability ~= nil then item.durability = inv_item.durability end
                     end
+                    self:decrease_item_count(splitStack.name, splitStack.count)
                 else
-                    local slot, index = inv.find_empty_stack(inv_item.name)
+                    local slot, index = inv.find_empty_stack(splitStack.name)
                     if slot ~= nil then
-                        transferCapacity = transferCapacity - (inv[index].transfer_stack(item) and item.count or 0)
+                        local removeAmount = inv[index].transfer_stack(item) and item.count or 0
+                        transferCapacity = transferCapacity - removeAmount
+                        self:decrease_item_count(item.name, removeAmount)
                     end
                 end
             end
@@ -967,7 +1003,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
                 --Itemstack.check_instance(drive.storageArray[itemstack_master.name])
                 local storedItem = drive.storageArray[itemstack_master.name]
                 if drive:interactable() and storedItem ~= nil and itemstack_master:compare_itemstacks(storedItem, exact) then
-                    transferCapacity = BaseNet.extract_item_from_drive(drive, inv, itemstack_master, storedItem, transferCapacity, exact)
+                    transferCapacity = network:extract_item_from_drive(drive, inv, itemstack_master, storedItem, transferCapacity, exact)
                     if transferCapacity <= 0 then return 0 end
                 else
                     network:remove_cache("export", "drive", itemstack_master.name)
@@ -984,7 +1020,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
                 and external.focusedEntity.inventory.output.max ~= 0 then
                     --local storedAmount = external.focusedEntity.thisEntity.get_item_count(itemstack_master.name)
                     --if storedAmount <= 0 then goto next end
-                    transferCapacity = BaseNet.extract_item_from_external(external, inv, transferCapacity, itemstack_master, supportModified, exact)
+                    transferCapacity = network:extract_item_from_external(external, inv, transferCapacity, itemstack_master, supportModified, exact)
                     if transferCapacity <= 0 then return 0 end
                 else
                     network:remove_cache("export", "external", itemstack_master.name)
@@ -1001,7 +1037,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
                     --drive.storageArray[itemstack_master.name] = Itemstack.check_instance(drive.storageArray[itemstack_master.name])
                     local storedItem = drive.storageArray[itemstack_master.name]
                     if drive:interactable() and storedItem ~= nil and itemstack_master:compare_itemstacks(storedItem, exact) then
-                        transferCapacity = BaseNet.extract_item_from_drive(drive, inv, itemstack_master, storedItem, transferCapacity, exact)
+                        transferCapacity = network:extract_item_from_drive(drive, inv, itemstack_master, storedItem, transferCapacity, exact)
                         if transferCapacity <= 0 then
                             network:put_cache("export", "drive", itemstack_master.name, drive)
                             return 0
@@ -1015,7 +1051,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
                 and external.focusedEntity.inventory.output.max ~= 0 then
                     --local storedAmount = external.focusedEntity.thisEntity.get_item_count(itemstack_master.name)
                     --if storedAmount <= 0 then goto next end
-                    transferCapacity = BaseNet.extract_item_from_external(external, inv, transferCapacity, itemstack_master, supportModified, exact)
+                    transferCapacity = network:extract_item_from_external(external, inv, transferCapacity, itemstack_master, supportModified, exact)
                     if transferCapacity <= 0 then
                         network:put_cache("export", "external", itemstack_master.name, external)
                         return 0
@@ -1030,7 +1066,8 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
     return transferCapacity
 end
 
-function BaseNet.insert_item_into_drive(item, inv_item, drive, transferCapacity, itemstack_master, remainingStorage, exact)
+----------------------------------------------------------------------------------------------Importing Items into the Network----------------------------------------------------------------------------------------------------------------------------
+function BaseNet:insert_item_into_drive(item, inv_item, drive, transferCapacity, itemstack_master, remainingStorage, exact)
     local extractSize = math.min(math.min(transferCapacity, inv_item.count), remainingStorage)
     local splitStack = inv_item:split(itemstack_master, extractSize, exact)
     transferCapacity = transferCapacity - drive:add_or_merge_basic_item(splitStack, extractSize)
@@ -1039,10 +1076,11 @@ function BaseNet.insert_item_into_drive(item, inv_item, drive, transferCapacity,
         if inv_item.ammo ~= nil then item.ammo = inv_item.ammo end
         if inv_item.durability ~= nil then item.durability = inv_item.durability end
     end
+    self:increase_item_count(splitStack.name, splitStack.count)
     return transferCapacity
 end
 
-function BaseNet.insert_item_into_external(external, item, inv_item, itemstack_master, transferCapacity, exact)
+function BaseNet:insert_item_into_external(external, item, inv_item, itemstack_master, transferCapacity, exact)
     for k = 1, external.focusedEntity.inventory.input.max do
         if transferCapacity <= 0 then break end
         local ext_inv = external.focusedEntity.thisEntity.get_inventory(external.focusedEntity.inventory.input.values[external.focusedEntity.inventory.input.index])
@@ -1058,10 +1096,13 @@ function BaseNet.insert_item_into_external(external, item, inv_item, itemstack_m
                     if inv_item.ammo ~= nil then item.ammo = inv_item.ammo end
                     if inv_item.durability ~= nil then item.durability = inv_item.durability end
                 end
+                self:increase_item_count(splitStack.name, splitStack.count)
             else
                 local slot, index = ext_inv.find_empty_stack(inv_item.name)
                 if slot ~= nil then
-                    transferCapacity = transferCapacity - (ext_inv[index].transfer_stack(item) and item.count or 0)
+                    local insertAmount = ext_inv[index].transfer_stack(item) and item.count or 0
+                    transferCapacity = transferCapacity - insertAmount
+                    self:increase_item_count(item.name, insertAmount)
                 end
             end
         end
@@ -1095,7 +1136,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                         local remainingStorage = drive:getRemainingStorageSize()
                         if drive:interactable() and Util.filter_accepts_item(drive.filters, drive.whitelistBlacklist, inv_item.name) and remainingStorage > 0
                         and master:compare_itemstacks(inv_item, exact) then
-                            transferCapacity = BaseNet.insert_item_into_drive(item, inv_item, drive, transferCapacity, master, remainingStorage, exact)
+                            transferCapacity = network:insert_item_into_drive(item, inv_item, drive, transferCapacity, master, remainingStorage, exact)
                             if transferCapacity <= 0 then return 0 end
                             if inv_item.count <= 0 then goto next end
                         else
@@ -1112,7 +1153,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                         and Util.filter_accepts_item(external.filters.item, external.whitelistBlacklist, inv_item.name) and external.focusedEntity.inventory.input.max ~= 0
                         and master:compare_itemstacks(inv_item, exact) then
                             if external.onlyModified and inv_item.modified == false then goto next end
-                            transferCapacity = BaseNet.insert_item_into_external(external, item, inv_item, master, transferCapacity, exact)
+                            transferCapacity = network:insert_item_into_external(external, item, inv_item, master, transferCapacity, exact)
                             if transferCapacity <= 0 then return 0 end
                             if inv_item.count <= 0 then goto next end
                         else
@@ -1128,7 +1169,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                             local remainingStorage = drive:getRemainingStorageSize()
                             if drive:interactable() and Util.filter_accepts_item(drive.filters, drive.whitelistBlacklist, item.name) and remainingStorage > 0
                             and master:compare_itemstacks(inv_item, exact) then
-                                transferCapacity = BaseNet.insert_item_into_drive(item, inv_item, drive, transferCapacity, master, remainingStorage, exact)
+                                transferCapacity = network:insert_item_into_drive(item, inv_item, drive, transferCapacity, master, remainingStorage, exact)
                                 if transferCapacity <= 0 then
                                     network:put_cache("import", "drive", master.name, drive)
                                     return 0
@@ -1143,7 +1184,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                         and Util.filter_accepts_item(external.filters.item, external.whitelistBlacklist, inv_item.name) and external.focusedEntity.inventory.input.max ~= 0
                         and master:compare_itemstacks(inv_item, exact) then
                             if external.onlyModified and inv_item.modified == false then goto next end
-                            transferCapacity = BaseNet.insert_item_into_external(external, item, inv_item, master, transferCapacity, exact)
+                            transferCapacity = network:insert_item_into_external(external, item, inv_item, master, transferCapacity, exact)
                             if transferCapacity <= 0 then
                                 network:put_cache("import", "external", master.name, external)
                                 return 0
@@ -1159,7 +1200,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
     end
     return transferCapacity
 end
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function BaseNet.getOperableObjects(array, group)
     local objs = {}
     for p, priority in pairs(array) do

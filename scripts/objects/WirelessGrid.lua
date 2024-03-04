@@ -230,50 +230,52 @@ end
 
 function WG:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 	local tableList = GuiApi.add_table(guiTable, "", scrollPane, 8)
-	
-	local inv = RNSPlayer:get_inventory()
-	if Util.getTableLength(inv) == 0 then return end
-
-	for i = 1, Util.getTableLength(inv) do
-		local item = inv[i]
-		RNSPlayer.thisEntity.request_translation(Util.get_item_name(item.cont.name))
-		if Util.get_item_name(item.cont.name)[1] ~= nil then
-			local locName = Util.get_item_name(item.cont.name)[1]
+	local inv = {}
+	for i = 1, #RNSPlayer.thisEntity.get_main_inventory() do
+		local item = RNSPlayer.thisEntity.get_main_inventory()[i]
+		if item.count <= 0 then goto continue end
+		Util.item_add_list_into_table(inv, Itemstack:new(item))
+		::continue::
+	end
+	local itemIndex = 0
+	for _, item in pairs(inv) do
+		RNSPlayer.thisEntity.request_translation(Util.get_item_name(item.name))
+		if Util.get_item_name(item.name)[1] ~= nil then
+			local locName = Util.get_item_name(item.name)[1]
 			if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
 		end
-
-		local buttonText = {"", "[color=blue]", item.label or Util.get_item_name(item.cont.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(item.cont.count)}
-		if item.cont.health < 1 then
+		local buttonText = {"", "[color=blue]", item.extras.label or Util.get_item_name(item.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(item.count)}
+		if item.health < 1 then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_health"})
-			table.insert(buttonText, math.floor(item.cont.health*100) .. "%")
+			table.insert(buttonText, math.floor(item.health*100) .. "%")
 		end
-		
-		if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 and item.description ~= "" then
+		if item.extras.custom_description ~= "" and item.extras.custom_description ~= nil then
 			table.insert(buttonText, "\n")
-			table.insert(buttonText, item.description)
-		elseif item.modified ~= nil and item.modified == true then
+			table.insert(buttonText, item.extras.custom_description)
+		elseif item.modified then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_item_modified"})
 		end
 		
-		if item.cont.ammo ~= nil then
+		if item.ammo ~= nil then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_ammo"})
-			table.insert(buttonText, item.cont.ammo .. "/" .. game.item_prototypes[item.cont.name].magazine_size)
+			table.insert(buttonText, item.ammo .. "/" .. game.item_prototypes[item.name].magazine_size)
 		end
-		if item.cont.durability ~= nil then
+		if item.durability ~= nil then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_durability"})
-			table.insert(buttonText, item.cont.durability .. "/" .. game.item_prototypes[item.cont.name].durability)
+			table.insert(buttonText, item.durability .. "/" .. game.item_prototypes[item.name].durability)
 		end
-		if item.linked ~= nil and item.linked ~= "" then
+		if item.connected_entity ~= nil then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_linked"})
-			table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
+			table.insert(buttonText, item.connected_entity.entity_label or Util.get_item_name(item.connected_entity.name))
 		end
-		GuiApi.add_button(guiTable, "RNS_WG_PInv_" .. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or (item.cont.ammo and item.cont.ammo < game.item_prototypes[item.cont.name].magazine_size) or (item.cont.durability and item.cont.durability < game.item_prototypes[item.cont.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.cont.name), stack=item})
+		GuiApi.add_button(guiTable, "RNS_WG_PInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
 		
+		itemIndex = itemIndex + 1
 		::continue::
 	end
 end
@@ -285,11 +287,12 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 	for _, priority in pairs(BaseNet.getOperableObjects(self.networkController.network.ItemDriveTable)) do
 		for _, drive in pairs(priority) do
 			for _, v in pairs(drive.storageArray) do
-				local c = Util.itemstack_template(v.name)
-				c.cont.count = v.count
-				if c.cont.ammo then c.cont.ammo = v.ammo end
-				if c.cont.durability then c.cont.durability = v.durability end
-				Util.add_or_merge(c, inv, true)
+				Util.item_add_list_into_table(inv, Itemstack:reload(v))
+				--local c = Util.itemstack_template(v.name)
+				--c.cont.count = v.count
+				--if c.cont.ammo then c.cont.ammo = v.ammo end
+				--if c.cont.durability then c.cont.durability = v.durability end
+				--Util.add_or_merge(c, inv, true)
 			end
 		end
 	end
@@ -312,38 +315,40 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 		end
 	end
 	for _, priority in pairs(self.networkController.network:filter_externalIO_by_valid_signal()) do
-		for _, external in pairs(priority) do
-			if external:interactable() and external:target_interactable() and string.match(external.io, "output") then
-				if external.type == "item" and external.focusedEntity.inventory.output.values ~= nil then
-					local index = 0
-					repeat
-						Util.next_index(external.focusedEntity.inventory.output)
-						local ii = external.focusedEntity.inventory.output.values[external.focusedEntity.inventory.output.index]
-						local inv1 = external.focusedEntity.thisEntity.get_inventory(ii)
-						if inv1 ~= nil then
-							if BaseNet.inventory_is_sortable(inv1) then inv1.sort_and_merge() end
-							for i = 1, #inv1 do
-								local itemstack = inv1[i]
-								if itemstack.count <= 0 then goto continue end
-								Util.add_or_merge(itemstack, inv)
-								::continue::
+		for _, type in pairs(priority) do
+			for _, external in pairs(type) do
+				if external:interactable() and external:target_interactable() and string.match(external.io, "output") then
+					if external.type == "item" and external.focusedEntity.inventory.output.values ~= nil then
+						local index = 0
+						repeat
+							Util.next_index(external.focusedEntity.inventory.output)
+							local ii = external.focusedEntity.inventory.output.values[external.focusedEntity.inventory.output.index]
+							local inv1 = external.focusedEntity.thisEntity.get_inventory(ii)
+							if inv1 ~= nil then
+								if BaseNet.inventory_is_sortable(inv1) then inv1.sort_and_merge() end
+								for i = 1, #inv1 do
+									local itemstack = inv1[i]
+									if itemstack.count <= 0 then goto continue end
+									Util.item_add_list_into_table(inv, Itemstack:new(itemstack))
+									::continue::
+								end
 							end
-						end
-						index = index + 1
-					until index == external.focusedEntity.inventory.output.max
-				elseif external.type == "fluid" and external.focusedEntity.fluid_box.index ~= nil then
-					if string.match(external.focusedEntity.fluid_box.flow, "output") ~= nil then
-						if external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index] ~= nil then
-							local fluidbox = external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index]
-							if fluid[fluidbox.name] ~= nil then
-								fluid[fluidbox.name].amount = fluid[fluidbox.name].amount + fluidbox.amount
-								fluid[fluidbox.name].temperature = (fluid[fluidbox.name].temperature * fluid[fluidbox.name].amount + fluidbox.amount * (fluidbox.temperature or game.fluid_prototypes[c.name].default_temperature)) / (fluid[fluidbox.name].amount + fluidbox.amount)
-							else
-								fluid[fluidbox.name] = {
-									name = fluidbox.name,
-									amount = fluidbox.amount,
-									temperature = fluidbox.temperature
-								}
+							index = index + 1
+						until index == external.focusedEntity.inventory.output.max
+					elseif external.type == "fluid" and external.focusedEntity.fluid_box.index ~= nil then
+						if string.match(external.focusedEntity.fluid_box.flow, "output") ~= nil then
+							if external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index] ~= nil then
+								local fluidbox = external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index]
+								if fluid[fluidbox.name] ~= nil then
+									fluid[fluidbox.name].amount = fluid[fluidbox.name].amount + fluidbox.amount
+									fluid[fluidbox.name].temperature = (fluid[fluidbox.name].temperature * fluid[fluidbox.name].amount + fluidbox.amount * (fluidbox.temperature or game.fluid_prototypes[c.name].default_temperature)) / (fluid[fluidbox.name].amount + fluidbox.amount)
+								else
+									fluid[fluidbox.name] = {
+										name = fluidbox.name,
+										amount = fluidbox.amount,
+										temperature = fluidbox.temperature
+									}
+								end
 							end
 						end
 					end
@@ -352,61 +357,57 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 		end
 	end
 	-----------------------------------------------------------------------------------Fluids----------------------------------------------------------------------------------------
-	if Util.getTableLength(fluid) > 0 then
-		for k, c in pairs(fluid) do
-			RNSPlayer.thisEntity.request_translation(Util.get_fluid_name(c.name))
-			if Util.get_fluid_name(c.name)[1] ~= nil then
-				local locName = Util.get_fluid_name(c.name)[1]
-				if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
-			end
-			local buttonText = {"", "[color=blue]", Util.get_fluid_name(c.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(c.amount)"\n", {"gui-description.RNS_Temperature"}, c.temperature or game.fluid_prototypes[c.name].default_temperature}
-			GuiApi.add_button(guiTable, "RNS_WG_FDInv_".. k, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
-			::continue::
+	for k, c in pairs(fluid) do
+		RNSPlayer.thisEntity.request_translation(Util.get_fluid_name(c.name))
+		if Util.get_fluid_name(c.name)[1] ~= nil then
+			local locName = Util.get_fluid_name(c.name)[1]
+			if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
 		end
+		local buttonText = {"", "[color=blue]", Util.get_fluid_name(c.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(c.amount), "\n", {"gui-description.RNS_Temperature"}, c.temperature or game.fluid_prototypes[c.name].default_temperature}
+		GuiApi.add_button(guiTable, "RNS_NII_FDInv_".. k, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
+		::continue::
 	end
 	-----------------------------------------------------------------------------------Items----------------------------------------------------------------------------------------
-	if Util.getTableLength(inv) > 0 then
-		for i = 1, Util.getTableLength(inv) do
-			local item = inv[i]
-			RNSPlayer.thisEntity.request_translation(Util.get_item_name(item.cont.name))
-			if Util.get_item_name(item.cont.name)[1] ~= nil then
-				local locName = Util.get_item_name(item.cont.name)[1]
-				if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
-			end
-
-			local buttonText = {"", "[color=blue]", item.label or Util.get_item_name(item.cont.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(item.cont.count)}
-			if item.cont.health < 1 then
-				table.insert(buttonText, "\n")
-				table.insert(buttonText, {"gui-description.RNS_health"})
-				table.insert(buttonText, math.floor(item.cont.health*100) .. "%")
-			end
-			
-			if item.cont.tags ~= nil and Util.getTableLength(item.cont.tags) ~= 0 and item.description ~= "" then
-				table.insert(buttonText, "\n")
-				table.insert(buttonText, item.description)
-			elseif item.modified ~= nil and item.modified == true then
-				table.insert(buttonText, "\n")
-				table.insert(buttonText, {"gui-description.RNS_item_modified"})
-			end
-			
-			if item.cont.ammo ~= nil then
-				table.insert(buttonText, "\n")
-				table.insert(buttonText, {"gui-description.RNS_ammo"})
-				table.insert(buttonText, item.cont.ammo .. "/" .. game.item_prototypes[item.cont.name].magazine_size)
-			end
-			if item.cont.durability ~= nil then
-				table.insert(buttonText, "\n")
-				table.insert(buttonText, {"gui-description.RNS_durability"})
-				table.insert(buttonText, item.cont.durability .. "/" .. game.item_prototypes[item.cont.name].durability)
-			end
-			if item.linked ~= nil and item.linked ~= "" then
-				table.insert(buttonText, "\n")
-				table.insert(buttonText, {"gui-description.RNS_linked"})
-				table.insert(buttonText, item.linked.entity_label or Util.get_item_name(item.linked.name))
-			end
-			GuiApi.add_button(guiTable, "RNS_WG_IDInv_".. i, tableList, "item/" .. (item.cont.name), "item/" .. (item.cont.name), "item/" .. (item.cont.name), buttonText, 37, false, true, item.cont.count, ((item.modified or (item.cont.ammo and item.cont.ammo < game.item_prototypes[item.cont.name].magazine_size) or (item.cont.durability and item.cont.durability < game.item_prototypes[item.cont.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.cont.name), stack=item})
-			::continue::
+	local itemIndex = 0
+	for _, item in pairs(inv) do
+		RNSPlayer.thisEntity.request_translation(Util.get_item_name(item.name))
+		if Util.get_item_name(item.name)[1] ~= nil then
+			local locName = Util.get_item_name(item.name)[1]
+			if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
 		end
+		local buttonText = {"", "[color=blue]", item.extras.label or Util.get_item_name(item.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(item.count)}
+		if item.health < 1 then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_health"})
+			table.insert(buttonText, math.floor(item.health*100) .. "%")
+		end
+		
+		if item.extras.custom_description ~= "" and item.extras.custom_description ~= nil then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, item.extras.custom_description)
+		elseif item.modified then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_item_modified"})
+		end
+		
+		if item.ammo ~= nil then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_ammo"})
+			table.insert(buttonText, item.ammo .. "/" .. game.item_prototypes[item.name].magazine_size)
+		end
+		if item.durability ~= nil then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_durability"})
+			table.insert(buttonText, item.durability .. "/" .. game.item_prototypes[item.name].durability)
+		end
+		if item.connected_entity ~= nil then
+			table.insert(buttonText, "\n")
+			table.insert(buttonText, {"gui-description.RNS_linked"})
+			table.insert(buttonText, item.connected_entity.entity_label or Util.get_item_name(item.connected_entity.name))
+		end
+		GuiApi.add_button(guiTable, "RNS_WG_IDInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
+		itemIndex = itemIndex + 1
+		::continue::
 	end
 end
 
@@ -416,7 +417,7 @@ function WG.transfer_from_pinv(RNSPlayer, WG, tags, count)
 	local network = WG.networkController ~= nil and WG.networkController.network or nil
 	if network == nil then return end
 	if tags == nil then return end
-	local itemstack = tags.stack
+	local itemstack = Itemstack:reload(tags.stack)
 	--if itemstack.id ~= nil and global.itemTable[itemstack.id] ~= nil and global.itemTable[itemstack.id].is_active == true then return end
 
 	if count == -1 then count = game.item_prototypes[itemstack.cont.name].stack_size end
@@ -424,46 +425,11 @@ function WG.transfer_from_pinv(RNSPlayer, WG, tags, count)
 	if count == -3 then count = game.item_prototypes[itemstack.cont.name].stack_size*10 end
 	if count == -4 then count = (2^32)-1 end
 
-	local inv = RNSPlayer.thisEntity.get_main_inventory()
+	--local inv = RNSPlayer.thisEntity.get_main_inventory()
 	local amount = math.min(itemstack.cont.count, count)
 	if amount <= 0 then return end
 
-	local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
-	local externalItems = network:filter_externalIO_by_valid_signal()
-	for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
-		local priorityD = itemDrives[i]
-		local priorityE = externalItems[i].item
-		for _, drive in pairs(priorityD) do
-			if drive:has_room() then
-				amount = amount - BaseNet.transfer_from_inv_to_drive(inv, drive, itemstack, nil, math.min(amount, drive:getRemainingStorageSize()), false, true)
-				if amount <= 0 then return end
-			end
-		end
-		for _, external in pairs(priorityE) do
-			if external:target_interactable() and external:interactable() and string.match(external.io, "input") ~= nil and external.focusedEntity.inventory.input.max ~= 0 then
-				local index = 0
-				repeat
-					Util.next_index(external.focusedEntity.inventory.input)
-					local ii = external.focusedEntity.inventory.input.values[external.focusedEntity.inventory.input.index]
-					local inv1 = external.focusedEntity.thisEntity.get_inventory(ii)
-					if inv1 ~= nil then
-						if BaseNet.inventory_is_sortable(inv1) then inv1.sort_and_merge() end
-						if EIO.has_item_room(inv1) == true then
-							--[[if external.metadataMode == false then
-								if itemstack.modified == true then return end
-								if itemstack.cont.ammo ~= game.item_prototypes[itemstack.cont.name].magazine_size then return end
-								if itemstack.cont.durability ~= game.item_prototypes[itemstack.cont.name].durability then return end
-							end]]
-							amount = amount - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, external, amount, false, true)
-							if amount <= 0 then return end
-						end
-					end
-					index = index + 1
-				until index == external.focusedEntity.inventory.input.max
-			end
-			::next::
-		end
-	end
+	BaseNet.transfer_from_inv_to_network(network, {thisEntity = RNSPlayer.thisEntity,inventory = {output = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, itemstack, nil, "whitelist", amount, true, true)
 end
 
 function WG.transfer_from_idinv(RNSPlayer, WG, tags, count)
@@ -471,55 +437,18 @@ function WG.transfer_from_idinv(RNSPlayer, WG, tags, count)
 	local network = WG.networkController ~= nil and WG.networkController.network or nil
 	if network == nil then return end
 	if tags == nil then return end
-	local itemstack = tags.stack
+	local itemstack = Itemstack:reload(tags.stack)
 
 	if count == -1 then count = game.item_prototypes[itemstack.cont.name].stack_size end
 	if count == -2 then count = math.max(1, game.item_prototypes[itemstack.cont.name].stack_size/2) end
 	if count == -3 then count = game.item_prototypes[itemstack.cont.name].stack_size*10 end
 	if count == -4 then count = (2^32)-1 end
 
-	local inv = RNSPlayer.thisEntity.get_main_inventory()
+	--local inv = RNSPlayer.thisEntity.get_main_inventory()
 	local amount = math.min(itemstack.cont.count, count)
 	if amount <= 0 then return end
 
-	local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
-	local externalItems = network:filter_externalIO_by_valid_signal()
-	for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
-		local priorityD = itemDrives[i]
-		local priorityE = externalItems[i].item
-		for _, drive in pairs(priorityD) do
-			local has = drive:has_item(itemstack, true)
-			if has > 0 and RNSPlayer:has_room() == true then
-				amount = amount - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, math.min(amount, has), false)
-				if amount <= 0 then return end
-			end
-		end
-		for _, external in pairs(priorityE) do
-			if external:target_interactable() and external:interactable() and string.match(external.io, "output") ~= nil and external.focusedEntity.inventory.output.max ~= 0 then
-				local index = 0
-				repeat
-					Util.next_index(external.focusedEntity.inventory.output)
-					local ii = external.focusedEntity.inventory.output.values[external.focusedEntity.inventory.output.index]
-					local inv1 = external.focusedEntity.thisEntity.get_inventory(ii)
-					if inv1 ~= nil then
-						if BaseNet.inventory_is_sortable(inv1) then inv1.sort_and_merge() end
-						local has = EIO.has_item(inv1, itemstack, true)
-						if has > 0 and RNSPlayer:has_room() == true then
-							--[[if external.metadataMode == false then
-								if itemstack.modified == true then return end
-								if itemstack.cont.ammo ~= game.item_prototypes[itemstack.cont.name].magazine_size then return end
-								if itemstack.cont.durability ~= game.item_prototypes[itemstack.cont.name].durability then return end
-							end]]
-							amount = amount - BaseNet.transfer_from_inv_to_inv(inv1, inv, itemstack, nil, math.min(has, amount), false, true)
-							if amount <= 0 then return end
-						end
-					end
-					index = index + 1
-				until index == external.focusedEntity.inventory.output.max
-			end
-			::next::
-		end
-	end
+	BaseNet.transfer_from_network_to_inv(network, {thisEntity = RNSPlayer.thisEntity,inventory = {input = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, itemstack, amount, true, true)
 end
 
 function WG.transfer_from_fdinv(RNSPlayer, WG, tags, count)

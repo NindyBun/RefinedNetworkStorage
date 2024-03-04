@@ -216,8 +216,8 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 	--inventorySize.caption = {"gui-description.RNS_Inventory_Size", t, m}
 
 
-	self:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, textField.text)
 	self:createPlayerInventory(guiTable, RNSPlayer, playerInventoryScrollPane, textField.text)
+	self:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, textField.text)
 
 end
 
@@ -243,7 +243,7 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 			table.insert(buttonText, {"gui-description.RNS_health"})
 			table.insert(buttonText, math.floor(item.health*100) .. "%")
 		end
-		if item.extras.custom_description ~= "" then
+		if item.extras.custom_description ~= "" and item.extras.custom_description ~= nil then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, item.extras.custom_description)
 		elseif item.modified then
@@ -268,7 +268,6 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 		end
 		GuiApi.add_button(guiTable, "RNS_NII_PInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
 		
-		--game.print(item.name .. " >> " .. itemIndex+1)
 		itemIndex = itemIndex + 1
 		::continue::
 	end
@@ -421,7 +420,7 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 			table.insert(buttonText, math.floor(item.health*100) .. "%")
 		end
 		
-		if item.extras.custom_description ~= "" then
+		if item.extras.custom_description ~= "" and item.extras.custom_description ~= nil then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, item.extras.custom_description)
 		elseif item.modified then
