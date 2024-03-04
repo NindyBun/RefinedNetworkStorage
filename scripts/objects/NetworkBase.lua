@@ -272,26 +272,26 @@ function BaseNet:transfer_io_mode(obj, type, from, to)
     end
 end
 
-function BaseNet:increase_item_count(name, count)
+function BaseNet:increase_tracked_item_count(name, count)
     if name == "" or name == nil then return end
     local storedAmount = self.Contents.item[name] or 0
     self.Contents.item[name] = storedAmount + count
 end
 
-function BaseNet:decrease_item_count(name, count)
+function BaseNet:decrease_tracked_item_count(name, count)
     if name == "" or name == nil then return end
     local storedAmount = self.Contents.item[name]
     self.Contents.item[name] = storedAmount - count
     if self.Contents.item[name] <= 0 then self.Contents.item[name] = 0 end
 end
 
-function BaseNet:increase_fluid_amount(name, amount)
+function BaseNet:increase_tracked_fluid_amount(name, amount)
     if name == "" or name == nil then return end
     local storedAmount = self.Contents.fluid[name] or 0
     self.Contents.fluid[name] = storedAmount + amount
 end
 
-function BaseNet:decrease_fluid_amount(name, amount)
+function BaseNet:decrease_tracked_fluid_amount(name, amount)
     if name == "" or name == nil then return end
     local storedAmount = self.Contents.fluid[name]
     self.Contents.fluid[name] = storedAmount - amount
@@ -454,7 +454,7 @@ function BaseNet:extract_fluid_from_drive(to_tank, drive, filter, extractSize, s
 
     local takeTemperature = drive.fluidArray[filter].temperature
     drive:remove_fluid(filter, takeAmount)
-    self:decrease_fluid_amount(filter, takeAmount)
+    self:decrease_tracked_fluid_amount(filter, takeAmount)
 
     local a0 = storedFluidAmount
     local t0 = storedFluidTemperature
@@ -488,7 +488,7 @@ function BaseNet:extract_fluid_from_external(to_tank, external, filter, extractS
         }
     end
 
-    self:decrease_fluid_amount(filter, takeAmount)
+    --self:decrease_fluid_amount(filter, takeAmount)
 
     local a0 = storedFluidAmount
     local t0 = storedFluidTemperature
@@ -592,7 +592,7 @@ function BaseNet:insert_fluid_into_drive(drive, fluid, extractSize, storedFluidT
         }
     end
     
-    self:increase_fluid_amount(fluid.name, insertedAmount)
+    self:increase_tracked_fluid_amount(fluid.name, insertedAmount)
     return extractSize
 end
 
@@ -641,7 +641,7 @@ function BaseNet:insert_fluid_into_external(external, extractSize, fluid_box, fl
             }
         end
     end
-    self:increase_fluid_amount(fluid.name, insertedAmount)
+    --self:increase_fluid_amount(fluid.name, insertedAmount)
     return extractSize
 end
 function BaseNet.transfer_from_tank_to_network(network, from_tank, transportCapacity)
@@ -938,7 +938,7 @@ function BaseNet:extract_item_from_drive(drive, inv, itemstack_master, storedIte
     local removedAmount, stack = drive:remove_item(itemstack_master, math.min(storedItem.count, transferCapacity), exact)
     transferCapacity = transferCapacity - removedAmount
     inv.insert(stack)
-    self:decrease_item_count(itemstack_master.name, removedAmount)
+    self:decrease_tracked_item_count(itemstack_master.name, removedAmount)
     return transferCapacity
 end
 
@@ -966,13 +966,13 @@ function BaseNet:extract_item_from_external(external, inv, transferCapacity, ite
                         if inv_item.ammo ~= nil then item.ammo = inv_item.ammo end
                         if inv_item.durability ~= nil then item.durability = inv_item.durability end
                     end
-                    self:decrease_item_count(splitStack.name, splitStack.count)
+                    --self:decrease_item_count(splitStack.name, splitStack.count)
                 else
                     local slot, index = inv.find_empty_stack(splitStack.name)
                     if slot ~= nil then
                         local removeAmount = inv[index].transfer_stack(item) and item.count or 0
                         transferCapacity = transferCapacity - removeAmount
-                        self:decrease_item_count(item.name, removeAmount)
+                        --self:decrease_item_count(item.name, removeAmount)
                     end
                 end
             end
@@ -1076,7 +1076,7 @@ function BaseNet:insert_item_into_drive(item, inv_item, drive, transferCapacity,
         if inv_item.ammo ~= nil then item.ammo = inv_item.ammo end
         if inv_item.durability ~= nil then item.durability = inv_item.durability end
     end
-    self:increase_item_count(splitStack.name, splitStack.count)
+    self:increase_tracked_item_count(splitStack.name, splitStack.count)
     return transferCapacity
 end
 
@@ -1096,13 +1096,13 @@ function BaseNet:insert_item_into_external(external, item, inv_item, itemstack_m
                     if inv_item.ammo ~= nil then item.ammo = inv_item.ammo end
                     if inv_item.durability ~= nil then item.durability = inv_item.durability end
                 end
-                self:increase_item_count(splitStack.name, splitStack.count)
+                --self:increase_item_count(splitStack.name, splitStack.count)
             else
                 local slot, index = ext_inv.find_empty_stack(inv_item.name)
                 if slot ~= nil then
                     local insertAmount = ext_inv[index].transfer_stack(item) and item.count or 0
                     transferCapacity = transferCapacity - insertAmount
-                    self:increase_item_count(item.name, insertAmount)
+                    --self:increase_item_count(item.name, insertAmount)
                 end
             end
         end

@@ -24,7 +24,8 @@ EIO = {
     onlyModified = true,
     whitelistBlacklist = "blacklist",
     priority = 0,
-    powerUsage = 160
+    powerUsage = 160,
+    cache = nil
 }
 
 function EIO:new(object)
@@ -117,7 +118,8 @@ function EIO:new(object)
     t:createArms()
     BaseNet.postArms(t)
     BaseNet.update_network_controller(t.networkController)
-    --UpdateSys.addEntity(t)
+    t:form_cache()
+    UpdateSys.addEntity(t)
     return t
 end
 
@@ -153,20 +155,14 @@ function EIO:target_interactable()
     return  self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid and self.focusedEntity.thisEntity.to_be_deconstructed() == false
 end
 
---[[function EIO:update()
-    if valid(self) == false then
-        self:remove()
-        return
-    end
-    if valid(self.networkController) == false then
-        self.networkController = nil
-    end
-    if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == false then
-        self:reset_focused_entity()
-    end
-    if self.thisEntity.to_be_deconstructed() == true then return end
-    --if game.tick % 25 then self:createArms() end
-end]]
+function EIO:form_cache()
+    if self.cache ~= nil then return false end
+    local storedAmount = 0
+end
+
+function EIO:update()
+    
+end
 
 function EIO:copy_settings(obj)
     self.color = obj.color
