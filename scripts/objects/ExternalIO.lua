@@ -25,7 +25,9 @@ EIO = {
     whitelistBlacklist = "blacklist",
     priority = 0,
     powerUsage = 160,
-    cache = nil
+    cache = nil,
+    storedAmount = 0,
+    capacity = 0
 }
 
 function EIO:new(object)
@@ -155,12 +157,48 @@ function EIO:target_interactable()
     return  self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid and self.focusedEntity.thisEntity.to_be_deconstructed() == false
 end
 
-function EIO:form_cache()
-    if self.cache ~= nil then return false end
-    local storedAmount = 0
+function EIO:clear_cache()
+    self.cache = nil
+    self.storedAmount = 0
+    self.capacity = 0
 end
 
-function EIO:update()
+function EIO:form_cache()
+    if self.cache ~= nil then return false end
+    self:clear_cache()
+    local storedAmount = 0
+    if self.type == "item" and self.focusedEntity.inventory.max ~= 0 then
+        self.cache = {}
+        for i = 1, self.focusedEntity.inventory.input.max do
+            local inv = self.focusedEntity.thisEntity.get_inventory(i)
+            local contents = inv.get_contents()
+            for name, count in pairs(contents) do
+                self.cache[name] = count
+                storedAmount = storedAmount + count
+            end
+            self.capacity = self.capacity + #inv * 1000
+        end
+    elseif self.type == "fluid" and self.focusedEntity.fluid_box.index ~= nil and self.focusedEntity.fluid_box.flow == "output" then
+        local fluid = self.focusedEntity.thisEntity.fluidbox[self.focusedEntity.fluid_box.index]
+        self.cache = {}
+        if fluid ~= nil then
+            self.cache[fluid.name] = fluid.amount
+            storedAmount = storedAmount + fluid.amount
+        elseif self.focusedEntity.fluid_box.filter ~= "" then
+            self.cache[self.focusedEntity.fluid_box.filter] = 0
+        end
+        self.capacity = self.focusedEntity.thisEntity.fluidbox.get_capacity(self.focusedEntity.fluid_box.index)
+    else
+        return false
+    end
+    self.storedAmount = storedAmount
+    return true
+end
+
+function EIO:update(network)
+    self:form_cache()
+    if type(network) ~= "table" then return end
+    if self:form_cache() then return end
     
 end
 

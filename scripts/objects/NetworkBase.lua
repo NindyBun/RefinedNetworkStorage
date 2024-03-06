@@ -503,6 +503,8 @@ function BaseNet:extract_fluid_from_external(to_tank, external, filter, extractS
         amount = storedFluidAmount,
         temperature = storedFluidTemperature
     }
+    
+    external:update(self)
     return extractSize
 end
 
@@ -641,6 +643,7 @@ function BaseNet:insert_fluid_into_external(external, extractSize, fluid_box, fl
             }
         end
     end
+    external:update(self)
     --self:increase_fluid_amount(fluid.name, insertedAmount)
     return extractSize
 end
@@ -975,6 +978,7 @@ function BaseNet:extract_item_from_external(external, inv, transferCapacity, ite
                         --self:decrease_item_count(item.name, removeAmount)
                     end
                 end
+                external:update(self)
             end
             ::next::
         end
@@ -1105,6 +1109,7 @@ function BaseNet:insert_item_into_external(external, item, inv_item, itemstack_m
                     --self:increase_item_count(item.name, insertAmount)
                 end
             end
+            external:update(self)
         end
         Util.next_index(external.focusedEntity.inventory.input)
     end
