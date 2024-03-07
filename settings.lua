@@ -10,7 +10,7 @@ data:extend({
         type = "color-setting",
         name = Constants.Settings.RNS_WirelessTransmitter_Color,
         setting_type = "runtime-global",
-        default_value = {r=25, g=0, b=51, 0}
+        default_value = {r=25, g=0, b=51, a=0}
     }
 })
 --[[data:extend({

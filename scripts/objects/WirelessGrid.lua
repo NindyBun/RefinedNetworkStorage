@@ -317,38 +317,22 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 	for _, priority in pairs(self.networkController.network:filter_externalIO_by_valid_signal()) do
 		for _, type in pairs(priority) do
 			for _, external in pairs(type) do
-				if external:interactable() and external:target_interactable() and string.match(external.io, "output") then
-					if external.type == "item" and external.focusedEntity.inventory.output.values ~= nil then
-						local index = 0
-						repeat
-							Util.next_index(external.focusedEntity.inventory.output)
-							local ii = external.focusedEntity.inventory.output.values[external.focusedEntity.inventory.output.index]
-							local inv1 = external.focusedEntity.thisEntity.get_inventory(ii)
-							if inv1 ~= nil then
-								if BaseNet.inventory_is_sortable(inv1) then inv1.sort_and_merge() end
-								for i = 1, #inv1 do
-									local itemstack = inv1[i]
-									if itemstack.count <= 0 then goto continue end
-									Util.item_add_list_into_table(inv, Itemstack:new(itemstack))
-									::continue::
-								end
+				if external:interactable() and external:target_interactable() and string.match(external.io, "input") then
+					if external.type == "item" then
+						for i = 1, #external.cache do
+							local cached = external.cache[i]
+							if cached.name ~= "RNS_Empty" then
+								Util.item_add_list_into_table(inv, Itemstack:reload(cached))
 							end
-							index = index + 1
-						until index == external.focusedEntity.inventory.output.max
-					elseif external.type == "fluid" and external.focusedEntity.fluid_box.index ~= nil then
-						if string.match(external.focusedEntity.fluid_box.flow, "output") ~= nil then
-							if external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index] ~= nil then
-								local fluidbox = external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index]
-								if fluid[fluidbox.name] ~= nil then
-									fluid[fluidbox.name].amount = fluid[fluidbox.name].amount + fluidbox.amount
-									fluid[fluidbox.name].temperature = (fluid[fluidbox.name].temperature * fluid[fluidbox.name].amount + fluidbox.amount * (fluidbox.temperature or game.fluid_prototypes[c.name].default_temperature)) / (fluid[fluidbox.name].amount + fluidbox.amount)
-								else
-									fluid[fluidbox.name] = {
-										name = fluidbox.name,
-										amount = fluidbox.amount,
-										temperature = fluidbox.temperature
-									}
-								end
+						end
+					else
+						local cached = external.cache[1]
+						if cached ~= nil then
+							if fluid[cached.name] ~= nil then
+								fluid[cached.name].amount = fluid[cached.name].amount + cached.amount
+								fluid[cached.name].temperature = (fluid[cached.name].temperature * fluid[cached.name].amount + cached.amount * (cached.temperature or game.fluid_prototypes[cached.name].default_temperature)) / (fluid[cached.name].amount + cached.amount)
+							else
+								fluid[cached.name] = cached
 							end
 						end
 					end

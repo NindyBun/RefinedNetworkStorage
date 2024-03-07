@@ -105,7 +105,7 @@ function NC:update()
 
     if not self.stable then return end
 
-    --if game.tick % Constants.Settings.RNS_CollectContents_Tick == 0 then self:collectContents() end
+    if game.tick % Constants.Settings.RNS_ExternalStorage_Tick == 0 then self:updateExternalStorage() end
     if game.tick % Constants.Settings.RNS_Detector_Tick == 0 then self:updateDetectors() end
 
     if game.tick % Constants.Settings.RNS_ItemIO_Tick == 0 then self:updateItemIO() end --Base is every 4 ticks to match yellow belt speed at 15/s
@@ -125,65 +125,15 @@ function NC:updateDetectors()
     end
 end
 
-function NC:collectContents()
-    self.network.Contents = {
-        item = {},
-        fluid = {}
-    }
-
-    --local itemDrives = BaseNet.getOperableObjects(self.network.ItemDriveTable)
-    --local fluidDrives = BaseNet.getOperableObjects(self.network.FluidDriveTable)
+function NC:updateExternalStorage()
     local validExternals = self.network:filter_externalIO_by_valid_signal()
-    --local externalInvs = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("item", BaseNet.getOperableObjects(validExternals)))
-    --local externalTanks = BaseNet.filter_by_mode("output", BaseNet.filter_by_type("fluid", BaseNet.getOperableObjects(validExternals)))
-
     for i = 1, Constants.Settings.RNS_Max_Priority*2+1 do
-        local priorityItems = self.network.ItemDriveTable[i] --itemDrives[i]
-        local priorityFluids = self.network.FluidDriveTable[i] --fluidDrives[i]
-        --local priorityInvs = --externalInvs[i]
-        --local priorityTanks = --externalTanks[i]
         local priorityExternals = validExternals[i]
-
-        --if Util.getTableLength(priorityItems) > 0 then
-            for _, drive in pairs(priorityItems) do
-                for name, content in pairs(drive.storageArray) do
-                    self.network.Contents.item[name] = (self.network.Contents.item[name] or 0) + content.count
-                end
+        for _, type in pairs(priorityExternals) do
+            for _, external in pairs(type) do
+                external:update(self.network)
             end
-        --end
-        --if Util.getTableLength(priorityFluids) > 0 then
-            for _, drive in pairs(priorityFluids) do
-                for name, content in pairs(drive.fluidArray) do
-                    self.network.Contents.fluid[name] = (self.network.Contents.fluid[name] or 0) + content.amount
-                end
-            end
-        --end
-            for _, external in pairs(priorityExternals) do
-                for _, e in pairs(external) do
-                    if e.thisEntity ~= nil and e.thisEntity.valid == true and e.thisEntity.to_be_deconstructed() == false and e.focusedEntity.thisEntity ~= nil and e.focusedEntity.thisEntity.valid == true and e.focusedEntity.thisEntity.to_be_deconstructed() == false and string.match(e.io, "output") ~= nil then
-                        if e.type == "item" and e.focusedEntity.inventory.values ~= nil then
-                            local index = 0
-                            repeat
-                                Util.next_index(e.focusedEntity.inventory.output)
-                                local ii = e.focusedEntity.inventory.input.values[e.focusedEntity.inventory.output.index]
-                                local inv1 = e.focusedEntity.thisEntity.get_inventory(ii)
-                                if inv1 ~= nil  then
-                                    for name, count in pairs(inv1.get_contents()) do
-                                        self.network.Contents.item[name] = (self.network.Contents.item[name] or 0) + count
-                                    end
-                                end
-                                index = index + 1
-                            until index == e.focusedEntity.inventory.output.max
-                        elseif e.type == "fluid" and e.focusedEntity.fluid_box.index ~= nil and string.match(e.focusedEntity.fluid_box.flow, "output") ~= nil then
-                            local fluid_box = e.focusedEntity.fluid_box
-                            local tank = e.focusedEntity.thisEntity.fluidbox[fluid_box.index]
-                            if tank ~= nil then
-                                self.network.Contents.fluid[tank.name] = (self.network.Contents.fluid[tank.name] or 0) + tank.amount
-                            end
-                        end
-                    end
-                end
-            end
+        end
     end
 end
 
@@ -274,45 +224,67 @@ function NC:updateItemIO()
     local export_length = 0
     local export_processed = 0
     for p, priority in pairs(self.network.ItemIOTable) do
-        import[p] = {}
-        for _, item in pairs(priority.input) do
-            table.insert(import[p], ((settings.global[Constants.Settings.RNS_RoundRobin].value == true and item.processed == false) and {1} or {Util.getTableLength(import[p])})[1], item)
+        if settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+            import[p] = {}
+            for _, item in pairs(priority.input) do
+                if item.processed == false then
+                    table.insert(import[p], 1, item)
+                else
+                    table.insert(import[p], item)
+                end
+                --table.insert(import[p], (item.processed == false and {1} or {Util.getTableLength(import[p])})[1], item)
+            end
+        else
+            import[p] = priority.input
         end
+        
         for _, item in pairs(import[p]) do
-            if item.thisEntity.valid and item.thisEntity.to_be_deconstructed() == false then
+            if item:interactable() then
+                local old = item.processed
                 item:IO()
                 if item.focusedEntity.inventory.input.values ~= nil then
                     import_length = import_length + 1
                 end
+                --if old == true and item.processed == true then item.processed = false end
                 if item.processed == true then import_processed = import_processed + 1 end
             end
         end
     end
     for p, priority in pairs(self.network.ItemIOTable) do
-        export[p] = {}
-        for _, item in pairs(priority.output) do
-            table.insert(export[p], ((settings.global[Constants.Settings.RNS_RoundRobin].value == true and item.processed == false) and {1} or {Util.getTableLength(export[p])})[1], item)
+        if settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+            export[p] = {}
+            for _, item in pairs(priority.output) do
+                if item.processed == false then
+                    table.insert(export[p], 1, item)
+                else
+                    table.insert(export[p], item)
+                end
+                --table.insert(export[p], (item.processed == false and {1} or {Util.getTableLength(export[p])})[1], item)
+            end
+        else
+            export[p] = priority.output
         end
+
         for _, item in pairs(export[p]) do
-            if item.thisEntity.valid and item.thisEntity.to_be_deconstructed() == false then
+            if item:interactable() then
+                local old = item.processed
                 item:IO()
                 if item.focusedEntity.inventory.output.values ~= nil then
                     export_length = export_length + 1
                 end
+                --if old == true and item.processed == true then item.processed = false end
                 if item.processed == true then export_processed = export_processed + 1 end
             end
         end
     end
-    local e_len = import_length --BaseNet.get_table_length_in_priority(export)
-    if import_processed >= e_len and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+    if import_length ~= 0 and import_processed >= import_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(import) do
             for _, item in pairs(priority) do
                 item.processed = false
             end
         end
     end
-    local e_len = export_length --BaseNet.get_table_length_in_priority(export)
-    if export_processed >= e_len and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+    if export_length ~= 0 and export_processed >= export_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(export) do
             for _, item in pairs(priority) do
                 item.processed = false
@@ -329,45 +301,63 @@ function NC:updateFluidIO()
     local export_length = 0
     local export_processed = 0
     for p, priority in pairs(self.network.FluidIOTable) do
-        import[p] = {}
-        for _, fluid in pairs(priority.input) do
-            table.insert(import[p], ((settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == false) and {1} or {Util.getTableLength(import[p])})[1], fluid)
+        if settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+            import[p] = {}
+            for _, fluid in pairs(priority.input) do
+                if fluid.processed == false then
+                    table.insert(import[p], 1, fluid)
+                elseif fluid.processed == true then
+                    table.insert(import[p], fluid)
+                end
+                --table.insert(import[p], (fluid.processed == false and {1} or {Util.getTableLength(import[p])})[1], fluid)
+            end
+        else
+            import[p] = priority.input
         end
+
         for _, fluid in pairs(import[p]) do
-            if fluid.thisEntity.valid and fluid.thisEntity.to_be_deconstructed() == false then
+            if fluid:interactable() then
+                --local old = fluid.processed
                 fluid:IO()
-                if fluid.thisEntity.position.x ~= fluid.focusedEntity.fluid_box.target_position.x or fluid.thisEntity.position.y ~= fluid.focusedEntity.fluid_box.target_position.y then
+                if fluid.focusedEntity.fluid_box.index ~= nil then
                     import_length = import_length + 1
                 end
+                --if old == true and fluid.processed == true then fluid.processed = false end
                 if fluid.processed == true then import_processed = import_processed + 1 end
             end
         end
     end
     for p, priority in pairs(self.network.FluidIOTable) do
-        export[p] = {}
-        for _, fluid in pairs(priority.output) do
-            table.insert(export[p], ((settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == false) and {1} or {Util.getTableLength(export[p])})[1], fluid)
+        if settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+            export[p] = {}
+            for _, fluid in pairs(priority.output) do
+                if fluid.processed == false then
+                    table.insert(export[p], 1, fluid)
+                elseif fluid.processed == true then
+                    table.insert(export[p], fluid)
+                end
+            end
+        else
+            export[p] = priority.output
         end
         for _, fluid in pairs(export[p]) do
-            if fluid.thisEntity.valid and fluid.thisEntity.to_be_deconstructed() == false then
+            if fluid:interactable() then
                 fluid:IO()
-                if fluid.thisEntity.position.x ~= fluid.focusedEntity.fluid_box.target_position.x or fluid.thisEntity.position.y ~= fluid.focusedEntity.fluid_box.target_position.y then
+                if fluid.focusedEntity.fluid_box.index ~= nil then
                     export_length = export_length + 1
                 end
                 if fluid.processed == true then export_processed = export_processed + 1 end
             end
         end
     end
-    local e_len = import_length --BaseNet.get_table_length_in_priority(export)
-    if import_processed >= e_len and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+    if import_length ~= 0 and import_processed >= import_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(import) do
             for _, fluid in pairs(priority) do
                 fluid.processed = false
             end
         end
     end
-    local e_len = export_length --BaseNet.get_table_length_in_priority(export)
-    if export_processed >= e_len and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+    if export_length ~= 0 and export_processed >= export_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(export) do
             for _, fluid in pairs(priority) do
                 fluid.processed = false

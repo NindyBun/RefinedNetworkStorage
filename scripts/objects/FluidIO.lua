@@ -341,14 +341,15 @@ function FIO:IO()
 
     if self.io == "input" and string.match(fluid_box.flow, "output") ~= nil and fluid ~= nil and self.filter == fluid.name then
         BaseNet.transfer_from_tank_to_network(network, target, transportCapacity)
-    elseif self.io == "output" and string.match(fluid_box.flow, "input") ~= nil and self.filter ~= "" and (network.Contents[self.filter] or 0) > 0 then
+    elseif self.io == "output" and string.match(fluid_box.flow, "input") ~= nil and self.filter ~= "" and (network.Contents.fluid[self.filter] or 0) > 0 then
         BaseNet.transfer_from_network_to_tank(network, target, transportCapacity, self.filter)
     end
 
     if self.io == "input" and target.thisEntity.fluidbox[fluid_box.index] == nil then self.processed = true return end
     if self.io == "input" and target.thisEntity.fluidbox[fluid_box.index].amount < storedAmount then self.processed = true return end
     if self.io == "output" and target.thisEntity.fluidbox[fluid_box.index] ~= nil and target.thisEntity.fluidbox[fluid_box.index].amount > storedAmount then self.processed = true return end
-    self.processed = false
+    if self.io == "output" and target.thisEntity.fluidbox[fluid_box.index] ~= nil and target.thisEntity.fluidbox.get_capacity(fluid_box.index) == target.thisEntity.fluidbox[fluid_box.index].amount then self.processed = true return end
+    --self.processed = false
 end
 
 function FIO:resetConnection()

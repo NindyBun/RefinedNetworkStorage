@@ -13,9 +13,9 @@ Itemstack = {
 }
 
 function Itemstack:new(item)
-    if item == nil then return end
-    if item.valid_for_read == false then return end
-    if item.count <= 0 then return end
+    if item == nil then return nil end
+    if item.valid_for_read == false then return nil end
+    if item.count <= 0 then return nil end
     local t = {}
     local mt = {}
     setmetatable(t, mt)

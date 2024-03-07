@@ -449,7 +449,9 @@ function IIO3:IO()
     elseif self.io == "output" and target.inventory.input.max ~= 0 ~= nil and self.filters.max ~= 0 then
         for i = 1, self.filters.max do
             local itemstack_master = Itemstack.create_template(self.filters.values[self.filters.index])
-            transportCapacity = BaseNet.transfer_from_network_to_inv(network, target, itemstack_master, transportCapacity, self.supportModified, false)
+            if (network.Contents.item[itemstack_master.name] or 0) > 0 then
+                transportCapacity = BaseNet.transfer_from_network_to_inv(network, target, itemstack_master, transportCapacity, self.supportModified, false)
+            end
             Util.next_index(self.filters)
         end
     end
@@ -702,7 +704,7 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
 		guiTable.vars.filter1 = filter1
 		if self.guiFilters[1] ~= "" then filter1.elem_value = self.guiFilters[1] end
 
-        local filter2 = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_2", filterFlow, "", true, "item", 40, {ID=self.thisEntityr})
+        local filter2 = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_2", filterFlow, "", true, "item", 40, {ID=self.thisEntity.unit_number})
 		guiTable.vars.filter2 = filter2
 		if self.guiFilters[2] ~= "" then filter2.elem_value = self.guiFilters[2] end
 

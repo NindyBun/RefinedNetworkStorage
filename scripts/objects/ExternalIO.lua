@@ -120,8 +120,8 @@ function EIO:new(object)
     t:createArms()
     BaseNet.postArms(t)
     BaseNet.update_network_controller(t.networkController)
-    t:form_cache()
-    UpdateSys.addEntity(t)
+    t:init_cache()
+    --UpdateSys.addEntity(t)
     return t
 end
 
@@ -154,7 +154,8 @@ end
 
 function EIO:target_interactable()
     self:check_focused_entity()
-    return  self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid and self.focusedEntity.thisEntity.to_be_deconstructed() == false
+    if self.focusedEntity.thisEntity == nil and self.focusedEntity.thisEntity.valid == false then self:flush_cache() end
+    return self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid and self.focusedEntity.thisEntity.to_be_deconstructed() == false
 end
 
 function EIO:clear_cache()
@@ -163,42 +164,161 @@ function EIO:clear_cache()
     self.capacity = 0
 end
 
-function EIO:form_cache()
+function EIO:flush_cache()
+    if self.cache == nil then return end
+    if self.networkController ~= nil and BaseNet.exists_in_network(self.networkController, self.thisEntity.unit_number) then
+        if self.type == "item" then
+            for i = 1, #self.cache do
+                local cached = self.cache[i]
+                if cached.name ~= "RNS_Empty" then
+                    self.networkController.network:decrease_tracked_item_count(cached.name, cached.count)
+                end
+            end
+        else
+            local cached = self.cache[1]
+            if cached ~= nil then
+                self.networkController.network:decrease_tracked_fluid_count(cached.name, cached.amount)
+            end
+        end
+    end
+end
+
+function EIO:inject_cache()
+    if self.cache == nil then return end
+    if self.networkController ~= nil and BaseNet.exists_in_network(self.networkController, self.thisEntity.unit_number) then
+        if self.type == "item" then
+            for i = 1, #self.cache do
+                local cached = self.cache[i]
+                if cached.name ~= "RNS_Empty" then
+                    self.networkController.network:increase_tracked_item_count(cached.name, cached.count)
+                end
+            end
+        else
+            local cached = self.cache[1]
+            if cached ~= nil then
+                self.networkController.network:increase_tracked_fluid_count(cached.name, cached.amount)
+            end
+        end
+    end
+end
+
+function EIO:init_cache()
     if self.cache ~= nil then return false end
-    self:clear_cache()
-    local storedAmount = 0
-    if self.type == "item" and self.focusedEntity.inventory.max ~= 0 then
+    if self.type == "item" and self.focusedEntity.inventory.output.max ~= 0 then
         self.cache = {}
-        for i = 1, self.focusedEntity.inventory.input.max do
+        for i = 1, self.focusedEntity.inventory.output.max do
             local inv = self.focusedEntity.thisEntity.get_inventory(i)
-            local contents = inv.get_contents()
-            for name, count in pairs(contents) do
-                self.cache[name] = count
-                storedAmount = storedAmount + count
+            if BaseNet.inventory_is_sortable(inv) then inv.sort_and_merge() end
+            for j = 1, #inv do
+                local itemstack = Itemstack:new(inv[j])
+                self.cache[j] = itemstack or {name = "RNS_Empty", count = 0}
+                self.storedAmount = self.storedAmount + (itemstack and itemstack.count or 0)
             end
             self.capacity = self.capacity + #inv * 1000
         end
     elseif self.type == "fluid" and self.focusedEntity.fluid_box.index ~= nil and self.focusedEntity.fluid_box.flow == "output" then
         local fluid = self.focusedEntity.thisEntity.fluidbox[self.focusedEntity.fluid_box.index]
         self.cache = {}
-        if fluid ~= nil then
-            self.cache[fluid.name] = fluid.amount
-            storedAmount = storedAmount + fluid.amount
-        elseif self.focusedEntity.fluid_box.filter ~= "" then
-            self.cache[self.focusedEntity.fluid_box.filter] = 0
-        end
+        self.cache[1] = fluid
+        self.storedAmount = self.storedAmount + (fluid and fluid.amount or 0)
         self.capacity = self.focusedEntity.thisEntity.fluidbox.get_capacity(self.focusedEntity.fluid_box.index)
-    else
-        return false
     end
-    self.storedAmount = storedAmount
     return true
 end
 
 function EIO:update(network)
-    self:form_cache()
-    if type(network) ~= "table" then return end
-    if self:form_cache() then return end
+    if self.io == "output" then return end
+    self:check_focused_entity()
+    if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false then self.storedAmount = 0 return end
+    if self.type == "item" and self.focusedEntity.inventory.output.max == 0 then self.storedAmount = 0 return end
+    if self.type == "fluid" and self.focusedEntity.fluid_box.index == nil then self.storedAmount = 0 return end
+
+    if self:init_cache() then return end
+
+    self.storedAmount = 0
+    self.capacity = 0
+
+    if self.type == "item" and self.focusedEntity.inventory.output.max ~= 0 then
+        for i = 1, self.focusedEntity.inventory.output.max do
+            local inv = self.focusedEntity.thisEntity.get_inventory(i)
+            if BaseNet.inventory_is_sortable(inv) then inv.sort_and_merge() end
+            for j = 1, #inv do
+                local itemstack = Itemstack:new(inv[j]) or {name = "RNS_Empty", count = 0}
+                self.storedAmount = self.storedAmount + (itemstack and itemstack.count or 0)
+                if j > #self.cache then
+                    if itemstack.name ~= "RNS_Empty" then
+                        network:increase_tracked_item_count(itemstack.name, itemstack.count)
+                        self.cache[j] = itemstack
+                    end
+                    goto continue
+                end
+
+                local cached = self.cache[j]
+
+                if cached.name == "RNS_Empty" and itemstack.name == cached.name then goto continue end
+
+                if cached.name ~= "RNS_Empty" and itemstack.name == "RNS_Empty" then
+                    network:decrease_tracked_item_count(cached.name, cached.count)
+                    self.cache[j] = {name = "RNS_Empty", count = 0}
+                elseif cached.name == "RNS_Empty" and itemstack.name ~= "RNS_Empty" then
+                    network:increase_tracked_item_count(itemstack.name, itemstack.count)
+                    self.cache[j] = itemstack
+                elseif cached:compare_itemstacks(itemstack, true, true) == false then
+                    network:decrease_tracked_item_count(cached.name, cached.count)
+                    network:increase_tracked_item_count(itemstack.name, itemstack.count)
+                    self.cache[j] = itemstack
+                elseif cached.count ~= itemstack.count then
+                    local delta = itemstack.count - cached.count
+                    if delta > 0 then
+                        network:increase_tracked_item_count(itemstack.name, delta)
+                    else
+                        network:decrease_tracked_item_count(itemstack.name, math.abs(delta))
+                    end
+                    self.cache[j] = itemstack
+                end
+                ::continue::
+            end
+            self.capacity = self.capacity + #inv * 1000
+            
+            if #self.cache > #inv then
+                for j = #self.cache - 1, #inv, -1 do
+                    local cached = self.cache[j]
+                    if cached.name ~= "RNS_Empty" then
+                        network:decrease_tracked_item_count(cached.name, cached.count)
+                    end
+                    self.cache[j] = nil
+                end
+            end
+        end
+    elseif self.type == "fluid" and self.focusedEntity.fluid_box.index ~= nil and self.focusedEntity.fluid_box.flow == "output" then
+        local fluid = self.focusedEntity.thisEntity.fluidbox[self.focusedEntity.fluid_box.index]
+        self.storedAmount = self.storedAmount + (fluid and fluid.amount or 0)
+        local cached = self.cache[1]
+        if fluid == nil and cached == nil then end
+
+        if fluid == nil and cached ~= nil then
+            network:decrease_tracked_fluid_amount(cached.name, cached.amount)
+            self.cache[1] = nil
+        elseif fluid ~= nil and cached == nil then
+            network:increase_tracked_fluid_amount(fluid.name, fluid.amount)
+            self.cache[1] = fluid
+        elseif fluid.name ~= cached.name or fluid.tempurature ~= cached.tempurature then
+            network:decrease_tracked_fluid_amount(cached.name, cached.amount)
+            network:increase_tracked_fluid_amount(fluid.name, fluid.amount)
+            self.cache[1] = fluid
+        elseif fluid.amount ~= cached.amount then
+            local delta = fluid.amount - cached.amount
+            if delta > 0 then
+                network:increase_tracked_fluid_amount(fluid.name, delta)
+                fluid.amount = fluid.amount + delta
+            else
+                network:decrease_tracked_fluid_amount(fluid.name, math.abs(delta))
+                fluid.amount = fluid.amount - math.abs(delta)
+            end
+        end
+
+        self.capacity = self.capacity + self.focusedEntity.thisEntity.fluidbox.get_capacity(self.focusedEntity.fluid_box.index)
+    end
     
 end
 
@@ -297,7 +417,7 @@ function EIO:generateModeIcon()
             target_offset=offset,
             surface=self.thisEntity.surface,
             only_in_alt_mode=true,
-            orientation=self.io == "input" and (self:getRealDirection()*0.25)-0.25 or ((self:getRealDirection()*0.25)+0.25)%1.00
+            orientation=self.io == "input" and (self:getRealDirection()*0.25)+0.25 or ((self:getRealDirection()*0.25)-0.25)%1.00
         }
     else
         self.ioIcon = rendering.draw_sprite{
@@ -738,6 +858,11 @@ function EIO.interaction(event, RNSPlayer)
         if mode ~= io.io then
             io.io = mode
             io:generateModeIcon()
+            if mode == "input" then
+                io:inject_cache()
+            elseif mode == "output" then
+                io:flush_cache()
+            end
         end
 		return
     end
@@ -754,6 +879,8 @@ function EIO.interaction(event, RNSPlayer)
                 local filter = io.guiFilters[io.type][i]
                 io.combinator.get_or_create_control_behavior().set_signal(i, filter ~= "" and {signal={type=io.type, name=filter}, count=1} or nil)
             end
+            io:flush_cache()
+            io:clear_cache()
         end
 		return
     end

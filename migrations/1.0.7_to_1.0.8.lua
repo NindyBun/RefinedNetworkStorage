@@ -18,18 +18,10 @@ for _, obj in pairs(global.objectTables) do
                 entry.network.exportDriveCache = {}
                 entry.network.exportExternalCache = {}
                 
-                local temp = {}
-                for n, v in pairs(entry.network.Contents.item) do
-                    temp[n] = v
-                end
-                for n, v in pairs(entry.network.Contents.fluid) do
-                    temp[n] = v
-                end
-                entry.network.Contents = temp
             end
         end
 
-        if obj.tag == "ID" or obj.tag == "FD" then
+        if obj.tag == "ID" then
             for _, entry in pairs(global[obj.tableName] or {}) do
                 entry.filters = {}
                 entry.guiFilters = {}
@@ -38,6 +30,28 @@ for _, obj in pairs(global.objectTables) do
                 end
                 entry.whitelistBlacklist = entry.whitelist and "whitelist" or "blacklist"
                 entry.whitelist = nil
+                --[[if entry.networkController ~= nil and BaseNet.exists_in_network(entry.networkController, entry.thisEntity.unit_number) then
+                    for n, v in pairs(entry.storageArray) do
+                        entry.networkController.network:increase_tracked_item_count(n, v.count)
+                    end
+                end]]
+            end
+        end
+
+        if obj.tag == "FD" then
+            for _, entry in pairs(global[obj.tableName] or {}) do
+                entry.filters = {}
+                entry.guiFilters = {}
+                for i = 1, 5 do
+                    entry.guiFilters[i] = ""
+                end
+                entry.whitelistBlacklist = entry.whitelist and "whitelist" or "blacklist"
+                entry.whitelist = nil
+                --[[if entry.networkController ~= nil and BaseNet.exists_in_network(entry.networkController, entry.thisEntity.unit_number) then
+                    for n, v in pairs(entry.fluidArray) do
+                        entry.networkController.network:increase_tracked_fluid_amount(n, v.amount)
+                    end
+                end]]
             end
         end
 
@@ -65,6 +79,10 @@ for _, obj in pairs(global.objectTables) do
                         entry.filters.fluid[oldFilters.fluid.values[i]] = true
                     end
                 end
+                entry:init_cache()
+                --[[if entry.networkController ~= nil and BaseNet.exists_in_network(entry.networkController, entry.thisEntity.unit_number) then
+                    entry:update(entry.networkController.network)
+                end]]
             end
         end
 
@@ -72,7 +90,7 @@ for _, obj in pairs(global.objectTables) do
             for _, entry in pairs(global[obj.tableName] or {}) do
                 entry.whitelistBlacklist = entry.whitelist and "whitelist" or "blacklist"
                 entry.whitelist = nil
-                entry.metadatamode = nil
+                entry.supportModified = entry.metadataMode
                 local oldFilters = entry.filters
                 entry.filters = {
                     index = 0,

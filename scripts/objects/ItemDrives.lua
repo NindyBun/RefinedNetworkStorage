@@ -74,19 +74,6 @@ function ID:interactable()
     return self.thisEntity ~= nil and self.thisEntity.valid and self.thisEntity.to_be_deconstructed() == false
 end
 
---[[function ID:update()
-    self.lastUpdate = game.tick
-    if valid(self) == false then
-        self:remove()
-        return
-    end
-    if valid(self.networkController) == false then
-        self.networkController = nil
-    end
-    if self.thisEntity.to_be_deconstructed() == true then return end
-    --if game.tick % 25 then self:createArms() end
-end]]
-
 function ID:copy_settings(obj)
     self.priority = obj.priority
     self.whitelistBlacklist = obj.whitelistBlacklist
