@@ -12,12 +12,15 @@ for _, obj in pairs(global.objectTables) do
     if obj.tableName ~= nil and obj.tag ~= nil and _G[obj.tag] ~= nil then
         if obj.tag == "NC" then
             for _, entry in pairs(global[obj.tableName] or {}) do
-                
+                entry.network.Contents = {
+                    item = {},
+                    fluid = {}
+                }
                 entry.network.importDriveCache = {}
                 entry.network.importExternalCache = {}
                 entry.network.exportDriveCache = {}
                 entry.network.exportExternalCache = {}
-                
+                entry.shouldRefresh = true
             end
         end
 

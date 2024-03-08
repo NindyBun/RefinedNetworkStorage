@@ -196,7 +196,16 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText5"}, Constants.Settings.RNS_Gui.white)
 		--GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText6"}, Constants.Settings.RNS_Gui.white)
 
-		--GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
+		GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
+
+		GuiApi.add_label(guiTable, "ItemDriveStorageLabel", informationFrame, {"gui-description.RNS_ItemDriveStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
+		GuiApi.add_progress_bar(guiTable, "ItemDriveStorageBar", informationFrame, "", {"gui-description.RNS_ItemDriveStorageBar", 0, 0}, true, nil, 0, 200, 25)
+
+		GuiApi.add_label(guiTable, "FluidDriveStorageLabel", informationFrame, {"gui-description.RNS_FluidDriveStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
+		GuiApi.add_progress_bar(guiTable, "FluidDriveStorageBar", informationFrame, "", {"gui-description.RNS_FluidDriveStorageBar", 0, 0}, true, nil, 0, 200, 25)
+
+		--GuiApi.add_label(guiTable, "ExternalStorageLabel", informationFrame, {"gui-description.RNS_ExternalStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
+		--GuiApi.add_progress_bar(guiTable, "ExternalStorageBar", informationFrame, "", {"gui-description.RNS_ExternalStorageBar", 0, 0}, true, nil, 0, 200, 25)
 
 		--GuiApi.add_label(guiTable, "", informationFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)
 
@@ -322,20 +331,31 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 	local tableList = GuiApi.add_table(guiTable, "", inventoryScrollPane, 8)
 	local inv = {}
 	local fluid = {}
+
+	local itemDriveStorage = 0
+	local itemDriveCapacity = 0
 	for _, priority in pairs(self.networkController.network.ItemDriveTable) do
 		for _, drive in pairs(priority) do
 			if drive:interactable() == false then goto continue end
 			for _, v in pairs(drive.storageArray) do
 				Util.item_add_list_into_table(inv, Itemstack:reload(v))
+				itemDriveStorage = itemDriveStorage + v.count
 				--local c = Util.itemstack_template(v.name)
 				--c.cont.count = v.count
 				--if c.cont.ammo then c.cont.ammo = v.ammo end
 				--if c.cont.durability then c.cont.durability = v.durability end
 				--Util.add_or_merge(c, inv, true)
 			end
+			itemDriveCapacity = itemDriveCapacity + drive.maxStorage
 			::continue::
 		end
 	end
+	guiTable.vars.ItemDriveStorageLabel.caption = {"gui-description.RNS_ItemDriveStorageLabel", itemDriveCapacity ~= 0 and (itemDriveStorage/itemDriveCapacity)*100 or 0}
+	guiTable.vars.ItemDriveStorageBar.value = itemDriveCapacity ~= 0 and (itemDriveStorage/itemDriveCapacity) or 0
+	guiTable.vars.ItemDriveStorageBar.tooltip = {"gui-description.RNS_ItemDriveStorageBar", Util.toRNumber(itemDriveStorage), Util.toRNumber(itemDriveCapacity)}
+
+	local fluidDriveStorage = 0
+	local fluidDriveCapacity = 0
 	for _, priority in pairs(self.networkController.network.FluidDriveTable) do
 		for _, drive in pairs(priority) do
 			if drive:interactable() == false then goto continue end
@@ -351,11 +371,19 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 						temperature = c.temperature
 					}
 				end
+				fluidDriveStorage = fluidDriveStorage + c.amount
 				::continue::
 			end
+			fluidDriveCapacity = fluidDriveCapacity + drive.maxStorage
 			::continue::
 		end
 	end
+	guiTable.vars.FluidDriveStorageLabel.caption = {"gui-description.RNS_FluidDriveStorageLabel", fluidDriveCapacity ~= 0 and (fluidDriveStorage/fluidDriveCapacity)*100 or 0}
+	guiTable.vars.FluidDriveStorageBar.value = fluidDriveCapacity ~= 0 and (fluidDriveStorage/fluidDriveCapacity) or 0
+	guiTable.vars.FluidDriveStorageBar.tooltip = {"gui-description.RNS_FluidDriveStorageBar", Util.toRNumber(fluidDriveStorage), Util.toRNumber(fluidDriveCapacity)}
+
+	--local externalStorage = 0
+	--local externalCapacity = 0
 	for _, priority in pairs(self.networkController.network:filter_externalIO_by_valid_signal()) do
 		for _, type in pairs(priority) do
 			for _, external in pairs(type) do
@@ -365,8 +393,10 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 							local cached = external.cache[i]
 							if cached.name ~= "RNS_Empty" then
 								Util.item_add_list_into_table(inv, Itemstack:reload(cached))
+								--externalStorage = externalStorage + cached.count
 							end
 						end
+						--externalCapacity = externalCapacity + external.capacity
 					else
 						local cached = external.cache[1]
 						if cached ~= nil then
@@ -376,12 +406,18 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 							else
 								fluid[cached.name] = cached
 							end
+							--externalStorage = externalStorage + cached.amount
 						end
+						--externalCapacity = externalCapacity + (external.focusedEntity.fluid_box.index ~= nil and external.focusedEntity.thisEntity.fluidbox.get_capacity(external.focusedEntity.fluid_box.index) or 0)
 					end
 				end
 			end
 		end
 	end
+	--guiTable.vars.ExternalStorageLabel.caption = {"gui-description.RNS_ExternalStorageLabel", externalCapacity ~= 0 and (externalStorage/externalCapacity) or 0}
+	--guiTable.vars.ExternalStorageBar.value = externalCapacity ~= 0 and (externalStorage/externalCapacity) or 0
+	--guiTable.vars.ExternalStorageBar.tooltip = {"gui-description.RNS_ExternalStorageBar", Util.toRNumber(externalStorage), Util.toRNumber(externalCapacity)}
+
 	-----------------------------------------------------------------------------------Fluids----------------------------------------------------------------------------------------
 	for k, c in pairs(fluid) do
 		RNSPlayer.thisEntity.request_translation(Util.get_fluid_name(c.name))

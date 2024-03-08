@@ -298,12 +298,12 @@ function FD:getTooltips(guiTable, mainFrame, justCreated)
 
         GuiApi.add_subtitle(guiTable, "", settingsFrame, {"gui-description.RNS_Setting"})
 
-        local priorityFlow = GuiApi.add_flow(guiTable, "", mainFrame, "horizontal", false)
+        local priorityFlow = GuiApi.add_flow(guiTable, "", settingsFrame, "horizontal", false)
         GuiApi.add_label(guiTable, "", priorityFlow, {"gui-description.RNS_Priority"}, Constants.Settings.RNS_Gui.white)
         local priorityDD = GuiApi.add_dropdown(guiTable, "RNS_FluidDrive_Priority", priorityFlow, Constants.Settings.RNS_Priorities, ((#Constants.Settings.RNS_Priorities+1)/2)-self.priority, false, "", {ID=self.thisEntity.unit_number})
         priorityDD.style.minimal_width = 100
 
-        GuiApi.add_line(guiTable, "", mainFrame, "horizontal")
+        GuiApi.add_line(guiTable, "", settingsFrame, "horizontal")
 
         local state = "left"
         if self.whitelistBlacklist == "blacklist" then state = "right" end

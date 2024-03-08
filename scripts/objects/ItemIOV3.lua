@@ -458,7 +458,7 @@ function IIO3:IO()
 
     if self.io == "input" and target.thisEntity.get_item_count() < storedAmount then self.processed = true return end
     if self.io == "output" and target.thisEntity.get_item_count() > storedAmount then self.processed = true return end
-    self.processed = false
+    --self.processed = false
 end
 
 function IIO3:checkFullness()

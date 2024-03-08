@@ -334,7 +334,7 @@ function FIO:IO()
     if fluid == nil and self.io == "input" then self.processed = true return end
 
     local storedAmount = self.io == "input" and fluid.amount or 0
-    if storedAmount <= 0 and self.io == "input" then self.processed = true return end
+    --if storedAmount <= 0 and self.io == "input" then self.processed = true return end
     if storedAmount == target.thisEntity.fluidbox.get_capacity(fluid_box.index) and self.io == "output" then self.processed = true return end
 
     local transportCapacity = self.fluidSize * Constants.Settings.RNS_BaseFluidIO_TransferCapacity

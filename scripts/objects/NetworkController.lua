@@ -191,7 +191,7 @@ function NC:find_wirelessgrid_with_wirelessTransmitter(id)
                     }
                 for _, interface in pairs(interfaces) do
                     if interface.unit_number == id then
-                        local inter = Util.get_rns_entity(interface)
+                        local inter = global.entityTable[interface.unit_number]
                         if inter ~= nil and inter.thisEntity ~= nil and inter.thisEntity.valid == true then
                             if inter.network_controller_position.x ~= nil and inter.network_controller_position.y ~= nil and inter.network_controller_surface ~= nil then
                                 if inter.network_controller_surface == self.thisEntity.surface.index and Util.positions_match(inter.network_controller_position, self.thisEntity.position) == true then
@@ -240,7 +240,7 @@ function NC:updateItemIO()
         
         for _, item in pairs(import[p]) do
             if item:interactable() then
-                local old = item.processed
+                --local old = item.processed
                 item:IO()
                 if item.focusedEntity.inventory.input.values ~= nil then
                     import_length = import_length + 1
@@ -267,7 +267,7 @@ function NC:updateItemIO()
 
         for _, item in pairs(export[p]) do
             if item:interactable() then
-                local old = item.processed
+                --local old = item.processed
                 item:IO()
                 if item.focusedEntity.inventory.output.values ~= nil then
                     export_length = export_length + 1
@@ -277,14 +277,14 @@ function NC:updateItemIO()
             end
         end
     end
-    if import_length ~= 0 and import_processed >= import_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+    if import_processed >= import_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(import) do
             for _, item in pairs(priority) do
                 item.processed = false
             end
         end
     end
-    if export_length ~= 0 and export_processed >= export_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+    if export_processed >= export_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(export) do
             for _, item in pairs(priority) do
                 item.processed = false
@@ -350,14 +350,14 @@ function NC:updateFluidIO()
             end
         end
     end
-    if import_length ~= 0 and import_processed >= import_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+    if import_processed >= import_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(import) do
             for _, fluid in pairs(priority) do
                 fluid.processed = false
             end
         end
     end
-    if export_length ~= 0 and export_processed >= export_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+    if export_processed >= export_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(export) do
             for _, fluid in pairs(priority) do
                 fluid.processed = false
@@ -399,7 +399,7 @@ function NC:createArms()
                         --Do nothing
                     else
                         if BaseNet.exists_in_network(obj.networkController, obj.entID) and obj.networkController.entID ~= self.entID then
-                            game.print(BaseNet.exists_in_network(obj.networkController, obj.entID))
+                            --game.print(BaseNet.exists_in_network(obj.networkController, obj.entID))
                             self.thisEntity.order_deconstruction("player")
                         else
                             table.insert(self.connectedObjs[area.direction], obj)
@@ -428,9 +428,9 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
 
         GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
 
-        GuiApi.add_label(guiTable, "EnergyUsage", infoFrame, {"gui-description.RNS_NetworkController_EnergyUsage", self.thisEntity.power_usage}, Constants.Settings.RNS_Gui.orange, nil, true)
-        GuiApi.add_label(guiTable, "EnergyBuffer", infoFrame, {"gui-description.RNS_NetworkController_EnergyBuffer", self.thisEntity.electric_buffer_size}, Constants.Settings.RNS_Gui.orange, nil, true)
-        GuiApi.add_progress_bar(guiTable, "EnergyBar", infoFrame, "", self.thisEntity.energy .. "/" .. self.thisEntity.electric_buffer_size, true, nil, self.thisEntity.energy/self.thisEntity.electric_buffer_size, 200, 25)
+        GuiApi.add_label(guiTable, "EnergyUsage", infoFrame, {"gui-description.RNS_NetworkController_EnergyUsage", Util.toRNumber(self.thisEntity.power_usage)}, Constants.Settings.RNS_Gui.orange, nil, true)
+        GuiApi.add_label(guiTable, "EnergyBuffer", infoFrame, {"gui-description.RNS_NetworkController_EnergyBuffer", Util.toRNumber(self.thisEntity.electric_buffer_size)}, Constants.Settings.RNS_Gui.orange, nil, true)
+        GuiApi.add_progress_bar(guiTable, "EnergyBar", infoFrame, "", Util.toRNumber(self.thisEntity.energy) .. "/" .. Util.toRNumber(self.thisEntity.electric_buffer_size), true, nil, self.thisEntity.energy/self.thisEntity.electric_buffer_size, 200, 25)
         
         GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)
         GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_Surface", self.thisEntity.surface.index}, Constants.Settings.RNS_Gui.white, "", false)
@@ -458,9 +458,9 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
     local energyBuffer = guiTable.vars.EnergyBuffer
     local energyBar = guiTable.vars.EnergyBar
 
-    energyUsage.caption = {"gui-description.RNS_NetworkController_EnergyUsage", self.thisEntity.power_usage}
-    energyBuffer.caption = {"gui-description.RNS_NetworkController_EnergyBuffer", self.thisEntity.electric_buffer_size}
-    energyBar.tooltip = self.thisEntity.energy .. "/" .. self.thisEntity.electric_buffer_size
+    energyUsage.caption = {"gui-description.RNS_NetworkController_EnergyUsage", Util.toRNumber(self.thisEntity.power_usage)}
+    energyBuffer.caption = {"gui-description.RNS_NetworkController_EnergyBuffer", Util.toRNumber(self.thisEntity.electric_buffer_size)}
+    energyBar.tooltip = Util.toRNumber(self.thisEntity.energy) .. "/" .. Util.toRNumber(self.thisEntity.electric_buffer_size)
     energyBar.value = self.thisEntity.energy/self.thisEntity.electric_buffer_size
 
     local ConnectedStructuresTable = guiTable.vars.ConnectedStructuresTable

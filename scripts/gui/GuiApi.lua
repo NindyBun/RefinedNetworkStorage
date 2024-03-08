@@ -216,14 +216,14 @@ function GuiApi.add_item_frame(guiTable, name, gui, tooltip, item, amount, itemS
     return frame
 end
 
-function GuiApi.add_progress_bar(guiTable, name, gui, text, tooltip, save, color, value, size, bar_width)
+function GuiApi.add_progress_bar(guiTable, name, gui, text, tooltip, save, color, value, width, height)
     if name ~= nil and name ~= "" and gui[name] ~= nil then gui[name].destroy() end
 
     local progressBar = gui.add{type="progressbar", name=name, caption=text, tooltip=tooltip}
     if color ~= nil then progressBar.style.color = color end
 
-    if size ~= nil then progressBar.style.maximal_width = size end
-    if bar_width ~= nil then progressBar.style.bar_width = bar_width end
+    if width ~= nil then progressBar.style.maximal_width = width end
+    if height ~= nil then progressBar.style.bar_width = height end
     progressBar.style.horizontally_stretchable = true
 
     if value ~= nil then progressBar.value = value end
