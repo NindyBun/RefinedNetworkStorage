@@ -212,7 +212,7 @@ function EIO:init_cache()
             for j = 1, #inv do
                 local itemstack = Itemstack:new(inv[j])
                 self.cache[j] = itemstack or {name = "RNS_Empty", count = 0}
-                self.storedAmount = self.storedAmount + (itemstack and itemstack.count or 0)
+                self.storedAmount = self.storedAmount + (itemstack.count <= 0 and 1 or 0)
             end
             self.capacity = self.capacity + #inv * 1000
         end

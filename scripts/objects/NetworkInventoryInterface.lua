@@ -198,14 +198,19 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 
 		GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
 
-		GuiApi.add_label(guiTable, "ItemDriveStorageLabel", informationFrame, {"gui-description.RNS_ItemDriveStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
-		GuiApi.add_progress_bar(guiTable, "ItemDriveStorageBar", informationFrame, "", {"gui-description.RNS_ItemDriveStorageBar", 0, 0}, true, nil, 0, 200, 25)
+		local barFlow = GuiApi.add_flow(guiTable, "", informationFrame, "horizontal")
 
-		GuiApi.add_label(guiTable, "FluidDriveStorageLabel", informationFrame, {"gui-description.RNS_FluidDriveStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
-		GuiApi.add_progress_bar(guiTable, "FluidDriveStorageBar", informationFrame, "", {"gui-description.RNS_FluidDriveStorageBar", 0, 0}, true, nil, 0, 200, 25)
+		GuiApi.add_label(guiTable, "ItemDriveStorageLabel", barFlow, {"gui-description.RNS_ItemDriveStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
+		GuiApi.add_progress_bar(guiTable, "ItemDriveStorageBar", barFlow, "", {"gui-description.RNS_ItemDriveStorageBar", 0, 0}, true, nil, 0, 200, 25)
 
-		--GuiApi.add_label(guiTable, "ExternalStorageLabel", informationFrame, {"gui-description.RNS_ExternalStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
-		--GuiApi.add_progress_bar(guiTable, "ExternalStorageBar", informationFrame, "", {"gui-description.RNS_ExternalStorageBar", 0, 0}, true, nil, 0, 200, 25)
+		GuiApi.add_label(guiTable, "FluidDriveStorageLabel", barFlow, {"gui-description.RNS_FluidDriveStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
+		GuiApi.add_progress_bar(guiTable, "FluidDriveStorageBar", barFlow, "", {"gui-description.RNS_FluidDriveStorageBar", 0, 0}, true, nil, 0, 200, 25)
+
+		GuiApi.add_label(guiTable, "ExternalItemStorageLabel", barFlow, {"gui-description.RNS_ExternalItemStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
+		GuiApi.add_progress_bar(guiTable, "ExternalItemStorageBar", barFlow, "", {"gui-description.RNS_ExternalItemStorageBar", 0, 0}, true, nil, 0, 200, 25)
+
+		GuiApi.add_label(guiTable, "ExternalFluidStorageLabel", barFlow, {"gui-description.RNS_ExternalFluidStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
+		GuiApi.add_progress_bar(guiTable, "ExternalFluidStorageBar", barFlow, "", {"gui-description.RNS_ExternalFluidStorageBar", 0, 0}, true, nil, 0, 200, 25)
 
 		--GuiApi.add_label(guiTable, "", informationFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)
 
@@ -382,8 +387,10 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 	guiTable.vars.FluidDriveStorageBar.value = fluidDriveCapacity ~= 0 and (fluidDriveStorage/fluidDriveCapacity) or 0
 	guiTable.vars.FluidDriveStorageBar.tooltip = {"gui-description.RNS_FluidDriveStorageBar", Util.toRNumber(fluidDriveStorage), Util.toRNumber(fluidDriveCapacity)}
 
-	--local externalStorage = 0
-	--local externalCapacity = 0
+	local externalItemStorage = 0
+	local externalFluidStorage = 0
+	local externalItemCapacity = 0
+	local externalFluidCapacity = 0
 	for _, priority in pairs(self.networkController.network:filter_externalIO_by_valid_signal()) do
 		for _, type in pairs(priority) do
 			for _, external in pairs(type) do
@@ -393,10 +400,10 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 							local cached = external.cache[i]
 							if cached.name ~= "RNS_Empty" then
 								Util.item_add_list_into_table(inv, Itemstack:reload(cached))
-								--externalStorage = externalStorage + cached.count
 							end
 						end
-						--externalCapacity = externalCapacity + external.capacity
+						externalItemStorage = externalItemStorage + external.storedAmount
+						externalItemCapacity = externalItemCapacity + external.capacity
 					else
 						local cached = external.cache[1]
 						if cached ~= nil then
@@ -406,17 +413,22 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 							else
 								fluid[cached.name] = cached
 							end
-							--externalStorage = externalStorage + cached.amount
 						end
-						--externalCapacity = externalCapacity + (external.focusedEntity.fluid_box.index ~= nil and external.focusedEntity.thisEntity.fluidbox.get_capacity(external.focusedEntity.fluid_box.index) or 0)
+						externalFluidStorage = externalFluidStorage + external.storedAmount
+						externalFluidCapacity = externalFluidCapacity + external.capacity
 					end
+					
 				end
 			end
 		end
 	end
-	--guiTable.vars.ExternalStorageLabel.caption = {"gui-description.RNS_ExternalStorageLabel", externalCapacity ~= 0 and (externalStorage/externalCapacity) or 0}
-	--guiTable.vars.ExternalStorageBar.value = externalCapacity ~= 0 and (externalStorage/externalCapacity) or 0
-	--guiTable.vars.ExternalStorageBar.tooltip = {"gui-description.RNS_ExternalStorageBar", Util.toRNumber(externalStorage), Util.toRNumber(externalCapacity)}
+	guiTable.vars.ExternalItemStorageLabel.caption = {"gui-description.RNS_ExternalItemStorageLabel", externalItemCapacity ~= 0 and (externalItemStorage/externalItemCapacity) or 0}
+	guiTable.vars.ExternalItemStorageBar.value = externalItemCapacity ~= 0 and (externalItemStorage/externalItemCapacity) or 0
+	guiTable.vars.ExternalItemStorageBar.tooltip = {"gui-description.RNS_ExternalItemStorageBar", Util.toRNumber(externalItemStorage), Util.toRNumber(externalItemCapacity)}
+
+	guiTable.vars.ExternalFluidStorageLabel.caption = {"gui-description.RNS_ExternalFluidStorageLabel", externalFluidCapacity ~= 0 and (externalFluidStorage/externalFluidCapacity) or 0}
+	guiTable.vars.ExternalFluidStorageBar.value = externalFluidCapacity ~= 0 and (externalFluidStorage/externalFluidCapacity) or 0
+	guiTable.vars.ExternalFluidStorageBar.tooltip = {"gui-description.RNS_ExternalFluidStorageBar", Util.toRNumber(externalFluidStorage), Util.toRNumber(externalFluidCapacity)}
 
 	-----------------------------------------------------------------------------------Fluids----------------------------------------------------------------------------------------
 	for k, c in pairs(fluid) do
