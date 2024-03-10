@@ -95,31 +95,37 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 		-- Set the Main Frame Height --
 		mainFrame.style.height = 450
 
-		local infoFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
-		infoFrame.style = Constants.Settings.RNS_Gui.frame_1
-		infoFrame.style.vertically_stretchable = true
-		infoFrame.style.minimal_width = 200
-		infoFrame.style.left_margin = 3
-		infoFrame.style.left_padding = 3
-		infoFrame.style.right_padding = 3
-		GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
+		local storageFrame = GuiApi.add_frame(guiTable, "StorageFrame", mainFrame, "vertical", true)
+		storageFrame.style = Constants.Settings.RNS_Gui.frame_1
+		storageFrame.style.vertically_stretchable = true
+		storageFrame.style.left_padding = 3
+		storageFrame.style.right_padding = 3
+		storageFrame.style.left_margin = 3
+		storageFrame.style.right_margin = 3
+		storageFrame.style.minimal_width = 250
 
-        GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_WirelessGrid_Target"}, Constants.Settings.RNS_Gui.white)
+		GuiApi.add_subtitle(guiTable, "", storageFrame, {"gui-description.RNS_NetworkStorageBars"})
+		
+		GuiApi.add_label(guiTable, "ItemDriveStorageLabel", storageFrame, {"gui-description.RNS_ItemDriveStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
+		GuiApi.add_progress_bar(guiTable, "ItemDriveStorageBar", storageFrame, "", {"gui-description.RNS_ItemDriveStorageBar", 0, 0}, true, nil, 0, 200, 25)
 
-        local xflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
-        GuiApi.add_label(guiTable, "", xflow, {"gui-description.RNS_xPos"}, Constants.Settings.RNS_Gui.white)
-        local xPos = GuiApi.add_text_field(guiTable, "RNS_WirelessGrid_xPos", xflow, self.network_controller_position.x == nil and "" or tostring(self.network_controller_position.x), {"gui-description.RNS_xPos_tooltip"}, true, true, true, true, false, {ID=self.entID})
-        xPos.style.maximal_width = 50
+		GuiApi.add_label(guiTable, "FluidDriveStorageLabel", storageFrame, {"gui-description.RNS_FluidDriveStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
+		GuiApi.add_progress_bar(guiTable, "FluidDriveStorageBar", storageFrame, "", {"gui-description.RNS_FluidDriveStorageBar", 0, 0}, true, nil, 0, 200, 25)
 
-        local yflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
-        GuiApi.add_label(guiTable, "", yflow, {"gui-description.RNS_yPos"}, Constants.Settings.RNS_Gui.white)
-        local yPos = GuiApi.add_text_field(guiTable, "RNS_WirelessGrid_yPos", yflow, self.network_controller_position.y == nil and "" or tostring(self.network_controller_position.y), {"gui-description.RNS_yPos_tooltip"}, true, true, true, true, false, {ID=self.entID})
-        yPos.style.maximal_width = 50
+		GuiApi.add_label(guiTable, "ExternalItemStorageLabel", storageFrame, {"gui-description.RNS_ExternalItemStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
+		GuiApi.add_progress_bar(guiTable, "ExternalItemStorageBar", storageFrame, "", {"gui-description.RNS_ExternalItemStorageBar", 0, 0}, true, nil, 0, 200, 25)
 
-        local surfIDflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
-        GuiApi.add_label(guiTable, "", surfIDflow, {"gui-description.RNS_SurfaceID"}, Constants.Settings.RNS_Gui.white)
-        local surfID = GuiApi.add_text_field(guiTable, "RNS_WirelessGrid_SurfaceID", surfIDflow, self.network_controller_surface == nil and "" or tostring(self.network_controller_surface), {"gui-description.RNS_SurfaceID_tooltip"}, true, true, false, false, false, {ID=self.entID})
-        surfID.style.maximal_width = 50
+		GuiApi.add_label(guiTable, "ExternalFluidStorageLabel", storageFrame, {"gui-description.RNS_ExternalFluidStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
+		GuiApi.add_progress_bar(guiTable, "ExternalFluidStorageBar", storageFrame, "", {"gui-description.RNS_ExternalFluidStorageBar", 0, 0}, true, nil, 0, 200, 25)
+
+		--local infoFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
+		--infoFrame.style = Constants.Settings.RNS_Gui.frame_1
+		--infoFrame.style.vertically_stretchable = true
+		--infoFrame.style.minimal_width = 200
+		--infoFrame.style.left_margin = 3
+		--infoFrame.style.left_padding = 3
+		--infoFrame.style.right_padding = 3
+		--GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
 
 		-- Create the Network Inventory Frame --
 		local inventoryFrame = GuiApi.add_frame(guiTable, "InventoryFrame", mainFrame, "vertical", true)
@@ -200,7 +206,24 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 		GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText5"}, Constants.Settings.RNS_Gui.white)
 		--GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText6"}, Constants.Settings.RNS_Gui.white)
 
-		--GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
+		GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
+
+		GuiApi.add_label(guiTable, "", informationFrame, {"gui-description.RNS_WirelessGrid_Target"}, Constants.Settings.RNS_Gui.white)
+
+        local xflow = GuiApi.add_flow(guiTable, "", informationFrame, "horizontal")
+        GuiApi.add_label(guiTable, "", xflow, {"gui-description.RNS_xPos"}, Constants.Settings.RNS_Gui.white)
+        local xPos = GuiApi.add_text_field(guiTable, "RNS_WirelessGrid_xPos", xflow, self.network_controller_position.x == nil and "" or tostring(self.network_controller_position.x), {"gui-description.RNS_xPos_tooltip"}, true, true, true, true, false, {ID=self.entID})
+        xPos.style.maximal_width = 50
+
+        local yflow = GuiApi.add_flow(guiTable, "", informationFrame, "horizontal")
+        GuiApi.add_label(guiTable, "", yflow, {"gui-description.RNS_yPos"}, Constants.Settings.RNS_Gui.white)
+        local yPos = GuiApi.add_text_field(guiTable, "RNS_WirelessGrid_yPos", yflow, self.network_controller_position.y == nil and "" or tostring(self.network_controller_position.y), {"gui-description.RNS_yPos_tooltip"}, true, true, true, true, false, {ID=self.entID})
+        yPos.style.maximal_width = 50
+
+        local surfIDflow = GuiApi.add_flow(guiTable, "", informationFrame, "horizontal")
+        GuiApi.add_label(guiTable, "", surfIDflow, {"gui-description.RNS_SurfaceID"}, Constants.Settings.RNS_Gui.white)
+        local surfID = GuiApi.add_text_field(guiTable, "RNS_WirelessGrid_SurfaceID", surfIDflow, self.network_controller_surface == nil and "" or tostring(self.network_controller_surface), {"gui-description.RNS_SurfaceID_tooltip"}, true, true, false, false, false, {ID=self.entID})
+        surfID.style.maximal_width = 50
 
 		--GuiApi.add_label(guiTable, "", informationFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)
 
@@ -284,20 +307,34 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 	local tableList = GuiApi.add_table(guiTable, "", inventoryScrollPane, 8)
 	local inv = {}
 	local fluid = {}
-	for _, priority in pairs(BaseNet.getOperableObjects(self.networkController.network.ItemDriveTable)) do
+	
+	local itemDriveStorage = 0
+	local itemDriveCapacity = 0
+	for _, priority in pairs(self.networkController.network.ItemDriveTable) do
 		for _, drive in pairs(priority) do
+			if drive:interactable() == false then goto continue end
 			for _, v in pairs(drive.storageArray) do
 				Util.item_add_list_into_table(inv, Itemstack:reload(v))
+				itemDriveStorage = itemDriveStorage + v.count
 				--local c = Util.itemstack_template(v.name)
 				--c.cont.count = v.count
 				--if c.cont.ammo then c.cont.ammo = v.ammo end
 				--if c.cont.durability then c.cont.durability = v.durability end
 				--Util.add_or_merge(c, inv, true)
 			end
+			itemDriveCapacity = itemDriveCapacity + drive.maxStorage
+			::continue::
 		end
 	end
-	for _, priority in pairs(BaseNet.getOperableObjects(self.networkController.network.FluidDriveTable)) do
+	guiTable.vars.ItemDriveStorageLabel.caption = {"gui-description.RNS_ItemDriveStorageLabel", itemDriveCapacity ~= 0 and Util.sigfig_d((itemDriveStorage/itemDriveCapacity)*100, 2) or 0}
+	guiTable.vars.ItemDriveStorageBar.value = itemDriveCapacity ~= 0 and (itemDriveStorage/itemDriveCapacity) or 0
+	guiTable.vars.ItemDriveStorageBar.tooltip = {"gui-description.RNS_ItemDriveStorageBar", Util.toRNumber(itemDriveStorage), Util.toRNumber(itemDriveCapacity)}
+
+	local fluidDriveStorage = 0
+	local fluidDriveCapacity = 0
+	for _, priority in pairs(self.networkController.network.FluidDriveTable) do
 		for _, drive in pairs(priority) do
+			if drive:interactable() == false then goto continue end
 			for k, c in pairs(drive.fluidArray) do
 				if c == nil then goto continue end
 				if fluid[k] ~= nil then
@@ -310,10 +347,21 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 						temperature = c.temperature
 					}
 				end
+				fluidDriveStorage = fluidDriveStorage + c.amount
 				::continue::
 			end
+			fluidDriveCapacity = fluidDriveCapacity + drive.maxStorage
+			::continue::
 		end
 	end
+	guiTable.vars.FluidDriveStorageLabel.caption = {"gui-description.RNS_FluidDriveStorageLabel", fluidDriveCapacity ~= 0 and Util.sigfig_d((fluidDriveStorage/fluidDriveCapacity)*100, 2) or 0}
+	guiTable.vars.FluidDriveStorageBar.value = fluidDriveCapacity ~= 0 and (fluidDriveStorage/fluidDriveCapacity) or 0
+	guiTable.vars.FluidDriveStorageBar.tooltip = {"gui-description.RNS_FluidDriveStorageBar", Util.toRNumber(fluidDriveStorage), Util.toRNumber(fluidDriveCapacity)}
+
+	local externalItemStorage = 0
+	local externalFluidStorage = 0
+	local externalItemCapacity = 0
+	local externalFluidCapacity = 0
 	for _, priority in pairs(self.networkController.network:filter_externalIO_by_valid_signal()) do
 		for _, type in pairs(priority) do
 			for _, external in pairs(type) do
@@ -325,6 +373,8 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 								Util.item_add_list_into_table(inv, Itemstack:reload(cached))
 							end
 						end
+						externalItemStorage = externalItemStorage + external.storedAmount
+						externalItemCapacity = externalItemCapacity + external.capacity
 					else
 						local cached = external.cache[1]
 						if cached ~= nil then
@@ -335,11 +385,21 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 								fluid[cached.name] = cached
 							end
 						end
+						externalFluidStorage = externalFluidStorage + external.storedAmount
+						externalFluidCapacity = externalFluidCapacity + external.capacity
 					end
+					
 				end
 			end
 		end
 	end
+	guiTable.vars.ExternalItemStorageLabel.caption = {"gui-description.RNS_ExternalItemStorageLabel", externalItemCapacity ~= 0 and Util.sigfig_d((externalItemStorage/externalItemCapacity)*100, 2) or 0}
+	guiTable.vars.ExternalItemStorageBar.value = externalItemCapacity ~= 0 and (externalItemStorage/externalItemCapacity) or 0
+	guiTable.vars.ExternalItemStorageBar.tooltip = {"gui-description.RNS_ExternalItemStorageBar", Util.toRNumber(externalItemStorage), Util.toRNumber(externalItemCapacity)}
+
+	guiTable.vars.ExternalFluidStorageLabel.caption = {"gui-description.RNS_ExternalFluidStorageLabel", externalFluidCapacity ~= 0 and Util.sigfig_d((externalFluidStorage/externalFluidCapacity)*100, 2) or 0}
+	guiTable.vars.ExternalFluidStorageBar.value = externalFluidCapacity ~= 0 and (externalFluidStorage/externalFluidCapacity) or 0
+	guiTable.vars.ExternalFluidStorageBar.tooltip = {"gui-description.RNS_ExternalFluidStorageBar", Util.toRNumber(externalFluidStorage), Util.toRNumber(externalFluidCapacity)}
 	-----------------------------------------------------------------------------------Fluids----------------------------------------------------------------------------------------
 	for k, c in pairs(fluid) do
 		RNSPlayer.thisEntity.request_translation(Util.get_fluid_name(c.name))

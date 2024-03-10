@@ -124,8 +124,21 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		storageFrame.style.right_padding = 3
 		storageFrame.style.left_margin = 3
 		storageFrame.style.right_margin = 3
+		storageFrame.style.minimal_width = 250
 
 		GuiApi.add_subtitle(guiTable, "", storageFrame, {"gui-description.RNS_NetworkStorageBars"})
+		
+		GuiApi.add_label(guiTable, "ItemDriveStorageLabel", storageFrame, {"gui-description.RNS_ItemDriveStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
+		GuiApi.add_progress_bar(guiTable, "ItemDriveStorageBar", storageFrame, "", {"gui-description.RNS_ItemDriveStorageBar", 0, 0}, true, nil, 0, 200, 25)
+
+		GuiApi.add_label(guiTable, "FluidDriveStorageLabel", storageFrame, {"gui-description.RNS_FluidDriveStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
+		GuiApi.add_progress_bar(guiTable, "FluidDriveStorageBar", storageFrame, "", {"gui-description.RNS_FluidDriveStorageBar", 0, 0}, true, nil, 0, 200, 25)
+
+		GuiApi.add_label(guiTable, "ExternalItemStorageLabel", storageFrame, {"gui-description.RNS_ExternalItemStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
+		GuiApi.add_progress_bar(guiTable, "ExternalItemStorageBar", storageFrame, "", {"gui-description.RNS_ExternalItemStorageBar", 0, 0}, true, nil, 0, 200, 25)
+
+		GuiApi.add_label(guiTable, "ExternalFluidStorageLabel", storageFrame, {"gui-description.RNS_ExternalFluidStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
+		GuiApi.add_progress_bar(guiTable, "ExternalFluidStorageBar", storageFrame, "", {"gui-description.RNS_ExternalFluidStorageBar", 0, 0}, true, nil, 0, 200, 25)
 
 		-- Create the Network Inventory Frame --
 		local inventoryFrame = GuiApi.add_frame(guiTable, "InventoryFrame", mainFrame, "vertical", true)
@@ -205,22 +218,6 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText4"}, Constants.Settings.RNS_Gui.white)
 		GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText5"}, Constants.Settings.RNS_Gui.white)
 		--GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText6"}, Constants.Settings.RNS_Gui.white)
-
-		GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
-
-		local barFlow = GuiApi.add_flow(guiTable, "", informationFrame, "horizontal")
-
-		GuiApi.add_label(guiTable, "ItemDriveStorageLabel", barFlow, {"gui-description.RNS_ItemDriveStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
-		GuiApi.add_progress_bar(guiTable, "ItemDriveStorageBar", barFlow, "", {"gui-description.RNS_ItemDriveStorageBar", 0, 0}, true, nil, 0, 200, 25)
-
-		GuiApi.add_label(guiTable, "FluidDriveStorageLabel", barFlow, {"gui-description.RNS_FluidDriveStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
-		GuiApi.add_progress_bar(guiTable, "FluidDriveStorageBar", barFlow, "", {"gui-description.RNS_FluidDriveStorageBar", 0, 0}, true, nil, 0, 200, 25)
-
-		GuiApi.add_label(guiTable, "ExternalItemStorageLabel", barFlow, {"gui-description.RNS_ExternalItemStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
-		GuiApi.add_progress_bar(guiTable, "ExternalItemStorageBar", barFlow, "", {"gui-description.RNS_ExternalItemStorageBar", 0, 0}, true, nil, 0, 200, 25)
-
-		GuiApi.add_label(guiTable, "ExternalFluidStorageLabel", barFlow, {"gui-description.RNS_ExternalFluidStorageLabel", 0}, Constants.Settings.RNS_Gui.white, nil, true)
-		GuiApi.add_progress_bar(guiTable, "ExternalFluidStorageBar", barFlow, "", {"gui-description.RNS_ExternalFluidStorageBar", 0, 0}, true, nil, 0, 200, 25)
 
 		--GuiApi.add_label(guiTable, "", informationFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)
 
@@ -316,7 +313,7 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 			::continue::
 		end
 	end
-	guiTable.vars.ItemDriveStorageLabel.caption = {"gui-description.RNS_ItemDriveStorageLabel", itemDriveCapacity ~= 0 and (itemDriveStorage/itemDriveCapacity)*100 or 0}
+	guiTable.vars.ItemDriveStorageLabel.caption = {"gui-description.RNS_ItemDriveStorageLabel", itemDriveCapacity ~= 0 and Util.sigfig_d((itemDriveStorage/itemDriveCapacity)*100, 2) or 0}
 	guiTable.vars.ItemDriveStorageBar.value = itemDriveCapacity ~= 0 and (itemDriveStorage/itemDriveCapacity) or 0
 	guiTable.vars.ItemDriveStorageBar.tooltip = {"gui-description.RNS_ItemDriveStorageBar", Util.toRNumber(itemDriveStorage), Util.toRNumber(itemDriveCapacity)}
 
@@ -344,7 +341,7 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 			::continue::
 		end
 	end
-	guiTable.vars.FluidDriveStorageLabel.caption = {"gui-description.RNS_FluidDriveStorageLabel", fluidDriveCapacity ~= 0 and (fluidDriveStorage/fluidDriveCapacity)*100 or 0}
+	guiTable.vars.FluidDriveStorageLabel.caption = {"gui-description.RNS_FluidDriveStorageLabel", fluidDriveCapacity ~= 0 and Util.sigfig_d((fluidDriveStorage/fluidDriveCapacity)*100, 2) or 0}
 	guiTable.vars.FluidDriveStorageBar.value = fluidDriveCapacity ~= 0 and (fluidDriveStorage/fluidDriveCapacity) or 0
 	guiTable.vars.FluidDriveStorageBar.tooltip = {"gui-description.RNS_FluidDriveStorageBar", Util.toRNumber(fluidDriveStorage), Util.toRNumber(fluidDriveCapacity)}
 
@@ -383,11 +380,11 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, te
 			end
 		end
 	end
-	guiTable.vars.ExternalItemStorageLabel.caption = {"gui-description.RNS_ExternalItemStorageLabel", externalItemCapacity ~= 0 and (externalItemStorage/externalItemCapacity) or 0}
+	guiTable.vars.ExternalItemStorageLabel.caption = {"gui-description.RNS_ExternalItemStorageLabel", externalItemCapacity ~= 0 and Util.sigfig_d((externalItemStorage/externalItemCapacity)*100, 2) or 0}
 	guiTable.vars.ExternalItemStorageBar.value = externalItemCapacity ~= 0 and (externalItemStorage/externalItemCapacity) or 0
 	guiTable.vars.ExternalItemStorageBar.tooltip = {"gui-description.RNS_ExternalItemStorageBar", Util.toRNumber(externalItemStorage), Util.toRNumber(externalItemCapacity)}
 
-	guiTable.vars.ExternalFluidStorageLabel.caption = {"gui-description.RNS_ExternalFluidStorageLabel", externalFluidCapacity ~= 0 and (externalFluidStorage/externalFluidCapacity) or 0}
+	guiTable.vars.ExternalFluidStorageLabel.caption = {"gui-description.RNS_ExternalFluidStorageLabel", externalFluidCapacity ~= 0 and Util.sigfig_d((externalFluidStorage/externalFluidCapacity)*100, 2) or 0}
 	guiTable.vars.ExternalFluidStorageBar.value = externalFluidCapacity ~= 0 and (externalFluidStorage/externalFluidCapacity) or 0
 	guiTable.vars.ExternalFluidStorageBar.tooltip = {"gui-description.RNS_ExternalFluidStorageBar", Util.toRNumber(externalFluidStorage), Util.toRNumber(externalFluidCapacity)}
 

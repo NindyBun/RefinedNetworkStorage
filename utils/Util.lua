@@ -466,3 +466,8 @@ function Util.filter_accepts_fluid(filter, mode, fluidname)
 
 	return false
 end
+
+function Util.sigfig_d(number, range)
+	local n = tostring(number)
+	return tonumber(string.find(n, "%.") and string.sub(n, 1, string.find(n, "%.")+range) or n)
+end
