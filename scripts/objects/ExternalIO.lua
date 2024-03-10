@@ -210,11 +210,11 @@ function EIO:init_cache()
             local inv = self.focusedEntity.thisEntity.get_inventory(i)
             if BaseNet.inventory_is_sortable(inv) then inv.sort_and_merge() end
             for j = 1, #inv do
-                local itemstack = Itemstack:new(inv[j])
-                self.cache[j] = itemstack or {name = "RNS_Empty", count = 0}
+                local itemstack = Itemstack:new(inv[j]) or {name = "RNS_Empty", count = 0}
+                self.cache[j] = itemstack
                 self.storedAmount = self.storedAmount + (itemstack.count <= 0 and 1 or 0)
             end
-            self.capacity = self.capacity + #inv * 1000
+            self.capacity = self.capacity + #inv
         end
     elseif self.type == "fluid" and self.focusedEntity.fluid_box.index ~= nil and self.focusedEntity.fluid_box.flow == "output" then
         local fluid = self.focusedEntity.thisEntity.fluidbox[self.focusedEntity.fluid_box.index]
@@ -244,7 +244,7 @@ function EIO:update(network)
             if BaseNet.inventory_is_sortable(inv) then inv.sort_and_merge() end
             for j = 1, #inv do
                 local itemstack = Itemstack:new(inv[j]) or {name = "RNS_Empty", count = 0}
-                self.storedAmount = self.storedAmount + (itemstack and itemstack.count or 0)
+                self.storedAmount = self.storedAmount + (itemstack.count ~= 0 and 1 or 0)
                 if j > #self.cache then
                     if itemstack.name ~= "RNS_Empty" then
                         network:increase_tracked_item_count(itemstack.name, itemstack.count)
@@ -278,7 +278,7 @@ function EIO:update(network)
                 end
                 ::continue::
             end
-            self.capacity = self.capacity + #inv * 1000
+            self.capacity = self.capacity + #inv
             
             if #self.cache > #inv then
                 for j = #self.cache - 1, #inv, -1 do
@@ -286,7 +286,7 @@ function EIO:update(network)
                     if cached.name ~= "RNS_Empty" then
                         network:decrease_tracked_item_count(cached.name, cached.count)
                     end
-                    self.cache[j] = nil
+                    self.cache[j] = {name="RNS_Empty", count=0}
                 end
             end
         end

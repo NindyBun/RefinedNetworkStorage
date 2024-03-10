@@ -79,6 +79,12 @@ function Event.rotated(event)
 		obj:createArms()
 		BaseNet.postArms(obj)
 	end
+	if obj.init_cache then
+		
+	end
+	if obj.networkController ~= nil and BaseNet.exists_in_network(obj.networkController, obj.entID) then
+		BaseNet.update_network_controller(obj.networkController, obj.entID)
+	end
 end
 
 function Event.changed_selection(event)
