@@ -184,7 +184,7 @@ function EIO:flush_cache()
 end
 
 function EIO:inject_cache()
-    if self.cache == nil then return end
+    if self.cache == nil or #self.cache <= 0 then return end
     if self.networkController ~= nil and BaseNet.exists_in_network(self.networkController, self.thisEntity.unit_number) then
         if self.type == "item" then
             for i = 1, #self.cache do

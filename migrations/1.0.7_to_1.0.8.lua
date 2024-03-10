@@ -1,12 +1,12 @@
 if global.allowMigration == false then return end
 
-for _, obj in pairs(global.objectTables) do
+--[[for _, obj in pairs(global.objectTables) do
     if obj.tableName ~= nil and obj.tag ~= nil and _G[obj.tag] ~= nil then
         for _, entry in pairs(global[obj.tableName] or {}) do
             _G[obj.tag]:rebuild(entry)
         end
     end
-end
+end]]
 
 for _, obj in pairs(global.objectTables) do
     if obj.tableName ~= nil and obj.tag ~= nil and _G[obj.tag] ~= nil then
