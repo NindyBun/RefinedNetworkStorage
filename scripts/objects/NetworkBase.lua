@@ -1141,7 +1141,6 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
             local item = inv[j]
             if item == nil then goto next end
             if item.valid_for_read == false or item.count <= 0 then goto next end
-            local master = itemstack_master or Itemstack.create_template(item.name)
             if whitelistBlacklist == "whitelist" and itemstack_master ~= nil then
                 local s, o = inv.find_item_stack(itemstack_master.name)
                 if s ~= nil then
@@ -1151,6 +1150,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                     goto fin
                 end
             end
+            local master = itemstack_master or Itemstack.create_template(item.name)
 
             if Util.filter_accepts_item(filters, whitelistBlacklist, item.name) then
                 local inv_item = Itemstack:new(item)
