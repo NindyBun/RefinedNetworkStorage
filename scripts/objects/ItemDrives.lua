@@ -152,7 +152,7 @@ function ID:add_or_merge_basic_item(itemstack_data, amount)
     local min = math.min(self:getRemainingStorageSize(), amount)
     if min <= 0 then return 0 end
     if inv[itemstack_data.name] ~= nil then
-        local data = inv[itemstack_data.name]
+        local data = Itemstack:reload(inv[itemstack_data.name])
         data.count = data.count + min
         if data.ammo ~= nil then
             local a = (data.ammo+itemstack_data.ammo)%game.item_prototypes[data.name].magazine_size
@@ -163,16 +163,15 @@ function ID:add_or_merge_basic_item(itemstack_data, amount)
             data.durability = d == 0 and game.item_prototypes[data.name].durability or d
         end
     else
-        inv[itemstack_data.name] = Itemstack.check_instance(itemstack_data)
+        inv[itemstack_data.name] = itemstack_data
     end
     return min
 end
 
 function ID:remove_item(itemstack_data, amount, exact)
     local inv = self.storageArray
-    local data = inv[itemstack_data.name]
+    local data = Itemstack:reload(inv[itemstack_data.name])
     if data == nil or amount <= 0 then return 0 end
-    Itemstack.check_instance(inv[itemstack_data.name])
     local min = math.min(data.count, amount)
     local split = data:split(itemstack_data, min, exact)
     --[[if exact then

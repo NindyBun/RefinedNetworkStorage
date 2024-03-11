@@ -143,46 +143,6 @@ function Itemstack.create_template(name)
     return t
 end
 
-function Itemstack.migrate(itemstack)
-    local t = {}
-    local mt = {}
-    setmetatable(t, mt)
-    mt.__index = Itemstack
-    t.name = itemstack.cont.name
-    t.type = itemstack.type
-    --t.prototype = game.item_prototypes[t.name]
-    t.count = itemstack.cont.count
-    t.health = itemstack.cont.health
-    t.ammo = itemstack.cont.ammo
-    t.durability = itemstack.cont.durability
-    t.tags = itemstack.cont.tags
-    t.modified = itemstack.modified
-    t.item_number = itemstack.id
-    t.extras = {}
-    t.extras.label = itemstack.label
-    t.extras.connected_entity = (itemstack.linked ~= "" and itemstack.linked ~= nil) and {
-        name = itemstack.linked.name,
-        entity_label = itemstack.linked.entity_label,
-        color = itemstack.linked.color,
-        unit_number = itemstack.linked.unit_number
-    } or nil
-    return t
-end
-
-function Itemstack.check_instance(itemstack)
-    if itemstack.reload == nil then
-        --[[local temp = Itemstack.create_template(itemstack.name)
-        temp.health = itemstack.health
-        temp.ammo = itemstack.ammo
-        temp.durability = itemstack.durability
-        temp.tags = itemstack.tags
-        temp.count = itemstack.count
-        itemstack = temp]]
-        itemstack = Itemstack.migrate(itemstack)
-    end
-    return itemstack
-end
-
 --Requires item1 and item2 to be instances of class Itemstack
 function Itemstack:compare_itemstacks(itemstack, exact, exact_exact)
     if self.name ~= itemstack.name then return false end

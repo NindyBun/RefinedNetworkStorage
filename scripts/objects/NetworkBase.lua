@@ -1004,12 +1004,12 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
     --local storedAmount = network.Contents.item[itemstack_master.name] or 0
     --if storedAmount <= 0 then return 0 end
     --transferCapacity = math.min(transferCapacity, storedAmount)
-
     for i = 1, to_inv.inventory.input.max do
         local inv = to_inv.thisEntity.get_inventory(to_inv.inventory.input.values[to_inv.inventory.input.index])
         if BaseNet.inventory_is_sortable(inv) then inv.sort_and_merge() end
+        if inv.get_insertable_count(itemstack_master.name) <= 0 then goto fin end
         transferCapacity = math.min(transferCapacity, inv.get_insertable_count(itemstack_master.name))
-        if transferCapacity <= 0 then return 0 end
+        if transferCapacity <= 0 then goto fin end
 
         if network:has_cache("export", "drive", itemstack_master.name) and itemstack_master.modified == false then
             local drive = global.entityTable[network:get_cache("export", "drive", itemstack_master.name)]
@@ -1021,7 +1021,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
                 local storedItem = drive.storageArray[itemstack_master.name]
                 if drive:interactable() and storedItem ~= nil and itemstack_master:compare_itemstacks(storedItem, exact) then
                     transferCapacity = network:extract_item_from_drive(drive, inv, itemstack_master, storedItem, transferCapacity, exact)
-                    if transferCapacity <= 0 then return 0 end
+                    if transferCapacity <= 0 then goto fin end
                 else
                     network:remove_cache("export", "drive", itemstack_master.name)
                 end
@@ -1038,7 +1038,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
                     --local storedAmount = external.focusedEntity.thisEntity.get_item_count(itemstack_master.name)
                     --if storedAmount <= 0 then goto next end
                     transferCapacity = network:extract_item_from_external(external, inv, transferCapacity, itemstack_master, supportModified, exact)
-                    if transferCapacity <= 0 then return 0 end
+                    if transferCapacity <= 0 then goto fin end
                 else
                     network:remove_cache("export", "external", itemstack_master.name)
                 end
@@ -1057,7 +1057,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
                         transferCapacity = network:extract_item_from_drive(drive, inv, itemstack_master, storedItem, transferCapacity, exact)
                         if transferCapacity <= 0 then
                             network:put_cache("export", "drive", itemstack_master.name, drive.thisEntity.unit_number)
-                            return 0
+                            goto fin
                         end
                     end
                 end
@@ -1071,13 +1071,16 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
                     transferCapacity = network:extract_item_from_external(external, inv, transferCapacity, itemstack_master, supportModified, exact)
                     if transferCapacity <= 0 then
                         network:put_cache("export", "external", itemstack_master.name, external.thisEntity.unit_number)
-                        return 0
+                        goto fin
                     end
                 end
             end
-        end
 
+            if transferCapacity <= 0 then goto fin end
+        end
+        ::fin::
         Util.next_index(to_inv.inventory.input)
+        if transferCapacity <= 0 then break end
     end
 
     return transferCapacity
@@ -1134,10 +1137,10 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
         local inv = from_inv.thisEntity.get_inventory(from_inv.inventory.output.values[from_inv.inventory.output.index])
         if BaseNet.inventory_is_sortable(inv) then inv.sort_and_merge() end
         for j = 1, #inv do
-            if transferCapacity <= 0 then return 0 end
+            if transferCapacity <= 0 then goto fin end
             local item = inv[j]
-            if item == nil then return 0 end
-            if item.valid_for_read == false or item.count <= 0 then return 0 end
+            if item == nil then goto next end
+            if item.valid_for_read == false or item.count <= 0 then goto next end
             --if whitelistBlacklist == "whitelist" and itemstack_master ~= nil then item, j = inv.find_item_stack(itemstack_master.name) end
             local master = itemstack_master or Itemstack.create_template(item.name)
 
@@ -1155,7 +1158,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                         if drive:interactable() and Util.filter_accepts_item(drive.filters, drive.whitelistBlacklist, inv_item.name) and remainingStorage > 0
                         and master:compare_itemstacks(inv_item, exact) then
                             transferCapacity = network:insert_item_into_drive(item, inv_item, drive, transferCapacity, master, remainingStorage, exact)
-                            if transferCapacity <= 0 then return 0 end
+                            if transferCapacity <= 0 then goto fin end
                             if inv_item.count <= 0 then goto next end
                         else
                             network:remove_cache("import", "drive", item.name)
@@ -1172,7 +1175,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                         and master:compare_itemstacks(inv_item, exact) then
                             if external.onlyModified and inv_item.modified == false then goto next end
                             transferCapacity = network:insert_item_into_external(external, item, inv_item, master, transferCapacity, exact)
-                            if transferCapacity <= 0 then return 0 end
+                            if transferCapacity <= 0 then goto fin end
                             if inv_item.count <= 0 then goto next end
                         else
                             network:remove_cache("import", "external", inv_item.name)
@@ -1190,7 +1193,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                                 transferCapacity = network:insert_item_into_drive(item, inv_item, drive, transferCapacity, master, remainingStorage, exact)
                                 if transferCapacity <= 0 then
                                     network:put_cache("import", "drive", master.name, drive.thisEntity.unit_number)
-                                    return 0
+                                    goto fin
                                 end
                                 if inv_item.count <= 0 then goto next end
                             end
@@ -1205,7 +1208,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                             transferCapacity = network:insert_item_into_external(external, item, inv_item, master, transferCapacity, exact)
                             if transferCapacity <= 0 then
                                 network:put_cache("import", "external", master.name, external.thisEntity.unit_number)
-                                return 0
+                                goto fin
                             end
                             if inv_item.count <= 0 then goto next end
                         end
@@ -1214,7 +1217,9 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
             end
             ::next::
         end
+        ::fin::
         Util.next_index(from_inv.inventory.output)
+        if transferCapacity <= 0 then break end
     end
     return transferCapacity
 end

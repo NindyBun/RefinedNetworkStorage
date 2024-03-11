@@ -131,7 +131,7 @@ end
 
 function IIO3:copy_settings(obj)
     self.color = obj.color
-    --self.metadataMode = obj.metadataMode
+    self.supportModified = obj.supportModified
     self.whitelistBlacklist = obj.whitelistBlacklist
     self.io = obj.io
     self.enabler = obj.enabler
@@ -139,16 +139,25 @@ function IIO3:copy_settings(obj)
 
     --Filters has do be done this way because for some reason they link to other objects
     self.guiFilters = {
-        [1] = obj.guiFilters.values[1],
-        [2] = obj.guiFilters.values[2]
-    }
-    self.filters = {
-        index = obj.filters.max == 0 and 0 or 1,
-        max = obj.filters.max,
-        values = obj.filters.values
+        [1] = obj.guiFilters[1],
+        [2] = obj.guiFilters[2]
     }
     self:set_icons(1, self.guiFilters[1] ~= "" and self.guiFilters[1] or nil)
     self:set_icons(2, self.guiFilters[2] ~= "" and self.guiFilters[2] or nil)
+
+    self.filters = {
+        index = 0,
+        max = 0,
+        values = {}
+    }
+
+    for _, filter in pairs(self.guiFilters) do
+        if filter ~= "" then
+            self.filters.max = self.filters.max + 1
+            self.filters.values[filter] = true --For filtering blacklisted imports
+            self.filters.values[self.filters.max] = filter --For specific exports and imports
+        end
+    end
 
     self.priority = obj.priority
     self:generateModeIcon()
@@ -158,12 +167,8 @@ function IIO3:serialize_settings()
     local tags = {}
 
     tags["color"] = self.color
-    tags["filters"] = {
-        max = self.filters.max,
-        values = self.filters.values
-    }
     tags["guiFilters"] = self.guiFilters
-    --tags["metadataMode"] = self.metadataMode
+    tags["supportModified"] = self.supportModified
     tags["whitelistBlacklist"] = self.whitelistBlacklist
     tags["io"] = self.io
     tags["priority"] = self.priority
@@ -175,20 +180,28 @@ end
 
 function IIO3:deserialize_settings(tags)
     self.color = tags["color"]
-    --self.metadataMode = tags["metadataMode"]
+    self.supportModified = tags["supportModified"]
     self.whitelistBlacklist = tags["whitelistBlacklist"]
     self.io = tags["io"]
     self.enabler = tags["enabler"]
     self.stackSize = tags["stackSize"]
+    self.guiFilters = tags["guiFilters"]
+    self:set_icons(1, self.guiFilters[1] ~= "" and self.guiFilters[1] or nil)
+    self:set_icons(2, self.guiFilters[2] ~= "" and self.guiFilters[2] or nil)
 
     self.filters = {
-        index = tags["filters"].max == 0 and 0 or 1,
-        max = tags["filters"].max,
-        values = tags["filters"].values
+        index = 0,
+        max = 0,
+        values = {}
     }
-    self.guiFilters = tags["guiFilters"]
-    self:set_icons(1, self.guiFilters.values[1] ~= "" and self.guiFilters.values[1] or nil)
-    self:set_icons(2, self.guiFilters.values[2] ~= "" and self.guiFilters.values[2] or nil)
+
+    for _, filter in pairs(self.guiFilters) do
+        if filter ~= "" then
+            self.filters.max = self.filters.max + 1
+            self.filters.values[filter] = true
+            self.filters.values[self.filters.max] = filter --This is saving the index as a string for some reason
+        end
+    end
 
     self.priority = tags["priority"]
     self:generateModeIcon()
@@ -448,6 +461,7 @@ function IIO3:IO()
         BaseNet.transfer_from_inv_to_network(network, target, nil, self.filters.values, self.whitelistBlacklist, transportCapacity, self.supportModified)
     elseif self.io == "output" and target.inventory.input.max ~= 0 ~= nil and self.filters.max ~= 0 then
         for i = 1, self.filters.max do
+            if transportCapacity <= 0 then break end
             local itemstack_master = Itemstack.create_template(self.filters.values[self.filters.index])
             if (network.Contents.item[itemstack_master.name] or 0) > 0 then
                 transportCapacity = BaseNet.transfer_from_network_to_inv(network, target, itemstack_master, transportCapacity, self.supportModified, false)
@@ -459,22 +473,6 @@ function IIO3:IO()
     if self.io == "input" and target.thisEntity.get_item_count() < storedAmount then self.processed = true return end
     if self.io == "output" and target.thisEntity.get_item_count() > storedAmount then self.processed = true return end
     --self.processed = false
-end
-
-function IIO3:checkFullness()
-    local i = 0
-    local ii = #self.focusedEntity.inventory["output"].values
-    for _, slot in pairs(self.focusedEntity.inventory[self.io].values) do
-        if self.io == "output" and self.focusedEntity.thisEntity.get_inventory(slot) == nil then
-            ii = ii - 1
-            goto next
-        end
-        if self.io == "output" and self.focusedEntity.thisEntity.get_inventory(slot).is_full() then i = i + 1 end
-        if self.io == "output" and i == ii then return true end
-        ::next::
-    end
-
-    return false
 end
 
 function IIO3:resetConnection()

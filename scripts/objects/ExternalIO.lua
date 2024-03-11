@@ -253,7 +253,7 @@ function EIO:update(network)
                     goto continue
                 end
 
-                local cached = self.cache[j]
+                local cached = Itemstack:reload(self.cache[j])
 
                 if cached.name == "RNS_Empty" and itemstack.name == cached.name then goto continue end
 
