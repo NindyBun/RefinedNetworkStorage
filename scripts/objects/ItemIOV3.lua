@@ -557,18 +557,21 @@ end
 function IIO3:check_focused_entity()
     if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false or self.focusedEntity.thisEntity.to_be_deconstructed() then self:reset_focused_entity() return end
     --if Util.positions_match(self.focusedEntity.thisEntity.position, self.focusedEntity.oldPosition) == false then self:reset_focused_entity() return end
-    if self.focusedEntity.inventory.input.max == 0 and self.io == "output" then return self:reset_focused_entity() end
-    if self.focusedEntity.inventory.output.max == 0 and self.io == "input" then return self:reset_focused_entity() end
+    if self.focusedEntity.inventory.input.max == nil or self.focusedEntity.inventory.output.max == nil then self:reset_focused_entity() return end
+    if self.focusedEntity.inventory.input.max == 0 and self.io == "output" then self:reset_focused_entity() return end
+    if self.focusedEntity.inventory.output.max == 0 and self.io == "input" then self:reset_focused_entity() return end
     
     if self.io == "output" then
         for _, i in pairs(self.focusedEntity.inventory.input.values) do
             if self.focusedEntity.thisEntity.get_inventory(i) == nil then self:reset_focused_entity() end
         end
+        return
     end
     if self.io == "input" then
         for _, i in pairs(self.focusedEntity.inventory.input.values) do
             if self.focusedEntity.thisEntity.get_inventory(i) == nil then self:reset_focused_entity() end
         end
+        return
     end
 end
 

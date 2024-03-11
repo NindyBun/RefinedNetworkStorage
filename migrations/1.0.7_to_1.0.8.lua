@@ -38,31 +38,15 @@ for _, obj in pairs(global.objectTables) do
                     local mt = {}
                     setmetatable(t, mt)
                     mt.__index = Itemstack
-                    t.name = v.cont.name
-                    t.type = v.type
-                    --t.prototype = game.item_prototypes[t.name]
-                    t.count = v.cont.count
-                    t.health = v.cont.health
-                    t.ammo = v.cont.ammo
-                    t.durability = v.cont.durability
-                    t.tags = v.cont.tags
-                    t.modified = v.modified
-                    t.item_number = v.id
+                    t.name = v.name
+                    t.type = game.item_prototypes[v.name].type
+                    t.count = v.count
+                    t.health = 1.0
+                    t.ammo = v.ammo
+                    t.durability = v.durability
                     t.extras = {}
-                    t.extras.label = v.label
-                    t.extras.connected_entity = (v.linked ~= "" and v.linked ~= nil) and {
-                        name = v.linked.name,
-                        entity_label = v.linked.entity_label,
-                        color = v.linked.color,
-                        unit_number = v.linked.unit_number
-                    } or nil
-                    entry[n] = t
+                    entry.storageArray[n] = t
                 end
-                --[[if entry.networkController ~= nil and BaseNet.exists_in_network(entry.networkController, entry.thisEntity.unit_number) then
-                    for n, v in pairs(entry.storageArray) do
-                        entry.networkController.network:increase_tracked_item_count(n, v.count)
-                    end
-                end]]
             end
         end
 
@@ -114,7 +98,7 @@ for _, obj in pairs(global.objectTables) do
             end
         end
 
-        if obj.tag == "IIOV3" then
+        if obj.tag == "IIO3" then
             for _, entry in pairs(global[obj.tableName] or {}) do
                 entry.whitelistBlacklist = entry.whitelist and "whitelist" or "blacklist"
                 entry.whitelist = nil

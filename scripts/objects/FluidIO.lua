@@ -419,6 +419,7 @@ function FIO:check_focused_entity()
     if self.focusedEntity.fluid_box.target_position == nil then self:reset_focused_entity() return end
     if Util.positions_match(self.thisEntity.position, self.focusedEntity.fluid_box.target_position) == false then self:reset_focused_entity() return end
     if self.focusedEntity.thisEntity.fluidbox.get_pipe_connections(self.focusedEntity.fluid_box.index) == nil then self:reset_focused_entity() return end
+    if self.focusedEntity.thisEntity.fluidbox.get_pipe_connections(self.focusedEntity.fluid_box.index)[self.focusedEntity.fluid_box.pipe_index] == nil then self:reset_focused_entity() return end
     if self.focusedEntity.fluid_box.flow ~= self.focusedEntity.thisEntity.fluidbox.get_pipe_connections(self.focusedEntity.fluid_box.index)[self.focusedEntity.fluid_box.pipe_index].flow then self:reset_focused_entity() return end
     if self.focusedEntity.fluid_box.filter ~= (self.focusedEntity.thisEntity.fluidbox.get_locked_fluid(self.focusedEntity.fluid_box.index) or "") then self:reset_focused_entity() return end
 

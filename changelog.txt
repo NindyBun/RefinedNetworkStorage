@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.8
+Date: 11 March 2024
+  Info:
+    - Fixed issue where ItemIO's 2nd filter didn't save
+    - Fixed issue where the Wireless Grid crashes when trying to call `Util.get_rns_entity`
+    - Added filters for Item Drive and Fluid Drive
+    - Reworked item and fluid transfer logic
+    - Fixed issue where ItemIO didn't work properly with inventories with more than one inventory types
+    - Added cache system for efficient network capabilities
+---------------------------------------------------------------------------------------------------
 Version: 1.0.7
 Date: 11 February 2024
   Info:
