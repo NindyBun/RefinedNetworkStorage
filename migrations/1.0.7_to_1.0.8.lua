@@ -92,16 +92,12 @@ for _, obj in pairs(global.objectTables) do
                     end
                 end
                 entry:init_cache()
-                --[[if entry.networkController ~= nil and BaseNet.exists_in_network(entry.networkController, entry.thisEntity.unit_number) then
-                    entry:update(entry.networkController.network)
-                end]]
             end
         end
 
         if obj.tag == "IIO3" then
             for _, entry in pairs(global[obj.tableName] or {}) do
                 entry.whitelistBlacklist = entry.whitelist and "whitelist" or "blacklist"
-                entry.whitelist = nil
                 entry.supportModified = entry.metadataMode
                 local oldFilters = entry.filters
                 entry.filters = {
