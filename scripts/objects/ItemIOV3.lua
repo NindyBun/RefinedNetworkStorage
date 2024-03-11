@@ -154,10 +154,11 @@ function IIO3:copy_settings(obj)
     for _, filter in pairs(self.guiFilters) do
         if filter ~= "" then
             self.filters.max = self.filters.max + 1
-            self.filters.values[filter] = true --For filtering blacklisted imports
             self.filters.values[self.filters.max] = filter --For specific exports and imports
+            self.filters.values[filter] = true --For filtering blacklisted imports
         end
     end
+    self.filters.index = self.filters.max ~= 0 and 1 or 0
 
     self.priority = obj.priority
     self:generateModeIcon()
@@ -198,10 +199,11 @@ function IIO3:deserialize_settings(tags)
     for _, filter in pairs(self.guiFilters) do
         if filter ~= "" then
             self.filters.max = self.filters.max + 1
-            self.filters.values[filter] = true
             self.filters.values[self.filters.max] = filter --This is saving the index as a string for some reason
+            self.filters.values[filter] = true
         end
     end
+    self.filters.index = self.filters.max ~= 0 and 1 or 0
 
     self.priority = tags["priority"]
     self:generateModeIcon()

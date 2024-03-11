@@ -129,10 +129,12 @@ for _, obj in pairs(global.objectTables) do
                 for i = 1, 2 do
                     entry.guiFilters[i] = oldFilters.values[i]
                     if oldFilters.values[i] ~= "" then
+                        entry.filters.max = entry.filters.max + 1
                         entry.filters.values[oldFilters.values[i]] = true
                         entry.filters.values[i] = oldFilters.values[i]
                     end
                 end
+                entry.filters.index = entry.filters.max ~= 0 and 1 or 0
             end
         end
     end

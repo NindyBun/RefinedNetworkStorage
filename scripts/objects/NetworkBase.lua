@@ -1137,7 +1137,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
         local inv = from_inv.thisEntity.get_inventory(from_inv.inventory.output.values[from_inv.inventory.output.index])
         if BaseNet.inventory_is_sortable(inv) then inv.sort_and_merge() end
         for j = 1, #inv do
-            if transferCapacity <= 0 then goto fin end
+            if transferCapacity <= 0 or inv.is_empty() then goto fin end
             local item = inv[j]
             if item == nil then goto next end
             if item.valid_for_read == false or item.count <= 0 then goto next end
