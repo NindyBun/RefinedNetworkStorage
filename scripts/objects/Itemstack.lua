@@ -58,16 +58,16 @@ function Itemstack:new(item)
     t.extras.blueprint_tiles = item.is_blueprint and Util.copy(item.get_blueprint_tiles()) or nil
     --if Util.getTableLength_non_nil(t.extras.blueprint_tiles) > 0 then t.modified = true end
 
-    t.extras.blueprint_icons = (item.is_blueprint or item.is_blueprint_book) and Util.copy(item.blueprint_icons) or nil
+    t.extras.blueprint_icons = (item.is_blueprint) and Util.copy(item.blueprint_icons) or nil
     --if Util.getTableLength_non_nil(t.extras.blueprint_icons) > 0 then t.modified = true end
 
-    t.extras.default_icons = (item.is_blueprint or item.is_blueprint_book) and Util.copy(item.default_icons) or nil
+    t.extras.default_icons = (item.is_blueprint) and Util.copy(item.default_icons) or nil
     --if Util.getTableLength_non_nil(t.extras.blueprint_icons) > 0 then t.modified = true end
 
-    t.extras.blueprint_snap_to_grid = (item.is_blueprint or item.is_blueprint_book) and item.blueprint_snap_to_grid or nil
-    t.extras.blueprint_position_relative_to_grid = (item.is_blueprint or item.is_blueprint_book) and item.blueprint_position_relative_to_grid or nil
-    t.extras.blueprint_absolute_snapping = (item.is_blueprint or item.is_blueprint_book) and item.blueprint_absolute_snapping or nil
-    t.extras.cost_to_build = (item.is_blueprint or item.is_blueprint_book) and item.cost_to_build or nil
+    t.extras.blueprint_snap_to_grid = (item.is_blueprint) and item.blueprint_snap_to_grid or nil
+    t.extras.blueprint_position_relative_to_grid = (item.is_blueprint) and item.blueprint_position_relative_to_grid or nil
+    t.extras.blueprint_absolute_snapping = (item.is_blueprint) and item.blueprint_absolute_snapping or nil
+    t.extras.cost_to_build = (item.is_blueprint) and item.cost_to_build or nil
     t.extras.active_index = item.is_blueprint_book and item.active_index or nil
 
     t.extras.label = item.is_item_with_label and item.label or nil

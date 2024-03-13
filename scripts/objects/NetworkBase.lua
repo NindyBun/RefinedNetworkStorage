@@ -953,7 +953,7 @@ end]]
 function BaseNet:extract_item_from_drive(drive, inv, itemstack_master, storedItem, transferCapacity, exact)
     local removedAmount, stack = drive:remove_item(itemstack_master, math.min(storedItem.count, transferCapacity), exact)
     transferCapacity = transferCapacity - removedAmount
-    inv.insert(stack)
+    if stack ~= nil then inv.insert(stack) end
     self:decrease_tracked_item_count(itemstack_master.name, removedAmount)
     return transferCapacity
 end

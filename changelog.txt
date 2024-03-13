@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.9
+Date: 13 March 2024
+  Info:
+    - Fixed issue when the Network Interaface crashes when you had a blueprint book in your inventory
+    - Fixed issue when ItemIO tries to insert a nil itemstack into an inventory
+---------------------------------------------------------------------------------------------------
 Version: 1.0.8
 Date: 11 March 2024
   Info:
