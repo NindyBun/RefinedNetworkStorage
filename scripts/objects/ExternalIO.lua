@@ -228,10 +228,23 @@ end
 
 function EIO:update(network)
     if self.io == "output" then return end
-    self:check_focused_entity()
-    if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false then self.storedAmount = 0 return end
-    if self.type == "item" and self.focusedEntity.inventory.output.max == 0 then self.storedAmount = 0 return end
-    if self.type == "fluid" and self.focusedEntity.fluid_box.index == nil then self.storedAmount = 0 return end
+    --[[if self:check_focused_entity() == nil then
+        self:flush_cache()
+        self:clear_cache()
+        self:reset_focused_entity()
+    end]]
+    if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false then
+        self:flush_cache()
+        self:clear_cache()
+    end
+    if self.type == "item" and self.focusedEntity.inventory.output.max == 0 then
+        self:flush_cache()
+        self:clear_cache()
+    end
+    if self.type == "fluid" and self.focusedEntity.fluid_box.index == nil then
+        self:flush_cache()
+        self:clear_cache()
+    end
 
     if self:init_cache() then return end
 
@@ -523,11 +536,32 @@ end
 function EIO:check_focused_entity()
     if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false or self.focusedEntity.thisEntity.to_be_deconstructed() then self:reset_focused_entity() return end
     if Util.positions_match(self.focusedEntity.thisEntity.position, self.focusedEntity.oldPosition) == false then self:reset_focused_entity() return end
-
-    if self.type == "fluid" then
+    if self.type == "item" then
+        if self.focusedEntity.inventory.input.max == nil or self.focusedEntity.inventory.output.max == nil then self:reset_focused_entity() return end
+        if self.focusedEntity.inventory.input.max == 0 and self.io == "output" then self:reset_focused_entity() return end
+        if self.focusedEntity.inventory.output.max == 0 and self.io == "input" then self:reset_focused_entity() return end
+        
+        if self.io == "output" then
+            for _, i in pairs(self.focusedEntity.inventory.input.values) do
+                if self.focusedEntity.thisEntity.get_inventory(i) == nil then self:reset_focused_entity() return end
+            end
+        end
+        if self.io == "input" then
+            for _, i in pairs(self.focusedEntity.inventory.input.values) do
+                if self.focusedEntity.thisEntity.get_inventory(i) == nil then self:reset_focused_entity() return end
+            end
+        end
+    elseif self.type == "fluid" then
         if self.focusedEntity.fluid_box.target_position == nil then self:reset_focused_entity() return end
         if Util.positions_match(self.thisEntity.position, self.focusedEntity.fluid_box.target_position) == false then self:reset_focused_entity() return end
+        if self.focusedEntity.fluid_box.target_position == nil then self:reset_focused_entity() return end
+        if Util.positions_match(self.thisEntity.position, self.focusedEntity.fluid_box.target_position) == false then self:reset_focused_entity() return end
+        if self.focusedEntity.thisEntity.fluidbox.get_pipe_connections(self.focusedEntity.fluid_box.index) == nil then self:reset_focused_entity() return end
+        if self.focusedEntity.thisEntity.fluidbox.get_pipe_connections(self.focusedEntity.fluid_box.index)[self.focusedEntity.fluid_box.pipe_index] == nil then self:reset_focused_entity() return end
+        if self.focusedEntity.fluid_box.flow ~= self.focusedEntity.thisEntity.fluidbox.get_pipe_connections(self.focusedEntity.fluid_box.index)[self.focusedEntity.fluid_box.pipe_index].flow then self:reset_focused_entity() return end
+        if self.focusedEntity.fluid_box.filter ~= (self.focusedEntity.thisEntity.fluidbox.get_locked_fluid(self.focusedEntity.fluid_box.index) or "") then self:reset_focused_entity() return end
     end
+    return true
 end
 
 function EIO:getCheckArea()

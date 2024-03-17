@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.10
+Date: 17 March 2024
+  Info:
+    - Fixed issue when the Network Interaface crashes when you had a configured blueprint in your inventory
+    - Possiblly fixed an issue when some ItemIO's didn't work as they should?
+---------------------------------------------------------------------------------------------------
 Version: 1.0.9
 Date: 13 March 2024
   Info:

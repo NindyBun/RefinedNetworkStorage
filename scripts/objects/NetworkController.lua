@@ -239,14 +239,23 @@ function NC:updateItemIO()
         end
         
         for _, item in pairs(import[p]) do
+            local l = 0
+            local pp = 0
             if item:interactable() then
                 --local old = item.processed
                 item:IO()
                 if item.focusedEntity.inventory.input.values ~= nil then
-                    import_length = import_length + 1
+                    l = l + 1
+                    if item.processed == true then pp = pp + 1 end
+                    --import_length = import_length + 1
+                    --if item.processed == true then import_processed = import_processed + 1 end
                 end
                 --if old == true and item.processed == true then item.processed = false end
-                if item.processed == true then import_processed = import_processed + 1 end
+            end
+            if pp >= l and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+                for _, item in pairs(import[p]) do
+                    item.processed = false
+                end
             end
         end
     end
@@ -266,18 +275,27 @@ function NC:updateItemIO()
         end
 
         for _, item in pairs(export[p]) do
+            local l = 0
+            local pp = 0
             if item:interactable() then
                 --local old = item.processed
                 item:IO()
                 if item.focusedEntity.inventory.output.values ~= nil then
-                    export_length = export_length + 1
+                    --export_length = export_length + 1
+                    --if item.processed == true then export_processed = export_processed + 1 end
+                    l = l + 1
+                    if item.processed == true then pp = pp + 1 end
                 end
                 --if old == true and item.processed == true then item.processed = false end
-                if item.processed == true then export_processed = export_processed + 1 end
+            end
+            if pp >= l and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+                for _, item in pairs(export[p]) do
+                    item.processed = false
+                end
             end
         end
     end
-    if import_processed >= import_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+    --[[if import_processed >= import_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(import) do
             for _, item in pairs(priority) do
                 item.processed = false
@@ -290,7 +308,7 @@ function NC:updateItemIO()
                 item.processed = false
             end
         end
-    end
+    end]]
 end
 
 function NC:updateFluidIO()
@@ -316,14 +334,23 @@ function NC:updateFluidIO()
         end
 
         for _, fluid in pairs(import[p]) do
+            local l = 0
+            local pp = 0
             if fluid:interactable() then
                 --local old = fluid.processed
                 fluid:IO()
                 if fluid.focusedEntity.fluid_box.index ~= nil then
-                    import_length = import_length + 1
+                    l = l + 1
+                    if fluid.processed == true then pp = pp + 1 end
+                    --import_length = import_length + 1
+                    --if fluid.processed == true then import_processed = import_processed + 1 end
                 end
                 --if old == true and fluid.processed == true then fluid.processed = false end
-                if fluid.processed == true then import_processed = import_processed + 1 end
+            end
+            if pp >= l and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+                for _, item in pairs(import[p]) do
+                    item.processed = false
+                end
             end
         end
     end
@@ -341,16 +368,25 @@ function NC:updateFluidIO()
             export[p] = priority.output
         end
         for _, fluid in pairs(export[p]) do
+            local l = 0
+            local pp = 0
             if fluid:interactable() then
                 fluid:IO()
                 if fluid.focusedEntity.fluid_box.index ~= nil then
-                    export_length = export_length + 1
+                    l = l + 1
+                    if fluid.processed == true then pp = pp + 1 end
+                    --export_length = export_length + 1
+                    --if fluid.processed == true then export_processed = export_processed + 1 end
                 end
-                if fluid.processed == true then export_processed = export_processed + 1 end
+            end
+            if pp >= l and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+                for _, item in pairs(export[p]) do
+                    item.processed = false
+                end
             end
         end
     end
-    if import_processed >= import_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+    --[[if import_processed >= import_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
         for _, priority in pairs(import) do
             for _, fluid in pairs(priority) do
                 fluid.processed = false
@@ -363,7 +399,7 @@ function NC:updateFluidIO()
                 fluid.processed = false
             end
         end
-    end
+    end]]
 end
 
 function NC:resetCollection()
