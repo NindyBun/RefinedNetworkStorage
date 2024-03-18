@@ -1008,7 +1008,6 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
         local inv = to_inv.thisEntity.get_inventory(to_inv.inventory.input.values[to_inv.inventory.input.index])
         if BaseNet.inventory_is_sortable(inv) then inv.sort_and_merge() end
         if inv.can_insert(itemstack_master.name) == false then goto fin end
-        game.print("E")
         local stacks = math.ceil(inv.get_item_count(itemstack_master.name) / game.item_prototypes[itemstack_master.name].stack_size)
         local lastStackFillableAmount = game.item_prototypes[itemstack_master.name].stack_size*stacks - inv.get_item_count(itemstack_master.name)
         local emptyStacks = inv.count_empty_stacks(true, false)
