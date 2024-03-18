@@ -169,9 +169,10 @@ function NCug:createArms()
         local ents = self.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         local nearest = nil
         for _, ent in pairs(ents) do
-            if ent ~= nil and ent.valid == true and ent.to_be_deconstructed() == false and string.match(ent.name, "RNS_") ~= nil then
+            if ent ~= nil and ent.valid == true and ent.to_be_deconstructed() == false and string.match(ent.name, "RNS_") ~= nil and global.entityTable[ent.unit_number] ~= nil then
                 local obj = global.entityTable[ent.unit_number]
                 if area.direction == self:getDirection() then
+                    --obj is indexed as nil for some reason
                     if string.match(ent.name, "RNS_NetworkCableRamp") ~= nil and obj.color == self.color and (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then
                         if self:getDirection() == obj:getConnectionDirection() or self:getDirection() == obj:getDirection() then
                             nearest = ent --Need to find a way to isolate ramps from other ramps on the same line

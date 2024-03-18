@@ -1007,8 +1007,13 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
     for i = 1, to_inv.inventory.input.max do
         local inv = to_inv.thisEntity.get_inventory(to_inv.inventory.input.values[to_inv.inventory.input.index])
         if BaseNet.inventory_is_sortable(inv) then inv.sort_and_merge() end
-        if inv.get_insertable_count(itemstack_master.name) <= 0 then goto fin end
-        transferCapacity = math.min(transferCapacity, inv.get_insertable_count(itemstack_master.name))
+        if inv.can_insert(itemstack_master.name) == false then goto fin end
+        game.print("E")
+        local stacks = math.ceil(inv.get_item_count(itemstack_master.name) / game.item_prototypes[itemstack_master.name].stack_size)
+        local lastStackFillableAmount = game.item_prototypes[itemstack_master.name].stack_size*stacks - inv.get_item_count(itemstack_master.name)
+        local emptyStacks = inv.count_empty_stacks(true, false)
+        local emptyStacksFillableAmount = game.item_prototypes[itemstack_master.name].stack_size*emptyStacks + lastStackFillableAmount
+        transferCapacity = math.min(transferCapacity, emptyStacksFillableAmount)
         if transferCapacity <= 0 then goto fin end
 
         if network:has_cache("export", "drive", itemstack_master.name) and itemstack_master.modified == false then
@@ -1104,9 +1109,13 @@ function BaseNet:insert_item_into_external(external, item, inv_item, itemstack_m
     for k = 1, external.focusedEntity.inventory.input.max do
         if transferCapacity <= 0 then break end
         local ext_inv = external.focusedEntity.thisEntity.get_inventory(external.focusedEntity.inventory.input.values[external.focusedEntity.inventory.input.index])
-        local insertableAmount = ext_inv.get_insertable_count(inv_item.name)
-        if insertableAmount > 0 then
-            local extractSize = math.min(math.min(transferCapacity, inv_item.count), insertableAmount)
+        if ext_inv.can_insert(inv_item.name) then
+            local stacks = math.ceil(ext_inv.get_item_count(itemstack_master.name) / game.item_prototypes[itemstack_master.name].stack_size)
+            local lastStackFillableAmount = game.item_prototypes[itemstack_master.name].stack_size*stacks - ext_inv.get_item_count(itemstack_master.name)
+            local emptyStacks = ext_inv.count_empty_stacks(true, false)
+            local emptyStacksFillableAmount = game.item_prototypes[itemstack_master.name].stack_size*emptyStacks + lastStackFillableAmount
+
+            local extractSize = math.min(math.min(transferCapacity, inv_item.count), emptyStacksFillableAmount)
             local splitStack = inv_item:split(itemstack_master, extractSize, exact)
 
             if splitStack.modified == false or splitStack.health ~= 1.0 then
