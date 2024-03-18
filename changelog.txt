@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.11
+Date: 18 March 2024
+  Info:
+    - Fixed issue when the Item bus was deleting items when inserting into a machine with more than slots that's not the item it's trying to insert
+    - Fixed error when removing an underground
+    - Fixed round-robin not round-robining
+---------------------------------------------------------------------------------------------------
 Version: 1.0.10
 Date: 17 March 2024
   Info:

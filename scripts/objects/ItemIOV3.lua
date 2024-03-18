@@ -455,26 +455,23 @@ function IIO3:IO()
     local network = self.networkController.network
 
     local target = self.focusedEntity
-
-    local storedAmount = target.thisEntity.get_item_count()
     local transportCapacity = self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity--*global.IIOMultiplier
 
     if self.io == "input" and target.inventory.output.max ~= 0 then
-        BaseNet.transfer_from_inv_to_network(network, target, nil, self.filters.values, self.whitelistBlacklist, transportCapacity, self.supportModified)
+        local r = BaseNet.transfer_from_inv_to_network(network, target, nil, self.filters.values, self.whitelistBlacklist, transportCapacity, self.supportModified)
+        if r < transportCapacity then self.processed = true end
     elseif self.io == "output" and target.inventory.input.max ~= 0 ~= nil and self.filters.max ~= 0 then
+        local r = transportCapacity
         for i = 1, self.filters.max do
-            if transportCapacity <= 0 then break end
             local itemstack_master = Itemstack.create_template(self.filters.values[self.filters.index])
             if (network.Contents.item[itemstack_master.name] or 0) > 0 then
-                transportCapacity = BaseNet.transfer_from_network_to_inv(network, target, itemstack_master, transportCapacity, self.supportModified, false)
+                r = BaseNet.transfer_from_network_to_inv(network, target, itemstack_master, r, self.supportModified, false)
             end
             Util.next_index(self.filters)
+            if r <= 0 then break end
         end
+        if r < transportCapacity then self.processed = true end
     end
-
-    if self.io == "input" and target.thisEntity.get_item_count() < storedAmount then self.processed = true return end
-    if self.io == "output" and target.thisEntity.get_item_count() > storedAmount then self.processed = true return end
-    --self.processed = false
 end
 
 function IIO3:resetConnection()
