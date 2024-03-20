@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.12
+Date: 20 March 2024
+  Info:
+    - Decreased craft time for the silicon wafers from 2.5 to 1 second
+    - Fixed issue when changing the color of a cable entity not updating neighbooring cables
+    - Fixed issue when copying a Fluid bus with a empty filter to another Fluid bus
+---------------------------------------------------------------------------------------------------
 Version: 1.0.11
 Date: 18 March 2024
   Info:

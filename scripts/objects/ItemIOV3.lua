@@ -875,6 +875,9 @@ function IIO3.interaction(event, RNSPlayer)
             io.color = color
             rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[io.color].sprites[5].name, target=io.thisEntity, surface=io.thisEntity.surface, render_layer="lower-object-above-shadow"}
             io.processed = false
+            io:createArms()
+            BaseNet.postArms(io)
+            BaseNet.update_network_controller(io.networkController)
         end
 		return
 	end

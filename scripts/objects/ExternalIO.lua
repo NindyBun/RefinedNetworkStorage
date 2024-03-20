@@ -879,7 +879,10 @@ function EIO.interaction(event, RNSPlayer)
         local color = Constants.Settings.RNS_ColorN[event.element.selected_index]
         if color ~= io.color then
             io.color = color
-            rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[io.color].sprites[5].name, target=io.thisEntity, surface=io.thisEntity.surface, render_layer="lower-object-above-shadow"}
+            rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[io.color].sprites[5].name, target=io.thisEntity, surface=io.thisEntity.surface, render_layer="lower-object-above-shadow"}  
+            io:createArms()
+            BaseNet.postArms(io)
+            BaseNet.update_network_controller(io.networkController)
         end
 		return
 	end

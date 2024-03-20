@@ -248,7 +248,7 @@ function BaseNet.join_network(main, side)
 end
 
 function BaseNet.postArms(object)
-    for _, connected in pairs(object.connectedObjs) do
+    --[[for _, connected in pairs(object.connectedObjs) do
         for _, con in pairs(connected) do
             if valid(con) == false then goto next end
             if con.thisEntity == nil then goto next end
@@ -257,6 +257,20 @@ function BaseNet.postArms(object)
             if con.createArms == nil then goto next end
             con:createArms()
             ::next::
+        end
+    end]]
+    local areas = object:getCheckArea()
+    for _, area in pairs(areas) do
+        local ents = object.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
+        for _, ent in pairs(ents) do
+            if ent ~= nil and ent.valid == true and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil then
+                local obj = global.entityTable[ent.unit_number]
+                if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
+                    --Do nothing
+                else
+                    obj:createArms()
+                end
+            end
         end
     end
 end

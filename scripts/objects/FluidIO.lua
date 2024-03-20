@@ -173,7 +173,7 @@ function FIO:deserialize_settings(tags)
 end
 
 function FIO:set_icons(index, name)
-    self.combinator.get_or_create_control_behavior().set_signal(index, name ~= "" and {signal={type="fluid", name=name}, count=1} or nil)
+    self.combinator.get_or_create_control_behavior().set_signal(index, name ~= nil and {signal={type="fluid", name=name}, count=1} or nil)
 end
 
 function FIO:toggleHoverIcon(hovering)
@@ -705,6 +705,9 @@ function FIO.interaction(event, RNSPlayer)
             io.color = color
             rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[io.color].sprites[5].name, target=io.thisEntity, surface=io.thisEntity.surface, render_layer="lower-object-above-shadow"}
             io.processed = false
+            io:createArms()
+            BaseNet.postArms(io)
+            BaseNet.update_network_controller(io.networkController)
         end
 		return
 	end

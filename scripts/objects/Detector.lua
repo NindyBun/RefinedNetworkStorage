@@ -381,6 +381,9 @@ function DT.interaction(event, RNSPlayer)
         if color ~= io.color then
             io.color = color
             rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[io.color].sprites[5].name, target=io.thisEntity, surface=io.thisEntity.surface, render_layer="lower-object-above-shadow"}
+            io:createArms()
+            BaseNet.postArms(io)
+            BaseNet.update_network_controller(io.networkController)
         end
 		return
 	end
