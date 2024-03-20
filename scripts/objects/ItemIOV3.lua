@@ -19,7 +19,8 @@ IIO3 = {
     processed = false,
     priority = 0,
     powerUsage = 80,
-    stackSize = 1
+    stackSize = 1,
+    circuitCondition = "none"
 }
 
 function IIO3:new(object)
@@ -445,7 +446,7 @@ function IIO3:IO()
     if self:interactable() == false then self.processed = true return end
     if self:target_interactable() == false then self.processed = true return end
 
-    if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
+    if self.circuitCondition == "enable/disable" and self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
         if self.enabler.filter == nil then self.processed = true return end
         local amount = self.enablerCombinator.get_merged_signal({type=self.enabler.filter.type, name=self.enabler.filter.name}, defines.circuit_connector_id.constant_combinator)
         if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then self.processed = true return end
@@ -456,6 +457,13 @@ function IIO3:IO()
 
     local target = self.focusedEntity
     local transportCapacity = self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity--*global.IIOMultiplier
+    if self.circuitCondition == "setStackStize" and self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
+        
+    end
+
+    if self.circuitCondition == "setFilter" and self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
+        
+    end
 
     if self.io == "input" and target.inventory.output.max ~= 0 then
         local r = BaseNet.transfer_from_inv_to_network(network, target, nil, self.filters.values, self.whitelistBlacklist, transportCapacity, self.supportModified)
@@ -698,7 +706,7 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
         local filterFlow = GuiApi.add_flow(guiTable, "", filtersFrame, "vertical")
         filterFlow.style.horizontal_align = "center"
 
-        local filter1 = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_1", filterFlow, "", true, "item", 40, {ID=self.thisEntity.unit_number})
+        local filter1 = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_1", filterFlow, "", true, "item", 40, {ID=self.thisEntity.unit_number}) --ignored_by_interaction when filters are set by circuits
 		guiTable.vars.filter1 = filter1
 		if self.guiFilters[1] ~= "" then filter1.elem_value = self.guiFilters[1] end
 
