@@ -698,7 +698,7 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
         local filterFlow = GuiApi.add_flow(guiTable, "", filtersFrame, "vertical")
         filterFlow.style.horizontal_align = "center"
 
-        local filter1 = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_1", filterFlow, "", true, "item", 40, {ID=self.thisEntity.unit_number})
+        local filter1 = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_1", filterFlow, "", true, "item", 40, {ID=self.thisEntity.unit_number}) --ignored_by_interaction when filters are set by circuits
 		guiTable.vars.filter1 = filter1
 		if self.guiFilters[1] ~= "" then filter1.elem_value = self.guiFilters[1] end
 
