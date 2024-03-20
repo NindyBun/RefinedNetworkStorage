@@ -9,13 +9,8 @@ function GUI.update(force)
                             GUI.remove_gui(guiTable, player)
                             goto continue
                         end
-                        local playerVars = false
-                        if guiTable.vars.currentObject.thisEntity.name == Constants.NetworkCables.externalIO.name 
-                        or guiTable.vars.currentObject.thisEntity.name == Constants.Detector.name 
-                        or guiTable.vars.currentObject.thisEntity.name == Constants.NetworkCables.itemIO.name then
-                            playerVars = RNSPlayer:pull_varTable(guiTable.vars.currentObject.entID)
-                            RNSPlayer:remove_varTable(guiTable.vars.currentObject.entID)
-                        end
+                        local playerVars = RNSPlayer:pull_varTable(guiTable.vars.currentObject.entID) or false
+                        if playerVars == false then RNSPlayer:remove_varTable(guiTable.vars.currentObject.entID) end
                         if Util.safeCall(GUI["update_" .. guiTable.gui.name], guiTable, playerVars) == false then
                             player.print({"gui-description.RNS_updating_gui_failed"})
                             Util.safeCall(Event.clear_gui, {player_index=player.index})
