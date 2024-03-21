@@ -489,7 +489,7 @@ function WG.transfer_from_idinv(RNSPlayer, WG, tags, count)
 	if count == -4 then count = (2^32)-1 end
 
 	--local inv = RNSPlayer.thisEntity.get_main_inventory()
-	local amount = math.min(itemstack.cont.count, count)
+	local amount = math.min(itemstack.count, count)
 	if amount <= 0 then return end
 
 	BaseNet.transfer_from_network_to_inv(network, {thisEntity = RNSPlayer.thisEntity,inventory = {input = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, itemstack, amount, true, true)
