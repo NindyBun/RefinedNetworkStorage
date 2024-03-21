@@ -158,7 +158,11 @@ function addConnectables(source, connections, master)
                     for i = 1, #con.cache do
                         local cached = con.cache[i]
                         if cached ~= nil then
-                            master.network:increase_tracked_item_count(cached.name, cached.count)
+                            if con.type == "item" then
+                                master.network:increase_tracked_item_count(cached.name, cached.count)
+                            else
+                                master.network:increase_tracked_fluid_amount(cached.name, cached.amount)
+                            end
                         end
                     end
                 end
@@ -525,6 +529,7 @@ function BaseNet:extract_fluid_from_external(to_tank, external, filter, extractS
     storedFluidAmount = a0 + a1
     storedFluidTemperature = (a0*t0 + a1*t1) / (a0 + a1)
 
+
     to_tank.thisEntity.fluidbox[fluid_box.index] = {
         name = filter,
         amount = storedFluidAmount,
@@ -568,8 +573,7 @@ function BaseNet.transfer_from_network_to_tank(network, to_tank, transportCapaci
             network:remove_cache("export", "external", filter)
         else
             if external:interactable() and external:target_interactable() and external.type == "fluid" and string.match(external.io, "input") ~= nil and string.match(external.focusedEntity.fluid_box.flow, "output") ~= nil
-            and external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index] ~= nil and external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index].name ~= filter 
-            and external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index].amount > 0 then
+            and external.cache[1].name == filter and external.cache[1].amount > 0 then
                 extractSize = network:extract_fluid_from_external(to_tank, external, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
                 if extractSize <= 0 then return 0 end
             else
@@ -594,8 +598,7 @@ function BaseNet.transfer_from_network_to_tank(network, to_tank, transportCapaci
 
         for _, external in pairs(priorityE) do
             if external:interactable() and external:target_interactable() and external.type == "fluid" and string.match(external.io, "input") ~= nil and string.match(external.focusedEntity.fluid_box.flow, "output") ~= nil
-            and external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index] ~= nil and external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index].name ~= filter 
-            and external.focusedEntity.thisEntity.fluidbox[external.focusedEntity.fluid_box.index].amount > 0 then
+            and external.cache[1].name == filter and external.cache[1].amount > 0 then
                 extractSize = network:extract_fluid_from_external(to_tank, external, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
                 if extractSize <= 0 then
                     network:put_cache("export", "external", filter, external.thisEntity.unit_number)

@@ -216,7 +216,7 @@ function EIO:init_cache()
             end
             self.capacity = self.capacity + #inv
         end
-    elseif self.type == "fluid" and self.focusedEntity.fluid_box.index ~= nil and self.focusedEntity.fluid_box.flow == "output" then
+    elseif self.type == "fluid" and self.focusedEntity.fluid_box.index ~= nil and string.match(self.focusedEntity.fluid_box.flow, "output") then
         local fluid = self.focusedEntity.thisEntity.fluidbox[self.focusedEntity.fluid_box.index]
         self.cache = {}
         self.cache[1] = fluid
@@ -284,8 +284,10 @@ function EIO:update(network)
                     local delta = itemstack.count - cached.count
                     if delta > 0 then
                         network:increase_tracked_item_count(itemstack.name, delta)
+                        cached.count = cached.count + delta
                     else
                         network:decrease_tracked_item_count(itemstack.name, math.abs(delta))
+                        cached.count = cached.count - math.abs(delta)
                     end
                     self.cache[j] = itemstack
                 end
@@ -303,7 +305,7 @@ function EIO:update(network)
                 end
             end
         end
-    elseif self.type == "fluid" and self.focusedEntity.fluid_box.index ~= nil and self.focusedEntity.fluid_box.flow == "output" then
+    elseif self.type == "fluid" and self.focusedEntity.fluid_box.index ~= nil and string.match(self.focusedEntity.fluid_box.flow, "output") then
         local fluid = self.focusedEntity.thisEntity.fluidbox[self.focusedEntity.fluid_box.index]
         self.storedAmount = self.storedAmount + (fluid and fluid.amount or 0)
         local cached = self.cache[1]
@@ -323,10 +325,10 @@ function EIO:update(network)
             local delta = fluid.amount - cached.amount
             if delta > 0 then
                 network:increase_tracked_fluid_amount(fluid.name, delta)
-                fluid.amount = fluid.amount + delta
+                cached.amount = cached.amount + delta
             else
                 network:decrease_tracked_fluid_amount(fluid.name, math.abs(delta))
-                fluid.amount = fluid.amount - math.abs(delta)
+                cached.amount = cached.amount - math.abs(delta)
             end
         end
 

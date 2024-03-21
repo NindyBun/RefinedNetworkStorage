@@ -487,6 +487,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         local connectedStructuresSP = GuiApi.add_scroll_pane(guiTable, "", connectedStructuresFlow, nil, false)
 		connectedStructuresSP.style.vertically_stretchable = true
 		connectedStructuresSP.style.bottom_margin = 3
+        connectedStructuresSP.style.minimal_width = 450
 
         GuiApi.add_table(guiTable, "ConnectedStructuresTable", connectedStructuresSP, 2, true)
     end

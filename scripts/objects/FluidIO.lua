@@ -369,7 +369,7 @@ end
 function FIO:reset_focused_entity()
     self.focusedEntity = {
         thisEntity = nil,
-        --oldPosition = nil,
+        oldPosition = nil,
         fluid_box = {
             index = nil,
             pipe_index = nil,
