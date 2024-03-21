@@ -263,7 +263,8 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 		if item.extras.custom_description ~= "" and item.extras.custom_description ~= nil then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, item.extras.custom_description)
-		elseif item.modified then
+		end
+		if item.modified then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_item_modified"})
 		end
@@ -460,7 +461,6 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	--local inv = RNSPlayer.thisEntity.get_main_inventory()
 	local amount = math.min(itemstack.count, count)
 	if amount <= 0 then return end
-
 	BaseNet.transfer_from_inv_to_network(network, {thisEntity = RNSPlayer.thisEntity,inventory = {output = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, itemstack, nil, "whitelist", amount, true, true)
 	
 	--[[local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)

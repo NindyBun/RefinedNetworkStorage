@@ -308,6 +308,7 @@ function FIO:interactable()
 end
 
 function FIO:target_interactable()
+    self:reset_focused_entity()
     self:check_focused_entity()
     return self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid and self.focusedEntity.thisEntity.to_be_deconstructed() == false
 end

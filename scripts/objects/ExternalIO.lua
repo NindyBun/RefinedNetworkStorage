@@ -152,9 +152,12 @@ function EIO:interactable()
     return self.thisEntity ~= nil and self.thisEntity.valid and self.thisEntity.to_be_deconstructed() == false
 end
 
-function EIO:target_interactable()
+function EIO:target_interactable(network)
+    self:reset_focused_entity()
     self:check_focused_entity()
-    if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false then self:flush_cache() end
+    self:init_cache()
+    self:update(network)
+    --if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false then self:flush_cache() end
     return self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid and self.focusedEntity.thisEntity.to_be_deconstructed() == false
 end
 
@@ -465,6 +468,8 @@ function EIO:resetConnection()
 end
 
 function EIO:reset_focused_entity()
+    self:flush_cache()
+    self:clear_cache()
     self.focusedEntity = {
         thisEntity = nil,
         oldPosition = nil,
