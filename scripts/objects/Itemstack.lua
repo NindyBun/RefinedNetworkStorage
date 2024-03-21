@@ -61,9 +61,8 @@ function Itemstack:new(item)
     t.extras.blueprint_icons = item.is_blueprint and Util.copy(item.blueprint_icons or {}) or nil
     --if Util.getTableLength_non_nil(t.extras.blueprint_icons) > 0 then t.modified = true end
 
-    t.extras.default_icons = item.is_blueprint and Util.copy(item.default_icons or {}) or nil
+    t.extras.default_icons = (item.is_blueprint and item.get_blueprint_entity_count() ~= 0) and Util.copy(item.default_icons or {}) or nil
     --if Util.getTableLength_non_nil(t.extras.blueprint_icons) > 0 then t.modified = true end
-
     t.extras.blueprint_snap_to_grid = item.is_blueprint and item.blueprint_snap_to_grid or nil
     t.extras.blueprint_position_relative_to_grid = item.is_blueprint and item.blueprint_position_relative_to_grid or nil
     t.extras.blueprint_absolute_snapping = item.is_blueprint and item.blueprint_absolute_snapping or nil

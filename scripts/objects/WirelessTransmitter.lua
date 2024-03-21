@@ -81,10 +81,19 @@ function WT:update()
         if self.thisEntity.to_be_deconstructed() == true then return end
         
         if self.showArea == true and self.rangeArea == nil then
+            --Max map size is 2 mil x 2 mil
+            local tl = {self.thisEntity.position.x-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, self.thisEntity.position.y-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier}
+            local br = {self.thisEntity.position.x+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, self.thisEntity.position.y+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier}
+            if global.WTRangeMultiplier == -1 then
+                local width = self.thisEntity.surface.map_gen_settings.width/2
+                local height = self.thisEntity.surface.map_gen_settings.height/2
+                tl = {-width, -height}
+                br = {width, height}
+            end
 			self.rangeArea = rendering.draw_rectangle{
                 color=settings.global[Constants.Settings.RNS_WirelessTransmitter_Color].value, width=5, filled=true,
-                left_top={self.thisEntity.position.x-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, self.thisEntity.position.y-0.5-Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier},
-                right_bottom={self.thisEntity.position.x+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier, self.thisEntity.position.y+0.5+Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier},
+                left_top=tl,
+                right_bottom=br,
                 surface=self.thisEntity.surface
             }
         elseif self.showArea == false and self.rangeArea ~= nil then
@@ -221,7 +230,7 @@ function WT:getTooltips(guiTable, mainFrame, justCreated)
 		playerScrollPane.style.bottom_margin = 3
     end
 
-    guiTable.vars.TransmitterRange.caption = {"gui-description.RNS_WirelessTransmitterRange", Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier}
+    guiTable.vars.TransmitterRange.caption = {"gui-description.RNS_WirelessTransmitterRange", global.WTRangeMultiplier ~= -1 and Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier or "∞"}
 
     local playerPane = guiTable.vars.PlayerScrollPane
     playerPane.clear()
