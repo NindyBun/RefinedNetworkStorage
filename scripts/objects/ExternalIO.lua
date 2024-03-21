@@ -154,7 +154,7 @@ end
 
 function EIO:target_interactable()
     self:check_focused_entity()
-    if self.focusedEntity.thisEntity == nil and self.focusedEntity.thisEntity.valid == false then self:flush_cache() end
+    if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false then self:flush_cache() end
     return self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid and self.focusedEntity.thisEntity.to_be_deconstructed() == false
 end
 
@@ -177,7 +177,7 @@ function EIO:flush_cache()
         else
             local cached = self.cache[1]
             if cached ~= nil then
-                self.networkController.network:decrease_tracked_fluid_count(cached.name, cached.amount)
+                self.networkController.network:decrease_tracked_fluid_amount(cached.name, cached.amount)
             end
         end
     end
@@ -196,7 +196,7 @@ function EIO:inject_cache()
         else
             local cached = self.cache[1]
             if cached ~= nil then
-                self.networkController.network:increase_tracked_fluid_count(cached.name, cached.amount)
+                self.networkController.network:increase_tracked_fluid_amount(cached.name, cached.amount)
             end
         end
     end

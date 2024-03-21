@@ -512,7 +512,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
             section.style = Constants.Settings.RNS_Gui.frame_1
             section.style.minimal_width = 200
             GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
-            GuiApi.add_item_frame(guiTable, "", section, t.powerUsage .. "/t", name, count .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
+            GuiApi.add_item_frame(guiTable, "", section, t.powerUsage .. " J/t", name, count .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
         end
     end
 
@@ -524,7 +524,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
             section.style = Constants.Settings.RNS_Gui.frame_1
             section.style.minimal_width = 200
             GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
-            GuiApi.add_item_frame(guiTable, "", section, t.powerUsage .. "/t", name, count .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
+            GuiApi.add_item_frame(guiTable, "", section, t.powerUsage .. " J/t", name, count .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
         end
     end
 
@@ -535,7 +535,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         section.style = Constants.Settings.RNS_Gui.frame_1
         section.style.minimal_width = 200
         GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
-        GuiApi.add_item_frame(guiTable, "", section, _G.IIO3.powerUsage*global.IIOMultiplier .. "/t", name, itemIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, _G.IIO3.powerUsage*global.IIOMultiplier .. " J/t", name, itemIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     --[[local itemIOV2count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ItemIOV2Table))
@@ -555,7 +555,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         section.style = Constants.Settings.RNS_Gui.frame_1
         section.style.minimal_width = 200
         GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
-        GuiApi.add_item_frame(guiTable, "", section, _G.FIO.powerUsage*global.FIOMultiplier .. "/t", name, fluidIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, _G.FIO.powerUsage*global.FIOMultiplier .. " J/t", name, fluidIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     --[[local fluidIOV2count = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.FluidIOV2Table))
@@ -575,7 +575,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         section.style = Constants.Settings.RNS_Gui.frame_1
         section.style.minimal_width = 200
         GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
-        GuiApi.add_item_frame(guiTable, "", section, _G.EIO.powerUsage .. "/t", name, externalIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, _G.EIO.powerUsage .. " J/t", name, externalIOcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local interfacecount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.NetworkInventoryInterfaceTable))
@@ -585,7 +585,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         section.style = Constants.Settings.RNS_Gui.frame_1
         section.style.minimal_width = 200
         GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
-        GuiApi.add_item_frame(guiTable, "", section, _G.NII.powerUsage .. "/t", name, interfacecount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, _G.NII.powerUsage .. " J/t", name, interfacecount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local wirelessTransmittercount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.WirelessTransmitterTable))
@@ -595,7 +595,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         section.style = Constants.Settings.RNS_Gui.frame_1
         section.style.minimal_width = 200
         GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
-        GuiApi.add_item_frame(guiTable, "", section, _G.WT.powerUsage*global.WTRangeMultiplier .. "/t", name, wirelessTransmittercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, _G.WT.powerUsage*global.WTRangeMultiplier .. " J/t", name, wirelessTransmittercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local detectorcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.DetectorTable))
@@ -605,7 +605,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         section.style = Constants.Settings.RNS_Gui.frame_1
         section.style.minimal_width = 200
         GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
-        GuiApi.add_item_frame(guiTable, "", section, _G.DT.powerUsage .. "/t", name, detectorcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, _G.DT.powerUsage .. " J/t", name, detectorcount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local transmittercount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.TransmitterTable))
@@ -615,7 +615,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         section.style = Constants.Settings.RNS_Gui.frame_1
         section.style.minimal_width = 200
         GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
-        GuiApi.add_item_frame(guiTable, "", section, _G.TR.powerUsage .. "/t", name, transmittercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, _G.TR.powerUsage .. " J/t", name, transmittercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
     local receivercount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.ReceiverTable))
@@ -625,7 +625,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         section.style = Constants.Settings.RNS_Gui.frame_1
         section.style.minimal_width = 200
         GuiApi.add_label(guiTable, "", section, game.item_prototypes[name].localised_name, Constants.Settings.RNS_Gui.white, "", false, Constants.Settings.RNS_Gui.label_font)
-        GuiApi.add_item_frame(guiTable, "", section, "0/t", name, receivercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
+        GuiApi.add_item_frame(guiTable, "", section, "0 J/t", name, receivercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
 end
