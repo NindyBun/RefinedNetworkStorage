@@ -219,8 +219,10 @@ function EIO:init_cache()
     elseif self.type == "fluid" and self.focusedEntity.fluid_box.index ~= nil and string.match(self.focusedEntity.fluid_box.flow, "output") then
         local fluid = self.focusedEntity.thisEntity.fluidbox[self.focusedEntity.fluid_box.index]
         self.cache = {}
-        self.cache[1] = fluid
-        self.storedAmount = self.storedAmount + (fluid and fluid.amount or 0)
+        if fluid ~= nil then
+            self.cache[1] = fluid
+            self.storedAmount = self.storedAmount + (fluid and fluid.amount or 0)
+        end
         self.capacity = self.focusedEntity.thisEntity.fluidbox.get_capacity(self.focusedEntity.fluid_box.index)
     end
     return true
@@ -309,9 +311,9 @@ function EIO:update(network)
         local fluid = self.focusedEntity.thisEntity.fluidbox[self.focusedEntity.fluid_box.index]
         self.storedAmount = self.storedAmount + (fluid and fluid.amount or 0)
         local cached = self.cache[1]
-        if fluid == nil and cached == nil then end
-
-        if fluid == nil and cached ~= nil then
+        if fluid == nil and cached == nil then
+            --do nothing
+        elseif fluid == nil and cached ~= nil then
             network:decrease_tracked_fluid_amount(cached.name, cached.amount)
             self.cache[1] = nil
         elseif fluid ~= nil and cached == nil then
