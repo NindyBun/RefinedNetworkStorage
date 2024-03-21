@@ -191,19 +191,17 @@ function Event.finished_research(event)
 	local name, _ = string.gsub(event.research.name, "%-", "_")
 	local level = event.research.level
 	if string.match(name, "RNS_item_transfer_bonus") ~= nil then
-		local old = global.IIOMultiplier
 		global.IIOMultiplier = string.match(name, "infinite") == nil and Constants.Settings.Multipliers.IIO[level] or (Constants.Settings.Multipliers.IIO[8] + 2*level)
 		for _, obj in pairs(global["ItemIOTable"]) do
-			obj.stackSize = obj.stackSize < old and obj.stackSize or global.IIOMultiplier
+			obj.stackSize = math.min(obj.stackSize, global.IIOMultiplier)
 		end
 		--printResearchBonus("item")
 		return
 	end
 	if string.match(name, "RNS_fluid_transfer_bonus") ~= nil then
-		local old = global.FIOMultiplier
 		global.FIOMultiplier = string.match(name, "infinite") == nil and Constants.Settings.Multipliers.FIO[level] or (Constants.Settings.Multipliers.FIO[8] + 2*level)
 		for _, obj in pairs(global["FluidIOTable"]) do
-			obj.fluidSize = obj.fluidSize < old and obj.fluidSize or global.FIOMultiplier
+			obj.fluidSize = math.min(obj.fluidSize, global.FIOMultiplier)
 		end
 		--printResearchBonus("fluid")
 		return
@@ -222,16 +220,53 @@ function Event.reversed_research(event)
 	if string.match(name, "RNS_item_transfer_bonus") ~= nil then
 		global.IIOMultiplier = string.match(name, "infinite") == nil and (Constants.Settings.Multipliers.IIO[level-1] or 1) or (Constants.Settings.Multipliers.IIO[8] + (2*(level-1) == 0 and 0 or 2*(level-1)))
 		--printResearchBonus("item")
+		for _, obj in pairs(global.entityTable) do
+			if obj.stackSize then
+				obj.stackSize = math.min(obj.stackSize, global.IIOMultiplier)
+			end
+		end
 		return
 	end
 	if string.match(name, "RNS_fluid_transfer_bonus") ~= nil then
 		global.FIOMultiplier = string.match(name, "infinite") == nil and (Constants.Settings.Multipliers.FIO[level-1] or 1) or (Constants.Settings.Multipliers.FIO[8] + (2*(level-1) == 0 and 0 or 2*(level-1)))
 		--printResearchBonus("fluid")
+		for _, obj in pairs(global.entityTable) do
+			if obj.fluidSize then
+				obj.fluidSize = math.min(obj.fluidSize, global.FIOMultiplier)
+			end
+		end
 		return
 	end
 	if string.match(name, "RNS_wireless_range_bonus") ~= nil then
 		global.WTRangeMultiplier = string.match(name, "inf") == nil and Constants.Settings.Multipliers.WT[level-1] or 1
 		--printResearchBonus("wireless")
 		return
+	end
+
+end
+
+function Event.on_marked_for_deconstruction(event)
+	local entity = event.entity
+    local type = entity.type
+    if type == "entity-ghost" then return end
+
+	if global.entityTable[entity.unit_number] ~= nil then
+		local obj = global.entityTable[entity.unit_number]
+		obj:createArms()
+    	BaseNet.postArms(obj)
+    	BaseNet.update_network_controller(obj.networkController or obj)
+	end
+end
+
+function Event.on_cancelled_deconstruction(event)
+	local entity = event.entity
+    local type = entity.type
+    if type == "entity-ghost" then return end
+
+	if global.entityTable[entity.unit_number] ~= nil then
+		local obj = global.entityTable[entity.unit_number]
+		obj:createArms()
+    	BaseNet.postArms(obj)
+    	BaseNet.update_network_controller(obj.networkController or obj)
 	end
 end

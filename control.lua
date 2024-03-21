@@ -170,6 +170,16 @@ function reversed_research(event)
     Util.safeCall(Event.reversed_research, event)
 end
 
+function on_marked_for_deconstruction(event)
+    --if event.element.get_mod() ~= Constants.MOD_ID then return end
+    Util.safeCall(Event.on_marked_for_deconstruction, event)
+end
+
+function on_cancelled_deconstruction(event)
+    --if event.element.get_mod() ~= Constants.MOD_ID then return end
+    Util.safeCall(Event.on_cancelled_deconstruction, event)
+end
+
 script.on_init(onInit)
 script.on_configuration_changed(onInit)
 script.on_load(onLoad)
@@ -181,6 +191,9 @@ script.on_event(defines.events.on_tick, onTick)
 
 script.on_event(defines.events.on_research_finished, finished_research)
 script.on_event(defines.events.on_research_reversed, reversed_research)
+
+script.on_event(defines.events.on_marked_for_deconstruction, on_marked_for_deconstruction)
+script.on_event(defines.events.on_cancelled_deconstruction, on_cancelled_deconstruction)
 
 script.on_event(defines.events.on_built_entity, placed)
 script.on_event(defines.events.on_player_built_tile, placed)

@@ -164,10 +164,11 @@ function EIO:clear_cache()
     self.capacity = 0
 end
 
-function EIO:flush_cache()
+function EIO:flush_cache(type)
     if self.cache == nil then return end
     if self.networkController ~= nil and BaseNet.exists_in_network(self.networkController, self.thisEntity.unit_number) then
-        if self.type == "item" then
+        if type == nil then type = self.type end
+        if type == "item" then
             for i = 1, #self.cache do
                 local cached = self.cache[i]
                 if cached.name ~= "RNS_Empty" then
@@ -914,14 +915,14 @@ function EIO.interaction(event, RNSPlayer)
 		if io == nil then return end
         local type = Constants.Settings.RNS_TypeN[event.element.selected_index]
         if type ~= io.type then
+            io:flush_cache(io.type)
+            io:clear_cache()
             io.type = type
             RNSPlayer:push_varTable(id, true)
             for i=1, 10 do
                 local filter = io.guiFilters[io.type][i]
                 io.combinator.get_or_create_control_behavior().set_signal(i, filter ~= "" and {signal={type=io.type, name=filter}, count=1} or nil)
             end
-            io:flush_cache()
-            io:clear_cache()
         end
 		return
     end
