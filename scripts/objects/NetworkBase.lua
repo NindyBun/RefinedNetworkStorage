@@ -1065,7 +1065,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
             if external == nil or external.valid == false then
                 network:remove_cache("export", "external", itemstack_master.name)
             else
-                if external:interactable() and external:target_interactable(network) and string.match(external.io, "input") ~= nil and external.type == "item" 
+                if external:interactable() and external:target_interactable() and string.match(external.io, "input") ~= nil and external.type == "item" 
                 and external.focusedEntity.inventory.output.max ~= 0 then
                     --local storedAmount = external.focusedEntity.thisEntity.get_item_count(itemstack_master.name)
                     --if storedAmount <= 0 then goto next end
@@ -1096,7 +1096,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
             end
 
             for _, external in pairs(priorityE) do
-                if external:interactable() and external:target_interactable(network) and string.match(external.io, "input") ~= nil and external.type == "item" 
+                if external:interactable() and external:target_interactable() and string.match(external.io, "input") ~= nil and external.type == "item" 
                 and external.focusedEntity.inventory.output.max ~= 0 then
                     --local storedAmount = external.focusedEntity.thisEntity.get_item_count(itemstack_master.name)
                     --if storedAmount <= 0 then goto next end
@@ -1213,7 +1213,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                     if external == nil or external.valid == false then
                         network:remove_cache("import", "external", inv_item.name)
                     else
-                        if external:interactable() and external:target_interactable(network) and string.match(external.io, "output") ~= nil and external.type == "item"
+                        if external:interactable() and external:target_interactable() and string.match(external.io, "output") ~= nil and external.type == "item"
                         and Util.filter_accepts_item(external.filters.item, external.whitelistBlacklist, inv_item.name) and external.focusedEntity.inventory.input.max ~= 0
                         and master:compare_itemstacks(inv_item, exact) then
                             if external.onlyModified and inv_item.modified == false then goto next end
@@ -1244,7 +1244,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                     end
 
                     for _, external in pairs(priorityE) do
-                        if external:interactable() and external:target_interactable(network) and string.match(external.io, "output") ~= nil and external.type == "item"
+                        if external:interactable() and external:target_interactable() and string.match(external.io, "output") ~= nil and external.type == "item"
                         and Util.filter_accepts_item(external.filters.item, external.whitelistBlacklist, inv_item.name) and external.focusedEntity.inventory.input.max ~= 0
                         and master:compare_itemstacks(inv_item, exact) then
                             if external.onlyModified and inv_item.modified == false then goto next end

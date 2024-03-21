@@ -429,7 +429,9 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 		if item.extras.custom_description ~= "" and item.extras.custom_description ~= nil then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, item.extras.custom_description)
-		elseif item.modified then
+		end
+		
+		if item.modified then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_item_modified"})
 		end
@@ -464,13 +466,13 @@ function WG.transfer_from_pinv(RNSPlayer, WG, tags, count)
 	local itemstack = Itemstack:reload(tags.stack)
 	--if itemstack.id ~= nil and global.itemTable[itemstack.id] ~= nil and global.itemTable[itemstack.id].is_active == true then return end
 
-	if count == -1 then count = game.item_prototypes[itemstack.cont.name].stack_size end
-	if count == -2 then count = math.max(1, game.item_prototypes[itemstack.cont.name].stack_size/2) end
-	if count == -3 then count = game.item_prototypes[itemstack.cont.name].stack_size*10 end
+	if count == -1 then count = game.item_prototypes[itemstack.name].stack_size end
+	if count == -2 then count = math.max(1, game.item_prototypes[itemstack.name].stack_size/2) end
+	if count == -3 then count = game.item_prototypes[itemstack.name].stack_size*10 end
 	if count == -4 then count = (2^32)-1 end
 
 	--local inv = RNSPlayer.thisEntity.get_main_inventory()
-	local amount = math.min(itemstack.cont.count, count)
+	local amount = math.min(itemstack.count, count)
 	if amount <= 0 then return end
 
 	BaseNet.transfer_from_inv_to_network(network, {thisEntity = RNSPlayer.thisEntity,inventory = {output = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, itemstack, nil, "whitelist", amount, true, true)
@@ -483,9 +485,9 @@ function WG.transfer_from_idinv(RNSPlayer, WG, tags, count)
 	if tags == nil then return end
 	local itemstack = Itemstack:reload(tags.stack)
 
-	if count == -1 then count = game.item_prototypes[itemstack.cont.name].stack_size end
-	if count == -2 then count = math.max(1, game.item_prototypes[itemstack.cont.name].stack_size/2) end
-	if count == -3 then count = game.item_prototypes[itemstack.cont.name].stack_size*10 end
+	if count == -1 then count = game.item_prototypes[itemstack.name].stack_size end
+	if count == -2 then count = math.max(1, game.item_prototypes[itemstack.name].stack_size/2) end
+	if count == -3 then count = game.item_prototypes[itemstack.name].stack_size*10 end
 	if count == -4 then count = (2^32)-1 end
 
 	--local inv = RNSPlayer.thisEntity.get_main_inventory()
