@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.13
+Date: 20 March 2024
+  Info:
+    - Fixed issue when the Wireless Transmitter showed -98 as the range
+    - Fixed bug when creating a blueprint of entities from the mod
+    - Made the shown area of the Wireless Transmitter work with the infinite range
+    - Fixed issue when the Network Interface crashed when you had an empty blueprint
+---------------------------------------------------------------------------------------------------
 Version: 1.0.12
 Date: 20 March 2024
   Info:

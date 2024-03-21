@@ -53,7 +53,7 @@ function Itemstack:new(item)
     --if Util.getTableLength_non_nil(t.extras.blueprint_entities) > 0 then t.modified = true end
 
     t.extras.blueprint_entity_count = item.is_blueprint and item.get_blueprint_entity_count() or nil
-    --if t.extras.blueprint_entity_count > 0 then t.modified = true end
+    if t.extras.blueprint_entity_count and t.extras.blueprint_entity_count == 0 then offset = offset + 1 end
 
     t.extras.blueprint_tiles = item.is_blueprint and Util.copy(item.get_blueprint_tiles() or {}) or nil
     --if Util.getTableLength_non_nil(t.extras.blueprint_tiles) > 0 then t.modified = true end
@@ -81,6 +81,7 @@ function Itemstack:new(item)
     if t.extras.prioritize_insertion_mode ~= nil and t.extras.prioritize_insertion_mode == game.item_prototypes[item.name].insertion_priority_mode then offset = offset + 1 end
 
     t.extras.item_inventory = item.is_item_with_inventory and item.get_inventory(defines.inventory.item_main).get_contents() or nil
+    if t.extras.item_inventory and t.extras.item_inventory == 0 then offset = offset + 1 end
 
     t.extras.entity_filters = item.is_deconstruction_item and item.entity_filters or nil
     t.extras.entity_filter_mode = item.is_deconstruction_item and item.entity_filter_mode or nil
