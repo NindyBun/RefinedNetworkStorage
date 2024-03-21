@@ -9,7 +9,7 @@ Date: 20 March 2024
     - Fixed issue with the Fluid External Bus not registering the tank amount
     - Added events for entities marked for deconstruction
     - Fixed how modified items with more than one stack count moves between inventory
-    - Fixed error on the Wireless Grid crashing
+    - Fixed issues on the Wireless Grid crashing
     - Fixed the buses not responing to an inventory/tank
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.12
