@@ -278,171 +278,143 @@ function IIO3:target_interactable()
     --return self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid and self.focusedEntity.thisEntity.to_be_deconstructed() == false
 end
 
---[[function IIO3:IO()
-    if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
+function IIO3:transportIO()
+    if self:interactable() == false then self.processed = true return end
+    if self:target_interactable() == false then self.processed = true return end
+
+    if self.circuitCondition == "enable/disable" and self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
         if self.enabler.filter == nil then self.processed = true return end
         local amount = self.enablerCombinator.get_merged_signal({type=self.enabler.filter.type, name=self.enabler.filter.name}, defines.circuit_connector_id.constant_combinator)
         if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then self.processed = true return end
     end
     
-    if self.networkController == nil or (self.networkController ~= nil and self.networkController.valid) == false or (self.networkController ~= nil and self.networkController.stable == false) then self.processed = true return end
+    if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then self.processed = true return end
     local network = self.networkController.network
-    self:reset_focused_entity()
-    if self.focusedEntity.thisEntity == nil then self.processed = true return end
-    if self.io == "input" and self.focusedEntity.inventory.output.values == nil then self.processed = true return end
-    if self.io == "output" and self.focusedEntity.inventory.input.values == nil then self.processed = true return end
 
+    local target = self.focusedEntity
     local transportCapacity = self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity--*global.IIOMultiplier
-    for k=1, 1 do
-        if self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid == true then
-            local foc = self.focusedEntity.thisEntity
-            local itemDrives = network.ItemDriveTable --BaseNet.getOperableObjects(network.ItemDriveTable)
-            local externalInvs = network:filter_externalIO_by_valid_signal() --BaseNet.filter_by_type("item", BaseNet.getOperableObjects(network:filter_externalIO_by_valid_signal()))
-            for i = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
-                local priorityD = itemDrives[i]
-                local priorityE = externalInvs[i]
-                --if Util.getTableLength(priorityD) > 0 then
-                    for _, drive in pairs(priorityD) do
-                        if drive.thisEntity ~= nil and drive.thisEntity.valid and drive.thisEntity.to_be_deconstructed() == false then
-                            local remaining = drive:getRemainingStorageSize()
-                            if self.io == "input" then
-                                if remaining <= 0 then goto next end
-                                local index = 0
-                                repeat
-                                    local filterstack = nil
-                                    local nextItem = Util.next_non_nil(self.filters)
-                                    if nextItem ~= "" then
-                                        filterstack = Util.itemstack_template(nextItem)
-                                    elseif self.whitelist == true then
-                                        goto exit
-                                    end
+    if target.type == "transport-belt" or target.type == "underground-belt" or target.type == "splitter" or target.type == "loader" or target.type == "loader-1x1" then
+        local beltDir = Util.direction(target)
+        local ioDir = self:getRealDirection()
+        local transportLine = nil
+        if ioDir == beltDir then
+            transportLine = "Back"
+        elseif math.abs(ioDir-beltDir) == 2 then
+            transportLine = "Front"
+        elseif beltDir-1 == ioDir%4 then
+            transportLine = "Right"
+        elseif ioDir-1 == beltDir%4 then
+            transportLine = "Left"
+        end
+
+        if Constants.Settings.RNS_BeltSides[transportLine] ~= nil and target.type ~= "splitter" and target.type ~= "loader" and target.type ~= "loader-1x1" then
+            local line = target.get_transport_line(Constants.Settings.RNS_BeltSides[transportLine])
+            if self.io == "input" then
+                local ind = self.filters.index
+                repeat
+                    local a = line.remove_item(Util.next(self.filters))
+                until a ~= 0 or ind == self.filters.index
+                return
+            elseif self.io == "output" then
+                local pos = 0.75
+                if target.type == "underground-belt" then
+                    pos = 0.25
+                end
+                if line.can_insert_at(pos) then
+                    local ind = self.filters.index
+                    repeat
+                        local a = line.insert_at(pos, Util.next(self.filters))
+                    until a == true or ind == self.filters.index
+                end
+                return
+            end
+        else
+            local lineL = target.get_transport_line(1)
+            local lineR = target.get_transport_line(2)
+            
+            if target.type == "underground-belt" then
+                lineL = target.get_transport_line(3)
+                lineR = target.get_transport_line(4)
+            elseif target.type == "splitter" then
+                local axis = Util.axis(target)
+                if (target.position.x > self.thisEntity.position.x and axis == "y") or (target.position.y > self.thisEntity.position.y and axis == "x") then
+                    if transportLine == "Back" then
+                        lineL = target.get_transport_line(1)
+                        lineR = target.get_transport_line(2)
+                    elseif transportLine == "Front" then
+                        lineL = target.get_transport_line(5)
+                        lineR = target.get_transport_line(6)
+                    end
+                elseif (target.position.x < self.thisEntity.position.x and axis == "y") or (target.position.y < self.thisEntity.position.y and axis == "x") then
+                    if transportLine == "Back" then
+                        lineL = target.get_transport_line(3)
+                        lineR = target.get_transport_line(4)
+                    elseif transportLine == "Front" then
+                        lineL = target.get_transport_line(7)
+                        lineR = target.get_transport_line(8)
+                    end
+                end
+            end
+            
+            if self.io == "input" then
+                if transportLine == "Back" then
+                    --Do nothing
+                elseif transportLine == "Front" then
+                    if target.type == "underground-belt" and target.belt_to_ground_type == "input" then return end
+                    if target.type == "underground-belt" and target.belt_to_ground_type == "output" then
+                        lineL = target.get_transport_line(1)
+                        lineR = target.get_transport_line(2)
+                    end
+                end
+
+                local ind = self.filters.index
+                repeat
+                    local a = lineL.remove_item(Util.next(self.filters))
+                until a ~= 0 or ind == self.filters.index
+
+                ind = self.filters.index
+                repeat
+                    local a = lineR.remove_item(Util.next(self.filters))
+                until a ~= 0 or ind == self.filters.index
+
+                return
+            elseif self.io == "output" then
+                local pos = 0.75
+                if transportLine == "Back" then
+                    if target.type == "loader" and target.loader_type == "input" then
+                        pos = 0.125
+                    elseif target.type == "splitter" then
+                        pos = 0.125
+                    end
+                elseif transportLine == "Front" and target.type ~= "underground-belt" then
+                    pos = 0.25
+                    if target.type == "loader-1x1" and target.loader_type == "input" then return end
+                    if target.type == "loader" and target.loader_type == "input" then return end
+                    if target.type == "loader" and target.loader_type == "output" then
+                        pos = 0.125
+                    elseif target.type == "splitter" then
+                        pos = 0.125
+                    end
+                end
                 
-                                    local index1 = 0
-                                    repeat
-                                        local inv = foc.get_inventory(Util.next(self.focusedEntity.inventory.output))
-                                        if inv ~= nil and not inv.is_empty() then
-                                            transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_drive(inv, drive, filterstack, filterstack ~= nil and self.filters.values or nil, math.min(transportCapacity, remaining), self.metadataMode, filterstack ~= nil and self.whitelist or false)
-                                            --if transportCapacity <= 0 or inv.is_empty() then goto exit end
-                                            if transportCapacity <= 0 then goto exit end
-                                        end
-                                        index1 = index1 + 1
-                                    until index1 == Util.getTableLength(self.focusedEntity.inventory.output.values)
-                                    index = index + 1
-                                until index == Util.getTableLength(self.filters.values)
-                            elseif self.io == "output" and self.whitelist == true and Util.getTableLength_non_nil(self.filters.values) > 0 then
-                                if remaining >= drive.maxStorage then goto next end
-                                local index = 0
-                                repeat
-                                    local nextItem = Util.next_non_nil(self.filters)
-                                    if nextItem == "" then goto exit end
-                                    local itemstack = Util.itemstack_template(nextItem)
-                                    local has = drive:has_item(itemstack, self.metadataMode)
-        
-                                    if has > 0 then
-                                        local index1 = 0
-                                        repeat
-                                            local inv = foc.get_inventory(Util.next(self.focusedEntity.inventory.input))
-                                            if inv ~= nil and not inv.is_full() then
-                                                transportCapacity = transportCapacity - BaseNet.transfer_from_drive_to_inv(drive, inv, itemstack, transportCapacity, self.metadataMode)
-                                                --if transportCapacity <= 0 or inv.is_full() then goto exit end
-                                                if transportCapacity <= 0 then goto exit end
-                                            end
-                                            index1 = index1 + 1
-                                        until index1 == Util.getTableLength(self.focusedEntity.inventory.input.values)
-                                    end
-                                    index = index + 1
-                                until index == Util.getTableLength(self.filters.values)
-                            end
-                        end
-                        ::next::
-                    end
-                --end
-                ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                --if Util.getTableLength(priorityE) > 0 then
-                    for _, externalInv in pairs(priorityE) do
-                        if externalInv.type == "item" and externalInv.thisEntity ~= nil and externalInv.thisEntity.valid and externalInv.thisEntity.to_be_deconstructed() == false and externalInv.focusedEntity.thisEntity ~= nil and externalInv.focusedEntity.thisEntity.valid and externalInv.focusedEntity.thisEntity.to_be_deconstructed() == false and externalInv.focusedEntity.inventory[self.io].values ~= nil then
-                            if self.io == "input" then
-                                if string.match(externalInv.io, "input") == nil then goto next end
-                                local index = 0
-                                repeat
-                                    local nextItem = Util.next_non_nil(self.filters)
-                                    local filterstack = nil
-                                    if nextItem ~= "" then
-                                        filterstack = Util.itemstack_template(nextItem)
-                                    elseif self.whitelist == true then
-                                        goto exit
-                                    end
+                if lineL.can_insert_at(pos) then
+                    local ind = self.filters.index
+                    repeat
+                        local a = lineL.insert_at(pos, Util.next(self.filters))
+                    until a == true or ind == self.filters.index
+                end
+                if lineR.can_insert_at(pos) then
+                    local ind = self.filters.index
+                    repeat
+                        local a = lineR.insert_at(pos, Util.next(self.filters))
+                    until a == true or ind == self.filters.index
+                end
 
-                                    if Util.getTableLength_non_nil(externalInv.filters.item.values) > 0 then
-                                        if filterstack ~= nil and externalInv:matches_filters("item", filterstack.cont.name) == true then
-                                            if externalInv.whitelist == false then goto next end
-                                        else
-                                            if externalInv.whitelist == true then goto next end
-                                        end
-                                    elseif Util.getTableLength_non_nil(externalInv.filters.item.values) == 0 then
-                                        if externalInv.whitelist == true then goto next end
-                                    end
-
-                                    local index1 = 0
-                                    repeat
-                                        local inv = externalInv.focusedEntity.thisEntity.get_inventory(Util.next(externalInv.focusedEntity.inventory.input))
-                                        if inv ~= nil and not inv.is_full() then
-                                            local index2 = 0
-                                            repeat
-                                                local inv1 = foc.get_inventory(Util.next(self.focusedEntity.inventory.output))
-                                                if inv1 ~= nil and not inv1.is_empty() then
-                                                    local meta = (self.metadataMode == externalInv.metadataMode and self.metadataMode == true)
-                                                    transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv1, inv, filterstack, filterstack == nil and externalInv or nil, transportCapacity, meta, (filterstack == nil and {true} or {false})[1])
-                                                    --if transportCapacity <= 0 or inv1.is_empty() then goto exit end
-                                                    if transportCapacity <= 0 then goto exit end
-                                                end
-                                                index2 = index2 + 1
-                                            until index2 == Util.getTableLength(self.focusedEntity.inventory.output.values)
-                                        end
-                                        index1 = index1 + 1
-                                    until index1 == Util.getTableLength(externalInv.focusedEntity.inventory.input.values)
-                                    index = index + 1
-                                until index == Util.getTableLength(self.filters.values)
-                            elseif self.io == "output" and self.whitelist == true and Util.getTableLength_non_nil(self.filters.values) > 0 then
-                                if string.match(externalInv.io, "output") == nil then goto next end
-                                local index = 0
-                                repeat
-                                    local nextItem = Util.next_non_nil(self.filters)
-                                    if nextItem == "" then goto exit end
-        
-                                    local itemstack = Util.itemstack_template(nextItem)
-                                    local index1 = 0
-                                    repeat
-                                        local inv = externalInv.focusedEntity.thisEntity.get_inventory(Util.next(externalInv.focusedEntity.inventory.output))
-                                        if inv ~= nil and inv.get_contents()[itemstack.cont.name] ~= nil then
-                                            local index2 = 0
-                                            repeat
-                                                local inv1 = foc.get_inventory(Util.next(self.focusedEntity.inventory.input))
-                                                if inv1 ~= nil and not inv1.is_full() then
-                                                    local meta = (self.metadataMode == externalInv.metadataMode and self.metadataMode == true)
-                                                    transportCapacity = transportCapacity - BaseNet.transfer_from_inv_to_inv(inv, inv1, itemstack, nil, transportCapacity, meta, true)
-                                                    --if transportCapacity <= 0 or inv.is_full() then goto exit end
-                                                    if transportCapacity <= 0 then goto exit end
-                                                end
-                                                index2 = index2 + 1
-                                            until index2 == Util.getTableLength(self.focusedEntity.inventory.input.values)
-                                        end
-                                        index1 = index1 + 1
-                                    until index1 == Util.getTableLength(externalInv.focusedEntity.inventory.output.values)
-                                    index = index + 1
-                                until index == Util.getTableLength(self.filters.values)
-                            end
-                        end
-                        ::next::
-                    end
-                --end
+                return
             end
         end
-        ::exit::
     end
-    self.processed = transportCapacity < self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity --*global.IIOMultiplier
-        or (self.focusedEntity.thisEntity ~= nil and self:checkFullness())
-end]]
+end
 
 function IIO3:IO()
     if self:interactable() == false then self.processed = true return end
