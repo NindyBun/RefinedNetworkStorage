@@ -272,9 +272,10 @@ function IIO3:interactable()
 end
 
 function IIO3:target_interactable()
-    self:reset_focused_entity()
-    self:check_focused_entity()
-    return self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid and self.focusedEntity.thisEntity.to_be_deconstructed() == false
+    --self:reset_focused_entity()
+    --self:check_focused_entity()
+    return self:check_focused_entity() and true or (self:check_focused_entity() and true or false)
+    --return self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid and self.focusedEntity.thisEntity.to_be_deconstructed() == false
 end
 
 --[[function IIO3:IO()
@@ -533,7 +534,7 @@ function IIO3:reset_focused_entity()
 
     for _, ent in pairs(ents) do
         if ent ~= nil and ent.valid == true and ent.to_be_deconstructed() == false and string.match(string.upper(ent.name), "RNS_") == nil and ent.operable and global.entityTable[ent.unit_number] == nil then
-            if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then
+            if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) and Constants.Settings.RNS_TypesWithContainer[ent.type] == true then
                 nearest = ent
             end
         end
@@ -577,6 +578,7 @@ function IIO3:check_focused_entity()
             if self.focusedEntity.thisEntity.get_inventory(i) == nil then self:reset_focused_entity() return end
         end
     end
+    return true
 end
 
 function IIO3:createArms()

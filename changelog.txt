@@ -1,6 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.14
+Date: 22 March 2024
+  Info:
+    - Renamed "Network Inventory Interface" to "Network Grid"
+    - Fixed issue when opening the Network Grid with a item that has a equipment grid that has stuff in it
+    - Fixed issue where the Fluid External Bus didn't show it's contents to the network
+    - Updated how the buses found entities in front of them
+    - Fixed issue where the other underground cable across from the one you placed didn't highlight the one you placed when overing over it
+---------------------------------------------------------------------------------------------------
 Version: 1.0.13
-Date: 20 March 2024
+Date: 21 March 2024
   Info:
     - Fixed issue when the Wireless Transmitter showed -98 as the range
     - Fixed bug when creating a blueprint of entities from the mod

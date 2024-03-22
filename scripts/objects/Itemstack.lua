@@ -38,7 +38,7 @@ function Itemstack:new(item)
     t.item_number = item.item_number
 
     t.extras = {}
-    t.extras.grid = item.grid
+    t.extras.grid = item.grid and item.grid.get_contents() or nil
     --if #t.extras.grid.get_contents() > 0 then t.modified = true end
 
     t.extras.custom_description = item.is_item_with_tags and item.custom_description or nil

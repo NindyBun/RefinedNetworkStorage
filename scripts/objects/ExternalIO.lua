@@ -154,9 +154,9 @@ end
 
 function EIO:target_interactable()
     --self:reset_focused_entity()
-    self:check_focused_entity()
+    return self:check_focused_entity() and true or (self:check_focused_entity() and true or false)
     --if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false then self:flush_cache() end
-    return self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid and self.focusedEntity.thisEntity.to_be_deconstructed() == false
+    --return self.focusedEntity.thisEntity ~= nil and self.focusedEntity.thisEntity.valid and self.focusedEntity.thisEntity.to_be_deconstructed() == false
 end
 
 function EIO:clear_cache()
@@ -487,6 +487,7 @@ function EIO:reset_focused_entity()
             index = nil,
             filter = "",
             target_position = nil,
+            pipe_index = nil,
             flow = ""
         }
     }
@@ -498,7 +499,8 @@ function EIO:reset_focused_entity()
 
     for _, ent in pairs(ents) do
         if ent ~= nil and ent.valid == true and ent.to_be_deconstructed() == false and string.match(string.upper(ent.name), "RNS_") == nil and global.entityTable[ent.unit_number] == nil then
-            if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) then
+            if (nearest == nil or Util.distance(selfP, ent.position) < Util.distance(selfP, nearest.position)) and
+            ((self.type == "item" and Constants.Settings.RNS_TypesWithContainer[ent.type] == true) or (self.type == "fluid" and #ent.fluidbox ~= 0)) then
                 nearest = ent
             end
         end
@@ -513,6 +515,7 @@ function EIO:reset_focused_entity()
                     self.focusedEntity.thisEntity = nearest
                     self.focusedEntity.oldPosition = nearest.position
                     self.focusedEntity.fluid_box.index = i
+                    self.focusedEntity.fluid_box.pipe_index = j
                     self.focusedEntity.fluid_box.flow =  target.flow_direction
                     self.focusedEntity.fluid_box.target_position = target.target_position
                     self.focusedEntity.fluid_box.filter =  (nearest.fluidbox.get_locked_fluid(i) ~= nil and {nearest.fluidbox.get_locked_fluid(i)} or {""})[1]
@@ -538,6 +541,7 @@ function EIO:reset_focused_entity()
         if self.focusedEntity.inventory.input.max ~= 0 then self.focusedEntity.inventory.input.index = 1 end
         if self.focusedEntity.inventory.output.max ~= 0 then self.focusedEntity.inventory.output.index = 1 end
     end
+    self:init_cache()
 end
 
 --Makes sure the focused entity is still in front or else try to search for a new one
@@ -562,11 +566,9 @@ function EIO:check_focused_entity()
     elseif self.type == "fluid" then
         if self.focusedEntity.fluid_box.target_position == nil then self:reset_focused_entity() return end
         if Util.positions_match(self.thisEntity.position, self.focusedEntity.fluid_box.target_position) == false then self:reset_focused_entity() return end
-        if self.focusedEntity.fluid_box.target_position == nil then self:reset_focused_entity() return end
-        if Util.positions_match(self.thisEntity.position, self.focusedEntity.fluid_box.target_position) == false then self:reset_focused_entity() return end
         if self.focusedEntity.thisEntity.fluidbox.get_pipe_connections(self.focusedEntity.fluid_box.index) == nil then self:reset_focused_entity() return end
         if self.focusedEntity.thisEntity.fluidbox.get_pipe_connections(self.focusedEntity.fluid_box.index)[self.focusedEntity.fluid_box.pipe_index] == nil then self:reset_focused_entity() return end
-        if self.focusedEntity.fluid_box.flow ~= self.focusedEntity.thisEntity.fluidbox.get_pipe_connections(self.focusedEntity.fluid_box.index)[self.focusedEntity.fluid_box.pipe_index].flow then self:reset_focused_entity() return end
+        if self.focusedEntity.fluid_box.flow ~= self.focusedEntity.thisEntity.fluidbox.get_pipe_connections(self.focusedEntity.fluid_box.index)[self.focusedEntity.fluid_box.pipe_index].flow_direction then self:reset_focused_entity() return end
         if self.focusedEntity.fluid_box.filter ~= (self.focusedEntity.thisEntity.fluidbox.get_locked_fluid(self.focusedEntity.fluid_box.index) or "") then self:reset_focused_entity() return end
     end
     return true

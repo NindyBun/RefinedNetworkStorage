@@ -252,17 +252,6 @@ function BaseNet.join_network(main, side)
 end
 
 function BaseNet.postArms(object)
-    --[[for _, connected in pairs(object.connectedObjs) do
-        for _, con in pairs(connected) do
-            if valid(con) == false then goto next end
-            if con.thisEntity == nil then goto next end
-            if con.thisEntity ~= nil and con.thisEntity.valid == false then goto next end
-            if con.thisEntity ~= nil and con.thisEntity.valid and con.thisEntity.to_be_deconstructed() == true then goto next end
-            if con.createArms == nil then goto next end
-            con:createArms()
-            ::next::
-        end
-    end]]
     local areas = object:getCheckArea()
     for _, area in pairs(areas) do
         local ents = object.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
@@ -276,6 +265,10 @@ function BaseNet.postArms(object)
                 end
             end
         end
+    end
+    
+    if object.targetEntity then
+        object.targetEntity:createArms()
     end
 end
 
@@ -311,7 +304,7 @@ end
 
 function BaseNet:decrease_tracked_item_count(name, count)
     if name == "" or name == nil then return end
-    local storedAmount = self.Contents.item[name]
+    local storedAmount = self.Contents.item[name] or 0
     self.Contents.item[name] = storedAmount - count
     if self.Contents.item[name] <= 0 then self.Contents.item[name] = 0 end
 end
@@ -324,7 +317,7 @@ end
 
 function BaseNet:decrease_tracked_fluid_amount(name, amount)
     if name == "" or name == nil then return end
-    local storedAmount = self.Contents.fluid[name]
+    local storedAmount = self.Contents.fluid[name] or 0
     self.Contents.fluid[name] = storedAmount - amount
     if self.Contents.fluid[name] <= 0 then self.Contents.fluid[name] = 0 end
 end
@@ -573,7 +566,7 @@ function BaseNet.transfer_from_network_to_tank(network, to_tank, transportCapaci
             network:remove_cache("export", "external", filter)
         else
             if external:interactable() and external:target_interactable() and external.type == "fluid" and string.match(external.io, "input") ~= nil and string.match(external.focusedEntity.fluid_box.flow, "output") ~= nil
-            and external.cache[1].name == filter and external.cache[1].amount > 0 then
+            and external.cache[1] and external.cache[1].name == filter and external.cache[1].amount > 0 then
                 extractSize = network:extract_fluid_from_external(to_tank, external, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
                 if extractSize <= 0 then return 0 end
             else
@@ -598,7 +591,7 @@ function BaseNet.transfer_from_network_to_tank(network, to_tank, transportCapaci
 
         for _, external in pairs(priorityE) do
             if external:interactable() and external:target_interactable() and external.type == "fluid" and string.match(external.io, "input") ~= nil and string.match(external.focusedEntity.fluid_box.flow, "output") ~= nil
-            and external.cache[1].name == filter and external.cache[1].amount > 0 then
+            and external.cache[1] and external.cache[1].name == filter and external.cache[1].amount > 0 then
                 extractSize = network:extract_fluid_from_external(to_tank, external, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
                 if extractSize <= 0 then
                     network:put_cache("export", "external", filter, external.thisEntity.unit_number)
@@ -738,11 +731,11 @@ function BaseNet.transfer_from_tank_to_network(network, from_tank, transportCapa
             and external:interactable() and external:target_interactable() and Util.filter_accepts_fluid(external.filters.fluid, external.whitelistBlacklist, fluid.name) then
                 local e_fluid_box = external.focusedEntity.fluid_box
                 local e_fluid = external.focusedEntity.thisEntity.fluidbox[e_fluid_box.index]
-                if e_fluid == nil and e_fluid_box.filter ~= "" and e_fluid_box.filter ~= fluid.name then
+                --[[if e_fluid == nil and e_fluid_box.filter ~= "" and e_fluid_box.filter ~= fluid.name then
                     network:remove_cache("import", "external", fluid.name)
                 elseif e_fluid ~= nil and e_fluid.name ~= fluid.name then
                     network:remove_cache("import", "external", fluid.name)
-                end
+                end]]
                 extractSize = network:insert_fluid_into_external(external, extractSize, fluid_box, fluid, storedFluidTemperature, storedFluidAmount, from_tank)
                 if extractSize <= 0 then
                     network:put_cache("import", "external", fluid.name, external.thisEntity.unit_number)
@@ -980,7 +973,9 @@ function BaseNet:extract_item_from_external(external, inv, transferCapacity, ite
         if transferCapacity <= 0 then break end
         local einv = external.focusedEntity.thisEntity.get_inventory(external.focusedEntity.inventory.output.values[external.focusedEntity.inventory.output.index])
         if BaseNet.inventory_is_sortable(einv) then einv.sort_and_merge() end
-        for j = 1, #einv do
+        local _, o = einv.find_item_stack(itemstack_master.name)
+        if o == nil then break end
+        for j = o, #einv do
             local storedAmount = einv.get_item_count(itemstack_master.name)
             if storedAmount <= 0 or transferCapacity <= 0 then break end
             local item = einv[j]
@@ -1180,8 +1175,14 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
     for i = 1, from_inv.inventory.output.max do
         local inv = from_inv.thisEntity.get_inventory(from_inv.inventory.output.values[from_inv.inventory.output.index])
         if BaseNet.inventory_is_sortable(inv) then inv.sort_and_merge() end
-        for j = 1, #inv do
+        local o = 1
+        if itemstack_master ~= nil then
+            local _, oo = inv.find_item_stack(itemstack_master.name)
+            if oo ~= nil then o = oo else goto fin end
+        end
+        for j = o, #inv do
             if transferCapacity <= 0 or inv.is_empty() then goto fin end
+            if itemstack_master ~= nil and inv.get_contents()[itemstack_master.name] <= 0 then goto fin end
             local item = inv[j]
             if item == nil then goto next end
             if item.valid_for_read == false or item.count <= 0 then goto next end
