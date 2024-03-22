@@ -116,18 +116,13 @@ Constants.Settings = {
         ["rocket-silo"] = true,
         ["generator"] = true,
     },
-    RNS_TypesWithID = {
-        ["armor"] = true,
-        ["spidertron-remote"] = true,
-        ["selection-tool"] = true,
-        ["copy-paste-tool"] = true,
-        ["upgrade-item"] = true,
-        ["deconstruction-item"] = true,
-        ["blueprint"] = true,
-        ["blueprint-book"] = true,
-        ["item-with-entity-data"] = true,
-        ["item-with-inventory"] = true,
-        ["item-with-tags"] = true,
+    RNS_BeltTypes = {
+        ["transport-belt"] = true,
+        ["underground-belt"] = true,
+        ["splitter"] = true,
+        ["linked-belt"] = true,
+        ["loader"] = true,
+        ["loader-1x1"] = true
     },
     RNS_Inventory_Types = {
         ["rocket-silo"] = {

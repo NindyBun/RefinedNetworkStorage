@@ -109,7 +109,7 @@ function NC:update()
     if game.tick % Constants.Settings.RNS_Detector_Tick == 0 then self:updateDetectors() end
 
     if game.tick % Constants.Settings.RNS_ItemIO_Tick == 0 then self:updateItemIO() end --Base is every 4 ticks to match yellow belt speed at 15/s
-    --local tickItemBeltIO = game.tick % (120/Constants.Settings.RNS_BaseItemIO_TickSpeed) --speed based on 1 side of a belt
+    --local tickItemBeltIO = game.tick % (120/Constants.Settings.RNS_ItemIO_Tick) --speed based on 1 side of a belt. Done every 8 ticks
     --if tickItemBeltIO >= 0.0 and tickItemBeltIO < 1.0 then self:updateItemIO(true) end
 
     if game.tick % Constants.Settings.RNS_FluidIO_Tick == 0 then self:updateFluidIO() end --Base is every 5 ticks to match offshore pump speed at 1200/s

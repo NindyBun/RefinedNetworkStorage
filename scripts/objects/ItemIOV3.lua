@@ -279,6 +279,22 @@ function IIO3:target_interactable()
 end
 
 function IIO3:transportIO()
+    --[[
+        One lane of a transport belt can have up to 4 items therefor a max of 4 indexes.
+        One lane of a underground belt can have up to 2 items so 2 indexes.
+        One input lane of a splitter can have up to 3 items while the output lane can have up to 2 items.
+        One lane of a loader can have up to 2 items.
+        1 = defines.transport_line.left_line 	
+        2 = defines.transport_line.right_line 	
+        3 = defines.transport_line.left_underground_line 	
+        4 = defines.transport_line.right_underground_line 	
+        3 = defines.transport_line.secondary_left_line 	
+        4 = defines.transport_line.secondary_right_line 	
+        5 = defines.transport_line.left_split_line 	
+        6 = defines.transport_line.right_split_line 	
+        7 = defines.transport_line.secondary_left_split_line 	
+        8 = defines.transport_line.secondary_right_split_line 
+    ]]
     if self:interactable() == false then self.processed = true return end
     if self:target_interactable() == false then self.processed = true return end
 
@@ -292,7 +308,6 @@ function IIO3:transportIO()
     local network = self.networkController.network
 
     local target = self.focusedEntity
-    local transportCapacity = self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity--*global.IIOMultiplier
     if target.type == "transport-belt" or target.type == "underground-belt" or target.type == "splitter" or target.type == "loader" or target.type == "loader-1x1" then
         local beltDir = Util.direction(target)
         local ioDir = self:getRealDirection()
