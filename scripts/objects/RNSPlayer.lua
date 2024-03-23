@@ -6,6 +6,7 @@ RNSP = {
     networkID = nil,
     GUI = nil,
     varTable = nil,
+    storedAmount = 0
 }
 
 --Constructor

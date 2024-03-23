@@ -241,9 +241,13 @@ end
 function NII:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 	local tableList = GuiApi.add_table(guiTable, "", scrollPane, 8)
 	local inv = {}
+	local storedAmount = RNSPlayer.thisEntity.get_main_inventory().get_item_count()
+	local amount = 0
 	for i = 1, #RNSPlayer.thisEntity.get_main_inventory() do
+		if amount == storedAmount then break end
 		local item = RNSPlayer.thisEntity.get_main_inventory()[i]
 		if item.count <= 0 then goto continue end
+		amount = amount + item.count
 		Util.item_add_list_into_table(inv, Itemstack:new(item))
 		::continue::
 	end
