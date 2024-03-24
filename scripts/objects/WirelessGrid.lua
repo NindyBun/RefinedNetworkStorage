@@ -127,6 +127,11 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 		--infoFrame.style.right_padding = 3
 		--GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
 
+		guiTable.vars.WG = {
+			item = {},
+			fluid = {},
+			player = {}
+		}
 		-- Create the Network Inventory Frame --
 		local inventoryFrame = GuiApi.add_frame(guiTable, "InventoryFrame", mainFrame, "vertical", true)
 		inventoryFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -146,6 +151,8 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 		inventoryScrollPane.style.vertically_stretchable = true
 		inventoryScrollPane.style.bottom_margin = 3
 
+		GuiApi.add_table(guiTable, "NetworkInventoryTable", inventoryScrollPane, 8, true)
+
 		-- Create the Player Inventory Frame --
 		local playerInventoryFrame = GuiApi.add_frame(guiTable, "PlayerInventoryFrame", mainFrame, "vertical", true)
 		playerInventoryFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -159,11 +166,13 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 		GuiApi.add_subtitle(guiTable, "", playerInventoryFrame, {"gui-description.RNS_PlayerInventory"})
 
 		-- Create the Player Inventory Scroll Pane --
-		local playerInventoryScrollPane = GuiApi.add_scroll_pane(guiTable, "PlayerInventoryScrollPane", playerInventoryFrame, 500,true)
+		local playerInventoryScrollPane = GuiApi.add_scroll_pane(guiTable, "PlayerInventoryScrollPane", playerInventoryFrame, 500, true)
 		playerInventoryScrollPane.style = Constants.Settings.RNS_Gui.scroll_pane
 		playerInventoryScrollPane.style.minimal_width = 308
 		playerInventoryScrollPane.style.vertically_stretchable = true
 		playerInventoryScrollPane.style.bottom_margin = 3
+		
+		GuiApi.add_table(guiTable, "PlayerInventoryTable", playerInventoryScrollPane, 8, true)
 
 		-- Create the Information Frame --
 		local informationFrame = GuiApi.add_frame(guiTable, "InformationFrame1", mainFrame, "vertical", true)
@@ -229,14 +238,14 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 
     end
 
-	local inventoryScrollPane = guiTable.vars.InventoryScrollPane
-	local playerInventoryScrollPane = guiTable.vars.PlayerInventoryScrollPane
+	--local inventoryScrollPane = guiTable.vars.InventoryScrollPane
+	--local playerInventoryScrollPane = guiTable.vars.PlayerInventoryScrollPane
 	local textField = guiTable.vars.RNS_SearchTextField
 
-	inventoryScrollPane.clear()
-	playerInventoryScrollPane.clear()
+	--inventoryScrollPane.clear()
+	--playerInventoryScrollPane.clear()
 
-	self:createPlayerInventory(guiTable, RNSPlayer, playerInventoryScrollPane, textField.text)
+	self:createPlayerInventory(guiTable, RNSPlayer, guiTable.vars.PlayerInventoryTable, textField.text)
 
     if self.networkController == nil or not self.networkController.stable or (self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == false) then return end
 	if self.network_controller_surface == nil or self.thisEntity.surface.index ~= self.network_controller_surface then return end
@@ -248,11 +257,10 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 		return
 	end
 
-	self:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, textField.text)
+	self:createNetworkInventory(guiTable, RNSPlayer, guiTable.vars.NetworkInventoryTable, textField.text)
 end
 
-function WG:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
-	local tableList = GuiApi.add_table(guiTable, "", scrollPane, 8)
+function WG:createPlayerInventory(guiTable, RNSPlayer, tableList, text)
 	local inv = {}
 	for i = 1, #RNSPlayer.thisEntity.get_main_inventory() do
 		local item = RNSPlayer.thisEntity.get_main_inventory()[i]
@@ -260,7 +268,7 @@ function WG:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 		Util.item_add_list_into_table(inv, Itemstack:new(item))
 		::continue::
 	end
-	local itemIndex = 0
+	local itemIndex = 1
 	for _, item in pairs(inv) do
 		RNSPlayer.thisEntity.request_translation(Util.get_item_name(item.name))
 		if Util.get_item_name(item.name)[1] ~= nil then
@@ -296,10 +304,28 @@ function WG:createPlayerInventory(guiTable, RNSPlayer, scrollPane, text)
 			table.insert(buttonText, {"gui-description.RNS_linked"})
 			table.insert(buttonText, item.connected_entity.entity_label or Util.get_item_name(item.connected_entity.name))
 		end
-		GuiApi.add_button(guiTable, "RNS_WG_PInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
-		
+		if guiTable.vars.WG.player[itemIndex] == nil then
+			table.insert(guiTable.vars.WG.player, GuiApi.add_button(guiTable, "RNS_WG_PInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item}))
+		else
+			local button = guiTable.vars.WG.player[itemIndex]
+			if Itemstack:reload(button.tags.stack):compare_itemstacks(item, true, true) == false then
+				button.destroy()
+				guiTable.vars.WG.player[itemIndex] = GuiApi.add_button(guiTable, "RNS_WG_PInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
+			elseif button.number ~= item.count then
+				button.number = item.count
+			end
+			guiTable.vars.WG.player[itemIndex].tooltip = buttonText
+		end
 		itemIndex = itemIndex + 1
 		::continue::
+	end
+	if #guiTable.vars.WG.player > #inv then
+		for j = #guiTable.vars.WG.player, #inv, -1 do
+			if guiTable.vars.WG.player[j] then
+				guiTable.vars.WG.player[j].destroy()
+			end
+			table.remove(guiTable.vars.WG.player, j)
+		end
 	end
 end
 
@@ -337,16 +363,7 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 			if drive:interactable() == false then goto continue end
 			for k, c in pairs(drive.fluidArray) do
 				if c == nil then goto continue end
-				if fluid[k] ~= nil then
-					fluid[k].amount = fluid[k].amount + c.amount
-					fluid[k].temperature = (fluid[k].temperature * fluid[k].amount + c.amount * (c.temperature or game.fluid_prototypes[c.name].default_temperature)) / (fluid[k].amount + c.amount)
-				else
-					fluid[k] = {
-						name = c.name,
-						amount = c.amount,
-						temperature = c.temperature
-					}
-				end
+				Util.fluid_add_list_into_table(fluid, c)
 				fluidDriveStorage = fluidDriveStorage + c.amount
 				::continue::
 			end
@@ -378,12 +395,7 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 					else
 						local cached = external.cache[1]
 						if cached ~= nil then
-							if fluid[cached.name] ~= nil then
-								fluid[cached.name].amount = fluid[cached.name].amount + cached.amount
-								fluid[cached.name].temperature = (fluid[cached.name].temperature * fluid[cached.name].amount + cached.amount * (cached.temperature or game.fluid_prototypes[cached.name].default_temperature)) / (fluid[cached.name].amount + cached.amount)
-							else
-								fluid[cached.name] = cached
-							end
+							Util.fluid_add_list_into_table(fluid, cached)
 						end
 						externalFluidStorage = externalFluidStorage + external.storedAmount
 						externalFluidCapacity = externalFluidCapacity + external.capacity
@@ -401,18 +413,39 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 	guiTable.vars.ExternalFluidStorageBar.value = externalFluidCapacity ~= 0 and (externalFluidStorage/externalFluidCapacity) or 0
 	guiTable.vars.ExternalFluidStorageBar.tooltip = {"gui-description.RNS_ExternalFluidStorageBar", Util.toRNumber(externalFluidStorage), Util.toRNumber(externalFluidCapacity)}
 	-----------------------------------------------------------------------------------Fluids----------------------------------------------------------------------------------------
-	for k, c in pairs(fluid) do
+	local fluidIndex = 1
+	for _, c in pairs(fluid) do
 		RNSPlayer.thisEntity.request_translation(Util.get_fluid_name(c.name))
 		if Util.get_fluid_name(c.name)[1] ~= nil then
 			local locName = Util.get_fluid_name(c.name)[1]
 			if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
 		end
 		local buttonText = {"", "[color=blue]", Util.get_fluid_name(c.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(c.amount), "\n", {"gui-description.RNS_Temperature"}, c.temperature or game.fluid_prototypes[c.name].default_temperature}
-		GuiApi.add_button(guiTable, "RNS_NII_FDInv_".. k, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
+		if guiTable.vars.WG.fluid[fluidIndex] == nil then
+			table.insert(guiTable.vars.WG.fluid, GuiApi.add_button(guiTable, "RNS_WG_FDInv_".. fluidIndex, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name}))
+		else
+			local button = guiTable.vars.WG.fluid[fluidIndex]
+			if button.name ~= c.name then
+				button.destroy()
+				guiTable.vars.WG.fluid[fluidIndex] = GuiApi.add_button(guiTable, "RNS_WG_FDInv_".. fluidIndex, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
+			elseif button.number ~= c.amount then
+				button.number = c.amount
+			end
+			guiTable.vars.WG.fluid[fluidIndex].tooltip = buttonText
+		end
+		fluidIndex = fluidIndex + 1
 		::continue::
 	end
+	if #guiTable.vars.WG.fluid > #fluid then
+		for j = #guiTable.vars.WG.fluid, #fluid, -1 do
+			if guiTable.vars.WG.fluid[j] then
+				guiTable.vars.WG.fluid[j].destroy()
+			end
+			table.remove(guiTable.vars.WG.fluid, j)
+		end
+	end
 	-----------------------------------------------------------------------------------Items----------------------------------------------------------------------------------------
-	local itemIndex = 0
+	local itemIndex = 1
 	for _, item in pairs(inv) do
 		RNSPlayer.thisEntity.request_translation(Util.get_item_name(item.name))
 		if Util.get_item_name(item.name)[1] ~= nil then
@@ -451,9 +484,28 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 			table.insert(buttonText, {"gui-description.RNS_linked"})
 			table.insert(buttonText, item.connected_entity.entity_label or Util.get_item_name(item.connected_entity.name))
 		end
-		GuiApi.add_button(guiTable, "RNS_WG_IDInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
+		if guiTable.vars.WG.item[itemIndex] == nil then
+			table.insert(guiTable.vars.WG.item, GuiApi.add_button(guiTable, "RNS_WG_IDInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item}))
+		else
+			local button = guiTable.vars.WG.item[itemIndex]
+			if Itemstack:reload(button.tags.stack):compare_itemstacks(item, true, true) == false then
+				button.destroy()
+				guiTable.vars.WG.item[itemIndex] = GuiApi.add_button(guiTable, "RNS_WG_IDInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
+			elseif button.number ~= item.count then
+				button.number = item.count
+			end
+			guiTable.vars.WG.item[itemIndex].tooltip = buttonText
+		end
 		itemIndex = itemIndex + 1
 		::continue::
+	end
+	if #guiTable.vars.WG.item > #inv then
+		for j = #guiTable.vars.WG.item, #inv, -1 do
+			if guiTable.vars.WG.item[j] then
+				guiTable.vars.WG.item[j].destroy()
+			end
+			table.remove(guiTable.vars.WG.item, j)
+		end
 	end
 end
 

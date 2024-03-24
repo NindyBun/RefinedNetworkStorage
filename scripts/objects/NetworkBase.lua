@@ -976,7 +976,7 @@ function BaseNet:extract_item_from_external(external, inv, transferCapacity, ite
         local _, o = einv.find_item_stack(itemstack_master.name)
         if o == nil then break end
         for j = o, #einv do
-            local storedAmount = einv.get_item_count(itemstack_master.name)
+            local storedAmount = einv.get_item_count(itemstack_master.name) or 0
             if storedAmount <= 0 or transferCapacity <= 0 then break end
             local item = einv[j]
             if item == nil then break end
@@ -1182,7 +1182,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
         end
         for j = o, #inv do
             if transferCapacity <= 0 or inv.is_empty() then goto fin end
-            if itemstack_master ~= nil and inv.get_contents()[itemstack_master.name] <= 0 then goto fin end
+            if itemstack_master ~= nil and inv.get_contents()[itemstack_master.name] == nil then goto fin end
             local item = inv[j]
             if item == nil then goto next end
             if item.valid_for_read == false or item.count <= 0 then goto next end
