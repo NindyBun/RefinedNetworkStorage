@@ -446,6 +446,7 @@ function IIO3:IO()
 
     local target = self.focusedEntity
     local transportCapacity = self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity--*global.IIOMultiplier
+    if transportCapacity <= 0 then self.processed = true return end
     if self.circuitCondition == "setStackStize" and self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
         
     end
@@ -651,7 +652,7 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
 		rateFrame.style.right_margin = 3
         GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_ItemTransferRate", self.stackSize*15*Constants.Settings.RNS_BaseItemIO_TransferCapacity}, Constants.Settings.RNS_Gui.white, "", true)
 
-        if global.IIOMultiplier > 1 then
+        --if global.IIOMultiplier > 1 then
             local stackFrame = GuiApi.add_frame(guiTable, "", rateFlow, "horizontal")
             stackFrame.style = Constants.Settings.RNS_Gui.frame_1
             stackFrame.style.vertically_stretchable = true
@@ -660,13 +661,13 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
             stackFrame.style.right_margin = 3
             GuiApi.add_label(guiTable, "", stackFrame, {"gui-description.RNS_ItemStackSize"}, Constants.Settings.RNS_Gui.white, "")
             
-            local slider = GuiApi.add_slider(guiTable, "RNS_NetworkCableIO_Item_StackSizeSlider", stackFrame, 1, global.IIOMultiplier, self.stackSize, 1, true, "", {ID=self.thisEntity.unit_number})
+            local slider = GuiApi.add_slider(guiTable, "RNS_NetworkCableIO_Item_StackSizeSlider", stackFrame, 0, global.IIOMultiplier, self.stackSize, 1, true, "", {ID=self.thisEntity.unit_number})
             slider.style = "notched_slider"
             slider.style.minimal_width = 250
             slider.style.maximal_width = 300
             GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Item_StackSizeText", stackFrame, tostring(self.stackSize), "", true, true, false, false, false, {ID=self.thisEntity.unit_number})
             --GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_ItemTransferRate", Constants.Settings.RNS_BaseItemIO_TransferCapacity*15*global.IIOMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
-        end
+        --end
         local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
         local bottomFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
         
@@ -792,7 +793,8 @@ function IIO3.interaction(event, RNSPlayer)
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        io.stackSize = math.max(1, math.min(tonumber(event.element.text) or 0, global.IIOMultiplier))
+        --io.stackSize = math.max(1, math.min(tonumber(event.element.text) or 0, global.IIOMultiplier))
+        io.stackSize = math.min(tonumber(event.element.text) or 0, global.IIOMultiplier)
         guiTable.vars["RNS_NetworkCableIO_Item_StackSizeSlider"].slider_value = io.stackSize
         guiTable.vars["RNS_NetworkCableIO_Item_StackSizeText"].text = tostring(io.stackSize)
         return
