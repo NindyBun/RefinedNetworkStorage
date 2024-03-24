@@ -299,10 +299,10 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, tableList, text)
 			if Itemstack:reload(button.tags.stack):compare_itemstacks(item, true, true) == false then
 				button.destroy()
 				guiTable.vars.NII.player[itemIndex] = GuiApi.add_button(guiTable, "RNS_NII_PInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
-			elseif button.number ~= item.count then
-				button.number = item.count
 			end
 			guiTable.vars.NII.player[itemIndex].tooltip = buttonText
+			guiTable.vars.NII.player[itemIndex].number = item.count
+			guiTable.vars.NII.player[itemIndex].tags.stack = item
 		end
 		itemIndex = itemIndex + 1
 		::continue::
@@ -438,6 +438,7 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, tableList, text)
 				button.number = c.amount
 			end
 			guiTable.vars.NII.fluid[fluidIndex].tooltip = buttonText
+			guiTable.vars.NII.fluid[fluidIndex].number = c.amount
 		end
 		fluidIndex = fluidIndex + 1
 		::continue::
@@ -490,10 +491,10 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, tableList, text)
 			if Itemstack:reload(button.tags.stack):compare_itemstacks(item, true, true) == false then
 				button.destroy()
 				guiTable.vars.NII.item[itemIndex] = GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
-			elseif button.number ~= item.count then
-				button.number = item.count
 			end
 			guiTable.vars.NII.item[itemIndex].tooltip = buttonText
+			guiTable.vars.NII.item[itemIndex].number = item.count
+			guiTable.vars.NII.item[itemIndex].tags.stack = item
 		end
 		itemIndex = itemIndex + 1
 		::continue::

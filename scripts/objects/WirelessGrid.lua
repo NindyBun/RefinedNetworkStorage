@@ -311,10 +311,10 @@ function WG:createPlayerInventory(guiTable, RNSPlayer, tableList, text)
 			if Itemstack:reload(button.tags.stack):compare_itemstacks(item, true, true) == false then
 				button.destroy()
 				guiTable.vars.WG.player[itemIndex] = GuiApi.add_button(guiTable, "RNS_WG_PInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
-			elseif button.number ~= item.count then
-				button.number = item.count
 			end
 			guiTable.vars.WG.player[itemIndex].tooltip = buttonText
+			guiTable.vars.WG.player[itemIndex].number = item.count
+			guiTable.vars.WG.player[itemIndex].tags.stack = item
 		end
 		itemIndex = itemIndex + 1
 		::continue::
@@ -446,10 +446,9 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 			if button.name ~= c.name then
 				button.destroy()
 				guiTable.vars.WG.fluid[fluidIndex] = GuiApi.add_button(guiTable, "RNS_WG_FDInv_".. fluidIndex, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
-			elseif button.number ~= c.amount then
-				button.number = c.amount
 			end
 			guiTable.vars.WG.fluid[fluidIndex].tooltip = buttonText
+			guiTable.vars.WG.fluid[fluidIndex].number = c.amount
 		end
 		fluidIndex = fluidIndex + 1
 		::continue::
@@ -504,10 +503,10 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 			if Itemstack:reload(button.tags.stack):compare_itemstacks(item, true, true) == false then
 				button.destroy()
 				guiTable.vars.WG.item[itemIndex] = GuiApi.add_button(guiTable, "RNS_WG_IDInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
-			elseif button.number ~= item.count then
-				button.number = item.count
 			end
 			guiTable.vars.WG.item[itemIndex].tooltip = buttonText
+			guiTable.vars.WG.item[itemIndex].number = item.count
+			guiTable.vars.WG.item[itemIndex].tags.stack = item
 		end
 		itemIndex = itemIndex + 1
 		::continue::
