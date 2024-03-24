@@ -192,6 +192,17 @@ function Util.item_add_list_into_table(tab, list)
 	table.insert(tab, list)
 end
 
+function Util.fluid_add_list_into_table(tab, list)
+	for _, v in pairs(tab) do
+		if v.name == list.name then
+			v.amount = v.amount + list.amount
+			v.temperature = (v.temperature * v.amount + list.amount * (list.temperature or game.fluid_prototypes[list.name].default_temperature)) / (v.amount + list.amount)
+			return
+		end
+	end
+	table.insert(tab, list)
+end
+
 function Util.filter_accepts_item(filter, mode, itemname)
 	if filter == nil then return true end
 	if mode == "whitelist" then

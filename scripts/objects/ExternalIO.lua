@@ -300,7 +300,7 @@ function EIO:update(network)
             self.capacity = self.capacity + #inv
             
             if #self.cache > #inv then
-                for j = #self.cache - 1, #inv, -1 do
+                for j = #self.cache, #inv, -1 do
                     local cached = self.cache[j]
                     if cached.name ~= "RNS_Empty" then
                         network:decrease_tracked_item_count(cached.name, cached.count)

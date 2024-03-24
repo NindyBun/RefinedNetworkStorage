@@ -162,8 +162,6 @@ function Itemstack:compare_itemstacks(itemstack, exact, exact_exact)
             if not exact_exact and self.durability < itemstack.durability and self.count == 1 then return false end
         end
         if self.modified ~= itemstack.modified then return false end
-        game.write_file("master", serpent.block(self))
-        game.write_file("item", serpent.block(itemstack))
         if Itemstack.compare_tags(self.tags, itemstack.tags) == false then return false end
         if Itemstack.compare_tags(self.extras, itemstack.extras) == false then return false end
         --if self.stack_export_string ~= itemstack.stack_export_string then return false end
