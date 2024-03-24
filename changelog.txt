@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.16
+Date: 24 March 2024
+  Info:
+    - Added map setting for `whitelist` mode when placing storage drives (Default is false[blacklist])
+---------------------------------------------------------------------------------------------------
 Version: 1.0.15
 Date: 22 March 2024
   Info:

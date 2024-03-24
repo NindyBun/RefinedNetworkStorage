@@ -23,6 +23,7 @@ function ID:new(object)
     t.entID = object.unit_number
     t.maxStorage = Constants.Drives.ItemDrive[string.sub(object.name, 5)].max_size
     t.powerUsage = Constants.Drives.ItemDrive[string.sub(object.name, 5)].powerUsage
+    t.whitelistBlacklist = settings.global[Constants.Settings.RNS_StorageDrive_Whitelist].value and "whitelist" or "blacklist"
     t.storageArray = {}
     t.filters = {}
     t.guiFilters = {}

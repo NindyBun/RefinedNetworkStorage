@@ -11,6 +11,12 @@ data:extend({
         name = Constants.Settings.RNS_WirelessTransmitter_Color,
         setting_type = "runtime-global",
         default_value = {r=25, g=0, b=51, a=0}
+    },
+    {
+        type = "bool-setting",
+        name = Constants.Settings.RNS_StorageDrive_Whitelist,
+        setting_type = "runtime-global",
+        default_value = false
     }
 })
 --[[data:extend({

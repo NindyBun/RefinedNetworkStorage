@@ -10,6 +10,7 @@ Constants.Settings = {
     RNS_Max_Priority = 5,
     RNS_Priorities = {},
     RNS_WirelessTransmitter_Color = "RNS_WirelessTransmitter_Area_Color",
+    RNS_StorageDrive_Whitelist = "RNS_StorageDrive_Whitelist",
     RNS_ColorG = {
         [1] = {"gui-description.RNS_RED"},
         [2] = {"gui-description.RNS_WHITE"},
