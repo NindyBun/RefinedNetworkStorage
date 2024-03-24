@@ -91,7 +91,7 @@ for _, obj in pairs(global.objectTables) do
                         entry.filters.fluid[oldFilters.fluid.values[i]] = true
                     end
                 end
-                entry:init_cache()
+                --entry:init_cache()
             end
         end
 
