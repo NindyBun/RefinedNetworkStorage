@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.19
+Date: 24 March 2024
+  Info:
+    - Fixed bug where the fluid in the Fluid Drive will magically increase at the rate of the respective fluid stored in a External Fluid bus with the Netowrk Grid open
+---------------------------------------------------------------------------------------------------
 Version: 1.0.18
 Date: 24 March 2024
   Info:

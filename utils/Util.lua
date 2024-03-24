@@ -193,6 +193,11 @@ function Util.item_add_list_into_table(tab, list)
 end
 
 function Util.fluid_add_list_into_table(tab, list)
+	list = {
+		name = list.name,
+		amount = list.amount,
+		temperature = list.temperature
+	}
 	for _, v in pairs(tab) do
 		if v.name == list.name then
 			v.amount = v.amount + list.amount
