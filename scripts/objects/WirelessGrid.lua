@@ -265,16 +265,16 @@ function WG:createPlayerInventory(guiTable, RNSPlayer, tableList, text)
 	for i = 1, #RNSPlayer.thisEntity.get_main_inventory() do
 		local item = RNSPlayer.thisEntity.get_main_inventory()[i]
 		if item.count <= 0 then goto continue end
-		Util.item_add_list_into_table(inv, Itemstack:new(item))
-		::continue::
-	end
-	local itemIndex = 1
-	for _, item in pairs(inv) do
 		RNSPlayer.thisEntity.request_translation(Util.get_item_name(item.name))
 		if Util.get_item_name(item.name)[1] ~= nil then
 			local locName = Util.get_item_name(item.name)[1]
 			if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
 		end
+		Util.item_add_list_into_table(inv, Itemstack:new(item))
+		::continue::
+	end
+	local itemIndex = 1
+	for _, item in pairs(inv) do
 		local buttonText = {"", "[color=blue]", item.extras.label or Util.get_item_name(item.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(item.count)}
 		if item.health < 1 then
 			table.insert(buttonText, "\n")
@@ -339,16 +339,23 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 	for _, priority in pairs(self.networkController.network.ItemDriveTable) do
 		for _, drive in pairs(priority) do
 			if drive:interactable() == false then goto continue end
+			itemDriveCapacity = itemDriveCapacity + drive.maxStorage
 			for _, v in pairs(drive.storageArray) do
-				Util.item_add_list_into_table(inv, Itemstack:reload(v))
+				local item = Itemstack:reload(v)
 				itemDriveStorage = itemDriveStorage + v.count
+				RNSPlayer.thisEntity.request_translation(Util.get_item_name(item.name))
+				if Util.get_item_name(item.name)[1] ~= nil then
+					local locName = Util.get_item_name(item.name)[1]
+					if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
+				end
+				Util.item_add_list_into_table(inv, item)
 				--local c = Util.itemstack_template(v.name)
 				--c.cont.count = v.count
 				--if c.cont.ammo then c.cont.ammo = v.ammo end
 				--if c.cont.durability then c.cont.durability = v.durability end
 				--Util.add_or_merge(c, inv, true)
+				::continue::
 			end
-			itemDriveCapacity = itemDriveCapacity + drive.maxStorage
 			::continue::
 		end
 	end
@@ -361,13 +368,18 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 	for _, priority in pairs(self.networkController.network.FluidDriveTable) do
 		for _, drive in pairs(priority) do
 			if drive:interactable() == false then goto continue end
+			fluidDriveCapacity = fluidDriveCapacity + drive.maxStorage
 			for k, c in pairs(drive.fluidArray) do
 				if c == nil then goto continue end
-				Util.fluid_add_list_into_table(fluid, c)
 				fluidDriveStorage = fluidDriveStorage + c.amount
+				RNSPlayer.thisEntity.request_translation(Util.get_fluid_name(c.name))
+				if Util.get_fluid_name(c.name)[1] ~= nil then
+					local locName = Util.get_fluid_name(c.name)[1]
+					if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
+				end
+				Util.fluid_add_list_into_table(fluid, c)
 				::continue::
 			end
-			fluidDriveCapacity = fluidDriveCapacity + drive.maxStorage
 			::continue::
 		end
 	end
@@ -384,24 +396,35 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 			for _, external in pairs(type) do
 				if external:interactable() and external:target_interactable() and string.match(external.io, "input") then
 					if external.type == "item" then
+						externalItemStorage = externalItemStorage + external.storedAmount
+						externalItemCapacity = externalItemCapacity + external.capacity
 						for i = 1, #external.cache do
 							local cached = external.cache[i]
 							if cached.name ~= "RNS_Empty" then
+								RNSPlayer.thisEntity.request_translation(Util.get_item_name(cached.name))
+								if Util.get_item_name(cached.name)[1] ~= nil then
+									local locName = Util.get_item_name(cached.name)[1]
+									if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
+								end
 								Util.item_add_list_into_table(inv, Itemstack:reload(cached))
 							end
+							::continue::
 						end
-						externalItemStorage = externalItemStorage + external.storedAmount
-						externalItemCapacity = externalItemCapacity + external.capacity
 					else
 						local cached = external.cache[1]
-						if cached ~= nil then
-							Util.fluid_add_list_into_table(fluid, cached)
-						end
 						externalFluidStorage = externalFluidStorage + external.storedAmount
 						externalFluidCapacity = externalFluidCapacity + external.capacity
+						if cached ~= nil then
+							RNSPlayer.thisEntity.request_translation(Util.get_fluid_name(cached.name))
+							if Util.get_fluid_name(cached.name)[1] ~= nil then
+								local locName = Util.get_fluid_name(cached.name)[1]
+								if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
+							end
+							Util.fluid_add_list_into_table(fluid, cached)
+						end
 					end
-					
 				end
+				::continue::
 			end
 		end
 	end
@@ -415,11 +438,6 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 	-----------------------------------------------------------------------------------Fluids----------------------------------------------------------------------------------------
 	local fluidIndex = 1
 	for _, c in pairs(fluid) do
-		RNSPlayer.thisEntity.request_translation(Util.get_fluid_name(c.name))
-		if Util.get_fluid_name(c.name)[1] ~= nil then
-			local locName = Util.get_fluid_name(c.name)[1]
-			if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
-		end
 		local buttonText = {"", "[color=blue]", Util.get_fluid_name(c.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(c.amount), "\n", {"gui-description.RNS_Temperature"}, c.temperature or game.fluid_prototypes[c.name].default_temperature}
 		if guiTable.vars.WG.fluid[fluidIndex] == nil then
 			table.insert(guiTable.vars.WG.fluid, GuiApi.add_button(guiTable, "RNS_WG_FDInv_".. fluidIndex, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name}))
@@ -447,11 +465,6 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 	-----------------------------------------------------------------------------------Items----------------------------------------------------------------------------------------
 	local itemIndex = 1
 	for _, item in pairs(inv) do
-		RNSPlayer.thisEntity.request_translation(Util.get_item_name(item.name))
-		if Util.get_item_name(item.name)[1] ~= nil then
-			local locName = Util.get_item_name(item.name)[1]
-			if text ~= nil and text ~= "" and locName ~= nil and string.match(string.lower(locName), string.lower(text)) == nil then goto continue end
-		end
 		local buttonText = {"", "[color=blue]", item.extras.label or Util.get_item_name(item.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(item.count)}
 		if item.health < 1 then
 			table.insert(buttonText, "\n")
