@@ -355,6 +355,11 @@ Constants.Icons = {
         name = "RNS_storage_indication_arrow",
         sprite = Constants.MOD_ID.."/graphics/Cables/IO/storage-indication-arrow.png"
     },
+    
+    insert_arrow = {
+        name = "RNS_insert_arrow",
+        sprite = Constants.MOD_ID.."/graphics/insert_arrow.png"
+    },
     storage_bothways = {
         name = "RNS_storage_indication_arrow_bothways",
         sprite = Constants.MOD_ID.."/graphics/Cables/IO/storage-indication-arrow-both-ways.png"

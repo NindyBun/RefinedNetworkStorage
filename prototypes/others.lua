@@ -131,6 +131,19 @@ for _, color in pairs(Constants.NetworkCables.Cables) do
     end
 end
 
+local sprite10 = {}
+sprite10.type = "sprite"
+sprite10.name = Constants.Icons.insert_arrow.name
+sprite10.layers = {
+    {
+        filename = Constants.Icons.insert_arrow.sprite,
+        priority = "medium",
+        size = 64,
+        scale = 1
+    }
+}
+data:extend{sprite10}
+
 local connection_points  = {
 	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}},
 	{shadow={green={0, 0}, red={0, 0}}, wire={green={0, 0}, red={0, 0}}},

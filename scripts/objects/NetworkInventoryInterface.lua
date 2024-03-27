@@ -225,6 +225,11 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText3"}, Constants.Settings.RNS_Gui.white)
 		GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText4"}, Constants.Settings.RNS_Gui.white)
 		GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText5"}, Constants.Settings.RNS_Gui.white)
+
+		GuiApi.add_subtitle(guiTable, "", informationFrame, {"gui-description.RNS_PlayerInventory"})
+		local player_inventory_flow = GuiApi.add_flow(guiTable, "", informationFrame, "vertical")
+		player_inventory_flow.style.vertical_align = "center"
+		GuiApi.add_button(guiTable, "RNS_NII_Insert", player_inventory_flow, Constants.Icons.insert_arrow.name, nil, nil, {"gui-description.RNS_Insert_Item"}, 37, false, true, nil, "inventory_slot", {ID=self.entID})
 		--GuiApi.add_label(guiTable, "", helpTable, {"gui-description.RNS_HelpText6"}, Constants.Settings.RNS_Gui.white)
 
 		--GuiApi.add_label(guiTable, "", informationFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)
@@ -513,10 +518,8 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	if RNSPlayer.thisEntity == nil or NII == nil then return end
 	local network = NII.networkController ~= nil and NII.networkController.network or nil
 	if network == nil then return end
-	if tags == nil then return end
-	local itemstack = Itemstack:reload(tags.stack)
 	--if itemstack.id ~= nil and global.itemTable[itemstack.id] ~= nil and global.itemTable[itemstack.id].is_active == true then return end
-
+	
 	if count == -1 then count = game.item_prototypes[itemstack.name].stack_size end
 	if count == -2 then count = math.max(1, game.item_prototypes[itemstack.name].stack_size/2) end
 	if count == -3 then count = game.item_prototypes[itemstack.name].stack_size*10 end
@@ -525,6 +528,9 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	--local inv = RNSPlayer.thisEntity.get_main_inventory()
 	local amount = math.min(itemstack.count, count)
 	if amount <= 0 then return end
+	if amount <= game.item_prototypes[itemstack.name].stack_size/2 then
+		
+	end
 	BaseNet.transfer_from_inv_to_network(network, {thisEntity = RNSPlayer.thisEntity,inventory = {output = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, itemstack, nil, "whitelist", amount, true, true)
 	
 	--[[local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
@@ -683,7 +689,7 @@ function NII.interaction(event, RNSPlayer)
 	if event.button == defines.mouse_button_type.right and event.shift == true then count = -3 end --10 Stacks
 	if event.button == defines.mouse_button_type.left and event.control == true then count = -4 end --All Stacks
 
-	if string.match(event.element.name, "RNS_NII_PInv") then
+	if string.match(event.element.name, "RNS_NII_Insert") then
 		local obj = global.entityTable[event.element.tags.ID]
 		NII.transfer_from_pinv(RNSPlayer, obj, event.element.tags, count)
 		return
