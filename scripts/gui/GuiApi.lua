@@ -64,12 +64,10 @@ function GuiApi.create_title(guiTable, addDragBar)
     local barTitle = {"gui-description." .. guiTable.gui.name .. "_Title"}
     GuiApi.add_label(guiTable, "Gui_Title", topBarFlow, barTitle, Constants.Settings.RNS_Gui.orange, nil, true, Constants.Settings.RNS_Gui.title_font)
 
-    if addDragBar then
-        local dragArea = GuiApi.add_empty_widget(guiTable, "", topBarFlow, guiTable.gui, Constants.Settings.RNS_Gui.drag_area_size)
-        dragArea.style.left_margin = 8
-        dragArea.style.right_margin = 8
-        dragArea.style.minimal_width = 30
-    end
+    local dragArea = GuiApi.add_empty_widget(guiTable, "", topBarFlow, addDragBar and guiTable.gui or nil, Constants.Settings.RNS_Gui.drag_area_size)
+    dragArea.style.left_margin = 8
+    dragArea.style.right_margin = 8
+    dragArea.style.minimal_width = 30
 end
 
 function GuiApi.add_flow(guiTable, name, gui, direction, save)
@@ -166,7 +164,9 @@ end
 function GuiApi.add_empty_widget(guiTable, name, gui, parent, sizeX, sizeY, save)
     if name ~= nil and name ~= "" and gui[name] ~= nil then gui[name].destroy() end
     local widget = gui.add{type="empty-widget", name=name, style="draggable_space"}
-    widget.drag_target = parent
+    if parent ~= nil then
+        widget.drag_target = parent
+    end
     if sizeX ~= nil then widget.style.height = sizeX end
     if sizeY ~= nil then widget.style.width = sizeY end
     widget.style.padding = 0

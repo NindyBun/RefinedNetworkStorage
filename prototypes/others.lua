@@ -138,7 +138,7 @@ sprite10.layers = {
     {
         filename = Constants.Icons.insert_arrow.sprite,
         priority = "medium",
-        size = 64,
+        size = 128,
         scale = 1
     }
 }

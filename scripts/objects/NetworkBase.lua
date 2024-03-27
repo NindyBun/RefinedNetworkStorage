@@ -1267,6 +1267,83 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
     end
     return transferCapacity
 end
+
+function BaseNet.transfer_from_cursor_to_network(network, item, transferCapacity)
+    local inv_item = Itemstack:new(item)
+    if inv_item == nil then return transferCapacity end
+    local master = inv_item:copy()
+    for i = 1, 1 do
+        if network:has_cache("import", "drive", inv_item.name) and inv_item.modified == false then
+            local drive = global.entityTable[network:get_cache("import", "drive", inv_item.name)]
+            if drive == nil or drive.valid == false then
+                network:remove_cache("import", "drive", inv_item.name)
+            else
+                local remainingStorage = drive:getRemainingStorageSize()
+                if drive:interactable() and Util.filter_accepts_item(drive.filters, drive.whitelistBlacklist, inv_item.name) and remainingStorage > 0
+                and master:compare_itemstacks(inv_item) then
+                    transferCapacity = network:insert_item_into_drive(item, inv_item, drive, transferCapacity, master, remainingStorage)
+                    if transferCapacity <= 0 then return 0 end
+                    if inv_item.count <= 0 then goto fin end
+                else
+                    network:remove_cache("import", "drive", item.name)
+                end
+            end
+        end
+        if network:has_cache("import", "external", item.name) then
+            local external = global.entityTable[network:get_cache("import", "external", inv_item.name)]
+            if external == nil or external.valid == false then
+                network:remove_cache("import", "external", inv_item.name)
+            else
+                if external:interactable() and external:target_interactable() and string.match(external.io, "output") ~= nil and external.type == "item"
+                and Util.filter_accepts_item(external.filters.item, external.whitelistBlacklist, inv_item.name) and external.focusedEntity.inventory.input.max ~= 0
+                and master:compare_itemstacks(inv_item) then
+                    if external.onlyModified and inv_item.modified == false then goto pass end
+                    transferCapacity = network:insert_item_into_external(external, item, inv_item, master, transferCapacity)
+                    if transferCapacity <= 0 then return 0 end
+                    if inv_item.count <= 0 then goto fin end
+                else
+                    network:remove_cache("import", "external", inv_item.name)
+                end
+            end
+        end
+        ::pass::
+        for p = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
+            local priorityD = network.ItemDriveTable[p]
+            local priorityE = network.ExternalIOTable[p].item
+            if inv_item.modified == false then
+                for _, drive in pairs(priorityD) do
+                    local remainingStorage = drive:getRemainingStorageSize()
+                    if drive:interactable() and Util.filter_accepts_item(drive.filters, drive.whitelistBlacklist, item.name) and remainingStorage > 0
+                    and master:compare_itemstacks(inv_item) then
+                        transferCapacity = network:insert_item_into_drive(item, inv_item, drive, transferCapacity, master, remainingStorage)
+                        if transferCapacity <= 0 then
+                            network:put_cache("import", "drive", master.name, drive.thisEntity.unit_number)
+                            return 0
+                        end
+                        if inv_item.count <= 0 then goto fin end
+                    end
+                end
+            end
+
+            for _, external in pairs(priorityE) do
+                if external:interactable() and external:target_interactable() and string.match(external.io, "output") ~= nil and external.type == "item"
+                and Util.filter_accepts_item(external.filters.item, external.whitelistBlacklist, inv_item.name) and external.focusedEntity.inventory.input.max ~= 0
+                and master:compare_itemstacks(inv_item) then
+                    if external.onlyModified and inv_item.modified == false then goto next end
+                    transferCapacity = network:insert_item_into_external(external, item, inv_item, master, transferCapacity)
+                    if transferCapacity <= 0 then
+                        network:put_cache("import", "external", master.name, external.thisEntity.unit_number)
+                        return 0
+                    end
+                    if inv_item.count <= 0 then goto fin end
+                end
+                ::next::
+            end
+        end
+        ::fin::
+    end
+    return transferCapacity
+end
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 function BaseNet.getOperableObjects(array, group)
     local objs = {}

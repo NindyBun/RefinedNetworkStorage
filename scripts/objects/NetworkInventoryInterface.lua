@@ -439,10 +439,10 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, tableList, text)
 				button.destroy()
 				guiTable.vars.NII.fluid[fluidIndex] = GuiApi.add_button(guiTable, "RNS_NII_FDInv_".. fluidIndex, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
 			elseif button.number ~= c.amount then
-				button.number = c.amount
+				button.destroy()
+				guiTable.vars.NII.fluid[fluidIndex] = GuiApi.add_button(guiTable, "RNS_NII_FDInv_".. fluidIndex, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
 			end
 			guiTable.vars.NII.fluid[fluidIndex].tooltip = buttonText
-			guiTable.vars.NII.fluid[fluidIndex].number = c.amount
 		end
 		fluidIndex = fluidIndex + 1
 		::continue::
@@ -495,10 +495,11 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, tableList, text)
 			if Itemstack:reload(button.tags.stack):compare_itemstacks(item, true, true) == false then
 				button.destroy()
 				guiTable.vars.NII.item[itemIndex] = GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
+			elseif guiTable.vars.NII.item[itemIndex].number ~= item.count then
+				button.destroy()
+				guiTable.vars.NII.item[itemIndex] = GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
 			end
 			guiTable.vars.NII.item[itemIndex].tooltip = buttonText
-			guiTable.vars.NII.item[itemIndex].number = item.count
-			guiTable.vars.NII.item[itemIndex].tags.stack = item
 		end
 		itemIndex = itemIndex + 1
 		::continue::
@@ -519,19 +520,23 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	local network = NII.networkController ~= nil and NII.networkController.network or nil
 	if network == nil then return end
 	--if itemstack.id ~= nil and global.itemTable[itemstack.id] ~= nil and global.itemTable[itemstack.id].is_active == true then return end
+	local itemstack = RNSPlayer.thisEntity.cursor_stack
+	if itemstack.valid_for_read == false and count ~= -4 then return end
 	
-	if count == -1 then count = game.item_prototypes[itemstack.name].stack_size end
-	if count == -2 then count = math.max(1, game.item_prototypes[itemstack.name].stack_size/2) end
-	if count == -3 then count = game.item_prototypes[itemstack.name].stack_size*10 end
-	if count == -4 then count = (2^32) end
+	local amount = 1
+	if count == -1 and itemstack.count ~= 0 then amount = itemstack.count end
+	if count == -2 and itemstack.count ~= 0 then amount = math.ceil(math.min(itemstack.count, game.item_prototypes[itemstack.name].stack_size/2)) end
+	if count == -3 and itemstack.count ~= 0 then amount = game.item_prototypes[itemstack.name].stack_size*10 end
+	if count == -4 then amount = (2^32) end
 
 	--local inv = RNSPlayer.thisEntity.get_main_inventory()
-	local amount = math.min(itemstack.count, count)
-	if amount <= 0 then return end
-	if amount <= game.item_prototypes[itemstack.name].stack_size/2 then
-		
+	local master = Itemstack:new(itemstack)
+
+	if count == -4 and itemstack.count == 0 then
+		BaseNet.transfer_from_inv_to_network(network, {thisEntity = RNSPlayer.thisEntity,inventory = {output = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, nil, nil, "blacklist", amount, true, false)
+	elseif itemstack.count ~= 0 and BaseNet.transfer_from_cursor_to_network(network, itemstack, amount) > 0 then
+		BaseNet.transfer_from_inv_to_network(network, {thisEntity = RNSPlayer.thisEntity,inventory = {output = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, master, nil, "whitelist", amount, true, false)
 	end
-	BaseNet.transfer_from_inv_to_network(network, {thisEntity = RNSPlayer.thisEntity,inventory = {output = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, itemstack, nil, "whitelist", amount, true, true)
 	
 	--[[local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
 	local externalItems = network:filter_externalIO_by_valid_signal()
@@ -588,9 +593,8 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	if network == nil then return end
 	if tags == nil then return end
 	local itemstack = Itemstack:reload(tags.stack)
-
 	if count == -1 then count = game.item_prototypes[itemstack.name].stack_size end
-	if count == -2 then count = math.max(1, game.item_prototypes[itemstack.name].stack_size/2) end
+	if count == -2 then count = math.ceil(math.max(1, game.item_prototypes[itemstack.name].stack_size/2)) end
 	if count == -3 then count = game.item_prototypes[itemstack.name].stack_size*10 end
 	if count == -4 then count = (2^32) end
 
@@ -688,7 +692,6 @@ function NII.interaction(event, RNSPlayer)
 	if event.button == defines.mouse_button_type.right then count = -2 end --Half Stack
 	if event.button == defines.mouse_button_type.right and event.shift == true then count = -3 end --10 Stacks
 	if event.button == defines.mouse_button_type.left and event.control == true then count = -4 end --All Stacks
-
 	if string.match(event.element.name, "RNS_NII_Insert") then
 		local obj = global.entityTable[event.element.tags.ID]
 		NII.transfer_from_pinv(RNSPlayer, obj, event.element.tags, count)
