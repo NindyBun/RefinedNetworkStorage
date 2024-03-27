@@ -5,7 +5,8 @@ function GUI.update(force)
             if game.tick % 1--[[Constants.Settings.RNS_Gui_Tick == 0]] or force then
                 for _, guiTable in pairs(RNSPlayer.GUI or {}) do
                     if guiTable.gui ~= nil and guiTable.gui.valid == true and GUI["update_" .. guiTable.gui.name] ~= nil then
-                        if guiTable.vars.currentObject.thisEntity == nil or guiTable.vars.currentObject.thisEntity.valid == false or guiTable.vars.currentObject.thisEntity.to_be_deconstructed() == true then
+                        --if guiTable.vars.currentObject.thisEntity.name == Constants.NetworkInventoryInterface.name then goto continue end
+                        if guiTable.vars.currentObject.thisEntity == nil or guiTable.vars.currentObject.thisEntity.valid == false or (guiTable.vars.currentObject.thisEntity.to_be_deconstructed() == true) then
                             GUI.remove_gui(guiTable, player)
                             goto continue
                         end
@@ -46,6 +47,16 @@ function GUI.create_tooltip_gui(player, obj)
     return guiTable
 end
 
+function GUI.create_relative_tooltip_gui(player, obj, type, position)
+    if valid(obj) == false then return end
+    local RNSPlayer = getRNSPlayer(player.name)
+    local guiTable = GuiApi.create_relative_window(Constants.Settings.RNS_Gui.tooltip, type, position, RNSPlayer, true, true, false, "vertical", "horizontal")
+    --GuiApi.add_close_button(guiTable)
+    guiTable.vars.currentObject = obj
+    GUI.update_tooltip_gui(guiTable, true)
+    return guiTable
+end
+
 function GUI.open_tooltip_gui(RNSPlayer, player, entity)
     if entity == nil or entity.valid == false or entity.to_be_deconstructed() == true then return end
 
@@ -62,11 +73,34 @@ function GUI.open_tooltip_gui(RNSPlayer, player, entity)
     RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip] = guiTable
 end
 
+function GUI.open_relative_tooltip_gui(RNSPlayer, player, entity, type, position)
+    if entity == nil or entity.valid == false or entity.to_be_deconstructed() == true then return end
+
+    local cursorStack = player.cursor_stack
+	if cursorStack and cursorStack.valid_for_read then
+		if cursorStack.name == "green-wire" or cursorStack.name == "red-wire" or cursorStack.type == "repair-tool" then return end
+	end
+
+    local obj = global.entityTable[entity.unit_number]
+    if valid(obj) == false or obj.getTooltips == nil then return end
+
+    local guiTable = GUI.create_relative_tooltip_gui(player, obj, type, position)
+    player.opened = player
+    RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip] = guiTable
+end
+
 function GUI.on_gui_opened(event)
     local player = getPlayer(event.player_index)
     local RNSPlayer = getRNSPlayer(event.player_index)
 
     if event.entity ~= nil and event.entity.valid == true then
+        if player.selected and player.selected.name == Constants.NetworkInventoryInterface.name then
+            if Util.safeCall(GUI.open_relative_tooltip_gui, RNSPlayer, player, player.selected, defines.relative_gui_type.controller_gui, defines.relative_gui_position.left) == false then
+                player.print({"gui-description.RNS_openGui_falied"})
+                Event.clear_gui(event)
+            end
+            return
+        end
         if Util.safeCall(GUI.open_tooltip_gui, RNSPlayer, player, player.selected) == false then
             player.print({"gui-description.RNS_openGui_falied"})
             Event.clear_gui(event)
@@ -75,10 +109,17 @@ function GUI.on_gui_opened(event)
 end
 
 function GUI.on_gui_closed(event)
-    if event.element == nil or event.element.valid == false then return end
     local playerIndex = event.player_index
     local RNSPlayer = getRNSPlayer(playerIndex)
     if RNSPlayer.GUI == nil or RNSPlayer.GUI.valid == false then return end
+    if event.element == nil or event.element.valid == false then
+        if RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip] then
+            RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip].gui.destroy()
+            RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip] = nil
+        end
+        return
+    end
+
 
     if event.element.name == Constants.Settings.RNS_Gui.tooltip then
         RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip].gui.destroy()

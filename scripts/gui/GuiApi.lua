@@ -9,7 +9,7 @@ function GuiApi.create_base_window(type, RNSPlayer, showTitle, showMainFrame, is
     guiTable.gui.style.padding = 5
     guiTable.gui.style.top_padding = 0
     guiTable.gui.style.margin = 0
-    if showTitle == true then GuiApi.create_title(guiTable) end
+    if showTitle == true then GuiApi.create_title(guiTable, true) end
     if showMainFrame == true then
         local mainFrame = nil
         if isScrollPane == false then
@@ -25,12 +25,37 @@ function GuiApi.create_base_window(type, RNSPlayer, showTitle, showMainFrame, is
     return guiTable
 end
 
+function GuiApi.create_relative_window(type, relativeGuiType, guiPosition, RNSPlayer, showTitle, showMainFrame, isScrollPane, windowDirection, mainFrameDirection)
+    if RNSPlayer == nil then return end
+    if RNSPlayer.thisEntity.gui.relative[type] ~= nil and RNSPlayer.thisEntity.gui.relative[type].valid == true then RNSPlayer.thisEntity.gui.relative[type].destroy() end
+    if RNSPlayer.thisEntity.gui.relative[type] ~= nil and RNSPlayer.thisEntity.gui.relative[type].valid == false then RNSPlayer.thisEntity.gui.relative[type] = nil end
+    local guiTable = {RNSPlayer=RNSPlayer, vars={}}
+    guiTable.gui = RNSPlayer.thisEntity.gui.relative.add{type="frame", name=type, direction=windowDirection or "vertical", anchor={gui=relativeGuiType, position=guiPosition}}
+    guiTable.gui.style.padding = 5
+    guiTable.gui.style.top_padding = 0
+    guiTable.gui.style.margin = 0
+    if showTitle == true then GuiApi.create_title(guiTable, false) end
+    if showMainFrame == true then
+        local mainFrame = nil
+        if isScrollPane == false then
+            mainFrame = GuiApi.add_frame(guiTable, "MainFrame", guiTable.gui, mainFrameDirection or "vertical", true)
+            mainFrame.style = "invisible_frame"
+        else
+            mainFrame = GuiApi.add_scroll_pane(guiTable, "MainFrame", guiTable.gui, nil, true)
+        end
+        mainFrame.style.vertically_stretchable = true
+    end
+    GuiApi.set_size(guiTable.gui, Constants.Settings.RNS_Gui.default_gui_height, Constants.Settings.RNS_Gui.default_gui_width)
+    --GuiApi.center_window(guiTable.gui)
+    return guiTable
+end
+
 function GuiApi.set_size(gui, height, width)
     if height ~= nil then gui.style.natural_height = height end
     if width ~= nil then gui.style.natural_width = width end
 end
 
-function GuiApi.create_title(guiTable)
+function GuiApi.create_title(guiTable, addDragBar)
     local topBarFlow = GuiApi.add_flow(guiTable, "topBarFlow", guiTable.gui, "horizontal", true)
     topBarFlow.style.vertical_align = "center"
     topBarFlow.style.padding = 0
@@ -39,10 +64,12 @@ function GuiApi.create_title(guiTable)
     local barTitle = {"gui-description." .. guiTable.gui.name .. "_Title"}
     GuiApi.add_label(guiTable, "Gui_Title", topBarFlow, barTitle, Constants.Settings.RNS_Gui.orange, nil, true, Constants.Settings.RNS_Gui.title_font)
 
-    local dragArea = GuiApi.add_empty_widget(guiTable, "", topBarFlow, guiTable.gui, Constants.Settings.RNS_Gui.drag_area_size)
-    dragArea.style.left_margin = 8
-    dragArea.style.right_margin = 8
-    dragArea.style.minimal_width = 30
+    if addDragBar then
+        local dragArea = GuiApi.add_empty_widget(guiTable, "", topBarFlow, guiTable.gui, Constants.Settings.RNS_Gui.drag_area_size)
+        dragArea.style.left_margin = 8
+        dragArea.style.right_margin = 8
+        dragArea.style.minimal_width = 30
+    end
 end
 
 function GuiApi.add_flow(guiTable, name, gui, direction, save)

@@ -151,5 +151,5 @@ end
 
 --Tooltips
 function RNSP:getTooltips(guiTable, mainFrame, justCreated)
-    
+    --game.print(game.tick)
 end
