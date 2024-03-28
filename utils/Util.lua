@@ -234,3 +234,35 @@ function Util.sigfig_d(number, range)
 	local n = tostring(number)
 	return tonumber(string.find(n, "%.") and string.sub(n, 1, string.find(n, "%.")+range) or n)
 end
+
+
+local function merge(array, s, e, direction)
+	local l = s
+	local lt = math.floor((s+e)/2)
+	local r = lt+1
+	local temp = Util.copy(array)
+
+	for i = s, e do
+		if r > e or ((direction == "HL" and (array[l].count or array[l].amount) >= (array[r].count or array[r].amount)) or (direction == "LH" and (array[l].count or array[l].amount) <= (array[r].count or array[r].amount))) and l <= lt then
+			temp[i] = array[l]
+			l = l + 1
+		else
+			temp[i] = array[r]
+			r = r + 1
+		end
+	end
+
+	for i = s, e do
+		array[i] = temp[i]
+	end
+end
+
+function Util.merge_sort(array, s, e, direction)
+	local s = s or 1
+	local e = e or #array
+	if s >= e then return array end
+	local m = math.floor((s+e)/2)
+	Util.merge_sort(array, s, m, direction)
+	Util.merge_sort(array, m+1, e, direction)
+	merge(array, s, e, direction)
+end

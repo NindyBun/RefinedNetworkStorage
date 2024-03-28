@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.21
+Date: 27 March 2024
+  Info:
+    - Fixed bug where the Netowrk Grid and Wireless Grid didn't store the right tags
+    - Redone about 50% of the Network Grid and Wireless Grid to support mass inventory transfer and with lots of inventory slots
+---------------------------------------------------------------------------------------------------
 Version: 1.0.20
 Date: 24 March 2024
   Info:

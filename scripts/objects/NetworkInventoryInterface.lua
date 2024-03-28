@@ -4,7 +4,8 @@ NII = {
     networkController = nil,
     connectedObjs = nil,
     cardinals = nil,
-    powerUsage = 20
+    powerUsage = 20,
+	sortOrder = "HL"
 }
 
 function NII:new(object)
@@ -67,6 +68,10 @@ end
     if self.thisEntity.to_be_deconstructed() == true then return end
 	--if game.tick % 25 then self:createArms() end
 end]]
+
+function NII:copy_settings(obj)
+	self.sortOrder = obj.sortOrder
+end
 
 function NII:resetCollection()
     self.connectedObjs = {
@@ -154,7 +159,6 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		guiTable.vars.NII = {
 			item = {},
 			fluid = {},
-			player = {}
 		}
 		-- Create the Network Inventory Scroll Pane --
 		local inventoryScrollPane = GuiApi.add_scroll_pane(guiTable, "InventoryScrollPane", inventoryFrame, 500, true)
@@ -216,6 +220,10 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		-- Add the Line --
 		GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
 
+		local state = "left"
+		if self.sortOrder == "LH" then state = "right" end
+		GuiApi.add_switch(guiTable, "RNS_NII_SortOrder", informationFrame, {"gui-description.RNS_Sort_HL"}, {"gui-description.RNS_Sort_LH"}, {"gui-description.RNS_SortOrder_HL"}, {"gui-description.RNS_SortOrder_LH"}, state, false, {ID=self.thisEntity.unit_number})
+
 		-- Create the Help Table --
 		local helpTable = GuiApi.add_table(guiTable, "", informationFrame, 1)
 
@@ -251,7 +259,7 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 
 end
 
-function NII:createPlayerInventory(guiTable, RNSPlayer, tableList, text)
+--[[function NII:createPlayerInventory(guiTable, RNSPlayer, tableList, text)
 	local inv = {}
 	for i = 1, #RNSPlayer.thisEntity.get_main_inventory() do
 		local item = RNSPlayer.thisEntity.get_main_inventory()[i]
@@ -319,7 +327,7 @@ function NII:createPlayerInventory(guiTable, RNSPlayer, tableList, text)
 			table.remove(guiTable.vars.NII.player, j)
 		end
 	end
-end
+end]]
 
 function NII:createNetworkInventory(guiTable, RNSPlayer, tableList, text)
 	local inv = {}
@@ -429,6 +437,7 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, tableList, text)
 
 	-----------------------------------------------------------------------------------Fluids----------------------------------------------------------------------------------------
 	local fluidIndex = 1
+	Util.merge_sort(fluid, nil, nil, self.sortOrder)
 	for _, c in pairs(fluid) do
 		local buttonText = {"", "[color=blue]", Util.get_fluid_name(c.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(c.amount), "\n", {"gui-description.RNS_Temperature"}, c.temperature or game.fluid_prototypes[c.name].default_temperature}
 		if guiTable.vars.NII.fluid[fluidIndex] == nil then
@@ -457,6 +466,7 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, tableList, text)
 	end
 	-----------------------------------------------------------------------------------Items----------------------------------------------------------------------------------------
 	local itemIndex = 1
+	Util.merge_sort(inv, nil, nil, self.sortOrder)
 	for _, item in pairs(inv) do
 		local buttonText = {"", "[color=blue]", item.extras.label or Util.get_item_name(item.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(item.count)}
 		if item.health < 1 then
@@ -686,6 +696,15 @@ end
 
 function NII.interaction(event, RNSPlayer)
 	if string.match(event.element.name, "RNS_SearchTextField") then return end
+
+	if string.match(event.element.name, "RNS_NII_SortOrder") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.sortOrder = event.element.switch_state == "left" and "HL" or "LH"
+		return
+    end
+
 	local count = 0
 	if event.button == defines.mouse_button_type.left then count = 1 end --1 Item
 	if event.button == defines.mouse_button_type.left and event.shift == true then count = -1 end --1 Stack
@@ -709,5 +728,6 @@ function NII.interaction(event, RNSPlayer)
 		NII.transfer_from_fdinv(RNSPlayer, obj, event.element.tags, count)
 		return
 	end
+
 
 end

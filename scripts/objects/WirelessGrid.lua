@@ -3,7 +3,8 @@ WG = {
     entID = nil,
 	networkController = nil,
     network_controller_position = nil,
-	network_controller_surface = nil
+	network_controller_surface = nil,
+    sortOrder = "HL"
 }
 
 function WG:new(object)
@@ -59,30 +60,34 @@ end
 function WG:copy_settings(obj)
 	self.network_controller_position = obj.network_controller_position
 	self.network_controller_surface = obj.network_controller_surface
+	self.sortOrder = obj.sortOrder
 end
 
 function WG:serialize_settings()
     local tags = {}
     tags["surface"] = self.self.network_controller_surface
 	tags["position"] = self.network_controller_position
+	tags["sortOrder"] = self.sortOrder
     return tags
 end
 
 function WG:deserialize_settings(tags)
     self.network_controller_surface = tags["surface"]
 	self.network_controller_position = tags["position"]
+	self.sortOrder = tags["sortOrder"]
 end
 
 function WG:DataConvert_ItemToEntity(tag_contents)
     self.network_controller_surface = tag_contents.surfaceID
 	self.network_controller_position = tag_contents.position
+	self.sortOrder = tag_contents.sortOrder
 end
 
 function WG:DataConvert_EntityToItem(item)
 	local pos = "{" .. (self.network_controller_position.x or " ") .. "," .. (self.network_controller_position.y or " ") .. "}"
 	local surf = self.network_controller_surface ~= nil and game.surfaces[self.network_controller_surface].name or "_"
-	item.custom_description = {"", item.prototype.localised_description, {"item-description.RNS_WirelessGrid_Tag", pos, surf}}
-    item.set_tag(Constants.Settings.RNS_Tag, {surfaceID=self.network_controller_surface, position=self.network_controller_position})
+	item.custom_description = {"", item.prototype.localised_description, {"item-description.RNS_WirelessGrid_Tag", pos, surf, self.sortOrder}}
+    item.set_tag(Constants.Settings.RNS_Tag, {surfaceID=self.network_controller_surface, position=self.network_controller_position, sortOrder=self.sortOrder})
 end
 
 function WG:getTooltips(guiTable, mainFrame, justCreated)
@@ -130,7 +135,6 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 		guiTable.vars.WG = {
 			item = {},
 			fluid = {},
-			player = {}
 		}
 		-- Create the Network Inventory Frame --
 		local inventoryFrame = GuiApi.add_frame(guiTable, "InventoryFrame", mainFrame, "vertical", true)
@@ -154,7 +158,7 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 		GuiApi.add_table(guiTable, "NetworkInventoryTable", inventoryScrollPane, 8, true)
 
 		-- Create the Player Inventory Frame --
-		local playerInventoryFrame = GuiApi.add_frame(guiTable, "PlayerInventoryFrame", mainFrame, "vertical", true)
+		--[[local playerInventoryFrame = GuiApi.add_frame(guiTable, "PlayerInventoryFrame", mainFrame, "vertical", true)
 		playerInventoryFrame.style = Constants.Settings.RNS_Gui.frame_1
 		playerInventoryFrame.style.vertically_stretchable = true
 		playerInventoryFrame.style.left_padding = 3
@@ -172,7 +176,7 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 		playerInventoryScrollPane.style.vertically_stretchable = true
 		playerInventoryScrollPane.style.bottom_margin = 3
 		
-		GuiApi.add_table(guiTable, "PlayerInventoryTable", playerInventoryScrollPane, 8, true)
+		GuiApi.add_table(guiTable, "PlayerInventoryTable", playerInventoryScrollPane, 8, true)]]
 
 		-- Create the Information Frame --
 		local informationFrame = GuiApi.add_frame(guiTable, "InformationFrame1", mainFrame, "vertical", true)
@@ -203,6 +207,10 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 
 		-- Add the Line --
 		GuiApi.add_line(guiTable, "", informationFrame, "horizontal")
+
+		local state = "left"
+		if self.sortOrder == "LH" then state = "right" end
+		GuiApi.add_switch(guiTable, "RNS_WG_SortOrder", informationFrame, {"gui-description.RNS_Sort_HL"}, {"gui-description.RNS_Sort_LH"}, {"gui-description.RNS_SortOrder_HL"}, {"gui-description.RNS_SortOrder_LH"}, state, false, {ID=self.thisEntity.unit_number})
 
 		-- Create the Help Table --
 		local helpTable = GuiApi.add_table(guiTable, "", informationFrame, 1)
@@ -245,7 +253,7 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 	--inventoryScrollPane.clear()
 	--playerInventoryScrollPane.clear()
 
-	self:createPlayerInventory(guiTable, RNSPlayer, guiTable.vars.PlayerInventoryTable, textField.text)
+	--self:createPlayerInventory(guiTable, RNSPlayer, guiTable.vars.PlayerInventoryTable, textField.text)
 
     if self.networkController == nil or not self.networkController.stable or (self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == false) then return end
 	if self.network_controller_surface == nil or self.thisEntity.surface.index ~= self.network_controller_surface then return end
@@ -260,7 +268,7 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 	self:createNetworkInventory(guiTable, RNSPlayer, guiTable.vars.NetworkInventoryTable, textField.text)
 end
 
-function WG:createPlayerInventory(guiTable, RNSPlayer, tableList, text)
+--[[function WG:createPlayerInventory(guiTable, RNSPlayer, tableList, text)
 	local inv = {}
 	for i = 1, #RNSPlayer.thisEntity.get_main_inventory() do
 		local item = RNSPlayer.thisEntity.get_main_inventory()[i]
@@ -327,7 +335,7 @@ function WG:createPlayerInventory(guiTable, RNSPlayer, tableList, text)
 			table.remove(guiTable.vars.WG.player, j)
 		end
 	end
-end
+end]]
 
 function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, text)
 	local tableList = GuiApi.add_table(guiTable, "", inventoryScrollPane, 8)
@@ -437,6 +445,7 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 	guiTable.vars.ExternalFluidStorageBar.tooltip = {"gui-description.RNS_ExternalFluidStorageBar", Util.toRNumber(externalFluidStorage), Util.toRNumber(externalFluidCapacity)}
 	-----------------------------------------------------------------------------------Fluids----------------------------------------------------------------------------------------
 	local fluidIndex = 1
+	Util.merge_sort(fluid, nil, nil, self.sortOrder)
 	for _, c in pairs(fluid) do
 		local buttonText = {"", "[color=blue]", Util.get_fluid_name(c.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(c.amount), "\n", {"gui-description.RNS_Temperature"}, c.temperature or game.fluid_prototypes[c.name].default_temperature}
 		if guiTable.vars.WG.fluid[fluidIndex] == nil then
@@ -446,9 +455,11 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 			if button.name ~= c.name then
 				button.destroy()
 				guiTable.vars.WG.fluid[fluidIndex] = GuiApi.add_button(guiTable, "RNS_WG_FDInv_".. fluidIndex, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
+			elseif button.number ~= c.amount then
+				button.destroy()
+				guiTable.vars.WG.fluid[fluidIndex] = GuiApi.add_button(guiTable, "RNS_WG_FDInv_".. fluidIndex, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
 			end
 			guiTable.vars.WG.fluid[fluidIndex].tooltip = buttonText
-			guiTable.vars.WG.fluid[fluidIndex].number = c.amount
 		end
 		fluidIndex = fluidIndex + 1
 		::continue::
@@ -463,6 +474,7 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 	end
 	-----------------------------------------------------------------------------------Items----------------------------------------------------------------------------------------
 	local itemIndex = 1
+	Util.merge_sort(inv, nil, nil, self.sortOrder)
 	for _, item in pairs(inv) do
 		local buttonText = {"", "[color=blue]", item.extras.label or Util.get_item_name(item.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(item.count)}
 		if item.health < 1 then
@@ -503,10 +515,11 @@ function WG:createNetworkInventory(guiTable, RNSPlayer, inventoryScrollPane, tex
 			if Itemstack:reload(button.tags.stack):compare_itemstacks(item, true, true) == false then
 				button.destroy()
 				guiTable.vars.WG.item[itemIndex] = GuiApi.add_button(guiTable, "RNS_WG_IDInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
+			elseif guiTable.vars.WG.item[itemIndex].number ~= item.count then
+				button.destroy()
+				guiTable.vars.WG.item[itemIndex] = GuiApi.add_button(guiTable, "RNS_WG_IDInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
 			end
 			guiTable.vars.WG.item[itemIndex].tooltip = buttonText
-			guiTable.vars.WG.item[itemIndex].number = item.count
-			guiTable.vars.WG.item[itemIndex].tags.stack = item
 		end
 		itemIndex = itemIndex + 1
 		::continue::
@@ -526,20 +539,22 @@ function WG.transfer_from_pinv(RNSPlayer, WG, tags, count)
 	if RNSPlayer.thisEntity == nil or WG == nil then return end
 	local network = WG.networkController ~= nil and WG.networkController.network or nil
 	if network == nil then return end
-	if tags == nil then return end
-	local itemstack = Itemstack:reload(tags.stack)
-	--if itemstack.id ~= nil and global.itemTable[itemstack.id] ~= nil and global.itemTable[itemstack.id].is_active == true then return end
+	local itemstack = RNSPlayer.thisEntity.cursor_stack
+	if itemstack.valid_for_read == false and count ~= -4 then return end
+	
+	local amount = 1
+	if count == -1 and itemstack.count ~= 0 then amount = itemstack.count end
+	if count == -2 and itemstack.count ~= 0 then amount = math.ceil(math.min(itemstack.count, game.item_prototypes[itemstack.name].stack_size/2)) end
+	if count == -3 and itemstack.count ~= 0 then amount = game.item_prototypes[itemstack.name].stack_size*10 end
+	if count == -4 then amount = (2^32) end
 
-	if count == -1 then count = game.item_prototypes[itemstack.name].stack_size end
-	if count == -2 then count = math.max(1, game.item_prototypes[itemstack.name].stack_size/2) end
-	if count == -3 then count = game.item_prototypes[itemstack.name].stack_size*10 end
-	if count == -4 then count = (2^32)-1 end
+	local master = Itemstack:new(itemstack)
 
-	--local inv = RNSPlayer.thisEntity.get_main_inventory()
-	local amount = math.min(itemstack.count, count)
-	if amount <= 0 then return end
-
-	BaseNet.transfer_from_inv_to_network(network, {thisEntity = RNSPlayer.thisEntity,inventory = {output = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, itemstack, nil, "whitelist", amount, true, true)
+	if count == -4 and itemstack.count == 0 then
+		BaseNet.transfer_from_inv_to_network(network, {thisEntity = RNSPlayer.thisEntity,inventory = {output = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, nil, nil, "blacklist", amount, true, false)
+	elseif itemstack.count ~= 0 and BaseNet.transfer_from_cursor_to_network(network, itemstack, amount) > 0 then
+		BaseNet.transfer_from_inv_to_network(network, {thisEntity = RNSPlayer.thisEntity,inventory = {output = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, master, nil, "whitelist", amount, true, false)
+	end
 end
 
 function WG.transfer_from_idinv(RNSPlayer, WG, tags, count)
@@ -620,6 +635,13 @@ function WG.interaction(event, RNSPlayer)
         end
 		return
 	end
+	if string.match(event.element.name, "RNS_WG_SortOrder") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.sortOrder = event.element.switch_state == "left" and "HL" or "LH"
+		return
+    end
 
 	local count = 0
 	if event.button == defines.mouse_button_type.left then count = 1 end --1 Item
