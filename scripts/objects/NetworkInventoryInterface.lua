@@ -119,7 +119,7 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkInventoryInterface_Title"}
 
 		-- Set the Main Frame Height --
-		mainFrame.style.height = 450
+		mainFrame.style.minimal_height = 450
 
 		local storageFrame = GuiApi.add_frame(guiTable, "StorageFrame", mainFrame, "vertical", true)
 		storageFrame.style = Constants.Settings.RNS_Gui.frame_1
