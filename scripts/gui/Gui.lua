@@ -94,7 +94,7 @@ function GUI.on_gui_opened(event)
     local RNSPlayer = getRNSPlayer(event.player_index)
 
     if event.entity ~= nil and event.entity.valid == true then
-        if player.selected and player.selected.name == Constants.NetworkInventoryInterface.name then
+        if player.selected and (player.selected.name == Constants.NetworkInventoryInterface.name or player.selected.name == Constants.WirelessGrid.name) then
             if Util.safeCall(GUI.open_relative_tooltip_gui, RNSPlayer, player, player.selected, defines.relative_gui_type.controller_gui, defines.relative_gui_position.left) == false then
                 player.print({"gui-description.RNS_openGui_falied"})
                 Event.clear_gui(event)
@@ -119,7 +119,6 @@ function GUI.on_gui_closed(event)
         end
         return
     end
-
 
     if event.element.name == Constants.Settings.RNS_Gui.tooltip then
         RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip].gui.destroy()

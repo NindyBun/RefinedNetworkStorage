@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.23
+Date: 29 March 2024
+  Info:
+    - Fixed issues with the Wireless Grid glitching out
+    - Fixed issue when the quantities in the Wireless Grid and Netowrk Grid didn't always adhere to the sort order
+---------------------------------------------------------------------------------------------------
 Version: 1.0.22
 Date: 27 March 2024
   Info:

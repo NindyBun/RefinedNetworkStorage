@@ -441,17 +441,19 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, tableList, text)
 	for _, c in pairs(fluid) do
 		local buttonText = {"", "[color=blue]", Util.get_fluid_name(c.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(c.amount), "\n", {"gui-description.RNS_Temperature"}, c.temperature or game.fluid_prototypes[c.name].default_temperature}
 		if guiTable.vars.NII.fluid[fluidIndex] == nil then
-			table.insert(guiTable.vars.NII.fluid, GuiApi.add_button(guiTable, "RNS_NII_FDInv_".. fluidIndex, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name}))
+			table.insert(guiTable.vars.NII.fluid, GuiApi.add_button(guiTable, "RNS_NII_FDInv_".. fluidIndex, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name}, fluidIndex))
 		else
 			local button = guiTable.vars.NII.fluid[fluidIndex]
 			if button.name ~= c.name then
 				button.destroy()
-				guiTable.vars.NII.fluid[fluidIndex] = GuiApi.add_button(guiTable, "RNS_NII_FDInv_".. fluidIndex, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
-			elseif button.number ~= c.amount then
-				button.destroy()
-				guiTable.vars.NII.fluid[fluidIndex] = GuiApi.add_button(guiTable, "RNS_NII_FDInv_".. fluidIndex, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
+				guiTable.vars.NII.fluid[fluidIndex] = GuiApi.add_button(guiTable, "RNS_NII_FDInv_".. fluidIndex, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name}, fluidIndex)
+			--elseif button.number ~= c.amount then
+			--	button.destroy()
+			--	guiTable.vars.NII.fluid[fluidIndex] = GuiApi.add_button(guiTable, "RNS_NII_FDInv_".. fluidIndex, tableList, "fluid/" .. (c.name), "fluid/" .. (c.name), "fluid/" .. (c.name), buttonText, 37, false, true, c.amount, Constants.Settings.RNS_Gui.button_1, {ID=self.entID, name=c.name})
 			end
 			guiTable.vars.NII.fluid[fluidIndex].tooltip = buttonText
+			guiTable.vars.NII.fluid[fluidIndex].number = c.amount
+			guiTable.vars.NII.fluid[fluidIndex].tags = {ID=self.entID, name=c.name}
 		end
 		fluidIndex = fluidIndex + 1
 		::continue::
@@ -499,16 +501,18 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, tableList, text)
 			table.insert(buttonText, item.connected_entity.entity_label or Util.get_item_name(item.connected_entity.name))
 		end
 		if guiTable.vars.NII.item[itemIndex] == nil then
-			table.insert(guiTable.vars.NII.item, GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item}))
+			table.insert(guiTable.vars.NII.item, GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item}, itemIndex))
 		else
 			local button = guiTable.vars.NII.item[itemIndex]
 			if Itemstack:reload(button.tags.stack):compare_itemstacks(item, true, true) == false then
 				button.destroy()
-				guiTable.vars.NII.item[itemIndex] = GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
-			elseif guiTable.vars.NII.item[itemIndex].number ~= item.count then
-				button.destroy()
-				guiTable.vars.NII.item[itemIndex] = GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
+				guiTable.vars.NII.item[itemIndex] = GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item}, itemIndex)
+			--elseif guiTable.vars.NII.item[itemIndex].number ~= item.count then
+			--	button.destroy()
+			--	guiTable.vars.NII.item[itemIndex] = GuiApi.add_button(guiTable, "RNS_NII_IDInv_".. itemIndex, tableList, "item/" .. (item.name), "item/" .. (item.name), "item/" .. (item.name), buttonText, 37, false, true, item.count, ((item.modified or (item.ammo and item.ammo < game.item_prototypes[item.name].magazine_size) or (item.durability and item.durability < game.item_prototypes[item.name].durability)) and {Constants.Settings.RNS_Gui.button_2} or {Constants.Settings.RNS_Gui.button_1})[1], {ID=self.thisEntity.unit_number, name=(item.name), stack=item})
 			end
+			guiTable.vars.NII.item[itemIndex].number = item.count
+			guiTable.vars.NII.item[itemIndex].tags = {ID=self.thisEntity.unit_number, name=(item.name), stack=item}
 			guiTable.vars.NII.item[itemIndex].tooltip = buttonText
 		end
 		itemIndex = itemIndex + 1

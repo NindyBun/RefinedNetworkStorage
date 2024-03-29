@@ -46,7 +46,7 @@ wirelessGridE.picture =
                 priority = "medium",
                 width = 512,
                 height = 512,
-                shift = {0,-0.123},
+                shift = {0,0},
                 scale = 1/8
             },
             {
