@@ -20,7 +20,8 @@ IIO3 = {
     priority = 0,
     powerUsage = 80,
     stackSize = 1,
-    circuitCondition = "none"
+    circuitCondition1 = "none",
+    circuitCondition2 = 1
 }
 
 function IIO3:new(object)
