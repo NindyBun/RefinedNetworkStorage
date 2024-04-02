@@ -202,6 +202,8 @@ script.on_event(defines.events.script_raised_revive, placed)
 script.on_event(defines.events.on_robot_built_entity, placed)
 script.on_event(defines.events.on_robot_built_tile, placed)
 
+script.on_event(defines.events.on_entity_cloned, placed)
+
 script.on_event(defines.events.on_player_mined_entity, removed)
 script.on_event(defines.events.on_player_mined_tile, removed)
 script.on_event(defines.events.on_robot_mined_entity, removed)

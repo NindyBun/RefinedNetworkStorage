@@ -3,6 +3,7 @@ FD = {
     entID = nil,
     networkController = nil,
     maxStorage = 0,
+    storedAmount = 0,
     powerUsage = 40,
     fluidArray = nil,
     connectedObjs = nil,
@@ -170,20 +171,20 @@ function FD:insert_fluid(name, amount, temperature)
     temperature = temperature or game.fluid_prototypes[name].default_temperature
     local remaining = self:getRemainingStorageSize()
     if remaining <= 0 then return 0 end
+    local min = math.min(amount, remaining)
     if self.fluidArray[name] ~= nil then
         local tank = self.fluidArray[name]
-        local min = math.min(amount, remaining)
         tank.temperature = ((tank.temperature or game.fluid_prototypes[name].default_temperature) * tank.amount + min * temperature) / (tank.amount + min)
         tank.amount = tank.amount + min
-        return min
     else
         self.fluidArray[name] = {
             name = name,
-            amount = amount,
+            amount = min,
             temperature = temperature
         }
-        return amount
     end
+    self.storedAmount = self.storedAmount + min
+    return min
 end
 
 function FD:remove_fluid(name, amount)
@@ -192,6 +193,7 @@ function FD:remove_fluid(name, amount)
     local min = math.min(amount, tank.amount)
     tank.amount = (tank.amount - min <= 0) and 0 or tank.amount - min
     if tank.amount == 0 then self.fluidArray[name] = nil end
+    self.storedAmount = self.storedAmount - min >= 0 and self.storedAmount - min or 0
     return min
 end
 
@@ -210,7 +212,8 @@ function FD:getStorageSize()
 end
 
 function FD:getRemainingStorageSize()
-    return self.maxStorage - self:getStorageSize()
+    --return self.maxStorage - self:getStorageSize()
+    return self.maxStorage - self.storedAmount
 end
 
 function FD:DataConvert_ItemToEntity(tag)

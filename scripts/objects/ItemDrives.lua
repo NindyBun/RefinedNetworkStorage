@@ -3,6 +3,7 @@ ID = {
     entID = nil,
     networkController = nil,
     maxStorage = 0,
+    storedAmount = 0,
     powerUsage = 40,
     storageArray = nil,
     connectedObjs = nil,
@@ -166,6 +167,7 @@ function ID:add_or_merge_basic_item(itemstack_data, amount)
     else
         inv[itemstack_data.name] = itemstack_data
     end
+    self.storedAmount = self.storedAmount + min
     return min
 end
 
@@ -185,6 +187,8 @@ function ID:remove_item(itemstack_data, amount, exact)
     end]]
     if split == nil then return 0, nil end
     if data.count <= 0 then inv[itemstack_data.name] = nil end
+    
+    self.storedAmount = self.storedAmount - split.count >= 0 and self.storedAmount - split.count or 0
     return split.count, split
 end
 
@@ -225,7 +229,8 @@ function ID:getStorageSize()
 end
 
 function ID:getRemainingStorageSize()
-    return self.maxStorage - self:getStorageSize()
+    --return self.maxStorage - self:getStorageSize()
+    return self.maxStorage - self.storedAmount
 end
 
 function ID:DataConvert_ItemToEntity(tag)
