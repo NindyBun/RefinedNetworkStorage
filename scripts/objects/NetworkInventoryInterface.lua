@@ -533,6 +533,7 @@ function NII.transfer_from_pinv(RNSPlayer, NII, tags, count)
 	if RNSPlayer.thisEntity == nil or NII == nil then return end
 	local network = NII.networkController ~= nil and NII.networkController.network or nil
 	if network == nil then return end
+	if network:is_full() then return end
 	--if itemstack.id ~= nil and global.itemTable[itemstack.id] ~= nil and global.itemTable[itemstack.id].is_active == true then return end
 	local itemstack = RNSPlayer.thisEntity.cursor_stack
 	if itemstack.valid_for_read == false and count ~= -4 then return end
@@ -605,6 +606,7 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	if RNSPlayer.thisEntity == nil or NII == nil then return end
 	local network = NII.networkController ~= nil and NII.networkController.network or nil
 	if network == nil then return end
+	if network:is_empty() then return end
 	if tags == nil then return end
 	local itemstack = Itemstack:reload(tags.stack)
 	if count == -1 then count = game.item_prototypes[itemstack.name].stack_size end

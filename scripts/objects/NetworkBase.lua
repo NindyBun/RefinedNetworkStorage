@@ -102,6 +102,24 @@ function BaseNet:resetTables()
         item = {},
         fluid = {}
     }
+    self.StoredPartition = {
+        itemDrive = {
+            storedAmount = 0,
+            capacity = 0
+        },
+        fluidDrive = {
+            storedAmount = 0,
+            capacity = 0
+        },
+        itemExternal = {
+            storedAmount = 0,
+            capacity = 0
+        },
+        fluidExternal = {
+            storedAmount = 0,
+            capacity = 0
+        }
+    }
 end
 
 --Refreshes laser connections
@@ -135,12 +153,14 @@ function addConnectables(source, connections, master)
 
             if string.match(con.thisEntity.name, "RNS_ItemDrive") ~= nil then
                 master.network.ItemDriveTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
+                master.network:delta_ItemDrive_Partition(con.storedAmount, con.maxStorage)
                 for n, v in pairs(con.storageArray) do
                     master.network:increase_tracked_item_count(n, v.count)
                 end
 
             elseif string.match(con.thisEntity.name, "RNS_FluidDrive") ~= nil then
                 master.network.FluidDriveTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
+                master.network:delta_FluidDrive_Partition(con.storedAmount, con.maxStorage)
                 for n, v in pairs(con.fluidArray) do
                     master.network:increase_tracked_fluid_amount(n, v.amount)
                 end
@@ -154,6 +174,11 @@ function addConnectables(source, connections, master)
             elseif con.thisEntity.name == Constants.NetworkCables.externalIO.name then
                 master.network.ExternalIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.type][con.entID] = con
                 con:init_cache()
+                if con.type == "item" then
+                    master.network:delta_ItemExternal_Partition(con.storedAmount, con.capacity)
+                else
+                    master.network:delta_FluidExternal_Partition(con.storedAmount, con.capacity)
+                end
                 if con.cache ~= nil then
                     for i = 1, #con.cache do
                         local cached = con.cache[i]
@@ -356,6 +381,112 @@ function BaseNet:remove_cache(mode, type, key)
     end
 end
 
+function BaseNet:is_full()
+    local i = 0
+
+    if self:is_ItemDrivePartitions_Full() then i = i + 1 end
+    if self:is_FluidDrivePartitions_Full() then i = i + 1 end
+    if self:is_ItemExternalPartitions_Full() then i = i + 1 end
+    if self:is_FluidExternalPartitions_Full() then i = i + 1 end
+    
+    return i == 4
+end
+
+function BaseNet:is_empty()
+    local i = 0
+
+    if self:is_ItemDrivePartitions_Empty() then i = i + 1 end
+    if self:is_FluidDrivePartitions_Empty() then i = i + 1 end
+    if self:is_ItemExternalPartitions_Empty() then i = i + 1 end
+    if self:is_FluidExternalPartitions_Empty() then i = i + 1 end
+    
+    return i == 4
+end
+
+function BaseNet:is_ItemDrivePartitions_Full()
+    local s = self.StoredPartition
+    local id = s.itemDrive
+    return id.storedAmount >= id.capacity
+end
+
+function BaseNet:is_FluidDrivePartitions_Full()
+    local s = self.StoredPartition
+    local fd = s.fluidDrive
+    return fd.storedAmount >= fd.capacity
+end
+
+function BaseNet:is_ItemExternalPartitions_Full()
+    local s = self.StoredPartition
+    local ie = s.itemExternal
+    return ie.storedAmount >= ie.capacity
+end
+
+function BaseNet:is_FluidExternalPartitions_Full()
+    local s = self.StoredPartition
+    local fe = s.fluidExternal
+    return fe.storedAmount >= fe.capacity
+end
+
+function BaseNet:is_ItemDrivePartitions_Empty()
+    local s = self.StoredPartition
+    local id = s.itemDrive
+    return id.storedAmount <= 0
+end
+
+function BaseNet:is_FluidDrivePartitions_Empty()
+    local s = self.StoredPartition
+    local fd = s.fluidDrive
+    return fd.storedAmount <= 0
+end
+
+function BaseNet:is_ItemExternalPartitions_Empty()
+    local s = self.StoredPartition
+    local ie = s.itemExternal
+    return ie.storedAmount <= 0
+end
+
+function BaseNet:is_FluidExternalPartitions_Empty()
+    local s = self.StoredPartition
+    local fe = s.fluidExternal
+    return fe.storedAmount <= 0
+end
+
+function BaseNet:delta_ItemDrive_Partition(storedAmount, capacity)
+    local s = self.StoredPartition
+    local id = s.itemDrive
+    id.storedAmount = id.storedAmount + storedAmount
+    id.capacity = id.capacity + capacity
+    if id.storedAmount <= 0 then id.storedAmount = 0 end
+    if id.capacity <= 0 then id.capacity = 0 end
+end
+
+function BaseNet:delta_FluidDrive_Partition(storedAmount, capacity)
+    local s = self.StoredPartition
+    local fd = s.fluidDrive
+    fd.storedAmount = fd.storedAmount + storedAmount
+    fd.capacity = fd.capacity + capacity
+    if fd.storedAmount <= 0 then fd.storedAmount = 0 end
+    if fd.capacity <= 0 then fd.capacity = 0 end
+end
+
+function BaseNet:delta_ItemExternal_Partition(storedAmount, capacity)
+    local s = self.StoredPartition
+    local ie = s.itemExternal
+    ie.storedAmount = ie.storedAmount + storedAmount
+    ie.capacity = ie.capacity + capacity
+    if ie.storedAmount <= 0 then ie.storedAmount = 0 end
+    if ie.capacity <= 0 then ie.capacity = 0 end
+end
+
+function BaseNet:delta_FluidExternal_Partition(storedAmount, capacity)
+    local s = self.StoredPartition
+    local fe = s.fluidExternal
+    fe.storedAmount = fe.storedAmount + storedAmount
+    fe.capacity = fe.capacity + capacity
+    if fe.storedAmount <= 0 then fe.storedAmount = 0 end
+    if fe.capacity <= 0 then fe.capacity = 0 end
+end
+
 --[[function BaseNet.transfer_from_tank_to_tank(from_tank, to_tank, from_index, to_index, name, amount_to_transfer)
     local to_tank_capacity = to_tank.fluidbox.get_capacity(to_index)
     local amount = amount_to_transfer
@@ -479,6 +610,7 @@ function BaseNet:extract_fluid_from_drive(to_tank, drive, filter, extractSize, s
     local takeTemperature = drive.fluidArray[filter].temperature
     drive:remove_fluid(filter, takeAmount)
     self:decrease_tracked_fluid_amount(filter, takeAmount)
+    self:delta_FluidDrive_Partition(-takeAmount, 0)
 
     local a0 = storedFluidAmount
     local t0 = storedFluidTemperature
@@ -578,8 +710,9 @@ function BaseNet.transfer_from_network_to_tank(network, to_tank, transportCapaci
     for p = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
         local priorityF = network.FluidDriveTable[p]
         local priorityE = network.ExternalIOTable[p].fluid
-
+        local b = 0
         for _, drive in pairs(priorityF) do
+            if network:is_FluidDrivePartitions_Empty() then b = b + 1 break end
             if drive:interactable() and drive.fluidArray[filter] and drive.fluidArray[filter].amount > 0 then
                 extractSize = network:extract_fluid_from_drive(to_tank, drive, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
                 if extractSize <= 0 then
@@ -590,6 +723,7 @@ function BaseNet.transfer_from_network_to_tank(network, to_tank, transportCapaci
         end
 
         for _, external in pairs(priorityE) do
+            if network:is_FluidExternalPartitions_Empty() then b = b + 1 break end
             if external:interactable() and external:target_interactable() and external.type == "fluid" and string.match(external.io, "input") ~= nil and string.match(external.focusedEntity.fluid_box.flow, "output") ~= nil
             and external.cache[1] and external.cache[1].name == filter and external.cache[1].amount > 0 then
                 extractSize = network:extract_fluid_from_external(to_tank, external, filter, extractSize, storedFluidAmount, storedFluidTemperature, fluid_box)
@@ -599,6 +733,7 @@ function BaseNet.transfer_from_network_to_tank(network, to_tank, transportCapaci
                 end
             end
         end
+        if b == 2 then return extractSize end
     end
 
     return extractSize
@@ -618,6 +753,7 @@ function BaseNet:insert_fluid_into_drive(drive, fluid, extractSize, storedFluidT
     end
     
     self:increase_tracked_fluid_amount(fluid.name, insertedAmount)
+    self:delta_FluidDrive_Partition(insertedAmount, 0)
     return extractSize
 end
 
@@ -715,8 +851,9 @@ function BaseNet.transfer_from_tank_to_network(network, from_tank, transportCapa
     for p = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
         local priorityF = network.FluidDriveTable[p]
         local priorityE = network.ExternalIOTable[p].fluid
-
+        local b = 0
         for _, drive in pairs(priorityF) do
+            if network:is_FluidDrivePartitions_Full() then b = b + 1 break end
             if drive:interactable() and Util.filter_accepts_fluid(drive.filters, drive.whitelistBlacklist, fluid.name) and drive:getRemainingStorageSize() > 0 then
                 extractSize = network:insert_fluid_into_drive(drive, fluid, extractSize, storedFluidTemperature, storedFluidAmount, from_tank, fluid_box)
                 if extractSize <= 0 then
@@ -727,6 +864,7 @@ function BaseNet.transfer_from_tank_to_network(network, from_tank, transportCapa
         end
 
         for _, external in pairs(priorityE) do
+            if network:is_FluidExternalPartitions_Full() then b = b + 1 break end
             if external.type == "fluid" and string.match(external.io, "output") ~= nil and string.match(external.focusedEntity.fluid_box.flow, "input")
             and external:interactable() and external:target_interactable() and Util.filter_accepts_fluid(external.filters.fluid, external.whitelistBlacklist, fluid.name) then
                 local e_fluid_box = external.focusedEntity.fluid_box
@@ -743,6 +881,7 @@ function BaseNet.transfer_from_tank_to_network(network, from_tank, transportCapa
                 end
             end
         end
+        if b == 2 then return extractSize end
     end
 
     return extractSize
@@ -965,6 +1104,7 @@ function BaseNet:extract_item_from_drive(drive, inv, itemstack_master, storedIte
     transferCapacity = transferCapacity - removedAmount
     if stack ~= nil then inv.insert(stack) end
     self:decrease_tracked_item_count(itemstack_master.name, removedAmount)
+    self:delta_ItemDrive_Partition(-removedAmount, 0)
     return transferCapacity
 end
 
@@ -1075,8 +1215,11 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
         for p = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
             local priorityD = network.ItemDriveTable[p]
             local priorityE = network.ExternalIOTable[p].item
+            local b = 0
+
             if itemstack_master.modified == false then
                 for _, drive in pairs(priorityD) do
+                    if network:is_ItemDrivePartitions_Empty() then b = b + 1 break end
                     --ID:rebuild(drive)
                     --drive.storageArray[itemstack_master.name] = Itemstack.check_instance(drive.storageArray[itemstack_master.name])
                     local storedItem = drive.storageArray[itemstack_master.name]
@@ -1091,6 +1234,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
             end
 
             for _, external in pairs(priorityE) do
+                if network:is_ItemExternalPartitions_Empty() then b = b + 1 break end
                 if external:interactable() and external:target_interactable() and string.match(external.io, "input") ~= nil and external.type == "item" 
                 and external.focusedEntity.inventory.output.max ~= 0 then
                     --local storedAmount = external.focusedEntity.thisEntity.get_item_count(itemstack_master.name)
@@ -1102,6 +1246,8 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
                     end
                 end
             end
+
+            if b == 2 then return transferCapacity end
 
             if transferCapacity <= 0 then goto fin end
         end
@@ -1124,6 +1270,7 @@ function BaseNet:insert_item_into_drive(item, inv_item, drive, transferCapacity,
         if inv_item.durability ~= nil then item.durability = inv_item.durability end
     end
     self:increase_tracked_item_count(splitStack.name, splitStack.count)
+    self:delta_ItemDrive_Partition(splitStack.count, 0)
     return transferCapacity
 end
 
@@ -1229,8 +1376,10 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                 for p = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
                     local priorityD = network.ItemDriveTable[p]
                     local priorityE = network.ExternalIOTable[p].item
+                    local b = 0
                     if inv_item.modified == false then
                         for _, drive in pairs(priorityD) do
+                            if network:is_ItemDrivePartitions_Full() then b = b + 1 break end
                             local remainingStorage = drive:getRemainingStorageSize()
                             if drive:interactable() and Util.filter_accepts_item(drive.filters, drive.whitelistBlacklist, item.name) and remainingStorage > 0
                             and master:compare_itemstacks(inv_item, exact) then
@@ -1245,6 +1394,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                     end
 
                     for _, external in pairs(priorityE) do
+                        if network:is_ItemExternalPartitions_Full() then b = b + 1 break end
                         if external:interactable() and external:target_interactable() and string.match(external.io, "output") ~= nil and external.type == "item"
                         and Util.filter_accepts_item(external.filters.item, external.whitelistBlacklist, inv_item.name) and external.focusedEntity.inventory.input.max ~= 0
                         and master:compare_itemstacks(inv_item, exact) then
@@ -1257,6 +1407,8 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                             if inv_item.count <= 0 then goto next end
                         end
                     end
+
+                    if b == 2 then return transferCapacity end
                 end
             end
             ::next::
@@ -1310,8 +1462,10 @@ function BaseNet.transfer_from_cursor_to_network(network, item, transferCapacity
         for p = 1, Constants.Settings.RNS_Max_Priority*2 + 1 do
             local priorityD = network.ItemDriveTable[p]
             local priorityE = network.ExternalIOTable[p].item
+            local b = 0
             if inv_item.modified == false then
                 for _, drive in pairs(priorityD) do
+                    if network:is_ItemDrivePartitions_Full() then b = b + 1 break end
                     local remainingStorage = drive:getRemainingStorageSize()
                     if drive:interactable() and Util.filter_accepts_item(drive.filters, drive.whitelistBlacklist, item.name) and remainingStorage > 0
                     and master:compare_itemstacks(inv_item) then
@@ -1326,6 +1480,7 @@ function BaseNet.transfer_from_cursor_to_network(network, item, transferCapacity
             end
 
             for _, external in pairs(priorityE) do
+                if network:is_ItemExternalPartitions_Full() then b = b + 1 break end
                 if external:interactable() and external:target_interactable() and string.match(external.io, "output") ~= nil and external.type == "item"
                 and Util.filter_accepts_item(external.filters.item, external.whitelistBlacklist, inv_item.name) and external.focusedEntity.inventory.input.max ~= 0
                 and master:compare_itemstacks(inv_item) then
@@ -1339,6 +1494,7 @@ function BaseNet.transfer_from_cursor_to_network(network, item, transferCapacity
                 end
                 ::next::
             end
+            if b == 2 then return transferCapacity end
         end
         ::fin::
     end

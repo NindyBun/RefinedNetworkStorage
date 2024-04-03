@@ -51,6 +51,11 @@ function onInit()
                         entry:validate()
                     end
                 end
+                if obj.tag == "NC" then
+                    for _, entry in pairs(global[obj.tableName]) do
+                        entry.shouldRefresh = true
+                    end
+                end
 			end
 		end
 	end

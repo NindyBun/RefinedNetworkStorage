@@ -341,9 +341,9 @@ function FIO:IO()
     local transportCapacity = self.fluidSize * Constants.Settings.RNS_BaseFluidIO_TransferCapacity
     if transportCapacity <= 0 then self.processed = true return end
 
-    if self.io == "input" and string.match(fluid_box.flow, "output") ~= nil and fluid ~= nil and self.filter == fluid.name then
+    if self.io == "input" and string.match(fluid_box.flow, "output") ~= nil and fluid ~= nil and self.filter == fluid.name and network:is_full() == false then
         BaseNet.transfer_from_tank_to_network(network, target, transportCapacity)
-    elseif self.io == "output" and string.match(fluid_box.flow, "input") ~= nil and self.filter ~= "" and (network.Contents.fluid[self.filter] or 0) > 0 then
+    elseif self.io == "output" and string.match(fluid_box.flow, "input") ~= nil and self.filter ~= "" and (network.Contents.fluid[self.filter] or 0) > 0 and network:is_empty() == false then
         BaseNet.transfer_from_network_to_tank(network, target, transportCapacity, self.filter)
     end
 

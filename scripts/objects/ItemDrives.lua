@@ -3,7 +3,7 @@ ID = {
     entID = nil,
     networkController = nil,
     maxStorage = 0,
-    storedAmount = 0,
+    storedAmount = nil,
     powerUsage = 40,
     storageArray = nil,
     connectedObjs = nil,
@@ -26,6 +26,7 @@ function ID:new(object)
     t.powerUsage = Constants.Drives.ItemDrive[string.sub(object.name, 5)].powerUsage
     t.whitelistBlacklist = settings.global[Constants.Settings.RNS_StorageDrive_Whitelist].value and "whitelist" or "blacklist"
     t.storageArray = {}
+    t.storedAmount = 0
     t.filters = {}
     t.guiFilters = {}
     for i=1, 5 do

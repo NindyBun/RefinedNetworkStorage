@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.25
+Date: 3 April 2024
+  Info:
+    - Added network fullness check so that when the network is full it doesn't cause a sudden lag spike
+---------------------------------------------------------------------------------------------------
 Version: 1.0.24
 Date: 30 March 2024
   Info:

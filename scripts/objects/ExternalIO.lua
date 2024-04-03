@@ -170,6 +170,7 @@ function EIO:flush_cache(type)
     if self.networkController ~= nil and BaseNet.exists_in_network(self.networkController, self.thisEntity.unit_number) then
         if type == nil then type = self.type end
         if type == "item" then
+            self.networkController.network:delta_ItemExternal_Partition(-self.storedAmount, -self.capacity)
             for i = 1, #self.cache do
                 local cached = self.cache[i]
                 if cached.name ~= "RNS_Empty" then
@@ -177,6 +178,7 @@ function EIO:flush_cache(type)
                 end
             end
         else
+            self.networkController.network:delta_FluidExternal_Partition(-self.storedAmount, -self.capacity)
             local cached = self.cache[1]
             if cached ~= nil then
                 self.networkController.network:decrease_tracked_fluid_amount(cached.name, cached.amount)
@@ -189,6 +191,7 @@ function EIO:inject_cache()
     if self.cache == nil or #self.cache <= 0 then return end
     if self.networkController ~= nil and BaseNet.exists_in_network(self.networkController, self.thisEntity.unit_number) then
         if self.type == "item" then
+            self.networkController.network:delta_ItemExternal_Partition(self.storedAmount, self.capacity)
             for i = 1, #self.cache do
                 local cached = self.cache[i]
                 if cached.name ~= "RNS_Empty" then
@@ -196,6 +199,7 @@ function EIO:inject_cache()
                 end
             end
         else
+            self.networkController.network:delta_FluidExternal_Partition(self.storedAmount, self.capacity)
             local cached = self.cache[1]
             if cached ~= nil then
                 self.networkController.network:increase_tracked_fluid_amount(cached.name, cached.amount)
@@ -251,6 +255,12 @@ function EIO:update(network)
     end
 
     if self:init_cache() then return end
+
+    if self.type == "item" then
+        network:delta_ItemExternal_Partition(-self.storedAmount, -self.capacity)
+    else
+        network:delta_FluidExternal_Partition(-self.storedAmount, -self.capacity)
+    end
 
     self.storedAmount = 0
     self.capacity = 0
@@ -338,7 +348,12 @@ function EIO:update(network)
 
         self.capacity = self.capacity + self.focusedEntity.thisEntity.fluidbox.get_capacity(self.focusedEntity.fluid_box.index)
     end
-    
+
+    if self.type == "item" then
+        network:delta_ItemExternal_Partition(self.storedAmount, self.capacity)
+    else
+        network:delta_FluidExternal_Partition(self.storedAmount, self.capacity)
+    end
 end
 
 function EIO:copy_settings(obj)
