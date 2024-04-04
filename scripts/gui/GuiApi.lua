@@ -323,3 +323,13 @@ function GuiApi.add_slider(guiTable, name, gui, min, max, initial, step, save, t
     end
     return slider
 end
+
+function GuiApi.add_radiobutton(guiTable, name, gui, text, tooltip, state, save, tags)
+    if gui[name] ~= nil then gui[name].destroy() end
+    local radiobutton = gui.add{type="radiobutton", name=name, caption=text, tooltip=tooltip, state=state or false, tags = tags}
+
+    if guiTable ~= nil and save == true then
+        guiTable.vars[name] = radiobutton
+    end
+    return radiobutton
+end

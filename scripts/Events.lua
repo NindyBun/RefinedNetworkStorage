@@ -193,22 +193,22 @@ function Event.finished_research(event)
 	if string.match(name, "RNS_item_transfer_bonus") ~= nil then
 		local old = global.IIOMultiplier
 		global.IIOMultiplier = string.match(name, "infinite") == nil and Constants.Settings.Multipliers.IIO[level] or (Constants.Settings.Multipliers.IIO[8] + 2*level)
-		for _, obj in pairs(global["ItemIOTable"]) do
+		--[[for _, obj in pairs(global["ItemIOTable"]) do
 			if obj.stackSize == old then
 				obj.stackSize = global.IIOMultiplier
 			end
-		end
+		end]]
 		--printResearchBonus("item")
 		return
 	end
 	if string.match(name, "RNS_fluid_transfer_bonus") ~= nil then
 		local old = global.FIOMultiplier
 		global.FIOMultiplier = string.match(name, "infinite") == nil and Constants.Settings.Multipliers.FIO[level] or (Constants.Settings.Multipliers.FIO[8] + 2*level)
-		for _, obj in pairs(global["FluidIOTable"]) do
+		--[[for _, obj in pairs(global["FluidIOTable"]) do
 			if obj.fluidSize == old then
 				obj.fluidSize = global.FIOMultiplier
 			end
-		end
+		end]]
 		--printResearchBonus("fluid")
 		return
 	end

@@ -277,9 +277,9 @@ function DT:getTooltips(guiTable, mainFrame, justCreated)
 		conditionFrame.style.right_padding = 3
 		conditionFrame.style.right_margin = 3
 		conditionFrame.style.minimal_width = 300
-		GuiApi.add_subtitle(guiTable, "", conditionFrame, {"gui-description.RNS_Condition"})
+		GuiApi.add_subtitle(guiTable, "", conditionFrame, {"gui-description.RNS_EnableDisable_Condition"})
 
-        GuiApi.add_label(guiTable, "", conditionFrame, {"gui-description.RNS_Condition"}, Constants.Settings.RNS_Gui.white)
+        GuiApi.add_label(guiTable, "", conditionFrame, {"gui-description.RNS_EnableDisable_Condition"}, Constants.Settings.RNS_Gui.white)
         local cFlow = GuiApi.add_flow(guiTable, "", conditionFrame, "horizontal")
         cFlow.style.vertical_align = "center"
         local filter = GuiApi.add_filter(guiTable, "RNS_Detector_Filter", cFlow, "", true, self.type, 40, {ID=self.thisEntity.unit_number})

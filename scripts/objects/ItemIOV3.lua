@@ -20,8 +20,12 @@ IIO3 = {
     priority = 0,
     powerUsage = 80,
     stackSize = 1,
-    circuitCondition1 = "none",
-    circuitCondition2 = 1
+    circuitCondition1 = "enable/disable",
+    circuitCondition2 = {
+        state = false,
+        filter = nil
+    },
+    override_stacksize = true
 }
 
 function IIO3:new(object)
@@ -433,28 +437,66 @@ function IIO3:transportIO()
 end
 
 function IIO3:IO()
-    if self:interactable() == false then self.processed = true return end
-    if self:target_interactable() == false then self.processed = true return end
+    local transportCapacity = self.override_stacksize and self.stackSize or self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity--*global.IIOMultiplier
+    
+    if self.circuitCondition2.state and (self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil) then
+        local amount = self.circuitCondition2.filter and self.enablerCombinator.get_merged_signal({type=self.circuitCondition2.filter.type, name=self.circuitCondition2.filter.name}, defines.circuit_connector_id.constant_combinator) or Constants.Settings.RNS_BaseItemIO_TransferCapacity
+        transportCapacity = math.max(amount, Constants.Settings.RNS_BaseItemIO_TransferCapacity)
+    end
 
-    if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
+    if transportCapacity <= 0 then self.processed = true return end
+    if self.circuitCondition1 == "filter" and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
+        local merged_signals = self.enablerCombinator.get_merged_signals(defines.circuit_connector_id.constant_combinator)
+        local s1 = nil
+        local s2 = nil
+        if merged_signals ~= nil then
+            local o = 1
+            for i = 1, #merged_signals do
+                local sig = merged_signals[i].signal
+                if sig.type == "item" then
+                    if o == 1 then
+                        s1 = sig.name
+                    elseif o == 2 then
+                        s2 = sig.name
+                    end
+                    if o == 2 then break end
+                    o = o + 1
+                end
+            end
+        end
+        self.guiFilters[1] = s1 or ""
+        self:set_icons(1, s1 or nil)
+        self.guiFilters[2] = s2 or ""
+        self:set_icons(2, s2 or nil)
+
+        self.filters = {
+            index = 0,
+            max = 0,
+            values = {}
+        }
+        for _, filter in pairs(self.guiFilters) do
+            if filter ~= "" then
+                self.filters.max = self.filters.max + 1
+                self.filters.values[filter] = true --For filtering blacklisted imports
+                self.filters.values[self.filters.max] = filter --For specific exports and imports
+            end
+        end
+        self.filters.index = self.filters.max == 0 and 0 or 1
+    end
+    
+    if self.circuitCondition1 == "enable/disable" and (self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil) then
         if self.enabler.filter == nil then self.processed = true return end
         local amount = self.enablerCombinator.get_merged_signal({type=self.enabler.filter.type, name=self.enabler.filter.name}, defines.circuit_connector_id.constant_combinator)
         if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then self.processed = true return end
     end
     
+    if self:interactable() == false then self.processed = true return end
+    if self:target_interactable() == false then self.processed = true return end    
+    
     if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then self.processed = true return end
     local network = self.networkController.network
 
     local target = self.focusedEntity
-    local transportCapacity = self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity--*global.IIOMultiplier
-    if transportCapacity <= 0 then self.processed = true return end
-    if self.circuitCondition == "setStackStize" and self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
-        
-    end
-
-    if self.circuitCondition == "setFilter" and self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
-        
-    end
 
     if self.io == "input" and target.inventory.output.max ~= 0 and network:is_full() == false then
         local r = BaseNet.transfer_from_inv_to_network(network, target, nil, self.filters.values, self.whitelistBlacklist, transportCapacity, self.supportModified)
@@ -653,22 +695,29 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
 		rateFrame.style.right_margin = 3
         GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_ItemTransferRate", self.stackSize*15*Constants.Settings.RNS_BaseItemIO_TransferCapacity}, Constants.Settings.RNS_Gui.white, "", true)
 
-        --if global.IIOMultiplier > 1 then
+        if global.IIOMultiplier > 1 then
             local stackFrame = GuiApi.add_frame(guiTable, "", rateFlow, "horizontal")
             stackFrame.style = Constants.Settings.RNS_Gui.frame_1
             stackFrame.style.vertically_stretchable = true
             stackFrame.style.left_padding = 3
             stackFrame.style.right_padding = 3
             stackFrame.style.right_margin = 3
-            GuiApi.add_label(guiTable, "", stackFrame, {"gui-description.RNS_ItemStackSize"}, Constants.Settings.RNS_Gui.white, "")
             
-            local slider = GuiApi.add_slider(guiTable, "RNS_NetworkCableIO_Item_StackSizeSlider", stackFrame, 0, global.IIOMultiplier, self.stackSize, 1, true, "", {ID=self.thisEntity.unit_number})
+            local stackFlow = GuiApi.add_flow(guiTable, "", stackFrame, "horizontal")
+            stackFlow.style.vertical_align = "center"
+            local stackOverride = GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Item_StackSizeOverride", stackFlow, {"gui-description.RNS_StackSizeOverride"}, "", self.override_stacksize, true, {ID=self.thisEntity.unit_number})
+            
+            local slider = GuiApi.add_slider(guiTable, "RNS_NetworkCableIO_Item_StackSizeSlider", stackFlow, 1, global.IIOMultiplier, self.stackSize, 1, true, "", {ID=self.thisEntity.unit_number})
             slider.style = "notched_slider"
             slider.style.minimal_width = 250
             slider.style.maximal_width = 300
-            GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Item_StackSizeText", stackFrame, tostring(self.stackSize), "", true, true, false, false, false, {ID=self.thisEntity.unit_number})
-            --GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_ItemTransferRate", Constants.Settings.RNS_BaseItemIO_TransferCapacity*15*global.IIOMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
-        --end
+            local stackText = GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Item_StackSizeText", stackFlow, tostring(self.stackSize), "", true, true, false, false, false, {ID=self.thisEntity.unit_number})
+            if self.override_stacksize then
+                slider.enabled = false
+                stackText.enabled = false
+            end
+        end
+
         local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
         local bottomFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
         
@@ -700,11 +749,23 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
 
         local filter1 = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_1", filterFlow, "", true, "item", 40, {ID=self.thisEntity.unit_number}) --ignored_by_interaction when filters are set by circuits
 		guiTable.vars.filter1 = filter1
-		if self.guiFilters[1] ~= "" then filter1.elem_value = self.guiFilters[1] end
 
         local filter2 = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Filter_2", filterFlow, "", true, "item", 40, {ID=self.thisEntity.unit_number})
 		guiTable.vars.filter2 = filter2
-		if self.guiFilters[2] ~= "" then filter2.elem_value = self.guiFilters[2] end
+        
+        if self.circuitCondition1 == "filter" then
+            filter1.enabled = false
+            filter2.enabled = false
+            self.guiFilters[1] = ""
+            self.guiFilters[2] = ""
+            self.filters = {
+                index = 0,
+                max = 0,
+                values = {}
+            }
+            self:set_icons(1, nil)
+            self:set_icons(2, nil)
+        end
 
         local settingsFrame = GuiApi.add_frame(guiTable, "", topFrame, "vertical")
 		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -739,30 +800,66 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Item_Metadata", settingsFrame, {"gui-description.RNS_Modified_2"}, {"gui-description.RNS_Modified_2_description"}, self.supportModified, false, {ID=self.thisEntity.unit_number})
     
         if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
-            local enableFrame = GuiApi.add_frame(guiTable, "EnableFrame", bottomFrame, "vertical")
-            enableFrame.style = Constants.Settings.RNS_Gui.frame_1
-            enableFrame.style.vertically_stretchable = true
-            enableFrame.style.left_padding = 3
-            enableFrame.style.right_padding = 3
-            enableFrame.style.right_margin = 3
-    
-            GuiApi.add_subtitle(guiTable, "ConditionSub", enableFrame, {"gui-description.RNS_Condition"})
-            local cFlow = GuiApi.add_flow(guiTable, "", enableFrame, "horizontal")
-            cFlow.style.vertical_align = "center"
-            local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Enabler", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
-            guiTable.vars.enabler = filter
-            if self.enabler.filter ~= nil then
-                filter.elem_value = self.enabler.filter
+            local circuitFlow = GuiApi.add_flow(guiTable, "", bottomFrame, "horizontal")
+            local circuitFrame = GuiApi.add_frame(guiTable, "", circuitFlow, "vertical")
+            circuitFrame.style = Constants.Settings.RNS_Gui.frame_1
+            circuitFrame.style.vertically_stretchable = true
+            circuitFrame.style.left_padding = 3
+            circuitFrame.style.right_padding = 3
+            circuitFrame.style.right_margin = 3
+
+            local circuitFlow1 = GuiApi.add_flow(guiTable, "", circuitFrame, "vertical")
+            GuiApi.add_label(guiTable, "", circuitFlow1, {"gui-description.RNS_Mode_Of_Operation"}, Constants.Settings.RNS_Gui.white, "", false)
+            GuiApi.add_radiobutton(guiTable, "RNS_NetworkCableIO_Item_None", circuitFlow1, {"gui-description.RNS_None"}, {"gui-description.RNS_None_tooltip"}, self.circuitCondition1 == "none" and true or false, false, {ID=self.thisEntity.unit_number})
+            GuiApi.add_radiobutton(guiTable, "RNS_NetworkCableIO_Item_EnableDisable", circuitFlow1, {"gui-description.RNS_EnableDisable"}, {"gui-description.RNS_EnableDisable_tooltip"}, self.circuitCondition1 == "enable/disable" and true or false, false, {ID=self.thisEntity.unit_number})
+            GuiApi.add_radiobutton(guiTable, "RNS_NetworkCableIO_Item_SetFilters", circuitFlow1, {"gui-description.RNS_SetFilter"}, {"gui-description.RNS_SetFilter_tooltip"}, self.circuitCondition1 == "filter" and true or false, false, {ID=self.thisEntity.unit_number})
+            GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Item_SetStackSize", circuitFlow1, {"gui-description.RNS_SetStackSize"}, {"gui-description.RNS_SetStackSize_tooltip"}, self.circuitCondition2.state, false, {ID=self.thisEntity.unit_number})
+            
+            if self.circuitCondition1 == "enable/disable" then
+                local enableFrame = GuiApi.add_frame(guiTable, "", circuitFlow, "vertical")
+                enableFrame.style = Constants.Settings.RNS_Gui.frame_1
+                enableFrame.style.vertically_stretchable = true
+                enableFrame.style.left_padding = 3
+                enableFrame.style.right_padding = 3
+                enableFrame.style.right_margin = 3
+                
+                GuiApi.add_subtitle(guiTable, "", enableFrame, {"gui-description.RNS_EnableDisable_Condition"})
+                local cFlow = GuiApi.add_flow(guiTable, "", enableFrame, "horizontal")
+                cFlow.style.vertical_align = "center"
+                local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_Enabler", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+                guiTable.vars.enabler = filter
+                if self.enabler.filter ~= nil then
+                    filter.elem_value = self.enabler.filter
+                end
+                local opDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Item_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.enabler.operator], false, "", {ID=self.thisEntity.unit_number})
+                opDD.style.minimal_width = 50
+                --local number = GuiApi.add_filter(guiTable, "RNS_Detector_Number", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+                --number.elem_value = {type="virtual", name="constant-number"}
+                local number = GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Item_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
+                number.style.minimal_width = 100
             end
-            local opDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Item_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.enabler.operator], false, "", {ID=self.thisEntity.unit_number})
-            opDD.style.minimal_width = 50
-            --local number = GuiApi.add_filter(guiTable, "RNS_Detector_Number", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
-            --number.elem_value = {type="virtual", name="constant-number"}
-            local number = GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Item_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
-            number.style.minimal_width = 100
+            if self.circuitCondition2.state then
+                if global.IIOMultiplier > 1 then
+                    guiTable.vars["RNS_NetworkCableIO_Item_StackSizeOverride"].enabled = false
+                    guiTable.vars["RNS_NetworkCableIO_Item_StackSizeSlider"].enabled = false
+                    guiTable.vars["RNS_NetworkCableIO_Item_StackSizeText"].enabled = false
+                end
+                local stackSizeFrame = GuiApi.add_frame(guiTable, "", circuitFlow, "vertical")
+                stackSizeFrame.style = Constants.Settings.RNS_Gui.frame_1
+                stackSizeFrame.style.vertically_stretchable = true
+                stackSizeFrame.style.left_padding = 3
+                stackSizeFrame.style.right_padding = 3
+                stackSizeFrame.style.right_margin = 3
+                
+                GuiApi.add_subtitle(guiTable, "", stackSizeFrame, {"gui-description.RNS_SetStackSize_Condition"})
+                local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Item_SetStackSize_Filter", stackSizeFrame, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+                guiTable.vars.enabler1 = filter
+                if self.circuitCondition2.filter ~= nil then
+                    filter.elem_value = self.circuitCondition2.filter
+                end
+            end
         end
     end
-
     guiTable.vars.TransferRate.caption = {"gui-description.RNS_ItemTransferRate", self.stackSize*15*Constants.Settings.RNS_BaseItemIO_TransferCapacity}
 
     if self.guiFilters[1] ~= "" then
@@ -771,8 +868,13 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
     if self.guiFilters[2] ~= "" then
         guiTable.vars.filter2.elem_value = self.guiFilters[2]
     end
-    if self.enabler.filter ~= nil and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
+    
+    if self.circuitCondition1 == "enable/disable" and self.enabler.filter ~= nil and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
         guiTable.vars.enabler.elem_value = self.enabler.filter
+    end
+
+    if self.circuitCondition2.state and self.circuitCondition2.filter ~= nil and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
+        guiTable.vars.enabler1.elem_value = self.circuitCondition2.filter
     end
 end
 
@@ -786,7 +888,7 @@ function IIO3.interaction(event, RNSPlayer)
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        io.stackSize = event.element.slider_value
+        io.stackSize = math.ceil(event.element.slider_value)
         guiTable.vars["RNS_NetworkCableIO_Item_StackSizeText"].text = tostring(io.stackSize)
         return
     end
@@ -798,6 +900,63 @@ function IIO3.interaction(event, RNSPlayer)
         io.stackSize = math.min(tonumber(event.element.text) or 0, global.IIOMultiplier)
         guiTable.vars["RNS_NetworkCableIO_Item_StackSizeSlider"].slider_value = io.stackSize
         guiTable.vars["RNS_NetworkCableIO_Item_StackSizeText"].text = tostring(io.stackSize)
+        return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_Item_None") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.circuitCondition1 = "none"
+        RNSPlayer:push_varTable(id, true)
+        --guiTable.vars["RNS_NetworkCableIO_Item_EnableDisable"].state = false
+        return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_Item_EnableDisable") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.circuitCondition1 = "enable/disable"
+        RNSPlayer:push_varTable(id, true)
+        --guiTable.vars["RNS_NetworkCableIO_Item_None"].state = false
+        return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_Item_SetFilters") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.circuitCondition1 = "filter"
+        RNSPlayer:push_varTable(id, true)
+        --guiTable.vars["RNS_NetworkCableIO_Item_None"].state = false
+        return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_Item_SetStackSize_Filter") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        if event.element.elem_value ~= nil then
+            io.circuitCondition2.filter = event.element.elem_value
+        else
+            io.circuitCondition2.filter = nil
+        end
+		return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_Item_SetStackSize") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.circuitCondition2.state = event.element.state
+        io.override_stacksize = true
+        RNSPlayer:push_varTable(id, true)
+        --guiTable.vars["RNS_NetworkCableIO_Item_None"].state = false
+        return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_Item_StackSizeOverride") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.override_stacksize = event.element.state
+        RNSPlayer:push_varTable(id, true)
+        --guiTable.vars["RNS_NetworkCableIO_Item_None"].state = false
         return
     end
     if string.match(event.element.name, "RNS_NetworkCableIO_Item_Number") then
