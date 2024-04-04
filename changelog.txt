@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.27
+Date: 3 April 2024
+  Info:
+    - Added circuit conditions for ItemIO and FluidIO bus so that you can set the transfer rate, filters, and enable/disable operations
+---------------------------------------------------------------------------------------------------
 Version: 1.0.26
 Date: 3 April 2024
   Info:

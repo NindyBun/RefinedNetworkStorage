@@ -17,7 +17,13 @@ FIO = {
     combinator=nil,
     priority = 0,
     powerUsage = 80,
-    fluidSize = 1
+    fluidSize = 1,
+    circuitCondition1 = "enable/disable",
+    circuitCondition2 = {
+        state = false,
+        filter = nil
+    },
+    override_fluidsize = false
 }
 
 function FIO:new(object)
@@ -137,6 +143,13 @@ function FIO:copy_settings(obj)
     self.enabler = obj.enabler
     self.fluidSize = obj.fluidSize
 
+    self.circuitCondition1 = obj.circuitCondition1
+    self.circuitCondition2 = {
+        state = obj.circuitCondition2.state,
+        filter = obj.circuitCondition2.filter
+    }
+    self.override_fluidsize = obj.override_fluidsize
+
     self.filter = obj.filter
     self:set_icons(1, self.filter ~= "" and self.filter or nil)
 
@@ -150,6 +163,9 @@ function FIO:serialize_settings()
     tags["color"] = self.color
     tags["filter"] = self.filter
     --tags["whitelistBlacklist"] = self.whitelistBlacklist
+    tags["circuitCondition1"] = self.circuitCondition1
+    tags["circuitCondition2"] = self.circuitCondition2
+    tags["override_fluidsize"] = self.override_fluidsize
     tags["io"] = self.io
     tags["priority"] = self.priority
     tags["enabler"] = self.enabler
@@ -164,6 +180,10 @@ function FIO:deserialize_settings(tags)
     self.io = tags["io"]
     self.enabler = tags["enabler"]
     self.fluidSize = tags["fluidSize"]
+
+    self.circuitCondition1 = tags["circuitCondition1"]
+    self.circuitCondition2 = tags["circuitCondition2"]
+    self.override_fluidsize = tags["override_fluidsize"]
 
     self.filter = tags["filter"]
     self:set_icons(1, self.filter ~= "" and self.filter or nil)
@@ -314,16 +334,41 @@ function FIO:target_interactable()
 end
 
 function FIO:IO()
-    --Make sure there is a working entity in front of the io bus
-    if self:interactable() == false then self.processed = true return end
-    if self:target_interactable() == false then self.processed = true return end
+    if self.circuitCondition2.state and (self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil) then
+        local amount = self.circuitCondition2.filter and self.enablerCombinator.get_merged_signal({type=self.circuitCondition2.filter.type, name=self.circuitCondition2.filter.name}, defines.circuit_connector_id.constant_combinator) or global.FIOMultiplier
+        self.fluidSize = math.min(math.max(amount, 1), global.FIOMultiplier)
+    end
+
+    local transportCapacity = self.fluidSize * Constants.Settings.RNS_BaseFluidIO_TransferCapacity
+
+    if transportCapacity <= 0 then self.processed = true return end
+    if self.circuitCondition1 == "filter" and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
+        local merged_signals = self.enablerCombinator.get_merged_signals(defines.circuit_connector_id.constant_combinator)
+        local s1 = nil
+        if merged_signals ~= nil then
+            for i = 1, #merged_signals do
+                local sig = merged_signals[i].signal
+                if sig.type == "fluid" then
+                    s1 = sig.name
+                    break
+                end
+            end
+        end
+        self.filter = s1 or ""
+        self:set_icons(1, s1 or nil)
+    end
 
     --Make sure that the circuit condition isn't disabling the io bus
-    if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
+    if self.circuitCondition1 == "enable/disable" and self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
         if self.enabler.filter == nil then self.processed = true return end
         local amount = self.enablerCombinator.get_merged_signal({type=self.enabler.filter.type, name=self.enabler.filter.name}, defines.circuit_connector_id.constant_combinator)
         if Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == false then self.processed = true return end
     end
+    
+    --Make sure there is a working entity in front of the io bus
+    if self:interactable() == false then self.processed = true return end
+    if self:target_interactable() == false then self.processed = true return end
+
     
     if self.filter == "" then self.processed = true return end
     if self.networkController == nil or self.networkController.valid == false or self.networkController.stable == false then self.processed = true return end
@@ -337,9 +382,6 @@ function FIO:IO()
     local storedAmount = self.io == "input" and fluid.amount or 0
     --if storedAmount <= 0 and self.io == "input" then self.processed = true return end
     if storedAmount == target.thisEntity.fluidbox.get_capacity(fluid_box.index) and self.io == "output" then self.processed = true return end
-
-    local transportCapacity = self.fluidSize * Constants.Settings.RNS_BaseFluidIO_TransferCapacity
-    if transportCapacity <= 0 then self.processed = true return end
 
     if self.io == "input" and string.match(fluid_box.flow, "output") ~= nil and fluid ~= nil and self.filter == fluid.name and network:is_full() == false then
         BaseNet.transfer_from_tank_to_network(network, target, transportCapacity)
@@ -513,7 +555,7 @@ end
 function FIO:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
 		guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkCableIO_Fluid_Title"}
-        local mainFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
+        local mainFlow = GuiApi.add_flow(guiTable, "MainFlow", mainFrame, "vertical")
 
         local rateFlow = GuiApi.add_flow(guiTable, "", mainFlow, "vertical")
         local rateFrame = GuiApi.add_frame(guiTable, "", rateFlow, "horizontal")
@@ -522,9 +564,8 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 		rateFrame.style.left_padding = 3
 		rateFrame.style.right_padding = 3
 		rateFrame.style.right_margin = 3
-        GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", self.fluidSize*12*Constants.Settings.RNS_BaseFluidIO_TransferCapacity}, Constants.Settings.RNS_Gui.white, "", true)
-
-        --if global.FIOMultiplier > 1 then
+        
+        if global.FIOMultiplier > 1 then
             local stackFrame = GuiApi.add_frame(guiTable, "", rateFlow, "horizontal")
 		    stackFrame.style = Constants.Settings.RNS_Gui.frame_1
 		    stackFrame.style.vertically_stretchable = true
@@ -533,13 +574,20 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 		    stackFrame.style.right_margin = 3
             GuiApi.add_label(guiTable, "", stackFrame, {"gui-description.RNS_FluidFluidSize"}, Constants.Settings.RNS_Gui.white, "")
             
-            local slider = GuiApi.add_slider(guiTable, "RNS_NetworkCableIO_Fluid_FluidSizeSlider", stackFrame, 0, global.FIOMultiplier, self.fluidSize, 1, true, "", {ID=self.thisEntity.unit_number})
+            local stackFlow = GuiApi.add_flow(guiTable, "", stackFrame, "horizontal")
+            stackFlow.style.vertical_align = "center"
+            local stackOverride = GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Fluid_FluidSizeOverride", stackFlow, {"gui-description.RNS_FluidSizeOverride"}, "", self.override_fluidsize, true, {ID=self.thisEntity.unit_number})
+            
+            local slider = GuiApi.add_slider(guiTable, "RNS_NetworkCableIO_Fluid_FluidSizeSlider", stackFlow, 1, global.FIOMultiplier, self.fluidSize, 1, true, "", {ID=self.thisEntity.unit_number})
             slider.style = "notched_slider"
             slider.style.minimal_width = 250
             slider.style.maximal_width = 300
-            GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Fluid_FluidSizeText", stackFrame, tostring(self.fluidSize), "", true, true, false, false, false, {ID=self.thisEntity.unit_number})
-            --GuiApi.add_label(guiTable, "TransferRate", rateFrame, {"gui-description.RNS_FluidTransferRate", Constants.Settings.RNS_BaseFluidIO_TransferCapacity*12*global.FIOMultiplier}, Constants.Settings.RNS_Gui.white, "", true)
-        --end
+            local stackText = GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Fluid_FluidSizeText", stackFlow, tostring(self.fluidSize), "", true, true, false, false, false, {ID=self.thisEntity.unit_number})
+            if self.override_fluidsize == false then
+                slider.enabled = false
+                stackText.enabled = false
+            end
+        end
 
         local topFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
         local bottomFrame = GuiApi.add_flow(guiTable, "", mainFlow, "horizontal")
@@ -571,7 +619,12 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 
         local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Fluid_Filter", filterFlow, "", true, "fluid", 40, {ID=self.thisEntity.unit_number})
 		guiTable.vars.filter = filter
-		if self.filter ~= "" then filter.elem_value = self.filter end
+
+		if self.circuitCondition1 == "filter" then
+            filter.enabled = false
+            self.filter = ""
+            self:set_icons(1, nil)
+        end
 
         local settingsFrame = GuiApi.add_frame(guiTable, "SettingsFrame", topFrame, "vertical", true)
 		settingsFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -595,28 +648,65 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 
         GuiApi.add_line(guiTable, "", settingsFrame, "horizontal")
 
-        if self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil then
-            local enableFrame = GuiApi.add_frame(guiTable, "EnableFrame", bottomFrame, "vertical")
-            enableFrame.style = Constants.Settings.RNS_Gui.frame_1
-            enableFrame.style.vertically_stretchable = true
-            enableFrame.style.left_padding = 3
-            enableFrame.style.right_padding = 3
-            enableFrame.style.right_margin = 3
-    
-            GuiApi.add_subtitle(guiTable, "ConditionSub", enableFrame, {"gui-description.RNS_Condition"})
-            local cFlow = GuiApi.add_flow(guiTable, "", enableFrame, "horizontal")
-            cFlow.style.vertical_align = "center"
-            local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Fluid_Enabler", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
-            guiTable.vars.enabler = filter
-            if self.enabler.filter ~= nil then
-                filter.elem_value = self.enabler.filter
+        if self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
+            local circuitFlow = GuiApi.add_flow(guiTable, "", bottomFrame, "horizontal")
+            local circuitFrame = GuiApi.add_frame(guiTable, "", circuitFlow, "vertical")
+            circuitFrame.style = Constants.Settings.RNS_Gui.frame_1
+            circuitFrame.style.vertically_stretchable = true
+            circuitFrame.style.left_padding = 3
+            circuitFrame.style.right_padding = 3
+            circuitFrame.style.right_margin = 3
+
+            local circuitFlow1 = GuiApi.add_flow(guiTable, "", circuitFrame, "vertical")
+            GuiApi.add_label(guiTable, "", circuitFlow1, {"gui-description.RNS_Mode_Of_Operation"}, Constants.Settings.RNS_Gui.white, "", false)
+            GuiApi.add_radiobutton(guiTable, "RNS_NetworkCableIO_Fluid_None", circuitFlow1, {"gui-description.RNS_None"}, {"gui-description.RNS_None_tooltip"}, self.circuitCondition1 == "none" and true or false, false, {ID=self.thisEntity.unit_number})
+            GuiApi.add_radiobutton(guiTable, "RNS_NetworkCableIO_Fluid_EnableDisable", circuitFlow1, {"gui-description.RNS_EnableDisable"}, {"gui-description.RNS_EnableDisable_tooltip"}, self.circuitCondition1 == "enable/disable" and true or false, false, {ID=self.thisEntity.unit_number})
+            GuiApi.add_radiobutton(guiTable, "RNS_NetworkCableIO_Fluid_SetFilters", circuitFlow1, {"gui-description.RNS_SetFilter"}, {"gui-description.RNS_SetFilter_tooltip"}, self.circuitCondition1 == "filter" and true or false, false, {ID=self.thisEntity.unit_number})
+            GuiApi.add_checkbox(guiTable, "RNS_NetworkCableIO_Fluid_SetFluidSize", circuitFlow1, {"gui-description.RNS_SetFluidSize"}, {"gui-description.RNS_SetFluidSize_tooltip"}, self.circuitCondition2.state, false, {ID=self.thisEntity.unit_number})
+            
+            if self.circuitCondition1 == "enable/disable" then
+                local enableFrame = GuiApi.add_frame(guiTable, "", circuitFlow, "vertical")
+                enableFrame.style = Constants.Settings.RNS_Gui.frame_1
+                enableFrame.style.vertically_stretchable = true
+                enableFrame.style.left_padding = 3
+                enableFrame.style.right_padding = 3
+                enableFrame.style.right_margin = 3
+                
+                GuiApi.add_subtitle(guiTable, "", enableFrame, {"gui-description.RNS_EnableDisable_Condition"})
+                local cFlow = GuiApi.add_flow(guiTable, "", enableFrame, "horizontal")
+                cFlow.style.vertical_align = "center"
+                local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Fluid_Enabler", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+                guiTable.vars.enabler = filter
+                if self.enabler.filter ~= nil then
+                    filter.elem_value = self.enabler.filter
+                end
+                local opDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Fluid_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.enabler.operator], false, "", {ID=self.thisEntity.unit_number})
+                opDD.style.minimal_width = 50
+                --local number = GuiApi.add_filter(guiTable, "RNS_Detector_Number", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+                --number.elem_value = {type="virtual", name="constant-number"}
+                local number = GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Fluid_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
+                number.style.minimal_width = 100
             end
-            local opDD = GuiApi.add_dropdown(guiTable, "RNS_NetworkCableIO_Fluid_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.enabler.operator], false, "", {ID=self.thisEntity.unit_number})
-            opDD.style.minimal_width = 50
-            --local number = GuiApi.add_filter(guiTable, "RNS_Detector_Number", cFlow, "", true, "signal", 40, {ID=self.thisEntity})
-            --number.elem_value = {type="virtual", name="constant-number"}
-            local number = GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Fluid_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
-            number.style.minimal_width = 100
+            if self.circuitCondition2.state then
+                if global.FIOMultiplier > 1 then
+                    guiTable.vars["RNS_NetworkCableIO_Fluid_FluidSizeOverride"].enabled = false
+                    guiTable.vars["RNS_NetworkCableIO_Fluid_FluidSizeSlider"].enabled = false
+                    guiTable.vars["RNS_NetworkCableIO_Fluid_FluidSizeText"].enabled = false
+                end
+                local stackSizeFrame = GuiApi.add_frame(guiTable, "", circuitFlow, "vertical")
+                stackSizeFrame.style = Constants.Settings.RNS_Gui.frame_1
+                stackSizeFrame.style.vertically_stretchable = true
+                stackSizeFrame.style.left_padding = 3
+                stackSizeFrame.style.right_padding = 3
+                stackSizeFrame.style.right_margin = 3
+                
+                GuiApi.add_subtitle(guiTable, "", stackSizeFrame, {"gui-description.RNS_SetStackSize_Condition"})
+                local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_Fluid_SetFluidSize_Filter", stackSizeFrame, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+                guiTable.vars.enabler1 = filter
+                if self.circuitCondition2.filter ~= nil then
+                    filter.elem_value = self.circuitCondition2.filter
+                end
+            end
         end
     end
 
@@ -625,8 +715,13 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
     if self.filter ~= "" then
         guiTable.vars.filter.elem_value = self.filter
     end
-    if self.enabler.filter ~= nil and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
+
+    if self.circuitCondition1 == "enable/disable" and self.enabler.filter ~= nil and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
         guiTable.vars.enabler.elem_value = self.enabler.filter
+    end
+
+    if self.circuitCondition2.state and self.circuitCondition2.filter ~= nil and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
+        guiTable.vars.enabler1.elem_value = self.circuitCondition2.filter
     end
     
 end
@@ -638,7 +733,7 @@ function FIO.interaction(event, RNSPlayer)
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
-        io.fluidSize = event.element.slider_value
+        io.fluidSize = math.ceil(event.element.slider_value)
         guiTable.vars["RNS_NetworkCableIO_Fluid_FluidSizeText"].text = tostring(io.fluidSize)
         return
     end
@@ -650,6 +745,64 @@ function FIO.interaction(event, RNSPlayer)
         io.fluidSize = math.min(tonumber(event.element.text) or 0, global.FIOMultiplier)
         guiTable.vars["RNS_NetworkCableIO_Fluid_FluidSizeSlider"].slider_value = io.fluidSize
         guiTable.vars["RNS_NetworkCableIO_Fluid_FluidSizeText"].text = tostring(io.fluidSize)
+        return
+    end
+    
+    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_None") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.circuitCondition1 = "none"
+        RNSPlayer:push_varTable(id, true)
+        --guiTable.vars["RNS_NetworkCableIO_Item_EnableDisable"].state = false
+        return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_EnableDisable") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.circuitCondition1 = "enable/disable"
+        RNSPlayer:push_varTable(id, true)
+        --guiTable.vars["RNS_NetworkCableIO_Item_None"].state = false
+        return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_SetFilters") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.circuitCondition1 = "filter"
+        RNSPlayer:push_varTable(id, true)
+        --guiTable.vars["RNS_NetworkCableIO_Item_None"].state = false
+        return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_SetFluidSize_Filter") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        if event.element.elem_value ~= nil then
+            io.circuitCondition2.filter = event.element.elem_value
+        else
+            io.circuitCondition2.filter = nil
+        end
+		return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_SetFluidSize") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.circuitCondition2.state = event.element.state
+        io.override_fluidsize = true
+        RNSPlayer:push_varTable(id, true)
+        --guiTable.vars["RNS_NetworkCableIO_Item_None"].state = false
+        return
+    end
+    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_FluidSizeOverride") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.override_fluidsize = event.element.state
+        RNSPlayer:push_varTable(id, true)
+        --guiTable.vars["RNS_NetworkCableIO_Item_None"].state = false
         return
     end
     if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Number") then

@@ -25,7 +25,7 @@ IIO3 = {
         state = false,
         filter = nil
     },
-    override_stacksize = true
+    override_stacksize = false
 }
 
 function IIO3:new(object)
@@ -143,6 +143,13 @@ function IIO3:copy_settings(obj)
     self.enabler = obj.enabler
     self.stackSize = obj.stackSize
 
+    self.circuitCondition1 = obj.circuitCondition1
+    self.circuitCondition2 = {
+        state = obj.circuitCondition2.state,
+        filter = obj.circuitCondition2.filter
+    }
+    self.override_stacksize = obj.override_stacksize
+
     --Filters has do be done this way because for some reason they link to other objects
     self.guiFilters = {
         [1] = obj.guiFilters[1],
@@ -177,6 +184,8 @@ function IIO3:serialize_settings()
     tags["guiFilters"] = self.guiFilters
     tags["supportModified"] = self.supportModified
     tags["whitelistBlacklist"] = self.whitelistBlacklist
+    tags["circuitCondition2"] = self.circuitCondition2
+    tags["override_stacksize"] = self.override_stacksize
     tags["io"] = self.io
     tags["priority"] = self.priority
     tags["enabler"] = self.enabler
@@ -192,6 +201,11 @@ function IIO3:deserialize_settings(tags)
     self.io = tags["io"]
     self.enabler = tags["enabler"]
     self.stackSize = tags["stackSize"]
+    
+    self.circuitCondition1 = tags["circuitCondition1"]
+    self.circuitCondition2 = tags["circuitCondition2"]
+    self.override_stacksize = tags["override_stackize"]
+    
     self.guiFilters = tags["guiFilters"]
     self:set_icons(1, self.guiFilters[1] ~= "" and self.guiFilters[1] or nil)
     self:set_icons(2, self.guiFilters[2] ~= "" and self.guiFilters[2] or nil)
@@ -437,12 +451,12 @@ function IIO3:transportIO()
 end
 
 function IIO3:IO()
-    local transportCapacity = self.override_stacksize and self.stackSize or self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity--*global.IIOMultiplier
-    
     if self.circuitCondition2.state and (self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil) then
-        local amount = self.circuitCondition2.filter and self.enablerCombinator.get_merged_signal({type=self.circuitCondition2.filter.type, name=self.circuitCondition2.filter.name}, defines.circuit_connector_id.constant_combinator) or Constants.Settings.RNS_BaseItemIO_TransferCapacity
-        transportCapacity = math.max(amount, Constants.Settings.RNS_BaseItemIO_TransferCapacity)
+        local amount = self.circuitCondition2.filter and self.enablerCombinator.get_merged_signal({type=self.circuitCondition2.filter.type, name=self.circuitCondition2.filter.name}, defines.circuit_connector_id.constant_combinator) or global.IIOMultiplier
+        self.stackSize = math.min(math.max(amount, 1), global.IIOMultiplier)
     end
+
+    local transportCapacity = self.stackSize * Constants.Settings.RNS_BaseItemIO_TransferCapacity--*global.IIOMultiplier
 
     if transportCapacity <= 0 then self.processed = true return end
     if self.circuitCondition1 == "filter" and (self.enablerCombinator.get_circuit_network(defines.wire_type.red) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green) ~= nil) then
@@ -712,7 +726,7 @@ function IIO3:getTooltips(guiTable, mainFrame, justCreated)
             slider.style.minimal_width = 250
             slider.style.maximal_width = 300
             local stackText = GuiApi.add_text_field(guiTable, "RNS_NetworkCableIO_Item_StackSizeText", stackFlow, tostring(self.stackSize), "", true, true, false, false, false, {ID=self.thisEntity.unit_number})
-            if self.override_stacksize then
+            if self.override_stacksize == false then
                 slider.enabled = false
                 stackText.enabled = false
             end
