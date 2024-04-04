@@ -219,6 +219,7 @@ end
 
 function FD:DataConvert_ItemToEntity(tag)
     self.fluidArray = tag.storage or {}
+    self.storedAmount = self:getStorageSize()
     if tag.filters ~= nil then
         self.filters = tag.filters
         self.guiFilters = tag.guiFilters

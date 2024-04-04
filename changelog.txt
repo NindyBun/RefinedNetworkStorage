@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.26
+Date: 3 April 2024
+  Info:
+    - Fixed issue when placing a Drive that has stuff in it not showing it's stored amount to the network
+---------------------------------------------------------------------------------------------------
 Version: 1.0.25
 Date: 3 April 2024
   Info:

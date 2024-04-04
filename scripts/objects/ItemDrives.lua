@@ -236,6 +236,7 @@ end
 
 function ID:DataConvert_ItemToEntity(tag)
     self.storageArray = tag.storage or {}
+    self.storedAmount = self:getStorageSize()
     if tag.filters ~= nil then
         self.filters = tag.filters
         self.guiFilters = tag.guiFilters
