@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.28
+Date: 5 April 2024
+  Info:
+    - Reworked Transmitter/Receiver and Wirelss Grid to have easier target selectors
+---------------------------------------------------------------------------------------------------
 Version: 1.0.27
 Date: 3 April 2024
   Info:

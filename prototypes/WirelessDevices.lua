@@ -187,7 +187,7 @@ data:extend{playerportE}
 
 for _, tr in pairs(Constants.NetworkTransReceiver) do
     local I = {}
-    I.type = "item"
+    I.type = "item-with-tags"
     I.name = tr.name
     I.icon = tr.itemIcon
     I.icon_size = 512

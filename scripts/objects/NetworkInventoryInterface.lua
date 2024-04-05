@@ -251,7 +251,7 @@ function NII:getTooltips(guiTable, mainFrame, justCreated)
 	--inventoryScrollPane.clear()
 	--playerInventoryScrollPane.clear()
 
-    if self.networkController == nil or not self.networkController.stable or (self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == false) then return end
+    if self.networkController == nil or BaseNet.exists_in_network(self.networkController, self.entID) == false then return end
 
 	--self:createPlayerInventory(guiTable, RNSPlayer, guiTable.vars.PlayerInventoryTable, textField.text)
 	self:createNetworkInventory(guiTable, RNSPlayer, guiTable.vars.NetworkInventoryTable, textField.text)
@@ -717,20 +717,22 @@ function NII.interaction(event, RNSPlayer)
 	if event.button == defines.mouse_button_type.right then count = -2 end --Half Stack
 	if event.button == defines.mouse_button_type.right and event.shift == true then count = -3 end --10 Stacks
 	if event.button == defines.mouse_button_type.left and event.control == true then count = -4 end --All Stacks
+
+	
+	local obj = global.entityTable[event.element.tags.ID]
+	if BaseNet.exists_in_network(obj.networkController, obj.entID) == false then return end
+
 	if string.match(event.element.name, "RNS_NII_Insert") then
-		local obj = global.entityTable[event.element.tags.ID]
 		NII.transfer_from_pinv(RNSPlayer, obj, event.element.tags, count)
 		return
 	end
 
 	if string.match(event.element.name, "RNS_NII_IDInv") then
-		local obj = global.entityTable[event.element.tags.ID]
 		NII.transfer_from_idinv(RNSPlayer, obj, event.element.tags, count)
 		return
 	end
 
 	if string.match(event.element.name, "RNS_NII_FDInv") then
-		local obj = global.entityTable[event.element.tags.ID]
 		NII.transfer_from_fdinv(RNSPlayer, obj, event.element.tags, count)
 		return
 	end

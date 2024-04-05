@@ -40,6 +40,8 @@ function onInit()
     global.IIOMultiplier = global.IIOMultiplier or 1
     global.FIOMultiplier = global.FIOMultiplier or 1
     global.WTRangeMultiplier = global.WTRangeMultiplier or 1
+    global.TransReceiverChannels = global.TransReceiverChannels or {transmitters = {}, receivers = {}}
+    global.NetworkControllers = global.NetworkControllers or {}
     
     createObjectTables()
 

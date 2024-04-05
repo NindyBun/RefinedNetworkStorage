@@ -130,6 +130,44 @@ function BaseNet:doRefresh(controller)
     self.shouldRefresh = false
 end
 
+function BaseNet.add_transreciever_to_global(obj)
+    if valid(obj) == false then return end
+    if obj.thisEntity == nil or obj.thisEntity.valid == false then return end
+    if obj.type == "transmitter" then
+        global.TransReceiverChannels.transmitters[obj.thisEntity.unit_number] = obj
+    elseif obj.type == "receiver" then
+        global.TransReceiverChannels.receivers[obj.thisEntity.unit_number] = obj
+    end
+end
+
+function BaseNet.remove_transreciever_from_global(obj)
+    if valid(obj) == false then return end
+    if obj.type == "transmitter" then
+        global.TransReceiverChannels.transmitters[obj.thisEntity.unit_number] = nil
+    elseif obj.type == "receiver" then
+        global.TransReceiverChannels.receivers[obj.thisEntity.unit_number] = nil
+    end
+end
+
+function BaseNet.get_transreciever_from_global(type)
+    if type == "transmitter" then
+        return global.TransReceiverChannels.transmitters
+    elseif type == "receiver" then
+        return global.TransReceiverChannels.receivers
+    end
+end
+
+function BaseNet.add_networkcontroller_to_global(obj)
+    if valid(obj) == false then return end
+    if obj.thisEntity == nil or obj.thisEntity.valid == false then return end
+    global.NetworkControllers[obj.thisEntity.unit_number] = obj
+end
+
+function BaseNet.remove_networkcontroller_from_global(obj)
+    if valid(obj) == false then return end
+    global.NetworkControllers[obj.thisEntity.unit_number] = nil
+end
+
 function addConnectables(source, connections, master)
     if valid(source) == false then return end
     if source.thisEntity == nil and source.thisEntity.valid == false then return end
@@ -1652,3 +1690,4 @@ function BaseNet:getTotalObjects()
             + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.WirelessTransmitterTable))*global.WTRangeMultiplier + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.DetectorTable))
             + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.TransmitterTable)) + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ReceiverTable))
 end
+

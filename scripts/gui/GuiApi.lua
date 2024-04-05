@@ -305,8 +305,8 @@ end
 function GuiApi.add_dropdown(guiTable, name, gui, values, selected, save, tooltip, tags)
     if gui[name] ~= nil then gui[name].destroy() end
     local dropDown = gui.add{type="drop-down", name=name, items=values, selected_index=selected, tooltip=tooltip, tags=tags}
-
-    dropDown.style.maximal_width = 200
+    dropDown.style.horizontal_align = "center"
+    --dropDown.style.maximal_width = 200
     if guiTable ~= nil and save == true then
         guiTable.vars[name] = dropDown
     end
@@ -317,7 +317,7 @@ function GuiApi.add_slider(guiTable, name, gui, min, max, initial, step, save, t
     if gui[name] ~= nil then gui[name].destroy() end
     local slider = gui.add{type="slider", name=name, minimum_value=min, maximum_value=max, value=initial, value_step=step, discrete_slider=d_slider, discrete_values=d_values, tooltip=tooltip, tags=tags}
 
-    slider.style.maximal_width = 250
+    --slider.style.maximal_width = 250
     if guiTable ~= nil and save == true then
         guiTable.vars[name] = slider
     end

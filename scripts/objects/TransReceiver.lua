@@ -5,8 +5,8 @@ TR = {
     connectedObjs = nil,
     cardinals = nil,
     type = "",
-    receiver = nil,
-    powerUsage = 2560
+    powerUsage = 2560,
+    connected = nil
 }
 --Constructor
 function TR:new(object)
@@ -25,10 +25,6 @@ function TR:new(object)
         [4] = {}, --W
         [5] = {}  --Receiver
     }
-    t.receiver = {
-        position = {x=nil, y=nil},
-        surface = nil
-    }
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -37,6 +33,7 @@ function TR:new(object)
         [5] = false  --Receiver
     }
     UpdateSys.add_to_entity_table(t)
+    BaseNet.add_transreciever_to_global(t)
     t:createArms()
     BaseNet.postArms(t)
     BaseNet.update_network_controller(t.networkController)
@@ -55,6 +52,7 @@ end
 --Deconstructor
 function TR:remove()
     UpdateSys.remove_from_entity_table(self)
+    BaseNet.remove_transreciever_from_global(self)
     BaseNet.postArms(self)
     --UpdateSys.remove(self)
     --[[if self.networkController ~= nil then
@@ -120,20 +118,50 @@ function TR:createArms()
         end
     end
     if self.type ~= "transmitter" then return end
-    if self.receiver.surface == nil or (self.receiver.surface ~= nil and game.surfaces[self.receiver.surface] == nil) then return end
-    if self.receiver.position.x == nil or self.receiver.position.y == nil then return end
+    if self.connected == nil or global.entityTable[self.connected] == nil or global.entityTable[self.connected].thisEntity == nil or global.entityTable[self.connected].thisEntity.valid == false then return end
 
-    local rec = game.surfaces[self.receiver.surface].find_entity(Constants.NetworkTransReceiver.receiver.name, self.receiver.position)
-    if rec ~= nil and global.entityTable[rec.unit_number] ~= nil then
-        local obj = global.entityTable[rec.unit_number]
-        if BaseNet.exists_in_network(obj.networkController, obj.entID) and obj.networkController.entID ~= self.networkController.entID then
-            self.thisEntity.order_deconstruction("player")
-        else
-            self.connectedObjs[5] = {obj}
-            BaseNet.join_network(self, obj)
-        end
+    local obj = global.entityTable[self.connected]
+    if BaseNet.exists_in_network(obj.networkController, obj.entID) and obj.networkController.entID ~= self.networkController.entID then
+        self.thisEntity.order_deconstruction("player")
+    else
+        self.connectedObjs[5] = {obj}
+        BaseNet.join_network(self, obj)
     end
     
+end
+
+function TR:copy_settings(obj)
+    self.connected = obj.connected
+end
+
+function TR:serialize_settings()
+    local tags = {}
+    tags["connection"] = self.connected
+    return tags
+end
+
+function TR:deserialize_settings(tags)
+    self.connected = tags["connection"]
+end
+
+function TR:DataConvert_ItemToEntity(tag)
+    if tag.connection then
+        self.connected = tag.connection
+    end
+end
+
+function TR:DataConvert_EntityToItem(tag)
+    if self.connected then
+        local tags = {}
+        local description = {"", tag.prototype.localised_description}
+
+        tags.connection = self.connected
+        local obj = global.entityTable[self.connected]
+        Util.add_list_into_table(description, {{"item-description.RNS_TransReceiverTag", obj.thisEntity.unit_number, obj.thisEntity.surface.name, tostring(serpent.line(obj.thisEntity.position))}})
+
+        tag.set_tag(Constants.Settings.RNS_Tag, tags)
+        tag.custom_description = description
+    end
 end
 
 --Tooltips
@@ -150,8 +178,33 @@ function TR:getTooltips(guiTable, mainFrame, justCreated)
 		infoFrame.style.right_padding = 3
 
         GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
+        local infoFlow = GuiApi.add_flow(guiTable, "", infoFrame, "vertical")
+        infoFlow.style.horizontal_align = "center"
+        GuiApi.add_label(guiTable, "", infoFlow, {"gui-description.RNS_TransReceiver_ID", self.thisEntity.unit_number, self.thisEntity.surface.name, tostring(serpent.line(self.thisEntity.position))}, Constants.Settings.RNS_Gui.white)
+        
+        GuiApi.add_line(guiTable, "", infoFlow, "horizontal")
+        if self.connected then
+            if global.entityTable[self.connected] == nil or global.entityTable[self.connected].thisEntity == nil or global.entityTable[self.connected].thisEntity.valid == false then
+                self.connected = nil
+            end
+        end
 
-        if self.type == "transmitter" then
+        GuiApi.add_subtitle(guiTable, "", infoFlow, {"gui-description.RNS_Connections"})
+
+        local selected = 1
+        local index = 1
+        local values = {""}
+        for id, obj in pairs(BaseNet.get_transreciever_from_global(self.type == "transmitter" and "receiver" or "transmitter")) do
+            if obj.thisEntity.valid then
+                index = index + 1
+                table.insert(values, {"gui-description.RNS_TransReceiver_Dropbox", obj.thisEntity.unit_number, obj.thisEntity.surface.name, tostring(serpent.line(obj.thisEntity.position))})
+                if self.connected and self.connected == id then selected = index end
+            end
+        end
+
+        GuiApi.add_label(guiTable, "Connection", infoFlow, self.type == "transmitter" and (self.connected and {"gui-description.RNS_TransReceiver_Available_Receivers_Connected"} or {"gui-description.RNS_TransReceiver_Available_Receivers_Disconnected"}) or (self.connected and {"gui-description.RNS_TransReceiver_Available_Transmitters_Connected"} or {"gui-description.RNS_TransReceiver_Available_Transmitters_Disconnected"}), Constants.Settings.RNS_Gui.white, "", true)
+        GuiApi.add_dropdown(guiTable, "RNS_TransReceiver_Channels", infoFlow, values, selected, false, "", {ID=self.thisEntity.unit_number})
+        --[[if self.type == "transmitter" then
             local xflow = GuiApi.add_flow(guiTable, "", infoFrame, "horizontal")
             GuiApi.add_label(guiTable, "", xflow, {"gui-description.RNS_xPos"}, Constants.Settings.RNS_Gui.white)
             local xPos = GuiApi.add_text_field(guiTable, "RNS_TransReceiver_xPos", xflow, self.receiver.position.x == nil and "" or tostring(self.receiver.position.x), {"gui-description.RNS_xPos_tooltip"}, true, true, true, true, false, {ID=self.thisEntity.unit_number})
@@ -169,8 +222,9 @@ function TR:getTooltips(guiTable, mainFrame, justCreated)
         else
             GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)
             GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_Surface", self.thisEntity.surface.index}, Constants.Settings.RNS_Gui.white, "", false)
-        end
+        end]]
     end
+    guiTable.vars.Connection.caption = self.type == "transmitter" and (self.connected and {"gui-description.RNS_TransReceiver_Available_Receivers_Connected"} or {"gui-description.RNS_TransReceiver_Available_Receivers_Disconnected"}) or (self.connected and {"gui-description.RNS_TransReceiver_Available_Transmitters_Connected"} or {"gui-description.RNS_TransReceiver_Available_Transmitters_Disconnected"})
 end
 
 function TR:force_controller_update()
@@ -178,7 +232,23 @@ function TR:force_controller_update()
 end
 
 function TR.interaction(event, RNSPlayer)
-    if string.match(event.element.name, "xPos") then
+    if string.match(event.element.name, "RNS_TransReceiver_Channels") then
+		local obj = global.entityTable[event.element.tags.ID]
+		if obj == nil then return end
+        local selected_index = event.element.selected_index
+        local selected = event.element.items[selected_index]
+        if selected == "" then
+            global.entityTable[obj.connected].connected = nil
+            global.entityTable[obj.connected]:force_controller_update()
+            obj.connected = nil
+        else
+            obj.connected = tonumber(selected[2])
+            global.entityTable[obj.connected].connected = obj.thisEntity.unit_number
+            global.entityTable[obj.connected]:force_controller_update()
+        end
+		return
+	end
+    --[[if string.match(event.element.name, "xPos") then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
         if event.element.text ~= "" then
@@ -210,5 +280,5 @@ function TR.interaction(event, RNSPlayer)
         end
         obj:force_controller_update()
 		return
-	end
+	end]]
 end

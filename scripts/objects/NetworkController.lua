@@ -29,6 +29,7 @@ function NC:new(object)
         [4] = {}, --W
     }
     UpdateSys.add_to_entity_table(t)
+    BaseNet.add_networkcontroller_to_global(t)
     t:createArms()
     BaseNet.postArms(t)
     t.network.shouldRefresh = true
@@ -50,6 +51,7 @@ function NC:remove()
     --self.network:doRefresh(self)
     if self.state ~= nil then rendering.destroy(self.state) end
     UpdateSys.remove_from_entity_table(self)
+    BaseNet.remove_networkcontroller_from_global(self)
     BaseNet.postArms(self)
     UpdateSys.remove(self)
 end
@@ -468,9 +470,11 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_label(guiTable, "EnergyUsage", infoFrame, {"gui-description.RNS_NetworkController_EnergyUsage", Util.toRNumber(self.thisEntity.power_usage)}, Constants.Settings.RNS_Gui.orange, nil, true)
         GuiApi.add_label(guiTable, "EnergyBuffer", infoFrame, {"gui-description.RNS_NetworkController_EnergyBuffer", Util.toRNumber(self.thisEntity.electric_buffer_size)}, Constants.Settings.RNS_Gui.orange, nil, true)
         GuiApi.add_progress_bar(guiTable, "EnergyBar", infoFrame, "", Util.toRNumber(self.thisEntity.energy) .. "/" .. Util.toRNumber(self.thisEntity.electric_buffer_size), true, nil, self.thisEntity.energy/self.thisEntity.electric_buffer_size, 200, 25)
-        
-        GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_Position", self.thisEntity.position.x, self.thisEntity.position.y}, Constants.Settings.RNS_Gui.white, "", false)
-        GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_Surface", self.thisEntity.surface.index}, Constants.Settings.RNS_Gui.white, "", false)
+        GuiApi.add_line(guiTable, "", infoFrame, "horizontal")
+
+        GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_NetworkController_ID", self.thisEntity.unit_number}, Constants.Settings.RNS_Gui.white)
+        GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_NetworkController_Surface", self.thisEntity.surface.name}, Constants.Settings.RNS_Gui.white)
+        GuiApi.add_label(guiTable, "", infoFrame, {"gui-description.RNS_NetworkController_Pos", tostring(serpent.line(self.thisEntity.position))}, Constants.Settings.RNS_Gui.white)
 
         --local connectedStructuresFrame = GuiApi.add_frame(guiTable, "", mainFrame, "vertical")
 		--connectedStructuresFrame.style = Constants.Settings.RNS_Gui.frame_1

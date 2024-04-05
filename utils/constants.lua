@@ -2,6 +2,7 @@ Constants = {}
 Constants.MOD_ID = "__RefinedNetworkStorage__"
 Constants.Settings = {
     RNS_Player_Port_Shortcut = "RNS_Player_Port_Shortcut",
+    RNS_Default_Channel = "Default",
     RNS_PlayerPort_Consumption = 100,
     RNS_WirelessTransmitter_Tick = 30,
     RNS_Default_WirelessGrid_Distance = 32*3,
