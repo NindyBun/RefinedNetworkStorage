@@ -573,7 +573,7 @@ function FIO:getTooltips(guiTable, mainFrame, justCreated)
 		    stackFrame.style.left_padding = 3
 		    stackFrame.style.right_padding = 3
 		    stackFrame.style.right_margin = 3
-            GuiApi.add_label(guiTable, "", stackFrame, {"gui-description.RNS_FluidFluidSize"}, Constants.Settings.RNS_Gui.white, "")
+            --GuiApi.add_label(guiTable, "", stackFrame, {"gui-description.RNS_FluidFluidSize"}, Constants.Settings.RNS_Gui.white, "")
             
             local stackFlow = GuiApi.add_flow(guiTable, "", stackFrame, "horizontal")
             stackFlow.style.vertical_align = "center"
