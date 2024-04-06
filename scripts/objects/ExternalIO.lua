@@ -811,7 +811,7 @@ function EIO:getTooltips(guiTable, mainFrame, justCreated)
             enableFrame.style.right_padding = 3
             enableFrame.style.right_margin = 3
     
-            GuiApi.add_subtitle(guiTable, "ConditionSub", enableFrame, {"gui-description.RNS_Condition"})
+            GuiApi.add_subtitle(guiTable, "ConditionSub", enableFrame, {"gui-description.RNS_EnableDisable_Condition"})
             local cFlow = GuiApi.add_flow(guiTable, "", enableFrame, "horizontal")
             cFlow.style.vertical_align = "center"
             local filter = GuiApi.add_filter(guiTable, "RNS_NetworkCableIO_External_Enabler", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
