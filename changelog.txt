@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.30
+Date: 6 April 2024
+  Info:
+    - Tried to make it less laggy when network is full/empty to stop triggering anymore IO buses from working uselesslly
+---------------------------------------------------------------------------------------------------
 Version: 1.0.29
 Date: 6 April 2024
   Info:

@@ -218,13 +218,10 @@ function NC:find_wirelessgrid_with_wirelessTransmitter(id)
     return false
 end
 
-function NC:updateItemIO()
+function NC:import_items()
     local import = {}
     local import_length = 0
     local import_processed = 0
-    local export = {}
-    local export_length = 0
-    local export_processed = 0
     for p, priority in pairs(self.network.ItemIOTable) do
         if settings.global[Constants.Settings.RNS_RoundRobin].value == true then
             import[p] = {}
@@ -240,28 +237,34 @@ function NC:updateItemIO()
             import[p] = priority.input
         end
         
-        local l = 0
-        local pp = 0
         for _, item in pairs(import[p]) do
             if item:interactable() then
                 --local old = item.processed
                 item:IO()
+
                 if item.focusedEntity.inventory.input.values ~= nil then
-                    l = l + 1
-                    if item.processed == true then pp = pp + 1 end
+                    import_length = import_length + 1
+                    if item.processed == true then import_processed = import_processed + 1 end
                     --import_length = import_length + 1
                     --if item.processed == true then import_processed = import_processed + 1 end
                 end
+                if self.network:is_full() then return end
                 --if old == true and item.processed == true then item.processed = false end
             end
             
         end
-        if pp >= l and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+        if import_processed >= import_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
             for _, item in pairs(import[p]) do
                 item.processed = false
             end
         end
     end
+end
+
+function NC:export_items()
+    local export = {}
+    local export_length = 0
+    local export_processed = 0
     for p, priority in pairs(self.network.ItemIOTable) do
         if settings.global[Constants.Settings.RNS_RoundRobin].value == true then
             export[p] = {}
@@ -277,8 +280,6 @@ function NC:updateItemIO()
             export[p] = priority.output
         end
 
-        local l = 0
-        local pp = 0
         for _, item in pairs(export[p]) do
             if item:interactable() then
                 --local old = item.processed
@@ -286,41 +287,34 @@ function NC:updateItemIO()
                 if item.focusedEntity.inventory.output.values ~= nil then
                     --export_length = export_length + 1
                     --if item.processed == true then export_processed = export_processed + 1 end
-                    l = l + 1
-                    if item.processed == true then pp = pp + 1 end
+                    export_length = export_length + 1
+                    if item.processed == true then export_processed = export_processed + 1 end
                 end
+                if self.network:is_empty() then return end
                 --if old == true and item.processed == true then item.processed = false end
             end
         end
-        if pp >= l and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+        if export_processed >= export_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
             for _, item in pairs(export[p]) do
                 item.processed = false
             end
         end
     end
-    --[[if import_processed >= import_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
-        for _, priority in pairs(import) do
-            for _, item in pairs(priority) do
-                item.processed = false
-            end
-        end
-    end
-    if export_processed >= export_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
-        for _, priority in pairs(export) do
-            for _, item in pairs(priority) do
-                item.processed = false
-            end
-        end
-    end]]
 end
 
-function NC:updateFluidIO()
+function NC:updateItemIO()
+    if self.network:is_full() == false then
+        self:import_items()
+    end
+    if self.network:is_empty() == false then
+        self:export_items()
+    end
+end
+
+function NC:import_fluids()
     local import = {}
     local import_length = 0
     local import_processed = 0
-    local export = {}
-    local export_length = 0
-    local export_processed = 0
     for p, priority in pairs(self.network.FluidIOTable) do
         if settings.global[Constants.Settings.RNS_RoundRobin].value == true then
             import[p] = {}
@@ -336,27 +330,32 @@ function NC:updateFluidIO()
             import[p] = priority.input
         end
 
-        local l = 0
-        local pp = 0
         for _, fluid in pairs(import[p]) do
             if fluid:interactable() then
                 --local old = fluid.processed
                 fluid:IO()
                 if fluid.focusedEntity.fluid_box.index ~= nil then
-                    l = l + 1
-                    if fluid.processed == true then pp = pp + 1 end
+                    import_length = import_length + 1
+                    if fluid.processed == true then import_processed = import_processed + 1 end
                     --import_length = import_length + 1
                     --if fluid.processed == true then import_processed = import_processed + 1 end
                 end
                 --if old == true and fluid.processed == true then fluid.processed = false end
             end
+            if self.network:is_full() then return end
         end
-        if pp >= l and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+        if import_processed >= import_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
             for _, item in pairs(import[p]) do
                 item.processed = false
             end
         end
     end
+end
+
+function NC:export_fluids()
+    local export = {}
+    local export_length = 0
+    local export_processed = 0
     for p, priority in pairs(self.network.FluidIOTable) do
         if settings.global[Constants.Settings.RNS_RoundRobin].value == true then
             export[p] = {}
@@ -369,40 +368,34 @@ function NC:updateFluidIO()
             end
         else
             export[p] = priority.output
-        end
-        local l = 0
-        local pp = 0
+        end 
         for _, fluid in pairs(export[p]) do
             if fluid:interactable() then
                 fluid:IO()
                 if fluid.focusedEntity.fluid_box.index ~= nil then
-                    l = l + 1
-                    if fluid.processed == true then pp = pp + 1 end
+                    export_length = export_length + 1
+                    if fluid.processed == true then export_processed = export_processed + 1 end
                     --export_length = export_length + 1
                     --if fluid.processed == true then export_processed = export_processed + 1 end
                 end
+                if self.network:is_empty() then return end
             end
         end
-        if pp >= l and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
+        if export_processed >= export_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
             for _, item in pairs(export[p]) do
                 item.processed = false
             end
         end
     end
-    --[[if import_processed >= import_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
-        for _, priority in pairs(import) do
-            for _, fluid in pairs(priority) do
-                fluid.processed = false
-            end
-        end
+end
+
+function NC:updateFluidIO()
+    if self.network:is_full() == false then
+        self:import_fluids()
     end
-    if export_processed >= export_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
-        for _, priority in pairs(export) do
-            for _, fluid in pairs(priority) do
-                fluid.processed = false
-            end
-        end
-    end]]
+    if self.network:is_empty() == false then
+        self:export_fluids()
+    end
 end
 
 function NC:resetCollection()

@@ -126,7 +126,7 @@ end
 function BaseNet:doRefresh(controller)
     self:resetTables()
     self.connectedEntities[controller.entID] = controller
-    addConnectables(controller, self.connectedEntities, controller)
+    BaseNet.addConnectables(controller, self.connectedEntities, controller)
     self.shouldRefresh = false
 end
 
@@ -168,7 +168,7 @@ function BaseNet.remove_networkcontroller_from_global(obj)
     global.NetworkControllers[obj.thisEntity.unit_number] = nil
 end
 
-function addConnectables(source, connections, master)
+function BaseNet.addConnectables(source, connections, master)
     if valid(source) == false then return end
     if source.thisEntity == nil and source.thisEntity.valid == false then return end
     if source.createArms == nil then return end
@@ -195,20 +195,20 @@ function addConnectables(source, connections, master)
                 for n, v in pairs(con.storageArray) do
                     master.network:increase_tracked_item_count(n, v.count)
                 end
-
+        
             elseif string.match(con.thisEntity.name, "RNS_FluidDrive") ~= nil then
                 master.network.FluidDriveTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
                 master.network:delta_FluidDrive_Partition(con.storedAmount, con.maxStorage)
                 for n, v in pairs(con.fluidArray) do
                     master.network:increase_tracked_fluid_amount(n, v.amount)
                 end
-
+        
             elseif con.thisEntity.name == Constants.NetworkCables.itemIO.name then
                 master.network.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.io][con.entID] = con
-
+        
             elseif con.thisEntity.name == Constants.NetworkCables.fluidIO.name then
                 master.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.io][con.entID] = con
-
+        
             elseif con.thisEntity.name == Constants.NetworkCables.externalIO.name then
                 master.network.ExternalIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.type][con.entID] = con
                 con:init_cache()
@@ -231,20 +231,21 @@ function addConnectables(source, connections, master)
                 end
             elseif con.thisEntity.name == Constants.NetworkInventoryInterface.name then
                 master.network.NetworkInventoryInterfaceTable[1][con.entID] = con
-
+        
             elseif con.thisEntity.name == Constants.NetworkCables.wirelessTransmitter.name then
                 master.network.WirelessTransmitterTable[1][con.entID] = con
-
+        
             elseif con.thisEntity.name == Constants.Detector.name then
                 master.network.DetectorTable[1][con.entID] = con
-
+        
             elseif con.thisEntity.name == Constants.NetworkTransReceiver.transmitter.name then
                 master.network.TransmitterTable[1][con.entID] = con
                 
             elseif con.thisEntity.name == Constants.NetworkTransReceiver.receiver.name then
                 master.network.ReceiverTable[1][con.entID] = con
             end
-            addConnectables(con, connections, master)
+            
+            BaseNet.addConnectables(con, connections, master)
             ::continue::
         end
     end
