@@ -219,5 +219,13 @@ data:extend({
       icon_size = 40,
       subgroup = "virtual-signal",
       order = "z-z-o"
-    }
+    },
+	{
+		type = "virtual-signal",
+		name = Constants.Icons.select_icon_white,
+		icon = "__core__/graphics/icons/mip/select-icon-white.png",
+		icon_size = 40,
+		subgroup = "virtual-signal",
+		order = "z-z-o"
+	  }
 })

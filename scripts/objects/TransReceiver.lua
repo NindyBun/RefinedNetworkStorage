@@ -251,14 +251,14 @@ function TR:make_name_change(guiTable, nameFlow)
     nameText.select_all()
     nameText.focus()
 
-    local elementButton = GuiApi.add_element_button(guiTable, "RNS_TransReceiver_Element_Button", nameFlow, "", false, "signal", {type="virtual", name=Constants.Icons.select_icon_black}, 20, {ID = self.entID})
-    elementButton.style = Constants.Settings.RNS_Gui.button_1
-    elementButton.height = 20
-    elementButton.width = 20
-    local checkMark = GuiApi.add_button(guiTable, "RNS_TransReceiver_Checkmark", nameFlow, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, {"gui-description.RNS_Add"}, 20, false, true, nil, nil, {ID=self.thisEntity.unit_number})
-    checkMark.style = Constants.Settings.RNS_Gui.button_1
-    checkMark.height = 20
-    checkMark.width = 20
+    local elementButton = GuiApi.add_element_button(guiTable, "RNS_TransReceiver_Element_Button", nameFlow, "", false, "signal", {type="virtual", name=Constants.Icons.select_icon_white}, 30, {ID = self.entID})
+    --elementButton.style = Constants.Settings.RNS_Gui.button_1
+    --elementButton.style.height = 30
+    --elementButton.style.width = 30
+    local checkMark = GuiApi.add_button(guiTable, "RNS_TransReceiver_Checkmark", nameFlow, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, {"gui-description.RNS_Confirm"}, 30, false, true, nil, nil, {ID=self.thisEntity.unit_number})
+    --checkMark.style = Constants.Settings.RNS_Gui.button_1
+    --checkMark.style.height = 30
+    --checkMark.style.width = 30
 end
 
 function TR:force_controller_update()
@@ -292,21 +292,22 @@ function TR.interaction(event, RNSPlayer)
     if string.match(event.element.name, "RNS_TransReceiver_Element_Button") then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
-            guiTable.vars["nameText"].text = guiTable.vars["nameText"].text .. Util.signal_to_rich_text(event.element.elem_value)
-            guiTable.vars["nameText"].focus()
+            if event.element.elem_value.name == Constants.Icons.select_icon_black then return end
+            guiTable.vars["RNS_TransReceiver_Name_Text"].text = guiTable.vars["RNS_TransReceiver_Name_Text"].text .. Util.signal_to_rich_text(event.element.elem_value)
+            guiTable.vars["RNS_TransReceiver_Name_Text"].focus()
             event.element.elem_value = {
                 type = "virtual",
-                name = Constants.Icons.select_icon_black
+                name = Constants.Icons.select_icon_white
               }
 		return
 	end
     if string.match(event.element.name, "RNS_TransReceiver_Checkmark") then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
-        if guiTable.vars["nameText"].text == "" then
+        if guiTable.vars["RNS_TransReceiver_Name_Text"].text == "" then
             obj.nametag = {"gui-description.RNS_TransReceiver_ID", obj.thisEntity.unit_number, obj.thisEntity.surface.name, tostring(serpent.line(obj.thisEntity.position))}
         else
-            obj.nametag = {guiTable.vars["nameText"].text, obj.entID}
+            obj.nametag = {guiTable.vars["RNS_TransReceiver_Name_Text"].text, obj.entID}
         end
         obj:make_name_label(guiTable, guiTable.vars["nameFlow"])
 		return

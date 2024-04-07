@@ -357,6 +357,7 @@ Constants.Icons = {
         sprite = Constants.MOD_ID.."/graphics/Cables/IO/storage-indication-arrow.png"
     },
     select_icon_black = "RNS_select_icon_black",
+    select_icon_white = "RNS_select_icon_white",
     insert_arrow = {
         name = "RNS_insert_arrow",
         sprite = Constants.MOD_ID.."/graphics/insert_arrow.png"
