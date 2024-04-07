@@ -292,6 +292,18 @@ function GuiApi.add_filter(guiTable, name, gui, tooltip, save, elemType, size, t
     return filter
 end
 
+function GuiApi.add_element_button(guiTable, name, gui, tooltip, save, elemType, signal, size, tags)
+    if gui[name] ~= nil then gui[name].destroy() end
+    local filter = gui.add{type="choose-elem-button", name=name, tooltip=tooltip, elem_type=elemType, signal=signal, tags=tags}
+    filter.style.height = size
+    filter.style.width = size
+    
+    if guiTable ~= nil and save == true then
+        guiTable.vars[name] = filter
+    end
+    return filter
+end
+
 function GuiApi.add_checkbox(guiTable, name, gui, text, tooltip, state, save, tags)
     if gui[name] ~= nil then gui[name].destroy() end
     local checkBox = gui.add{type="checkbox", name=name, caption=text, tooltip=tooltip, state=state or false, tags = tags}

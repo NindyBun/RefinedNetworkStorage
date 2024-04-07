@@ -159,6 +159,12 @@ function GUI.on_gui_clicked(event)
         GUI.update(true)
         return
     end
+
+    if string.match(event.element.name, "RNS_TransReceiver") then
+        TR.interaction(event, RNSPlayer)
+        GUI.update(true)
+        return
+    end
 end
 
 function GUI.on_gui_element_changed(event)

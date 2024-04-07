@@ -266,3 +266,16 @@ function Util.merge_sort(array, s, e, direction)
 	Util.merge_sort(array, m+1, e, direction)
 	merge(array, s, e, direction)
 end
+
+function Util.signal_to_rich_text(signal)
+	if signal and signal.name then
+	  if signal.type == "item" then
+		return "[img=item."..signal.name.."]"
+	  elseif signal.type == "fluid" then
+		return "[img=fluid."..signal.name.."]"
+	  elseif signal.type == "virtual" then
+		return "[img=virtual-signal."..signal.name.."]"
+	  end
+	end
+	return ""
+  end

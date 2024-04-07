@@ -210,3 +210,14 @@ data.raw["gui-style"].default[Constants.Settings.RNS_Gui.button_2] =
 		shadow = offset_by_2_default_glow(default_dirt_color, 0.5)
 	}
 }
+
+data:extend({
+    {
+      type = "virtual-signal",
+      name = Constants.Icons.select_icon_black,
+      icon = "__core__/graphics/icons/mip/select-icon-black.png",
+      icon_size = 40,
+      subgroup = "virtual-signal",
+      order = "z-z-o"
+    }
+})

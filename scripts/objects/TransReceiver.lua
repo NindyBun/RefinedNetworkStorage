@@ -5,6 +5,7 @@ TR = {
     connectedObjs = nil,
     cardinals = nil,
     type = "",
+    nametag = nil,
     powerUsage = 2560,
     connected = nil
 }
@@ -18,6 +19,7 @@ function TR:new(object)
     t.thisEntity = object
     t.entID = object.unit_number
     t.type = object.name == "RNS_NetworkTransmitter" and "transmitter" or "receiver"
+    t.nametag = {"gui-description.RNS_TransReceiver_ID", t.thisEntity.unit_number, t.thisEntity.surface.name, tostring(serpent.line(t.thisEntity.position))}
     t.connectedObjs = {
         [1] = {}, --N
         [2] = {}, --E
@@ -180,7 +182,11 @@ function TR:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
         local infoFlow = GuiApi.add_flow(guiTable, "", infoFrame, "vertical")
         infoFlow.style.horizontal_align = "center"
-        GuiApi.add_label(guiTable, "", infoFlow, {"gui-description.RNS_TransReceiver_ID", self.thisEntity.unit_number, self.thisEntity.surface.name, tostring(serpent.line(self.thisEntity.position))}, Constants.Settings.RNS_Gui.white)
+        --GuiApi.add_label(guiTable, "", infoFlow, {"gui-description.RNS_TransReceiver_ID", self.thisEntity.unit_number, self.thisEntity.surface.name, tostring(serpent.line(self.thisEntity.position))}, Constants.Settings.RNS_Gui.white)
+        local nameFlow = GuiApi.add_flow(guiTable, "nameFlow", infoFlow, "horizontal", true)
+        nameFlow.style.vertical_align = "center"
+
+        self:make_name_label(guiTable, nameFlow)
         
         GuiApi.add_line(guiTable, "", infoFlow, "horizontal")
         if self.connected then
@@ -197,7 +203,7 @@ function TR:getTooltips(guiTable, mainFrame, justCreated)
         for id, obj in pairs(BaseNet.get_transreciever_from_global(self.type == "transmitter" and "receiver" or "transmitter")) do
             if obj.thisEntity.valid then
                 index = index + 1
-                table.insert(values, {"gui-description.RNS_TransReceiver_Dropbox", obj.thisEntity.unit_number, obj.thisEntity.surface.name, tostring(serpent.line(obj.thisEntity.position))})
+                table.insert(values, obj.nametag)
                 if self.connected and self.connected == id then selected = index end
             end
         end
@@ -227,11 +233,40 @@ function TR:getTooltips(guiTable, mainFrame, justCreated)
     guiTable.vars.Connection.caption = self.type == "transmitter" and (self.connected and {"gui-description.RNS_TransReceiver_Available_Receivers_Connected"} or {"gui-description.RNS_TransReceiver_Available_Receivers_Disconnected"}) or (self.connected and {"gui-description.RNS_TransReceiver_Available_Transmitters_Connected"} or {"gui-description.RNS_TransReceiver_Available_Transmitters_Disconnected"})
 end
 
+function TR:make_name_label(guiTable, nameFlow)
+    nameFlow.clear()
+    local nameLabel = GuiApi.add_label(guiTable, "RNS_TransReceiver_Name_Label", nameFlow, self.nametag, Constants.Settings.RNS_Gui.white)
+    nameLabel.style.horizontally_squashable = true
+
+    local nameButton = GuiApi.add_button(guiTable, "RNS_TransReceiver_Name_Button", nameFlow, "utility/rename_icon_normal", nil, nil, "", 30, false, true, nil, "mini_button_aligned_to_text_vertically_when_centered", {ID=self.entID})
+    nameButton.mouse_button_filter = {"left"}
+end
+
+function TR:make_name_change(guiTable, nameFlow)
+    nameFlow.clear()
+    local nameText = GuiApi.add_text_field(guiTable, "RNS_TransReceiver_Name_Text", nameFlow, "", "", true, true, true, true, false, {ID = self.entID})
+    nameText.clear_and_focus_on_right_click = true
+    nameText.style.horizontally_stretchable = true
+    nameText.style.maximal_width = 0
+    nameText.select_all()
+    nameText.focus()
+
+    local elementButton = GuiApi.add_element_button(guiTable, "RNS_TransReceiver_Element_Button", nameFlow, "", false, "signal", {type="virtual", name=Constants.Icons.select_icon_black}, 20, {ID = self.entID})
+    elementButton.style = Constants.Settings.RNS_Gui.button_1
+    elementButton.height = 20
+    elementButton.width = 20
+    local checkMark = GuiApi.add_button(guiTable, "RNS_TransReceiver_Checkmark", nameFlow, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, {"gui-description.RNS_Add"}, 20, false, true, nil, nil, {ID=self.thisEntity.unit_number})
+    checkMark.style = Constants.Settings.RNS_Gui.button_1
+    checkMark.height = 20
+    checkMark.width = 20
+end
+
 function TR:force_controller_update()
     BaseNet.update_network_controller(self.networkController, self.entID)
 end
 
 function TR.interaction(event, RNSPlayer)
+    local guiTable = RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip]
     if string.match(event.element.name, "RNS_TransReceiver_Channels") then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
@@ -246,6 +281,34 @@ function TR.interaction(event, RNSPlayer)
             global.entityTable[obj.connected].connected = obj.thisEntity.unit_number
             global.entityTable[obj.connected]:force_controller_update()
         end
+		return
+	end
+    if string.match(event.element.name, "RNS_TransReceiver_Name_Button") then
+		local obj = global.entityTable[event.element.tags.ID]
+		if obj == nil then return end
+            obj:make_name_change(guiTable, guiTable.vars["nameFlow"])
+		return
+	end
+    if string.match(event.element.name, "RNS_TransReceiver_Element_Button") then
+		local obj = global.entityTable[event.element.tags.ID]
+		if obj == nil then return end
+            guiTable.vars["nameText"].text = guiTable.vars["nameText"].text .. Util.signal_to_rich_text(event.element.elem_value)
+            guiTable.vars["nameText"].focus()
+            event.element.elem_value = {
+                type = "virtual",
+                name = Constants.Icons.select_icon_black
+              }
+		return
+	end
+    if string.match(event.element.name, "RNS_TransReceiver_Checkmark") then
+		local obj = global.entityTable[event.element.tags.ID]
+		if obj == nil then return end
+        if guiTable.vars["nameText"].text == "" then
+            obj.nametag = {"gui-description.RNS_TransReceiver_ID", obj.thisEntity.unit_number, obj.thisEntity.surface.name, tostring(serpent.line(obj.thisEntity.position))}
+        else
+            obj.nametag = {guiTable.vars["nameText"].text, obj.entID}
+        end
+        obj:make_name_label(guiTable, guiTable.vars["nameFlow"])
 		return
 	end
     --[[if string.match(event.element.name, "xPos") then
