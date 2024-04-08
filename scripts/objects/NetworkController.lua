@@ -715,7 +715,7 @@ function NC.interaction(event, RNSPlayer)
         if guiTable.vars["RNS_NC_Name_Text"].text == "" then
             obj.nametag = {"gui-description.RNS_TransReceiver_ID", obj.thisEntity.unit_number, obj.thisEntity.surface.name, tostring(serpent.line(obj.thisEntity.position))}
         else
-            obj.nametag = {"gui-description.RNS_TransReceiver_Name", obj.thisEntity.unit_number, guiTable.vars["RNS_NC_Name_Text"].text}
+            obj.nametag = {"gui-description.RNS_TransReceiver_Name", guiTable.vars["RNS_NC_Name_Text"].text, obj.thisEntity.unit_number}
         end
         obj:make_name_label(guiTable, guiTable.vars["nameFlow"])
 		return

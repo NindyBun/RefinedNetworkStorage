@@ -285,7 +285,7 @@ function TR.interaction(event, RNSPlayer)
             global.entityTable[obj.connected]:force_controller_update()
             obj.connected = nil
         else
-            obj.connected = tonumber(selected[2])
+            obj.connected = tonumber(selected[2]) or tonumber(selected[3])
             global.entityTable[obj.connected].connected = obj.thisEntity.unit_number
             global.entityTable[obj.connected]:force_controller_update()
         end
@@ -314,7 +314,7 @@ function TR.interaction(event, RNSPlayer)
         if guiTable.vars["RNS_TransReceiver_Name_Text"].text == "" then
             obj.nametag = {"gui-description.RNS_TransReceiver_ID", obj.thisEntity.unit_number, obj.thisEntity.surface.name, tostring(serpent.line(obj.thisEntity.position))}
         else
-            obj.nametag = {"gui-description.RNS_TransReceiver_Name", obj.thisEntity.unit_number, guiTable.vars["RNS_TransReceiver_Name_Text"].text}
+            obj.nametag = {"gui-description.RNS_TransReceiver_Name", guiTable.vars["RNS_TransReceiver_Name_Text"].text, obj.thisEntity.unit_number}
         end
         obj:make_name_label(guiTable, guiTable.vars["nameFlow"])
 		return

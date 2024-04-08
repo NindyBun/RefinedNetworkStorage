@@ -660,7 +660,7 @@ function WG.interaction(event, RNSPlayer)
         if selected == "" then
             obj.connected = nil
         else
-            obj.connected = tonumber(selected[2])
+            obj.connected = tonumber(selected[2]) or tonumber(selected[3])
             --RNSPlayer:push_varTable(event.element.tags.ID, true)
         end
 		return
