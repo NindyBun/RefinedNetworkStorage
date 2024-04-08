@@ -245,9 +245,9 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
                 if self.connected and self.connected == id then selected = index end
             end
         end
-
+		game.print(serpent.line(values[selected]))
         GuiApi.add_label(guiTable, "Connection", infoFlow, self.connected and {"gui-description.RNS_WirelessGrid_Available_Controllers_Connected"} or {"gui-description.RNS_WirelessGrid_Available_Controllers_Disconnected"}, Constants.Settings.RNS_Gui.white, "", true)
-        GuiApi.add_dropdown(guiTable, "RNS_WirelessGrid_Channels", infoFlow, values, selected, false, "", {ID=self.thisEntity.unit_number})
+        GuiApi.add_dropdown(guiTable, "RNS_WG_Channels", infoFlow, values, selected, false, "", {ID=self.thisEntity.unit_number})
 
 		GuiApi.add_subtitle(guiTable, "", informationFrame, {"gui-description.RNS_NetworkInventory_Fluids"})
 		-- Create the Network Inventory Scroll Pane for Items --
@@ -652,7 +652,7 @@ end
 
 function WG.interaction(event, RNSPlayer)
 	if string.match(event.element.name, "RNS_SearchTextField") then return end
-	if string.match(event.element.name, "RNS_WirelessGrid_Channels") and event.name ~= defines.events.on_gui_click then
+	if string.match(event.element.name, "RNS_WG_Channels") and event.name ~= defines.events.on_gui_click then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
         local selected_index = event.element.selected_index

@@ -184,6 +184,12 @@ function GUI.on_gui_element_changed(event)
         return
     end
 
+    if string.match(event.element.name, "RNS_WG") then
+        WG.interaction(event, RNSPlayer)
+        GUI.update(true)
+        return
+    end
+
     if string.match(event.element.name, "RNS_NetworkCableIO_Item") then
         IIO3.interaction(event, RNSPlayer)
         GUI.update(true)
@@ -210,12 +216,6 @@ function GUI.on_gui_element_changed(event)
 
     if string.match(event.element.name, "RNS_FluidDrive") then
         FD.interaction(event, RNSPlayer)
-        GUI.update(true)
-        return
-    end
-
-    if string.match(event.element.name, "RNS_WirelessGrid") then
-        WG.interaction(event, RNSPlayer)
         GUI.update(true)
         return
     end
