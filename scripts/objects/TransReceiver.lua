@@ -153,6 +153,9 @@ function TR:DataConvert_ItemToEntity(tag)
     if tag.nametag then
         self.nametag = tag.nametag
     end
+    global.entityTable[self.connected].connected = self.thisEntity.unit_number
+    self:force_controller_update()
+    global.entityTable[self.connected]:force_controller_update()
 end
 
 function TR:DataConvert_EntityToItem(tag)
@@ -162,7 +165,7 @@ function TR:DataConvert_EntityToItem(tag)
     if self.connected then
         tags.connection = self.connected
         local obj = global.entityTable[self.connected]
-        Util.add_list_into_table(description, {{"item-description.RNS_TransReceiverConnectionTag"}, self.nametag})
+        Util.add_list_into_table(description, {{"item-description.RNS_TransReceiverConnectionTag"}, obj.nametag})
     end
 
     tags.nametag = self.nametag
@@ -284,11 +287,13 @@ function TR.interaction(event, RNSPlayer)
             global.entityTable[obj.connected].connected = nil
             global.entityTable[obj.connected]:force_controller_update()
             obj.connected = nil
+            obj:force_controller_update()
         else
             local number = selected[1] == "gui-description.RNS_TransReceiver_ID" and selected[2] or selected[3]
             obj.connected = tonumber(number)
             global.entityTable[obj.connected].connected = obj.thisEntity.unit_number
             global.entityTable[obj.connected]:force_controller_update()
+            obj:force_controller_update()
         end
 		return
 	end

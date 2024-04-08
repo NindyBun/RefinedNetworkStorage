@@ -289,7 +289,7 @@ function BaseNet.generateArms(object)
 end
 
 function BaseNet.update_network_controller(controller, objectID)
-    if controller == nil then return end
+    if controller == nil or global.entityTable[controller.entID] == nil then return end
     if controller.interactable and controller:interactable() then
         if objectID == nil or controller.network.connectedEntities[objectID] ~= nil then
             controller.network.shouldRefresh = true
@@ -298,7 +298,7 @@ function BaseNet.update_network_controller(controller, objectID)
 end
 
 function BaseNet.exists_in_network(controller, objectID)
-    if controller == nil then return false end
+    if controller == nil or global.entityTable[controller.entID] == nil then return false end
     if controller.interactable and controller:interactable() == false then return false end
     return controller.network.connectedEntities[objectID] ~= nil
 end

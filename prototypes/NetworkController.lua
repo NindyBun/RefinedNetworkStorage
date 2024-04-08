@@ -1,5 +1,5 @@
 local controllerI = {}
-controllerI.type = "item"
+controllerI.type = "item-with-tags"
 controllerI.name = Constants.NetworkController.main.name
 controllerI.icon = Constants.NetworkController.main.itemIcon
 controllerI.icon_size = 256

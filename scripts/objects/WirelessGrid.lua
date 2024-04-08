@@ -13,10 +13,6 @@ function WG:new(object)
     mt.__index = WG
     t.thisEntity = object
     t.entID = object.unit_number
-    t.network_controller_position = {
-        x = nil,
-        y = nil
-    }
     UpdateSys.add_to_entity_table(t)
     UpdateSys.addEntity(t)
     return t
@@ -44,8 +40,8 @@ function WG:update()
         self:remove()
         return
     end
-	if self.connected and (global.entityTable[self.connected] == nil or global.entityTable[self.connected].thisEntity == nil or global.entityTable[self.connected].thisEntity.valid == false) then
-		self.connected = nil
+	if self.connected and (global.NetworkControllers[self.connected] == nil or global.NetworkControllers[self.connected].thisEntity == nil or global.NetworkControllers[self.connected].thisEntity.valid == false) then
+		--self.connected = nil
 		return
 	end
 end
@@ -74,9 +70,8 @@ end
 
 function WG:DataConvert_EntityToItem(item)
 	local description = {"", item.prototype.localised_description, {"item-description.RNS_WirelessGrid_SortOrder", self.sortOrder}}
-	if self.connected then
-        local obj = global.entityTable[self.connected]
-        Util.add_list_into_table(description, {{"item-description.RNS_TransReceiverConnectionTag"}, obj.nametag})
+	if self.connected and global.NetworkControllers[self.connected] then
+        Util.add_list_into_table(description, {{"item-description.RNS_TransReceiverConnectionTag"}, global.NetworkControllers[self.connected].nametag})
     end
     item.set_tag(Constants.Settings.RNS_Tag, {connected=self.connected, sortOrder=self.sortOrder})
     item.custom_description = description
@@ -228,8 +223,8 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 		local infoFlow = GuiApi.add_flow(guiTable, "", informationFrame, "vertical")
 
         if self.connected then
-            if global.entityTable[self.connected] == nil or global.entityTable[self.connected].thisEntity == nil or global.entityTable[self.connected].thisEntity.valid == false then
-                self.connected = nil
+            if global.NetworkControllers[self.connected] == nil or global.NetworkControllers[self.connected].thisEntity == nil or global.NetworkControllers[self.connected].thisEntity.valid == false then
+                --self.connected = nil
             end
         end
 
@@ -292,9 +287,9 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
 	--if self.network_controller_surface == nil or self.thisEntity.surface.index ~= self.network_controller_surface then return end
 	--if self.network_controller_position.x == nil or self.network_controller_position.y == nil then return end
 	--if game.surfaces[self.network_controller_surface].find_entity(Constants.NetworkController.main.name, self.network_controller_position) == nil then return end
-	if self.connected == nil then return end
+	if self.connected == nil or global.NetworkControllers[self.connected] == nil then return end
 
-	if self.connected and global.entityTable[self.connected] and global.entityTable[self.connected]:find_wirelessgrid_with_wirelessTransmitter(self.thisEntity.unit_number) == false then
+	if self.connected and global.NetworkControllers[self.connected] and global.NetworkControllers[self.connected]:find_wirelessgrid_with_wirelessTransmitter(self.thisEntity.unit_number) == false then
 		if justCreated == true then RNSPlayer.thisEntity.print({"gui-description.RNS_NetworkController_Far"}) end
 		return
 	end
@@ -661,40 +656,10 @@ function WG.interaction(event, RNSPlayer)
         else
             local number = selected[1] == "gui-description.RNS_TransReceiver_ID" and selected[2] or selected[3]
             obj.connected = tonumber(number)
-            --RNSPlayer:push_varTable(event.element.tags.ID, true)
+            RNSPlayer:push_varTable(event.element.tags.ID, true)
         end
 		return
 	end
-	--[[if string.match(event.element.name, "xPos") then
-		local obj = global.entityTable[event.element.tags.ID]
-		if obj == nil then return end
-        if event.element.text ~= "" then
-            obj.network_controller_position.x = tonumber(event.element.text)
-        else
-            obj.network_controller_position.x = nil
-        end
-		return
-	end
-    if string.match(event.element.name, "yPos") then
-		local obj = global.entityTable[event.element.tags.ID]
-		if obj == nil then return end
-        if event.element.text ~= "" then
-            obj.network_controller_position.y = tonumber(event.element.text)
-        else
-            obj.network_controller_position.y = nil
-        end
-		return
-	end
-	if string.match(event.element.name, "SurfaceID") then
-		local obj = global.entityTable[event.element.tags.ID]
-		if obj == nil then return end
-        if event.element.text ~= "" then
-            obj.network_controller_surface = tonumber(event.element.text)
-        else
-            obj.network_controller_surface = nil
-        end
-		return
-	end]]
 	if string.match(event.element.name, "RNS_WG_SortOrder") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]

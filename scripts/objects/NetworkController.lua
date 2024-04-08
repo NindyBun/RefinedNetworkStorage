@@ -213,24 +213,12 @@ function NC:find_wirelessgrid_with_wirelessTransmitter(id)
                 for _, interface in pairs(interfaces) do
                     if interface.unit_number == id then
                         local inter = global.entityTable[interface.unit_number]
-                        if inter ~= nil and inter.thisEntity ~= nil and inter.thisEntity.valid == true then
-                            if inter.network_controller_position.x ~= nil and inter.network_controller_position.y ~= nil and inter.network_controller_surface ~= nil then
-                                if inter.network_controller_surface == self.thisEntity.surface.index and Util.positions_match(inter.network_controller_position, self.thisEntity.position) == true then
-                                    return true
-                                end
-                            end
-                        end
+                        if inter ~= nil and inter.thisEntity ~= nil and inter.thisEntity.valid == true and inter.connected and inter.connected == self.entID then return true end
                     end
                 end
             else
                 local inter = global.entityTable[id]
-                if inter ~= nil and inter.thisEntity ~= nil and inter.thisEntity.valid == true then
-                    if inter.network_controller_position.x ~= nil and inter.network_controller_position.y ~= nil and inter.network_controller_surface ~= nil then
-                        if inter.network_controller_surface == self.thisEntity.surface.index and Util.positions_match(inter.network_controller_position, self.thisEntity.position) == true then
-                            return true
-                        end
-                    end
-                end
+                if inter ~= nil and inter.thisEntity ~= nil and inter.thisEntity.valid == true and inter.connected and inter.connected == self.entID then return true end
             end
         end
     end
