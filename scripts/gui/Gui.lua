@@ -160,6 +160,12 @@ function GUI.on_gui_clicked(event)
         return
     end
 
+    if string.match(event.element.name, "RNS_NC") then
+        NC.interaction(event, RNSPlayer)
+        GUI.update(true)
+        return
+    end
+
     if string.match(event.element.name, "RNS_TransReceiver") then
         TR.interaction(event, RNSPlayer)
         GUI.update(true)
@@ -171,6 +177,12 @@ function GUI.on_gui_element_changed(event)
     local player = getPlayer(event.player_index)
     local RNSPlayer = getRNSPlayer(event.player_index)
     if player == nil then return end
+
+    if string.match(event.element.name, "RNS_NC") then
+        NC.interaction(event, RNSPlayer)
+        GUI.update(true)
+        return
+    end
 
     if string.match(event.element.name, "RNS_NetworkCableIO_Item") then
         IIO3.interaction(event, RNSPlayer)

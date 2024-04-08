@@ -150,20 +150,26 @@ function TR:DataConvert_ItemToEntity(tag)
     if tag.connection then
         self.connected = tag.connection
     end
+    if tag.nametag then
+        self.nametag = tag.nametag
+    end
 end
 
 function TR:DataConvert_EntityToItem(tag)
-    if self.connected then
-        local tags = {}
-        local description = {"", tag.prototype.localised_description}
+    local tags = {}
+    local description = {"", tag.prototype.localised_description}
 
+    if self.connected then
         tags.connection = self.connected
         local obj = global.entityTable[self.connected]
-        Util.add_list_into_table(description, {{"item-description.RNS_TransReceiverTag", obj.thisEntity.unit_number, obj.thisEntity.surface.name, tostring(serpent.line(obj.thisEntity.position))}})
-
-        tag.set_tag(Constants.Settings.RNS_Tag, tags)
-        tag.custom_description = description
+        Util.add_list_into_table(description, {{"item-description.RNS_TransReceiverConnectionTag"}, self.nametag})
     end
+
+    tags.nametag = self.nametag
+    Util.add_list_into_table(description, {{"item-description.RNS_TransReceiverNameTag"}, self.nametag})
+
+    tag.set_tag(Constants.Settings.RNS_Tag, tags)
+    tag.custom_description = description
 end
 
 --Tooltips
@@ -179,7 +185,7 @@ function TR:getTooltips(guiTable, mainFrame, justCreated)
 		infoFrame.style.left_padding = 3
 		infoFrame.style.right_padding = 3
 
-        GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_Information"})
+        GuiApi.add_subtitle(guiTable, "", infoFrame, {"gui-description.RNS_NameTag"})
         local infoFlow = GuiApi.add_flow(guiTable, "", infoFrame, "vertical")
         infoFlow.style.horizontal_align = "center"
         --GuiApi.add_label(guiTable, "", infoFlow, {"gui-description.RNS_TransReceiver_ID", self.thisEntity.unit_number, self.thisEntity.surface.name, tostring(serpent.line(self.thisEntity.position))}, Constants.Settings.RNS_Gui.white)
@@ -308,7 +314,7 @@ function TR.interaction(event, RNSPlayer)
         if guiTable.vars["RNS_TransReceiver_Name_Text"].text == "" then
             obj.nametag = {"gui-description.RNS_TransReceiver_ID", obj.thisEntity.unit_number, obj.thisEntity.surface.name, tostring(serpent.line(obj.thisEntity.position))}
         else
-            obj.nametag = {"gui-description.RNS_TransReceiver_Name", guiTable.vars["RNS_TransReceiver_Name_Text"].text, obj.entID}
+            obj.nametag = {"gui-description.RNS_TransReceiver_Name", obj.thisEntity.unit_number, guiTable.vars["RNS_TransReceiver_Name_Text"].text}
         end
         obj:make_name_label(guiTable, guiTable.vars["nameFlow"])
 		return

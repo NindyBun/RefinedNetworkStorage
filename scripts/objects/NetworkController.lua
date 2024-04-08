@@ -8,6 +8,7 @@ NC = {
     state = nil,
     network = nil,
     connectedObjs = nil,
+    nametag = nil,
     powerDraw = 0
 }
 --Constructor
@@ -21,6 +22,7 @@ function NC:new(object)
     t.entID = object.unit_number
     t.network = t.network or BaseNet:new()
     t.network.networkController = t
+    t.nametag = {"gui-description.RNS_TransReceiver_ID", t.thisEntity.unit_number, t.thisEntity.surface.name, tostring(serpent.line(t.thisEntity.position))}
     t:setState(Constants.NetworkController.states.unstable)
     t.connectedObjs = {
         [1] = {}, --N
@@ -117,6 +119,23 @@ function NC:update()
     if game.tick % Constants.Settings.RNS_FluidIO_Tick == 0 then self:updateFluidIO() end --Base is every 5 ticks to match offshore pump speed at 1200/s
 
     if game.tick % Constants.Settings.RNS_WirelessTransmitter_Tick == 0 then self:find_players_with_wirelessTransmitter() end --Updates every 30 ticks
+end
+
+function NC:DataConvert_ItemToEntity(tag)
+    if tag.nametag then
+        self.nametag = tag.nametag
+    end
+end
+
+function NC:DataConvert_EntityToItem(tag)
+    local tags = {}
+    local description = {"", tag.prototype.localised_description}
+
+    tags.nametag = self.nametag
+    Util.add_list_into_table(description, {{"item-description.RNS_TransReceiverNameTag"}, self.nametag})
+
+    tag.set_tag(Constants.Settings.RNS_Tag, tags)
+    tag.custom_description = description
 end
 
 function NC:updateDetectors()
@@ -449,8 +468,22 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
     if justCreated == true then
         guiTable.vars.Gui_Title.caption = {"gui-description.RNS_NetworkController_Title"}
         mainFrame.style.height = 450
+        local mainFlowV = GuiApi.add_flow(guiTable, "MainFlowV", mainFrame, "vertical")
 
-        local infoFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
+        GuiApi.add_subtitle(guiTable, "", mainFlowV, {"gui-description.RNS_NameTag"})
+        local infoFlow = GuiApi.add_flow(guiTable, "", mainFlowV, "vertical")
+        infoFlow.style.horizontal_align = "center"
+
+        local nameFlow = GuiApi.add_flow(guiTable, "nameFlow", infoFlow, "horizontal", true)
+        nameFlow.style.vertical_align = "center"
+
+        self:make_name_label(guiTable, nameFlow)
+        
+        GuiApi.add_line(guiTable, "", infoFlow, "horizontal")
+
+        local mainFlowH = GuiApi.add_flow(guiTable, "MainFlowH", mainFlowV, "horizontal")
+
+        local infoFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFlowH, "vertical", true)
 		infoFrame.style = Constants.Settings.RNS_Gui.frame_1
 		infoFrame.style.vertically_stretchable = true
 		infoFrame.style.minimal_width = 200
@@ -477,7 +510,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
 		--connectedStructuresFrame.style.left_padding = 3
 		--connectedStructuresFrame.style.right_padding = 3
 
-        local connectedStructuresFlow = GuiApi.add_flow(guiTable, "", mainFrame, "vertical")
+        local connectedStructuresFlow = GuiApi.add_flow(guiTable, "", mainFlowH, "vertical")
 
         GuiApi.add_subtitle(guiTable, "", connectedStructuresFlow, {"gui-description.RNS_NetworkController_Connections"})
 
@@ -625,4 +658,66 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_item_frame(guiTable, "", section, "0 J/t", name, receivercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
+end
+
+function NC:make_name_label(guiTable, nameFlow)
+    nameFlow.clear()
+    local nameLabel = GuiApi.add_label(guiTable, "RNS_NC_Name_Label", nameFlow, self.nametag, Constants.Settings.RNS_Gui.white)
+    nameLabel.style.horizontally_squashable = true
+
+    local nameButton = GuiApi.add_button(guiTable, "RNS_NC_Name_Button", nameFlow, "utility/rename_icon_normal", nil, nil, "", 30, false, true, nil, "mini_button_aligned_to_text_vertically_when_centered", {ID=self.entID})
+    nameButton.mouse_button_filter = {"left"}
+end
+
+function NC:make_name_change(guiTable, nameFlow)
+    nameFlow.clear()
+    local text = self.nametag[1] == "gui-description.RNS_TransReceiver_ID" and --[[("ID: "..self.nametag[2].."Surface: "..self.nametag[3].."Pos: "..self.nametag[4])]]"" or self.nametag[2]
+    local nameText = GuiApi.add_text_field(guiTable, "RNS_NC_Name_Text", nameFlow, text, "", true, false, false, false, false, {ID = self.entID})
+    nameText.clear_and_focus_on_right_click = true
+    nameText.style.horizontally_stretchable = true
+    nameText.style.maximal_width = 0
+    nameText.select_all()
+    nameText.focus()
+
+    local elementButton = GuiApi.add_element_button(guiTable, "RNS_NC_Element_Button", nameFlow, "", false, "signal", {type="virtual", name=Constants.Icons.select_icon_white}, 30, {ID = self.entID})
+    --elementButton.style = Constants.Settings.RNS_Gui.button_1
+    --elementButton.style.height = 30
+    --elementButton.style.width = 30
+    local checkMark = GuiApi.add_button(guiTable, "RNS_NC_Checkmark", nameFlow, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, {"gui-description.RNS_Confirm"}, 30, false, true, nil, nil, {ID=self.thisEntity.unit_number})
+    checkMark.mouse_button_filter = {"left"}
+    --checkMark.style = Constants.Settings.RNS_Gui.button_1
+    --checkMark.style.height = 30
+    --checkMark.style.width = 30
+end
+
+function NC.interaction(event, RNSPlayer)
+    local guiTable = RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip]
+    if string.match(event.element.name, "RNS_NC_Name_Button") then
+		local obj = global.entityTable[event.element.tags.ID]
+		if obj == nil then return end
+            obj:make_name_change(guiTable, guiTable.vars["nameFlow"])
+		return
+	end
+    if string.match(event.element.name, "RNS_NC_Element_Button") and event.name ~= defines.events.on_gui_click then
+		local obj = global.entityTable[event.element.tags.ID]
+		if obj == nil then return end
+            guiTable.vars["RNS_NC_Name_Text"].text = guiTable.vars["RNS_NC_Name_Text"].text .. Util.signal_to_rich_text(event.element.elem_value)
+            guiTable.vars["RNS_NC_Name_Text"].focus()
+            event.element.elem_value = {
+                type = "virtual",
+                name = Constants.Icons.select_icon_white
+              }
+		return
+	end
+    if string.match(event.element.name, "RNS_NC_Checkmark") then
+		local obj = global.entityTable[event.element.tags.ID]
+		if obj == nil then return end
+        if guiTable.vars["RNS_NC_Name_Text"].text == "" then
+            obj.nametag = {"gui-description.RNS_TransReceiver_ID", obj.thisEntity.unit_number, obj.thisEntity.surface.name, tostring(serpent.line(obj.thisEntity.position))}
+        else
+            obj.nametag = {"gui-description.RNS_TransReceiver_Name", obj.thisEntity.unit_number, guiTable.vars["RNS_NC_Name_Text"].text}
+        end
+        obj:make_name_label(guiTable, guiTable.vars["nameFlow"])
+		return
+	end
 end

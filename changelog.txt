@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.31
+Date: 7 April 2024
+  Info:
+    - Added name tags to Transmitters, Receivers, and Controllers
+    - Made the name buttons in the Wireless Transmitter selectable for easy removability
+---------------------------------------------------------------------------------------------------
 Version: 1.0.30
 Date: 6 April 2024
   Info:
