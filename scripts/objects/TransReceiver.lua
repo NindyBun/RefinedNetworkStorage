@@ -285,7 +285,8 @@ function TR.interaction(event, RNSPlayer)
             global.entityTable[obj.connected]:force_controller_update()
             obj.connected = nil
         else
-            obj.connected = tonumber(selected[2]) or tonumber(selected[3])
+            local number = selected[1] == "gui-description.RNS_TransReceiver_ID" and selected[2] or selected[3]
+            obj.connected = tonumber(number)
             global.entityTable[obj.connected].connected = obj.thisEntity.unit_number
             global.entityTable[obj.connected]:force_controller_update()
         end
