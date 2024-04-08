@@ -143,8 +143,9 @@ function ID:createArms()
 end
 
 function ID:validate()
-    for k, _ in pairs(self.storageArray) do
+    for k, v in pairs(self.storageArray) do
         if game.item_prototypes[k] == nil then
+            self.storedAmount = self.storedAmount - v.amount
             self.storageArray[k] = nil
         end
     end

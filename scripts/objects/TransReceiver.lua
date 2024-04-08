@@ -244,7 +244,8 @@ end
 
 function TR:make_name_change(guiTable, nameFlow)
     nameFlow.clear()
-    local nameText = GuiApi.add_text_field(guiTable, "RNS_TransReceiver_Name_Text", nameFlow, "", "", true, true, true, true, false, {ID = self.entID})
+    local text = self.nametag[1] == "gui-description.RNS_TransReceiver_ID" and --[[("ID: "..self.nametag[2].."Surface: "..self.nametag[3].."Pos: "..self.nametag[4])]]"" or self.nametag[2]
+    local nameText = GuiApi.add_text_field(guiTable, "RNS_TransReceiver_Name_Text", nameFlow, text, "", true, false, false, false, false, {ID = self.entID})
     nameText.clear_and_focus_on_right_click = true
     nameText.style.horizontally_stretchable = true
     nameText.style.maximal_width = 0
@@ -256,6 +257,7 @@ function TR:make_name_change(guiTable, nameFlow)
     --elementButton.style.height = 30
     --elementButton.style.width = 30
     local checkMark = GuiApi.add_button(guiTable, "RNS_TransReceiver_Checkmark", nameFlow, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, {"gui-description.RNS_Confirm"}, 30, false, true, nil, nil, {ID=self.thisEntity.unit_number})
+    checkMark.mouse_button_filter = {"left"}
     --checkMark.style = Constants.Settings.RNS_Gui.button_1
     --checkMark.style.height = 30
     --checkMark.style.width = 30
@@ -267,7 +269,7 @@ end
 
 function TR.interaction(event, RNSPlayer)
     local guiTable = RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip]
-    if string.match(event.element.name, "RNS_TransReceiver_Channels") then
+    if string.match(event.element.name, "RNS_TransReceiver_Channels") and event.name ~= defines.events.on_gui_click then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
         local selected_index = event.element.selected_index
@@ -289,10 +291,9 @@ function TR.interaction(event, RNSPlayer)
             obj:make_name_change(guiTable, guiTable.vars["nameFlow"])
 		return
 	end
-    if string.match(event.element.name, "RNS_TransReceiver_Element_Button") then
+    if string.match(event.element.name, "RNS_TransReceiver_Element_Button") and event.name ~= defines.events.on_gui_click then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
-            if event.element.elem_value.name == Constants.Icons.select_icon_black then return end
             guiTable.vars["RNS_TransReceiver_Name_Text"].text = guiTable.vars["RNS_TransReceiver_Name_Text"].text .. Util.signal_to_rich_text(event.element.elem_value)
             guiTable.vars["RNS_TransReceiver_Name_Text"].focus()
             event.element.elem_value = {
@@ -307,7 +308,7 @@ function TR.interaction(event, RNSPlayer)
         if guiTable.vars["RNS_TransReceiver_Name_Text"].text == "" then
             obj.nametag = {"gui-description.RNS_TransReceiver_ID", obj.thisEntity.unit_number, obj.thisEntity.surface.name, tostring(serpent.line(obj.thisEntity.position))}
         else
-            obj.nametag = {guiTable.vars["RNS_TransReceiver_Name_Text"].text, obj.entID}
+            obj.nametag = {"gui-description.RNS_TransReceiver_Name", guiTable.vars["RNS_TransReceiver_Name_Text"].text, obj.entID}
         end
         obj:make_name_label(guiTable, guiTable.vars["nameFlow"])
 		return

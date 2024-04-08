@@ -156,8 +156,9 @@ function FD:createArms()
 end
 
 function FD:validate()
-    for k, _ in pairs(self.fluidArray) do
+    for k, v in pairs(self.fluidArray) do
         if game.fluid_prototypes[k] == nil then
+            self.storedAmount = self.storedAmount - v.amount
             self.fluidArray[k] = nil
         end
     end

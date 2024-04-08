@@ -74,6 +74,9 @@ function onLoad()
 		if obj.tableName ~= nil and obj.tag ~= nil and _G[obj.tag] ~= nil then
 			for _, entry in pairs(global[obj.tableName] or {}) do
 				_G[obj.tag]:rebuild(entry)
+                if obj.tag == "NC" then
+                    entry.shouldRefresh = true
+                end
 			end
 		end
     end

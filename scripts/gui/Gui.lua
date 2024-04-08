@@ -208,7 +208,7 @@ function GUI.on_gui_element_changed(event)
         return
     end
 
-    if string.match(event.element.name, "RNS_WirelessTransmitter") then
+    if string.match(event.element.name, "RNS_WT") then
         WT.interaction(event, RNSPlayer)
         GUI.update(true)
         return

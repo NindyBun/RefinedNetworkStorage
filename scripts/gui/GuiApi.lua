@@ -134,10 +134,10 @@ function GuiApi.add_button(guiTable, name, gui, sprite, hoverSprite, clickedSpri
     return button
 end
 
-function GuiApi.add_simple_button(guiTable, name, gui, text, tooltip, save, tags)
+function GuiApi.add_simple_button(guiTable, name, gui, text, tooltip, save, tags, index)
     -- Check if this Element doesn't exist --
     if name ~= nil and name ~= "" and gui[name] ~= nil then gui[name].destroy() end
-    local button = gui.add{type="button", name=name, caption=text, tooltip=tooltip, tags=tags}
+    local button = gui.add{type="button", name=name, caption=text, tooltip=tooltip, tags=tags, index=index}
 
     if guiTable ~= nil and save == true then
         guiTable.vars[name] = button

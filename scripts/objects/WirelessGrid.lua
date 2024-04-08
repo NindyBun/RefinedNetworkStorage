@@ -238,7 +238,7 @@ function WG:getTooltips(guiTable, mainFrame, justCreated)
         for id, obj in pairs(global.NetworkControllers) do
             if obj.thisEntity.valid then
                 index = index + 1
-                table.insert(values, {"gui-description.RNS_TransReceiver_Dropbox", obj.thisEntity.unit_number, obj.thisEntity.surface.name, tostring(serpent.line(obj.thisEntity.position))})
+                table.insert(values, {"gui-description.RNS_TransReceiver_ID", obj.thisEntity.unit_number, obj.thisEntity.surface.name, tostring(serpent.line(obj.thisEntity.position))})
                 if self.connected and self.connected == id then selected = index end
             end
         end

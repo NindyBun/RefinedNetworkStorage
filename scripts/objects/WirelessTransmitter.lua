@@ -186,7 +186,7 @@ function WT:getTooltips(guiTable, mainFrame, justCreated)
 		colorFrame.style.minimal_width = 150
 
         GuiApi.add_subtitle(guiTable, "", colorFrame, {"gui-description.RNS_Connection_Color"})
-        local colorDD = GuiApi.add_dropdown(guiTable, "RNS_WirelessTransmitter_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
+        local colorDD = GuiApi.add_dropdown(guiTable, "RNS_WT_Color", colorFrame, Constants.Settings.RNS_ColorG, Constants.Settings.RNS_Colors[self.color], false, {"gui-description.RNS_Connection_Color_tooltip"}, {ID=self.thisEntity.unit_number})
         colorDD.style.minimal_width = 100
 
         local infoFrame = GuiApi.add_frame(guiTable, "InformationFrame", mainFrame, "vertical", true)
@@ -215,12 +215,14 @@ function WT:getTooltips(guiTable, mainFrame, justCreated)
 		local flow = GuiApi.add_flow(guiTable, "", playerFrame, "horizontal")
 		flow.style.vertical_align = "center"
     
-		local textField = GuiApi.add_text_field(guiTable, "RNS_PlayerField", flow, "", "", true, false, false, false, false)
+		local textField = GuiApi.add_text_field(guiTable, "RNS_PlayerField", flow, "", "", true, false, false, false, false, {ID = self.entID})
 		textField.style.maximal_width = 140
         --GuiApi.add_label(guiTable, "", flow, "  ")
         local checkMark = GuiApi.add_button(guiTable, "RNS_WT_Checkmark", flow, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, Constants.Icons.check_mark.name, {"gui-description.RNS_Add"}, 30, false, true, nil, nil, {ID=self.thisEntity.unit_number})
+        checkMark.mouse_button_filter = {"left"}
         --GuiApi.add_label(guiTable, "", flow, "  ")
         local xMark = GuiApi.add_button(guiTable, "RNS_WT_Xmark", flow, Constants.Icons.x_mark.name, Constants.Icons.x_mark.name, Constants.Icons.x_mark.name, {"gui-description.RNS_Remove"}, 30, false, true, nil, nil, {ID=self.thisEntity.unit_number})
+        xMark.mouse_button_filter = {"left"}
 
         GuiApi.add_line(guiTable, "", playerFrame, "horizontal")
         local playerScrollPane = GuiApi.add_scroll_pane(guiTable, "PlayerScrollPane", playerFrame, 300, true)
@@ -228,23 +230,52 @@ function WT:getTooltips(guiTable, mainFrame, justCreated)
 		playerScrollPane.style.minimal_width = 208
 		playerScrollPane.style.vertically_stretchable = true
 		playerScrollPane.style.bottom_margin = 3
+
+        guiTable.vars.WT = {cache={}}
     end
 
     guiTable.vars.TransmitterRange.caption = {"gui-description.RNS_WirelessTransmitterRange", global.WTRangeMultiplier ~= -1 and Constants.Settings.RNS_Default_WirelessGrid_Distance*global.WTRangeMultiplier or "∞"}
 
     local playerPane = guiTable.vars.PlayerScrollPane
-    playerPane.clear()
+    --playerPane.clear()
 
     if self.networkController == nil or not self.networkController.stable or (self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == false) then return end
 
+    local index = 0
     for name, rnsplayer in pairs(self.networkController.network.PlayerPorts) do
-        local button = GuiApi.add_simple_button(guiTable, "", playerPane, name, nil)
-        button.style.minimal_width = 200-4
-    end
+		index = index + 1
+		if guiTable.vars.WT.cache[index] == nil then
+            guiTable.vars.WT.cache[index] = GuiApi.add_simple_button(guiTable, "RNS_WT_Name_Button_"..name, playerPane, name, nil, false, {ID = self.entID, name=name}, index)
+        else
+			local button = guiTable.vars.WT.cache[index]
+			if button.tags.name ~= name then
+				button.destroy()
+				guiTable.vars.WT.cache[index] = GuiApi.add_simple_button(guiTable, "RNS_WT_Name_Button_"..name, playerPane, name, nil, false, {ID = self.entID, name=name}, index)
+			end
+		end
+        guiTable.vars.WT.cache[index].mouse_button_filter = {"left"}
+        guiTable.vars.WT.cache[index].style.minimal_width = 200-4
+	end
+    if #guiTable.vars.WT.cache > index then
+		for j = #guiTable.vars.WT.cache, index, -1 do
+			if guiTable.vars.WT.cache[j] then
+				guiTable.vars.WT.cache[j].destroy()
+			end
+			table.remove(guiTable.vars.WT.cache, j)
+		end
+	end
 
 end
 
 function WT.interaction(event, RNSPlayer)
+    if string.match(event.element.name, "RNS_WT_Name_Button") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        local guiTable = RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip]
+        guiTable.vars["RNS_PlayerField"].text = event.element.tags.name
+        return
+    end
     if string.match(event.element.name, "RNS_WT_RangeAreaSwitch") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]
@@ -256,7 +287,7 @@ function WT.interaction(event, RNSPlayer)
 		end
 		return
 	end
-    if string.match(event.element.name, "RNS_WirelessTransmitter_Color") then
+    if string.match(event.element.name, "RNS_WT_Color") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end

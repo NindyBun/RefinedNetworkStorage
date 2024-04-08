@@ -356,6 +356,18 @@ function EIO:update(network)
     end
 end
 
+function EIO:validate()
+    for k, v in pairs(self.cache) do
+        if self.type == "fluid" and game.fluid_prototypes[v.name] == nil then
+            self.storedAmount = self.storedAmount - v.amount
+            self.cache[k] = nil
+        elseif self.type == "item" and game.item_prototypes[v.name] == nil then
+            self.storedAmount = self.storedAmount - v.count
+            self.cache[k] = nil
+        end
+    end
+end
+
 function EIO:copy_settings(obj)
     self.color = obj.color
     self.onlyModified = obj.onlyModified
