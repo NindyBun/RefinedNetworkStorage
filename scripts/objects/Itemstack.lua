@@ -117,7 +117,7 @@ function Itemstack:new(item)
 
     --doesn't include those with ammo or durability because I can easily store them in code
     --those with different health can't be in drives because they don't stack together with normal ones
-    t.modified = (Util.getTableLength_non_nil(t.extras) - offset) > 0 or t.health ~= 1.0 or Util.getTableLength_non_nil(t.tags or {}) > 0
+    t.modified = offset > 0 or t.health ~= 1.0 or Util.getTableLength_non_nil(t.tags or {}) > 0
         --or (t.ammo ~= nil and t.ammo ~= game.item_prototypes[t.name].magazine_size)
         --or (t.durability ~= nil and t.durability ~= game.item_prototypes[t.name].durability)
     return t
@@ -158,7 +158,6 @@ function Itemstack:deserialize_grid(itemstack_grid)
         end
     end
 end
-
 
 
 function Itemstack.create_template(name)
