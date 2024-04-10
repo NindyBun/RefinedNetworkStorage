@@ -23,17 +23,17 @@ function Itemstack:new(item)
     local offset = 0
     t.name = item.name
     t.type = item.type
-    --t.prototype = game.item_prototypes[t.name]
+    t.stack_export_string = (item.is_item_with_tags or item.is_blueprint or item.is_blueprint_book or item.is_deconstruction_item or item.is_upgrade_item) and item.export_stack() or nil
 
     t.health = item.health
-    --if t.health < 1.0 then t.modified = true end
+    if t.health < 1.0 then offset = offset + 1 end
 
     t.count = item.count
     t.ammo = item.type == "ammo" and item.ammo or nil
     t.durability = item.is_tool and item.durability or nil
 
     t.tags = item.is_item_with_tags and Util.copy(item.tags or {}) or nil
-    --if Util.getTableLength_non_nil(t.tags) > 0 then t.modified = true end
+    if t.tags then offset = offset + 1 end
 
     t.item_number = item.item_number
 
@@ -42,27 +42,26 @@ function Itemstack:new(item)
     if t.extras.grid then offset = offset + 1 end
 
     t.extras.custom_description = item.is_item_with_tags and item.custom_description or nil
-    if t.extras.custom_description ~= nil and t.extras.custom_description == "" then offset = offset + 1 end
-    --if t.extras.custom_description ~= nil then t.modified = true end
+    if t.extras.custom_description ~= nil and t.extras.custom_description ~= "" then offset = offset + 1 end
 
     t.extras.is_blueprint_setup = item.is_blueprint and item.is_blueprint_setup() or nil
-    if t.extras.is_blueprint_setup ~= nil and t.extras.is_blueprint_setup == false then offset = offset + 1 end
-    --if t.extras.is_blueprint_setup ~= nil then t.modified = true end
+    if t.extras.is_blueprint_setup ~= nil and t.extras.is_blueprint_setup == true then offset = offset + 1 end
 
     t.extras.blueprint_entities = item.is_blueprint and Util.copy(item.get_blueprint_entities() or {}) or nil
-    --if Util.getTableLength_non_nil(t.extras.blueprint_entities) > 0 then t.modified = true end
+    if t.extras.blueprint_entities then offset = offset + 1 end
 
     t.extras.blueprint_entity_count = item.is_blueprint and item.get_blueprint_entity_count() or nil
-    if t.extras.blueprint_entity_count and t.extras.blueprint_entity_count == 0 then offset = offset + 1 end
+    if t.extras.blueprint_entity_count and t.extras.blueprint_entity_count > 0 then offset = offset + 1 end
 
     t.extras.blueprint_tiles = item.is_blueprint and Util.copy(item.get_blueprint_tiles() or {}) or nil
-    --if Util.getTableLength_non_nil(t.extras.blueprint_tiles) > 0 then t.modified = true end
+    if t.extras.blueprint_tiles then offset = offset + 1 end
 
     t.extras.blueprint_icons = item.is_blueprint and Util.copy(item.blueprint_icons or {}) or nil
-    --if Util.getTableLength_non_nil(t.extras.blueprint_icons) > 0 then t.modified = true end
+    if t.extras.blueprint_icons then offset = offset + 1 end
 
     t.extras.default_icons = (item.is_blueprint and item.get_blueprint_entity_count() ~= 0) and Util.copy(item.default_icons or {}) or nil
-    --if Util.getTableLength_non_nil(t.extras.blueprint_icons) > 0 then t.modified = true end
+    if t.extras.default_icons then offset = offset + 1 end
+
     t.extras.blueprint_snap_to_grid = item.is_blueprint and item.blueprint_snap_to_grid or nil
     t.extras.blueprint_position_relative_to_grid = item.is_blueprint and item.blueprint_position_relative_to_grid or nil
     t.extras.blueprint_absolute_snapping = item.is_blueprint and item.blueprint_absolute_snapping or nil
@@ -72,13 +71,13 @@ function Itemstack:new(item)
     t.extras.label = item.is_item_with_label and item.label or nil
     t.extras.label_color = item.is_item_with_label and item.label_color or nil
     t.extras.allow_manual_label_change = item.is_item_with_label and item.allow_manual_label_change or nil
-    if t.extras.allow_manual_label_change ~= nil and t.extras.allow_manual_label_change == false then offset = offset + 1 end
+    if t.extras.allow_manual_label_change ~= nil and t.extras.allow_manual_label_change == true then offset = offset + 1 end
 
     t.extras.extends_inventory = item.is_item_with_inventory and item.extends_inventory or nil
-    if t.extras.extends_inventory ~= nil and t.extras.extends_inventory == game.item_prototypes[item.name].extends_inventory_by_default then offset = offset + 1 end
+    if t.extras.extends_inventory ~= nil and t.extras.extends_inventory ~= game.item_prototypes[item.name].extends_inventory_by_default then offset = offset + 1 end
 
     t.extras.prioritize_insertion_mode = item.is_item_with_inventory and item.prioritize_insertion_mode or nil
-    if t.extras.prioritize_insertion_mode ~= nil and t.extras.prioritize_insertion_mode == game.item_prototypes[item.name].insertion_priority_mode then offset = offset + 1 end
+    if t.extras.prioritize_insertion_mode ~= nil and t.extras.prioritize_insertion_mode ~= game.item_prototypes[item.name].insertion_priority_mode then offset = offset + 1 end
 
     t.extras.item_inventory = item.is_item_with_inventory and Util.serialize_inventory(item.get_inventory(defines.inventory.item_main)) or nil
     if t.extras.item_inventory then offset = offset + 1 end
@@ -102,9 +101,6 @@ function Itemstack:new(item)
         end
     end
 
-    t.extras.stack_export_string = (item.is_item_with_tags or item.is_blueprint or item.is_blueprint_book or item.is_deconstruction_item or item.is_upgrade_item) and item.export_stack() or nil
-    if t.extras.stack_export_string ~= nil then offset = offset + 1 end
-
     t.extras.connected_entity = (item.type == "spidertron-remote" and item.connected_entity ~= nil) and {
         name = item.connected_entity.name,
         entity_label = item.connected_entity.entity_label,
@@ -117,9 +113,8 @@ function Itemstack:new(item)
 
     --doesn't include those with ammo or durability because I can easily store them in code
     --those with different health can't be in drives because they don't stack together with normal ones
-    t.modified = offset > 0 or t.health ~= 1.0 or Util.getTableLength_non_nil(t.tags or {}) > 0
-        --or (t.ammo ~= nil and t.ammo ~= game.item_prototypes[t.name].magazine_size)
-        --or (t.durability ~= nil and t.durability ~= game.item_prototypes[t.name].durability)
+    --t.modified = offset > 0 or t.health ~= 1.0 or Util.getTableLength_non_nil(t.tags or {}) > 0
+    t.modified = offset > 0
     return t
 end
 
@@ -201,7 +196,7 @@ function Itemstack:compare_itemstacks(itemstack, exact, exact_exact)
         if self.modified ~= itemstack.modified then return false end
         if Itemstack.compare_tags(self.tags, itemstack.tags) == false then return false end
         if Itemstack.compare_tags(self.extras, itemstack.extras) == false then return false end
-        --if self.stack_export_string ~= itemstack.stack_export_string then return false end
+        --if exact_exact and self.stack_export_string ~= itemstack.stack_export_string then return false end
     end
 
     return true

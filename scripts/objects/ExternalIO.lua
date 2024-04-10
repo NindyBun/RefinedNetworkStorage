@@ -357,6 +357,7 @@ function EIO:update(network)
 end
 
 function EIO:validate()
+    if self.cache == nil then return end
     for k, v in pairs(self.cache) do
         if self.type == "fluid" and game.fluid_prototypes[v.name] == nil then
             self.storedAmount = self.storedAmount - v.amount

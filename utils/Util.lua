@@ -120,8 +120,9 @@ function Util.getTableLength_non_nil(array)
 end
 
 function Util.copy(array)
-	local copy = {}
+	local copy = nil
 	for k, v in pairs(array) do
+		copy = copy or {}
 		if type(v) == "table" then
 			copy[k] = Util.copy(v)
 		else
