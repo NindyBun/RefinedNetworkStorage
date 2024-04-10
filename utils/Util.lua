@@ -278,4 +278,19 @@ function Util.signal_to_rich_text(signal)
 	  end
 	end
 	return ""
-  end
+ end
+
+function Util.serialize_inventory(inventory)
+	local i = nil
+	for ii = 1, #inventory do
+		i = i or {}
+		i[ii] = Itemstack:new(inventory[ii])
+	end
+	return i
+end
+
+function Util.deserialize_inventory(inventory, data)
+	for i = 1, #inventory do
+		inventory[i].set_stack(data[i])
+	end
+end

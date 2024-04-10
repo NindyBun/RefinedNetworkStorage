@@ -38,8 +38,8 @@ function Itemstack:new(item)
     t.item_number = item.item_number
 
     t.extras = {}
-    t.extras.grid = item.grid and item.grid.get_contents() or nil
-    --if #t.extras.grid.get_contents() > 0 then t.modified = true end
+    t.extras.grid = item.grid and Itemstack.serialize_grid(item.grid) or nil
+    if t.extras.grid then offset = offset + 1 end
 
     t.extras.custom_description = item.is_item_with_tags and item.custom_description or nil
     if t.extras.custom_description ~= nil and t.extras.custom_description == "" then offset = offset + 1 end
@@ -80,8 +80,8 @@ function Itemstack:new(item)
     t.extras.prioritize_insertion_mode = item.is_item_with_inventory and item.prioritize_insertion_mode or nil
     if t.extras.prioritize_insertion_mode ~= nil and t.extras.prioritize_insertion_mode == game.item_prototypes[item.name].insertion_priority_mode then offset = offset + 1 end
 
-    t.extras.item_inventory = item.is_item_with_inventory and item.get_inventory(defines.inventory.item_main).get_contents() or nil
-    if t.extras.item_inventory and t.extras.item_inventory == 0 then offset = offset + 1 end
+    t.extras.item_inventory = item.is_item_with_inventory and Util.serialize_inventory(item.get_inventory(defines.inventory.item_main)) or nil
+    if t.extras.item_inventory then offset = offset + 1 end
 
     t.extras.entity_filters = item.is_deconstruction_item and item.entity_filters or nil
     t.extras.entity_filter_mode = item.is_deconstruction_item and item.entity_filter_mode or nil
@@ -122,6 +122,44 @@ function Itemstack:new(item)
         --or (t.durability ~= nil and t.durability ~= game.item_prototypes[t.name].durability)
     return t
 end
+
+function Itemstack.serialize_grid(grid)
+    local s = nil
+    for _, e in pairs(grid.equipment) do
+        s = s or {}
+        table.insert(s, {
+            position = e.position,
+            name = e.name,
+            shield = e.shield,
+            energy = e.energy,
+            burner = e.burner and {
+                heat = e.burner.heat,
+                currently_burning = e.burner.currently_burning and e.burner.currently_burning.name or nil,
+                remaining_burning_fuel = e.burner.remaining_burning_fuel,
+                inventory = Util.serialize_inventory(e.burner.inventory),
+                burnt_result_inventory = Util.serialize_inventory(e.burner.burnt_result_inventory)
+            } or nil
+        })
+    end
+    return s
+end
+
+function Itemstack:deserialize_grid(itemstack_grid)
+    for _, e in pairs(self.grid) do
+        local eq = itemstack_grid.put{name=e.name, position=e.position}
+        if eq ~= nil then
+            eq.shield = e.shield
+            eq.energy = e.energy
+            eq.burner.heat = e.burner.heat
+            eq.burner.currently_burning = e.burner.currently_burning
+            eq.burner.remaining_burning_fuel = e.burner.remaining_burning_fuel
+            Util.deserialize_inventory(eq.burner.inventory, e.burner.inventory)
+            Util.deserialize_inventory(eq.burner.burnt_result_inventory, e.burner.burnt_result_inventory)
+        end
+    end
+end
+
+
 
 function Itemstack.create_template(name)
     if name == nil or game.item_prototypes[name] == nil then return nil end
