@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.33
+Date: 12 April 2024
+  Info:
+    - Fixed issue when a Transmitter or Receiver is placed down
+    - Fixed issue when using the Network Grid or Wireless Grid not being able to read items properly
+---------------------------------------------------------------------------------------------------
 Version: 1.0.32
 Date: 10 April 2024
   Info:

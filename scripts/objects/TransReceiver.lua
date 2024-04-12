@@ -153,9 +153,11 @@ function TR:DataConvert_ItemToEntity(tag)
     if tag.nametag then
         self.nametag = tag.nametag
     end
-    global.entityTable[self.connected].connected = self.thisEntity.unit_number
+    if self.connected and global.entityTable[self.connected] then
+        global.entityTable[self.connected].connected = self.thisEntity.unit_number
+        global.entityTable[self.connected]:force_controller_update()
+    end
     self:force_controller_update()
-    global.entityTable[self.connected]:force_controller_update()
 end
 
 function TR:DataConvert_EntityToItem(tag)

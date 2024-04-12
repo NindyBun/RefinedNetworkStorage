@@ -451,15 +451,16 @@ function NII:createNetworkInventory(guiTable, RNSPlayer, text)
 	local itemIndex = 0
 	Util.merge_sort(inv, nil, nil, self.sortOrder)
 	for _, item in pairs(inv) do
+		item = Itemstack:reload(item)
 		itemIndex = itemIndex + 1
-		local buttonText = {"", "[color=blue]", item.extras.label or Util.get_item_name(item.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(item.count)}
+		local buttonText = {"", "[color=blue]", (item.extras and item.extras.label) and item.extras.label or Util.get_item_name(item.name), "[/color]\n", {"gui-description.RNS_count"}, Util.toRNumber(item.count)}
 		if item.health < 1 then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, {"gui-description.RNS_health"})
 			table.insert(buttonText, math.floor(item.health*100) .. "%")
 		end
 		
-		if item.extras.custom_description ~= "" and item.extras.custom_description ~= nil then
+		if item.extras and item.extras.custom_description ~= "" and item.extras.custom_description ~= nil then
 			table.insert(buttonText, "\n")
 			table.insert(buttonText, item.extras.custom_description)
 		elseif item.modified then

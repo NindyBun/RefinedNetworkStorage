@@ -8,7 +8,7 @@ Itemstack = {
     ammo = nil,
     tags = nil,
     item_number = nil,
-    extras = nil,
+    extras = {},
     modified = false
 }
 
@@ -68,10 +68,11 @@ function Itemstack:new(item)
     t.extras.cost_to_build = item.is_blueprint and item.cost_to_build or nil
     t.extras.active_index = item.is_blueprint_book and item.active_index or nil
 
-    t.extras.label = item.is_item_with_label and item.label or nil
+    t.extras.label = (item.is_item_with_label and item.label ~= "") and item.label or nil
+    if t.extras.label then offset = offset + 1 end
+
     t.extras.label_color = item.is_item_with_label and item.label_color or nil
     t.extras.allow_manual_label_change = item.is_item_with_label and item.allow_manual_label_change or nil
-    if t.extras.allow_manual_label_change ~= nil and t.extras.allow_manual_label_change == true then offset = offset + 1 end
 
     t.extras.extends_inventory = item.is_item_with_inventory and item.extends_inventory or nil
     if t.extras.extends_inventory ~= nil and t.extras.extends_inventory ~= game.item_prototypes[item.name].extends_inventory_by_default then offset = offset + 1 end
@@ -98,6 +99,7 @@ function Itemstack:new(item)
                 from = item.get_mapper(i, "from"),
                 to = item.get_mapper(i, "to")
             }
+            if item.get_mapper(i, "from").name or item.get_mapper(i, "to").name then offset = offset + 1 end
         end
     end
 
@@ -107,9 +109,11 @@ function Itemstack:new(item)
         color = item.connected_entity.color,
         unit_number = item.connected_entity.unit_number
     } or nil
+    if t.extras.connected_entity then offset = offset + 1 end
 
     t.extras.entity_label = item.is_item_with_entity_data and item.entity_label or nil
     t.extras.entity_color = item.is_item_with_entity_data and item.entity_color or nil
+    if t.extras.entity_label then offset = offset + 1 end
 
     --doesn't include those with ammo or durability because I can easily store them in code
     --those with different health can't be in drives because they don't stack together with normal ones
