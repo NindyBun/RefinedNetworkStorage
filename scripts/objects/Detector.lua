@@ -11,6 +11,8 @@ DT = {
     cardinals = nil,
     combinator = nil,
     powerUsage = 40,
+    disconnects = nil,
+    mode = "enable/disable"
 }
 
 function DT:new(object)
@@ -40,9 +42,16 @@ function DT:new(object)
         [3] = false, --S
         [4] = false, --W
     }
+    t.disconnects = {
+        [1] = false,
+        [2] = false,
+        [3] = false,
+        [4] = false
+    }
     t.filters = {
         item = "",
-        fluid = ""
+        fluid = "",
+        virtual = ""
     }
     t.combinator = object.surface.create_entity{
         name="rns_Combinator",
@@ -114,15 +123,19 @@ end
 end]]
 
 function DT:update_signal()
-    if self.filters[self.type] == "" or self.output == "" or self.enabler.filter == "" then return end
-    local amount = self.networkController.network.Contents[self.type][self.filters[self.type]] or 0
+    if self.mode == "enable/disable" then
+        if self.filters[self.type] == "" or self.output == "" or self.enabler.filter == "" then return end
+        local amount = self.networkController.network.Contents[self.type][self.filters[self.type]] or 0
+
+        if self.networkController ~= nil and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true and self.networkController.thisEntity.to_be_deconstructed() == false and Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == true then
+            --self.combinator.get_or_create_control_behavior().set_signal(2,  (operatorFunctions[self.operator](amount, self.number) and {{signal={type="virtual", name="signal-red"}, count=1}} or {nil})[1])
+            self.enablerCombinator.get_or_create_control_behavior().set_signal(1, {signal={type=self.enabler.filter.type, name=self.enabler.filter.name}, count=(self.enabler.numberOutput == 1 and 1 or amount)})
+        else
+            --self.combinator.get_or_create_control_behavior().set_signal(2,  nil)
+            self.enablerCombinator.get_or_create_control_behavior().set_signal(1, nil)
+        end
+    elseif self.mode == "connect/disconnect" then
         
-    if self.networkController ~= nil and self.networkController.thisEntity ~= nil and self.networkController.thisEntity.valid == true and self.networkController.thisEntity.to_be_deconstructed() == false and Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number) == true then
-        --self.combinator.get_or_create_control_behavior().set_signal(2,  (operatorFunctions[self.operator](amount, self.number) and {{signal={type="virtual", name="signal-red"}, count=1}} or {nil})[1])
-        self.enablerCombinator.get_or_create_control_behavior().set_signal(1, {signal={type=self.enabler.filter.type, name=self.enabler.filter.name}, count=(self.enabler.numberOutput == 1 and 1 or amount)})
-    else
-        --self.combinator.get_or_create_control_behavior().set_signal(2,  nil)
-        self.enablerCombinator.get_or_create_control_behavior().set_signal(1, nil)
     end
 end
 
