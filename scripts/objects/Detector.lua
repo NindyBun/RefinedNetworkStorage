@@ -290,40 +290,57 @@ function DT:getTooltips(guiTable, mainFrame, justCreated)
 		conditionFrame.style.right_padding = 3
 		conditionFrame.style.right_margin = 3
 		conditionFrame.style.minimal_width = 300
-		GuiApi.add_subtitle(guiTable, "", conditionFrame, {"gui-description.RNS_EnableDisable_Condition"})
 
-        GuiApi.add_label(guiTable, "", conditionFrame, {"gui-description.RNS_EnableDisable_Condition"}, Constants.Settings.RNS_Gui.white)
-        local cFlow = GuiApi.add_flow(guiTable, "", conditionFrame, "horizontal")
-        cFlow.style.vertical_align = "center"
-        local filter = GuiApi.add_filter(guiTable, "RNS_Detector_Filter", cFlow, "", true, self.type, 40, {ID=self.thisEntity.unit_number})
-        guiTable.vars.filters = {}
-        guiTable.vars.filters[self.type] = filter
-        if self.filters[self.type] ~= "" then
-            filter.elem_value = self.filters[self.type]
-        end
-        local opDD = GuiApi.add_dropdown(guiTable, "RNS_Detector_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.enabler.operator], false, "", {ID=self.thisEntity.unit_number})
-        opDD.style.minimal_width = 50
-        --local number = GuiApi.add_filter(guiTable, "RNS_Detector_Number", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
-        --number.elem_value = {type="virtual", name="constant-number"}
-        local number = GuiApi.add_text_field(guiTable, "RNS_Detector_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
-        number.style.minimal_width = 100
+        if self.mode == "enable/disable" then
+            GuiApi.add_subtitle(guiTable, "", conditionFrame, {"gui-description.RNS_EnableDisable_Condition"})
 
-        GuiApi.add_line(guiTable, "", conditionFrame, "horizontal")
-        GuiApi.add_label(guiTable, "", conditionFrame, {"gui-description.RNS_Output"}, Constants.Settings.RNS_Gui.white)
-        local oFlow = GuiApi.add_flow(guiTable, "", conditionFrame, "horizontal")
-        oFlow.style.vertical_align = "center"
-        local output = GuiApi.add_filter(guiTable, "RNS_Detector_Output", oFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
-        --output.elem_value = {type="virtual", name="signal-red"}
-        --output.enabled = false
-        guiTable.vars.output = output
-        if self.enabler.filter ~= "" then
-            output.elem_value = self.enabler.filter
+            GuiApi.add_label(guiTable, "", conditionFrame, {"gui-description.RNS_EnableDisable_Condition"}, Constants.Settings.RNS_Gui.white)
+            local cFlow = GuiApi.add_flow(guiTable, "", conditionFrame, "horizontal")
+            cFlow.style.vertical_align = "center"
+            local filter = GuiApi.add_filter(guiTable, "RNS_Detector_Filter", cFlow, "", true, self.type, 40, {ID=self.thisEntity.unit_number})
+            guiTable.vars.filters = {}
+            guiTable.vars.filters[self.type] = filter
+            if self.filters[self.type] ~= "" then
+                filter.elem_value = self.filters[self.type]
+            end
+            local opDD = GuiApi.add_dropdown(guiTable, "RNS_Detector_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.enabler.operator], false, "", {ID=self.thisEntity.unit_number})
+            opDD.style.minimal_width = 50
+            
+            local number = GuiApi.add_text_field(guiTable, "RNS_Detector_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
+            number.style.minimal_width = 100
+
+            GuiApi.add_line(guiTable, "", conditionFrame, "horizontal")
+            GuiApi.add_label(guiTable, "", conditionFrame, {"gui-description.RNS_Output"}, Constants.Settings.RNS_Gui.white)
+            local oFlow = GuiApi.add_flow(guiTable, "", conditionFrame, "horizontal")
+            oFlow.style.vertical_align = "center"
+            local output = GuiApi.add_filter(guiTable, "RNS_Detector_Output", oFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
+
+            guiTable.vars.output = output
+            if self.enabler.filter ~= "" then
+                output.elem_value = self.enabler.filter
+            end
+            GuiApi.add_label(guiTable, "", oFlow, "   ")
+            local state = "left"
+		    if self.enabler.numberOutput == 2 then state = "right" end
+		    GuiApi.add_switch(guiTable, "RNS_Detector_Switch", oFlow, {"gui-description.RNS_Output1"}, {"gui-description.RNS_OutputN"}, {"gui-description.RNS_Output1_tooltip"}, {"gui-description.RNS_OutputN_tooltip"}, state, false, {ID=self.thisEntity.unit_number})
+        elseif self.mode == "connect/disconnect" then
+            GuiApi.add_subtitle(guiTable, "", conditionFrame, {"gui-description.RNS_ConnectDisconnect_Condition"})
+
+            GuiApi.add_label(guiTable, "", conditionFrame, {"gui-description.RNS_ConnectDisconnect_Condition"}, Constants.Settings.RNS_Gui.white)
+            local cFlow = GuiApi.add_flow(guiTable, "", conditionFrame, "horizontal")
+            cFlow.style.vertical_align = "center"
+            local filter = GuiApi.add_filter(guiTable, "RNS_Detector_Filter", cFlow, "", true, self.type, 40, {ID=self.thisEntity.unit_number})
+            guiTable.vars.filters = {}
+            guiTable.vars.filters[self.type] = filter
+            if self.filters[self.type] ~= "" then
+                filter.elem_value = self.filters[self.type]
+            end
+            local opDD = GuiApi.add_dropdown(guiTable, "RNS_Detector_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.enabler.operator], false, "", {ID=self.thisEntity.unit_number})
+            opDD.style.minimal_width = 50
+            local number = GuiApi.add_text_field(guiTable, "RNS_Detector_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
+            number.style.minimal_width = 100
         end
-        GuiApi.add_label(guiTable, "", oFlow, "   ")
-        local state = "left"
-		if self.enabler.numberOutput == 2 then state = "right" end
-		GuiApi.add_switch(guiTable, "RNS_Detector_Switch", oFlow, {"gui-description.RNS_Output1"}, {"gui-description.RNS_OutputN"}, {"gui-description.RNS_Output1_tooltip"}, {"gui-description.RNS_OutputN_tooltip"}, state, false, {ID=self.thisEntity.unit_number})
-        
+
         --Add Item/Fluid Type
         local typeFrame = GuiApi.add_frame(guiTable, "TypeFrame", mainFrame, "vertical", true)
 		typeFrame.style = Constants.Settings.RNS_Gui.frame_1
@@ -340,10 +357,32 @@ function DT:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_label(guiTable, "", typeFlow, {"gui-description.RNS_Type"}, Constants.Settings.RNS_Gui.white)
         local typeDD = GuiApi.add_dropdown(guiTable, "RNS_Detector_Type", typeFlow, {{"gui-description.RNS_Item"}, {"gui-description.RNS_Fluid"}}, Constants.Settings.RNS_Types[self.type], false, "", {ID=self.thisEntity.unit_number})
         typeDD.style.minimal_width = 100
+
+        local modeFlow = GuiApi.add_flow(guiTable, "", typeFrame, "vertical", false)
+
+        GuiApi.add_radiobutton(guiTable, "RNS_Detector_EnableDisable", modeFlow, {"gui-description.RNS_EnableDisable"}, {"gui-description.RNS_EnableDisable_tooltip"}, self.mode == "enable/disable" and true or false, false, {ID=self.thisEntity.unit_number})
+        GuiApi.add_radiobutton(guiTable, "RNS_Detector_ConnectDisconnect", modeFlow, {"gui-description.RNS_ConnectDisconnect"}, {"gui-description.RNS_ConnectDisconnect_tooltip"}, self.mode == "connect/disconnect" and true or false, false, {ID=self.thisEntity.unit_number})
+        
     end
 end
 
 function DT.interaction(event, RNSPlayer)
+    if string.match(event.element.name, "RNS_Detector_EnableDisable") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.mode = "enable/disable"
+        RNSPlayer:push_varTable(id, true)
+        return
+    end
+    if string.match(event.element.name, "RNS_Detector_ConnectDisconnect") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.mode = "connect/disconnect"
+        RNSPlayer:push_varTable(id, true)
+        return
+    end
     if string.match(event.element.name, "RNS_Detector_Number") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
