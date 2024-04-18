@@ -1598,6 +1598,15 @@ function BaseNet.getOperableObjects(array, group)
                     end
                 end
             end
+        elseif group == "dt" then
+            objs[p] = {}
+            for mode, io in pairs(priority) do
+                for _, o in pairs(io) do
+                    if o.thisEntity.valid and o.thisEntity.to_be_deconstructed() == false then
+                        objs[p][o.entID] = o
+                    end
+                end
+            end
         else
             objs[p] = {}
             for _, o in pairs(priority) do

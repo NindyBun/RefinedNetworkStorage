@@ -139,12 +139,12 @@ function NC:DataConvert_EntityToItem(tag)
 end
 
 function NC:updateDetectors()
-    for _, detector in pairs(self.network.DetectorTable[1].detector) do
+    for _, detector in pairs(self.network.DetectorTable[1]["enable/disable"]) do
         if detector.thisEntity ~= nil and detector.thisEntity.valid == true and detector.thisEntity.to_be_deconstructed() == false then
             detector:update_signal()
         end
     end
-    for _, detector in pairs(self.network.DetectorTable[1].disconnector) do
+    for _, detector in pairs(self.network.DetectorTable[1]["connect/disconnect"]) do
         if detector.thisEntity ~= nil and detector.thisEntity.valid == true and detector.thisEntity.to_be_deconstructed() == false then
             detector:update_signal()
         end
@@ -688,7 +688,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_item_frame(guiTable, "", section, _G.WT.powerUsage*global.WTRangeMultiplier .. " J/t", name, wirelessTransmittercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
-    local detectorcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.DetectorTable["enable/disable"])) + BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.DetectorTable["connect/disconnect"]))
+    local detectorcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.DetectorTable, "dt"))
     if detectorcount > 0 then
         local name = Constants.Detector.name
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")

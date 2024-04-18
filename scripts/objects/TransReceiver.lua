@@ -167,7 +167,7 @@ function TR:DataConvert_EntityToItem(tag)
     if self.connected then
         tags.connection = self.connected
         local obj = global.entityTable[self.connected]
-        Util.add_list_into_table(description, {{"item-description.RNS_TransReceiverConnectionTag"}, obj.nametag})
+        Util.add_list_into_table(description, {{"item-description.RNS_TransReceiverConnectionTag"}, obj and obj.nametag or ""})
     end
 
     tags.nametag = self.nametag
