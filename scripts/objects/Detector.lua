@@ -512,6 +512,10 @@ function DT.interaction(event, RNSPlayer)
             io.networkController.network:transfer_io_mode(io, "detector", io.mode, "enable/disable")
         end
         io.mode = "enable/disable"
+        for i, _ in pairs (io.icons) do
+            if io.icons[i] ~= nil then rendering.destroy(io.icons[i]) end
+            io.icons[i] = nil
+        end
         RNSPlayer:push_varTable(id, true)
         return
     end
@@ -523,6 +527,10 @@ function DT.interaction(event, RNSPlayer)
             io.networkController.network:transfer_io_mode(io, "detector", io.mode, "connect/disconnect")
         end
         io.mode = "connect/disconnect"
+        for i, _ in pairs (io.icons) do
+            if io.icons[i] ~= nil then rendering.destroy(io.icons[i]) end
+            io.icons[i] = nil
+        end
         RNSPlayer:push_varTable(id, true)
         return
     end
