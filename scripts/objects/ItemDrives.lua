@@ -11,7 +11,8 @@ ID = {
     guiFilters = nil,
     filters = nil,
     whitelistBlacklist = "blacklist",
-    priority = 0
+    priority = 0,
+    icons = nil
 }
 
 function ID:new(object)
@@ -28,6 +29,7 @@ function ID:new(object)
     t.storageArray = {}
     t.storedAmount = 0
     t.filters = {}
+    t.icons = {}
     t.guiFilters = {}
     for i=1, 5 do
         t.guiFilters[i] = ""
@@ -85,6 +87,7 @@ function ID:copy_settings(obj)
     for i = 1, 5 do
         self.guiFilters[i] = obj.guiFilters[i]
     end
+    self:regenerate_icons()
 end
 
 function ID:serialize_settings()
@@ -101,6 +104,38 @@ function ID:deserialize_settings(tags)
     self.whitelistBlacklist = tags["whitelistBlacklist"]
     self.filters = tags["filters"]
     self.guiFilters = tags["guiFilters"]
+    self:regenerate_icons()
+end
+
+function ID:toggleHoverIcon(hovering)
+    for _, i in pairs(self.icons) do
+        if i ~= nil and hovering and rendering.get_only_in_alt_mode(i) then
+            rendering.set_only_in_alt_mode(i, false)
+        elseif i ~= nil and not hovering and not rendering.get_only_in_alt_mode(i) then
+            rendering.set_only_in_alt_mode(i, true)
+        end
+    end
+end
+
+function ID:regenerate_icons()
+    for i, ii in pairs(self.icons) do
+        if ii ~= nil then
+            rendering.destroy(ii)
+            self.icons[i] = nil
+        end
+    end
+    local i = 0
+    for n, _ in pairs(self.filters) do
+        i = i + 1
+        table.insert(self.icons, rendering.draw_sprite{
+            sprite = "item/"..n,
+            target = self.thisEntity,
+            surface = self.thisEntity.surface,
+            render_layer = "higher-object-under",
+            target_offset = Constants.Settings.RNS_DriveSprite_Offset[i],
+            only_in_alt_mode = true
+        })
+    end
 end
 
 function ID:resetCollection()
@@ -244,6 +279,7 @@ function ID:DataConvert_ItemToEntity(tag)
     end
     if tag.priority ~= nil then self.priority = tag.priority end
     if tag.whitelistBlacklist ~= nil then self.whitelist = tag.whitelistBlacklist end
+    self:regenerate_icons()
 end
 
 function ID:DataConvert_EntityToItem(tag)
@@ -387,6 +423,7 @@ function ID.interaction(event, RNSPlayer)
                 io.filters[filter.elem_value] = true
             end
         end
+        io:regenerate_icons()
 		return
     end
 

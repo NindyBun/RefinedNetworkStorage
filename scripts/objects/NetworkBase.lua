@@ -21,6 +21,7 @@ BaseNet = {
     importExternalCache = nil,
     exportDriveCache = nil,
     exportExternalCache = nil,
+    powerDraw = 0
 }
 
 function BaseNet:new()
@@ -92,7 +93,10 @@ function BaseNet:resetTables()
     self.WirelessTransmitterTable = {}
     self.WirelessTransmitterTable[1] = {}
     self.DetectorTable = {}
-    self.DetectorTable[1] = {}
+    self.DetectorTable[1] = {
+        ["enable/disable"] = {},
+        ["connect/disconnect"] = {}
+    }
     self.TransmitterTable = {}
     self.TransmitterTable[1] = {}
     self.ReceiverTable = {}
@@ -188,6 +192,7 @@ function BaseNet.addConnectables(source, connections, master)
 
             con.networkController = master
             connections[con.entID] = con
+            master.network.powerDraw = master.network.powerDraw + (con.powerDraw or 0)
 
             if string.match(con.thisEntity.name, "RNS_ItemDrive") ~= nil then
                 master.network.ItemDriveTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con
@@ -204,10 +209,10 @@ function BaseNet.addConnectables(source, connections, master)
                 end
         
             elseif con.thisEntity.name == Constants.NetworkCables.itemIO.name then
-                master.network.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.io][con.entID] = con
+                table.insert(master.network.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.io], con.entID)
         
             elseif con.thisEntity.name == Constants.NetworkCables.fluidIO.name then
-                master.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.io][con.entID] = con
+                table.insert(master.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.io], con.entID)
         
             elseif con.thisEntity.name == Constants.NetworkCables.externalIO.name then
                 master.network.ExternalIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.type][con.entID] = con
@@ -236,7 +241,7 @@ function BaseNet.addConnectables(source, connections, master)
                 master.network.WirelessTransmitterTable[1][con.entID] = con
         
             elseif con.thisEntity.name == Constants.Detector.name then
-                master.network.DetectorTable[1][con.entID] = con
+                master.network.DetectorTable[1][con.mode][con.entID] = con
         
             elseif con.thisEntity.name == Constants.NetworkTransReceiver.transmitter.name then
                 master.network.TransmitterTable[1][con.entID] = con
@@ -261,13 +266,18 @@ function BaseNet.generateArms(object)
         local areas = object:getCheckArea()
         object:resetConnection()
         for _, area in pairs(areas) do
+            if object.thisEntity.name == Constants.Detector.name and object.disconnects[area.direction] == true and object.newState == true then goto next end
+            if object.getDirection ~= nil and area.direction == object:getDirection() then goto next end--Prevent cable connection on the IO port
+
             local ents = object.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
             for _, ent in pairs(ents) do
                 if ent ~= nil and ent.valid == true and ent.to_be_deconstructed() == false then
                     if ent ~= nil and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil then
-                        if object.getDirection ~= nil and area.direction == object:getDirection() then break end--Prevent cable connection on the IO port
                         local obj = global.entityTable[ent.unit_number]
-                        if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
+                        if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction)
+                            or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction)
+                            or obj.thisEntity.name == Constants.WirelessGrid.name
+                            or (obj.thisEntity.name == Constants.Detector.name and obj:is_disconnection_direction(area.direction) and obj.newState == true) then
                             --Do nothing
                         else
                             if obj.color == nil then
@@ -284,6 +294,7 @@ function BaseNet.generateArms(object)
                     end
                 end
             end
+            ::next::
         end
     end
 end
@@ -320,17 +331,22 @@ end
 function BaseNet.postArms(object)
     local areas = object:getCheckArea()
     for _, area in pairs(areas) do
+        --if object.thisEntity.name == Constants.Detector.name and object.disconnects[area.direction] == true and object.newState == true then goto next end
         local ents = object.thisEntity.surface.find_entities_filtered{area={area.startP, area.endP}}
         for _, ent in pairs(ents) do
             if ent ~= nil and ent.valid == true and global.entityTable[ent.unit_number] ~= nil and string.match(ent.name, "RNS_") ~= nil then
                 local obj = global.entityTable[ent.unit_number]
-                if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction) or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction) or obj.thisEntity.name == Constants.WirelessGrid.name then
-                    --Do nothing
-                else
+                --if (string.match(obj.thisEntity.name, "RNS_NetworkCableIO") ~= nil and obj:getConnectionDirection() == area.direction)
+                --    or (string.match(obj.thisEntity.name, "RNS_NetworkCableRamp") ~= nil and obj:getConnectionDirection() == area.direction)
+                --    or obj.thisEntity.name == Constants.WirelessGrid.name
+                --    or (obj.thisEntity.name == Constants.Detector.name and obj:is_disconnection_direction(area.direction) and obj.newState == true) then
+                --    --Do nothing
+                --else
                     obj:createArms()
-                end
+                --end
             end
         end
+        ::next::
     end
     
     if object.targetEntity then
@@ -340,23 +356,32 @@ end
 
 function BaseNet:transfer_io_mode(obj, type, from, to)
     if type == "item" then
-        if self.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][from][obj.entID] ~= nil then
+        --[[if self.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][from][obj.entID] ~= nil then
             self.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][from][obj.entID] = nil
             self.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][to][obj.entID] = obj
-        end
+        end]]
+        table.insert(self.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][to], obj.processed and nil or 1, obj.entID)
         return
     end
     if type == "fluid" then
-        if self.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][from][obj.entID] ~= nil then
+        --[[if self.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][from][obj.entID] ~= nil then
             self.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][from][obj.entID] = nil
             self.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][to][obj.entID] = obj
-        end
+        end]]
+        table.insert(self.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][to], obj.processed and nil or 1, obj.entID)
         return
     end
     if type == "external" then
         if self.ExternalIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][from][obj.entID] ~= nil then
             self.ExternalIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][from][obj.entID] = nil
             self.ExternalIOTable[1+Constants.Settings.RNS_Max_Priority-obj.priority][to][obj.entID] = obj
+        end
+        return
+    end
+    if type == "detector" then
+        if self.DetectorTable[1][from][obj.entID] ~= nil then
+            self.DetectorTable[1][from][obj.entID] = nil
+            self.DetectorTable[1][to][obj.entID] = obj
         end
         return
     end
@@ -1555,6 +1580,7 @@ function BaseNet.getOperableObjects(array, group)
             }
             for mode, io in pairs(priority) do
                 for _, o in pairs(io) do
+                    o = global.entityTable[o]
                     if o.thisEntity.valid and o.thisEntity.to_be_deconstructed() == false then
                         objs[p][mode][o.entID] = o
                     end
@@ -1690,10 +1716,11 @@ end
 
 --Get total powerusage of connected objects
 function BaseNet:getTotalObjects()
-    return  BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ItemDriveTable)) + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.FluidDriveTable))
+    --[[return  BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ItemDriveTable)) + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.FluidDriveTable))
             + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ItemIOTable, "io"), true)*global.IIOMultiplier + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.FluidIOTable, "io"), true)*global.FIOMultiplier
             + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ExternalIOTable, "eo"), true) + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.NetworkInventoryInterfaceTable))
             + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.WirelessTransmitterTable))*global.WTRangeMultiplier + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.DetectorTable))
-            + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.TransmitterTable)) + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ReceiverTable))
+            + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.TransmitterTable)) + BaseNet.get_powerusage(BaseNet.getOperableObjects(self.ReceiverTable))]]
+    return self.powerDraw
 end
 

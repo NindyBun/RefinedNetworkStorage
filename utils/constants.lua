@@ -12,6 +12,13 @@ Constants.Settings = {
     RNS_Priorities = {},
     RNS_WirelessTransmitter_Color = "RNS_WirelessTransmitter_Area_Color",
     RNS_StorageDrive_Whitelist = "RNS_StorageDrive_Whitelist",
+    RNS_DriveSprite_Offset = {
+        [1] = {0, -0.45},
+        [2] = {-0.5, -1.2},
+        [3] = {0.5, -1.2},
+        [4] = {-0.5, 0.3},
+        [5] = {0.5, 0.3},
+    },
     RNS_ColorG = {
         [1] = {"gui-description.RNS_RED"},
         [2] = {"gui-description.RNS_WHITE"},
@@ -307,7 +314,10 @@ Constants.Settings = {
         title_font = "TitleFont",
         label_font = "LabelFont",
         label_font_2 = "LabelFont2",
-        scroll_pane = "Scroll_Pane"
+        scroll_pane = "Scroll_Pane",
+        checkbox = "Checkbox",
+        checkbox_middle = "Checkbox_Middle",
+        checkbox_blank = "Checkbox_Blank"
     },
     Multipliers = {
         IIO = {},
@@ -341,6 +351,7 @@ Constants.ItemGroup = {
 }
 Constants.Icons = {
     item = 'utility.indication_arrow',
+    line = 'utility.indication_line',
     fluid = 'utility.fluid_indication_arrow',
     underground = {
         target = {

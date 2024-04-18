@@ -307,7 +307,6 @@ end
 function GuiApi.add_checkbox(guiTable, name, gui, text, tooltip, state, save, tags)
     if gui[name] ~= nil then gui[name].destroy() end
     local checkBox = gui.add{type="checkbox", name=name, caption=text, tooltip=tooltip, state=state or false, tags = tags}
-
     if guiTable ~= nil and save == true then
         guiTable.vars[name] = checkBox
     end

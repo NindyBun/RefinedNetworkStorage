@@ -56,12 +56,12 @@ function RNSP:update()
     self:update_gui_distance_validity()
     if self.thisEntity.selected ~= nil then
         local entity = self.thisEntity.selected
-        if string.match(entity.name, "RNS_NetworkCableIO") or string.match(entity.name, "RNS_NetworkCableRamp") then
-            local obj = global[global.objectTables[entity.name].tableName][entity.unit_number]
-            if obj ~= nil and obj.valid and obj.toggleHoverIcon then
+        --if string.match(entity.name, "RNS_NetworkCableIO") or string.match(entity.name, "RNS_NetworkCableRamp") then
+            local obj = global.entityTable[entity.unit_number]
+            if obj ~= nil and obj.toggleHoverIcon then
                 obj:toggleHoverIcon(true)
             end
-        end
+        --end
     end
 end
 

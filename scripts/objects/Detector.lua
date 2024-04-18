@@ -12,6 +12,9 @@ DT = {
     combinator = nil,
     powerUsage = 40,
     disconnects = nil,
+    icons = nil,
+    oldState = false,
+    newState = false,
     mode = "enable/disable"
 }
 
@@ -47,6 +50,12 @@ function DT:new(object)
         [2] = false,
         [3] = false,
         [4] = false
+    }
+    t.icons = {
+        [1] = nil,
+        [2] = nil,
+        [4] = nil,
+        [3] = nil,
     }
     t.filters = {
         item = "",
@@ -135,12 +144,101 @@ function DT:update_signal()
             self.enablerCombinator.get_or_create_control_behavior().set_signal(1, nil)
         end
     elseif self.mode == "connect/disconnect" then
-        
+        if self.filters["virtual"] ~= "" and (self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil) then
+            local amount = self.enablerCombinator.get_merged_signal({type=self.filters["virtual"].type, name=self.filters["virtual"].name}, defines.circuit_connector_id.constant_combinator)
+            self.newState = Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number)
+        end
+        if self.oldState ~= self.newState then
+            self.oldState = self.newState
+            self:createArms()
+            BaseNet.postArms(self)
+            BaseNet.update_network_controller(self.networkController)
+        end
     end
 end
 
 function DT:set_icons(index, name, type)
     self.combinator.get_or_create_control_behavior().set_signal(index, name ~= nil and {signal={type=type, name=name}, count=1} or nil)
+end
+
+function DT:toggleHoverIcon(hovering)
+    if self.icons[1] ~= nil and hovering and rendering.get_only_in_alt_mode(self.icons[1]) then
+        rendering.set_only_in_alt_mode(self.icons[1], false)
+    elseif self.icons[1] ~= nil and not hovering and not rendering.get_only_in_alt_mode(self.icons[1]) then
+        rendering.set_only_in_alt_mode(self.icons[1], true)
+    end
+
+    if self.icons[2] ~= nil and hovering and rendering.get_only_in_alt_mode(self.icons[2]) then
+        rendering.set_only_in_alt_mode(self.icons[2], false)
+    elseif self.icons[2] ~= nil and not hovering and not rendering.get_only_in_alt_mode(self.icons[2]) then
+        rendering.set_only_in_alt_mode(self.icons[2], true)
+    end
+
+    if self.icons[3] ~= nil and hovering and rendering.get_only_in_alt_mode(self.icons[3]) then
+        rendering.set_only_in_alt_mode(self.icons[3], false)
+    elseif self.icons[3] ~= nil and not hovering and not rendering.get_only_in_alt_mode(self.icons[3]) then
+        rendering.set_only_in_alt_mode(self.icons[3], true)
+    end
+
+    if self.icons[4] ~= nil and hovering and rendering.get_only_in_alt_mode(self.icons[4]) then
+        rendering.set_only_in_alt_mode(self.icons[4], false)
+    elseif self.icons[4] ~= nil and not hovering and not rendering.get_only_in_alt_mode(self.icons[4]) then
+        rendering.set_only_in_alt_mode(self.icons[4], true)
+    end
+end
+
+function DT:generateModeIcon()
+    if self.icons[1] ~= nil then rendering.destroy(self.icons[1]) end
+    self.icons[1] = nil
+    if self.disconnects[1] == true then
+        self.icons[1] = rendering.draw_sprite{
+            sprite=Constants.Icons.line,
+            target=self.thisEntity,
+            target_offset={0,-0.5},
+            surface=self.thisEntity.surface,
+            only_in_alt_mode=true,
+            orientation=0
+        }
+    end
+
+    if self.icons[2] ~= nil then rendering.destroy(self.icons[2]) end
+    self.icons[2] = nil
+    if self.disconnects[2] == true then
+        self.icons[2] = rendering.draw_sprite{
+            sprite=Constants.Icons.line,
+            target=self.thisEntity,
+            target_offset={0.5, 0},
+            surface=self.thisEntity.surface,
+            only_in_alt_mode=true,
+            orientation=0.25
+        }
+    end
+
+    if self.icons[3] ~= nil then rendering.destroy(self.icons[3]) end
+    self.icons[3] = nil
+    if self.disconnects[3] == true then
+        self.icons[3] = rendering.draw_sprite{
+            sprite=Constants.Icons.line,
+            target=self.thisEntity,
+            target_offset={-0.5,0},
+            surface=self.thisEntity.surface,
+            only_in_alt_mode=true,
+            orientation=0.25
+        }
+    end
+
+    if self.icons[4] ~= nil then rendering.destroy(self.icons[4]) end
+    self.icons[4] = nil
+    if self.disconnects[4] == true then
+        self.icons[4] = rendering.draw_sprite{
+            sprite=Constants.Icons.line,
+            target=self.thisEntity,
+            target_offset={0,0.5},
+            surface=self.thisEntity.surface,
+            only_in_alt_mode=true,
+            orientation=0
+        }
+    end
 end
 
 function DT:copy_settings(obj)
@@ -151,8 +249,11 @@ function DT:copy_settings(obj)
         item = obj.filters.item,
         fluid = obj.filters.fluid
     }
+    self.mode = obj.mode
+    self.disconnects = obj.disconnects
     self:set_icons(1, self.filters[self.type] ~= "" and self.filters[self.type] or nil, self.type)
     self:set_icons(2, self.enabler.filter.name ~= "" and self.enabler.filter.name or nil, self.enabler.filter.type)
+    self:generateModeIcon()
 end
 
 function DT:serialize_settings()
@@ -161,6 +262,8 @@ function DT:serialize_settings()
     tags["enabler"] = self.enabler
     tags["filters"] = self.filters
     tags["type"] = self.type
+    tags["mode"] = self.mode
+    tags["disconnects"] = self.disconnects
     return tags
 end
 
@@ -169,8 +272,11 @@ function DT:deserialize_settings(tags)
     self.type = tags["type"]
     self.enabler = tags["enabler"]
     self.filters = tags["filters"]
+    self.mode = tags["mode"]
+    self.disconnects = tags["disconnects"]
     self:set_icons(1, self.filters[self.type] ~= "" and self.filters[self.type] or nil, self.type)
     self:set_icons(2, self.enabler.filter.name ~= "" and self.enabler.filter.name or nil, self.enabler.filter.type)
+    self:generateModeIcon()
 end
 
 function DT:resetConnection()
@@ -196,6 +302,20 @@ function DT:getCheckArea()
         [4] = {direction = 4, startP = {x-0.5, y+0.5}, endP = {x+0.5, y+1.5}}, --South
         [3] = {direction = 3, startP = {x-1.5, y-0.5}, endP = {x-0.5, y+0.5}}, --West
     }
+end
+
+function DT:is_disconnection_direction(dir)
+    local d = 0
+    if dir == 1 then
+        d = 4
+    elseif dir == 2 then
+        d = 3
+    elseif dir == 4 then
+        d = 1
+    elseif dir == 3 then
+        d = 2
+    end
+    return self.disconnects[d]
 end
 
 function DT:createArms()
@@ -329,16 +449,31 @@ function DT:getTooltips(guiTable, mainFrame, justCreated)
             GuiApi.add_label(guiTable, "", conditionFrame, {"gui-description.RNS_ConnectDisconnect_Condition"}, Constants.Settings.RNS_Gui.white)
             local cFlow = GuiApi.add_flow(guiTable, "", conditionFrame, "horizontal")
             cFlow.style.vertical_align = "center"
-            local filter = GuiApi.add_filter(guiTable, "RNS_Detector_Filter", cFlow, "", true, self.type, 40, {ID=self.thisEntity.unit_number})
+            local filter = GuiApi.add_filter(guiTable, "RNS_Detector_Filter_1", cFlow, "", true, "signal", 40, {ID=self.thisEntity.unit_number})
             guiTable.vars.filters = {}
-            guiTable.vars.filters[self.type] = filter
-            if self.filters[self.type] ~= "" then
-                filter.elem_value = self.filters[self.type]
+            guiTable.vars.filters["virtual"] = filter
+            if self.filters["virtual"] ~= "" then
+                filter.elem_value = self.filters["virtual"]
             end
             local opDD = GuiApi.add_dropdown(guiTable, "RNS_Detector_Operator", cFlow, Constants.Settings.RNS_OperatorN, Constants.Settings.RNS_Operators[self.enabler.operator], false, "", {ID=self.thisEntity.unit_number})
             opDD.style.minimal_width = 50
             local number = GuiApi.add_text_field(guiTable, "RNS_Detector_Number", cFlow, tostring(self.enabler.number), "", false, true, false, false, nil, {ID=self.thisEntity.unit_number})
             number.style.minimal_width = 100
+
+            GuiApi.add_line(guiTable, "", conditionFrame, "horizontal")
+            local pos = GuiApi.add_table(guiTable, "", conditionFrame, 3)
+
+            GuiApi.add_checkbox(guiTable, "RNS_Detector_Checkbox_Blank_1", pos, nil, nil, false, false, {ID=self.entID}).style = Constants.Settings.RNS_Gui.checkbox_blank
+            GuiApi.add_checkbox(guiTable, "RNS_Detector_Checkbox_North_2", pos, nil, nil, self.disconnects[1], false, {ID=self.entID}).style = Constants.Settings.RNS_Gui.checkbox
+            GuiApi.add_checkbox(guiTable, "RNS_Detector_Checkbox_Blank_3", pos, nil, nil, false, false, {ID=self.entID}).style = Constants.Settings.RNS_Gui.checkbox_blank
+
+            GuiApi.add_checkbox(guiTable, "RNS_Detector_Checkbox_West_4", pos, nil, nil, self.disconnects[3], false, {ID=self.entID}).style = Constants.Settings.RNS_Gui.checkbox
+            GuiApi.add_checkbox(guiTable, "RNS_Detector_Checkbox_Middle_5", pos, nil, nil, false, false, {ID=self.entID}).style = Constants.Settings.RNS_Gui.checkbox_middle
+            GuiApi.add_checkbox(guiTable, "RNS_Detector_Checkbox_East_6", pos, nil, nil, self.disconnects[2], false, {ID=self.entID}).style = Constants.Settings.RNS_Gui.checkbox
+            
+            GuiApi.add_checkbox(guiTable, "RNS_Detector_Checkbox_Blank_7", pos, nil, nil, false, false, {ID=self.entID}).style = Constants.Settings.RNS_Gui.checkbox_blank
+            GuiApi.add_checkbox(guiTable, "RNS_Detector_Checkbox_South_8", pos, nil, nil, self.disconnects[4], false, {ID=self.entID}).style = Constants.Settings.RNS_Gui.checkbox
+            GuiApi.add_checkbox(guiTable, "RNS_Detector_Checkbox_Blank_9", pos, nil, nil, false, false, {ID=self.entID}).style = Constants.Settings.RNS_Gui.checkbox_blank
         end
 
         --Add Item/Fluid Type
@@ -351,15 +486,17 @@ function DT:getTooltips(guiTable, mainFrame, justCreated)
 		typeFrame.style.minimal_width = 200
 
 		GuiApi.add_subtitle(guiTable, "", typeFrame, {"gui-description.RNS_Setting"})
+        local typeFlow = GuiApi.add_flow(guiTable, "", typeFrame, "horizontal", false)
 
         --Fluid or Item Mode
-        local typeFlow = GuiApi.add_flow(guiTable, "", typeFrame, "horizontal", false)
-        GuiApi.add_label(guiTable, "", typeFlow, {"gui-description.RNS_Type"}, Constants.Settings.RNS_Gui.white)
-        local typeDD = GuiApi.add_dropdown(guiTable, "RNS_Detector_Type", typeFlow, {{"gui-description.RNS_Item"}, {"gui-description.RNS_Fluid"}}, Constants.Settings.RNS_Types[self.type], false, "", {ID=self.thisEntity.unit_number})
-        typeDD.style.minimal_width = 100
+        if self.mode == "enable/disable" then
+            GuiApi.add_label(guiTable, "", typeFlow, {"gui-description.RNS_Type"}, Constants.Settings.RNS_Gui.white)
+            local typeDD = GuiApi.add_dropdown(guiTable, "RNS_Detector_Type", typeFlow, {{"gui-description.RNS_Item"}, {"gui-description.RNS_Fluid"}}, Constants.Settings.RNS_Types[self.type], false, "", {ID=self.thisEntity.unit_number})
+            typeDD.style.minimal_width = 100
+
+        end
 
         local modeFlow = GuiApi.add_flow(guiTable, "", typeFrame, "vertical", false)
-
         GuiApi.add_radiobutton(guiTable, "RNS_Detector_EnableDisable", modeFlow, {"gui-description.RNS_EnableDisable"}, {"gui-description.RNS_EnableDisable_tooltip"}, self.mode == "enable/disable" and true or false, false, {ID=self.thisEntity.unit_number})
         GuiApi.add_radiobutton(guiTable, "RNS_Detector_ConnectDisconnect", modeFlow, {"gui-description.RNS_ConnectDisconnect"}, {"gui-description.RNS_ConnectDisconnect_tooltip"}, self.mode == "connect/disconnect" and true or false, false, {ID=self.thisEntity.unit_number})
         
@@ -371,6 +508,9 @@ function DT.interaction(event, RNSPlayer)
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
+        if io.networkController ~= nil then
+            io.networkController.network:transfer_io_mode(io, "detector", io.mode, "enable/disable")
+        end
         io.mode = "enable/disable"
         RNSPlayer:push_varTable(id, true)
         return
@@ -379,8 +519,27 @@ function DT.interaction(event, RNSPlayer)
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
+        if io.networkController ~= nil then
+            io.networkController.network:transfer_io_mode(io, "detector", io.mode, "connect/disconnect")
+        end
         io.mode = "connect/disconnect"
         RNSPlayer:push_varTable(id, true)
+        return
+    end
+    if string.match(event.element.name, "RNS_Detector_Checkbox") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        if string.match(event.element.name, "North") ~= nil then
+            io.disconnects[1] = event.element.state
+        elseif string.match(event.element.name, "East") ~= nil then
+            io.disconnects[2] = event.element.state
+        elseif string.match(event.element.name, "South") ~= nil then
+            io.disconnects[4] = event.element.state
+        elseif string.match(event.element.name, "West") ~= nil then
+            io.disconnects[3] = event.element.state
+        end
+        io:generateModeIcon()
         return
     end
     if string.match(event.element.name, "RNS_Detector_Number") then
@@ -391,6 +550,19 @@ function DT.interaction(event, RNSPlayer)
         io.enabler.number = num
         event.element.text = tostring(num)
         return
+    end
+    if string.match(event.element.name, "RNS_Detector_Filter_1") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        if event.element.elem_value ~= nil then
+            io.filters["virtual"] = event.element.elem_value
+            io.combinator.get_or_create_control_behavior().set_signal(1, {signal=event.element.elem_value, count=1})
+        else
+            io.filters["virtual"] = ""
+            io.combinator.get_or_create_control_behavior().set_signal(1, nil)
+        end
+		return
     end
     if string.match(event.element.name, "RNS_Detector_Filter") then
         local id = event.element.tags.ID

@@ -139,7 +139,12 @@ function NC:DataConvert_EntityToItem(tag)
 end
 
 function NC:updateDetectors()
-    for _, detector in pairs(self.network.DetectorTable[1]) do
+    for _, detector in pairs(self.network.DetectorTable[1].detector) do
+        if detector.thisEntity ~= nil and detector.thisEntity.valid == true and detector.thisEntity.to_be_deconstructed() == false then
+            detector:update_signal()
+        end
+    end
+    for _, detector in pairs(self.network.DetectorTable[1].disconnector) do
         if detector.thisEntity ~= nil and detector.thisEntity.valid == true and detector.thisEntity.to_be_deconstructed() == false then
             detector:update_signal()
         end
@@ -226,7 +231,24 @@ function NC:find_wirelessgrid_with_wirelessTransmitter(id)
 end
 
 function NC:import_items()
-    local import = {}
+    for p, priority in pairs(self.network.ItemIOTable) do
+        for i, v in pairs(priority.input) do
+            local item = global.entityTable[v]
+            if item ~= nil and item.io == "output" then
+                table.remove(priority.input, i)
+                goto next
+            end
+            if item ~= nil then
+                item:IO()
+                if settings.global[Constants.Settings.RNS_RoundRobin].value == true and item.processed == true then
+                    table.remove(priority.input, i)
+                    table.insert(priority.input, i, v)
+                end
+            end
+            ::next::
+        end
+    end
+    --[[local import = {}
     local import_length = 0
     local import_processed = 0
     for p, priority in pairs(self.network.ItemIOTable) do
@@ -258,18 +280,34 @@ function NC:import_items()
                 if self.network:is_full() then return end
                 --if old == true and item.processed == true then item.processed = false end
             end
-            
         end
         if import_processed >= import_length and settings.global[Constants.Settings.RNS_RoundRobin].value == true then
             for _, item in pairs(import[p]) do
                 item.processed = false
             end
         end
-    end
+    end]]
 end
 
 function NC:export_items()
-    local export = {}
+    for p, priority in pairs(self.network.ItemIOTable) do
+        for i, v in pairs(priority.output) do
+            local item = global.entityTable[v]
+            if item ~= nil and item.io == "input" then
+                table.remove(priority.input, i)
+                goto next
+            end
+            if item ~= nil then
+                item:IO()
+                if settings.global[Constants.Settings.RNS_RoundRobin].value == true and item.processed == true then
+                    table.remove(priority.output, i)
+                    table.insert(priority.output, i, v)
+                end
+            end
+            ::next::
+        end
+    end
+    --[[local export = {}
     local export_length = 0
     local export_processed = 0
     for p, priority in pairs(self.network.ItemIOTable) do
@@ -306,7 +344,7 @@ function NC:export_items()
                 item.processed = false
             end
         end
-    end
+    end]]
 end
 
 function NC:updateItemIO()
@@ -319,7 +357,24 @@ function NC:updateItemIO()
 end
 
 function NC:import_fluids()
-    local import = {}
+    for p, priority in pairs(self.network.FluidIOTable) do
+        for i, v in pairs(priority.input) do
+            local fluid = global.entityTable[v]
+            if fluid ~= nil and fluid.io == "output" then
+                table.remove(priority.input, i)
+                goto next
+            end
+            if fluid ~= nil then
+                fluid:IO()
+                if settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == true then
+                    table.remove(priority.input, i)
+                    table.insert(priority.input, i, v)
+                end
+            end
+            ::next::
+        end
+    end
+    --[[local import = {}
     local import_length = 0
     local import_processed = 0
     for p, priority in pairs(self.network.FluidIOTable) do
@@ -356,11 +411,28 @@ function NC:import_fluids()
                 item.processed = false
             end
         end
-    end
+    end]]
 end
 
 function NC:export_fluids()
-    local export = {}
+    for p, priority in pairs(self.network.FluidIOTable) do
+        for i, v in pairs(priority.output) do
+            local fluid = global.entityTable[v]
+            if fluid ~= nil and fluid.io == "input" then
+                table.remove(priority.input, i)
+                goto next
+            end
+            if fluid ~= nil then
+                fluid:IO()
+                if settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == true then
+                    table.remove(priority.output, i)
+                    table.insert(priority.output, i, v)
+                end
+            end
+            ::next::
+        end
+    end
+    --[[local export = {}
     local export_length = 0
     local export_processed = 0
     for p, priority in pairs(self.network.FluidIOTable) do
@@ -393,7 +465,7 @@ function NC:export_fluids()
                 item.processed = false
             end
         end
-    end
+    end]]
 end
 
 function NC:updateFluidIO()
@@ -616,7 +688,7 @@ function NC:getTooltips(guiTable, mainFrame, justCreated)
         GuiApi.add_item_frame(guiTable, "", section, _G.WT.powerUsage*global.WTRangeMultiplier .. " J/t", name, wirelessTransmittercount .. "x", 64, Constants.Settings.RNS_Gui.label_font_2)
     end
 
-    local detectorcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.DetectorTable))
+    local detectorcount = BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.DetectorTable["enable/disable"])) + BaseNet.get_table_length_in_priority(self.network.getOperableObjects(self.network.DetectorTable["connect/disconnect"]))
     if detectorcount > 0 then
         local name = Constants.Detector.name
         local section = GuiApi.add_frame(guiTable, "", ConnectedStructuresTable, "vertical")

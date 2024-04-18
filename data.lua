@@ -211,6 +211,72 @@ data.raw["gui-style"].default[Constants.Settings.RNS_Gui.button_2] =
 	}
 }
 
+local blank32 = {
+	filename = Constants.Settings.RNS_BlankIcon32,
+	size = 32,
+	priority = "medium",
+	scale = 1
+}
+
+local detector_middle = {
+	filename = Constants.Detector.itemIcon,
+	priority = "medium",
+	width = 512,
+	height = 512,
+	scale = 1/16
+}
+
+data.raw["gui-style"].default[Constants.Settings.RNS_Gui.checkbox] = {
+	type = "checkbox_style",
+	font = "default",
+	font_color = { r = 1, g = 1, b = 1 },
+	padding = 0,
+	size = { 32, 32 },
+	default_graphical_set = data.raw["gui-style"].default.button.default_graphical_set,
+	hovered_graphical_set = data.raw["gui-style"].default.button.hovered_graphical_set,
+	clicked_graphical_set = data.raw["gui-style"].default.button.clicked_graphical_set,
+	disabled_graphical_set = data.raw["gui-style"].default.button.disabled_graphical_set,
+	selected_graphical_set = {
+	  base = data.raw["gui-style"].default.button.hovered_graphical_set.base,
+	  shadow = offset_by_2_default_glow(default_dirt_color, 0.5),
+	},
+	selected_hovered_graphical_set = data.raw["gui-style"].default.button.hovered_graphical_set,
+	selected_clicked_graphical_set = data.raw["gui-style"].default.button.clicked_graphical_set,
+	checkmark = blank32,
+  }
+
+data.raw["gui-style"].default[Constants.Settings.RNS_Gui.checkbox_blank] = {
+	type = "checkbox_style",
+	font = "default",
+	font_color = { r = 1, g = 1, b = 1 },
+	padding = 0,
+	size = { 32, 32 },
+	default_graphical_set = blank32,
+	hovered_graphical_set = blank32,
+	clicked_graphical_set = blank32,
+	disabled_graphical_set = blank32,
+	selected_graphical_set = blank32,
+	selected_hovered_graphical_set = blank32,
+	selected_clicked_graphical_set = blank32,
+	checkmark = blank32,
+  }
+  
+  data.raw["gui-style"].default[Constants.Settings.RNS_Gui.checkbox_middle] = {
+	type = "checkbox_style",
+	font = "default",
+	font_color = { r = 1, g = 1, b = 1 },
+	padding = 0,
+	size = { 32, 32 },
+	default_graphical_set = detector_middle,
+	hovered_graphical_set = detector_middle,
+	clicked_graphical_set = detector_middle,
+	disabled_graphical_set = detector_middle,
+	selected_graphical_set = detector_middle,
+	selected_hovered_graphical_set = detector_middle,
+	selected_clicked_graphical_set = detector_middle,
+	checkmark = blank32,
+  }
+
 data:extend({
     {
       type = "virtual-signal",

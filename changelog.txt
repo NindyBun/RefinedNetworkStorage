@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.34
+Date: 17 April 2024
+  Info:
+    - Optimized a bit of the round-robin
+    - Added alt-info for drives
+    - Extended `Detector`'s ability to be able to disconnect from other wires
+---------------------------------------------------------------------------------------------------
 Version: 1.0.33
 Date: 12 April 2024
   Info:

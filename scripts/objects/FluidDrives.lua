@@ -12,6 +12,7 @@ FD = {
     guiFilters = nil,
     filters = nil,
     whitelistBlacklist = "blacklist",
+    icons = nil,
 }
 
 function FD:new(object)
@@ -28,6 +29,7 @@ function FD:new(object)
     t.fluidArray = {}
     t.storedAmount = 0
     t.filters = {}
+    t.icons = {}
     t.guiFilters = {}
     for i=1, 5 do
         t.guiFilters[i] = ""
@@ -98,6 +100,7 @@ function FD:copy_settings(obj)
     for i = 1, 5 do
         self.guiFilters[i] = obj.guiFilters[i]
     end
+    self:regenerate_icons()
 end
 
 function FD:serialize_settings()
@@ -114,6 +117,38 @@ function FD:deserialize_settings(tags)
     self.whitelistBlacklist = tags["whitelistBlacklist"]
     self.filters = tags["filters"]
     self.guiFilters = tags["guiFilters"]
+    self:regenerate_icons()
+end
+
+function FD:toggleHoverIcon(hovering)
+    for _, i in pairs(self.icons) do
+        if i ~= nil and hovering and rendering.get_only_in_alt_mode(i) then
+            rendering.set_only_in_alt_mode(i, false)
+        elseif i ~= nil and not hovering and not rendering.get_only_in_alt_mode(i) then
+            rendering.set_only_in_alt_mode(i, true)
+        end
+    end
+end
+
+function FD:regenerate_icons()
+    for i, ii in pairs(self.icons) do
+        if ii ~= nil then
+            rendering.destroy(ii)
+            self.icons[i] = nil
+        end
+    end
+    local i = 0
+    for n, _ in pairs(self.filters) do
+        i = i + 1
+        table.insert(self.icons, rendering.draw_sprite{
+            sprite = "fluid/"..n,
+            target = self.thisEntity,
+            surface = self.thisEntity.surface,
+            render_layer = "higher-object-under",
+            target_offset = Constants.Settings.RNS_DriveSprite_Offset[i],
+            only_in_alt_mode = true
+        })
+    end
 end
 
 function FD:resetCollection()
@@ -227,6 +262,7 @@ function FD:DataConvert_ItemToEntity(tag)
     end
     if tag.priority ~= nil then self.priority = tag.priority end
     if tag.whitelistBlacklist ~= nil then self.whitelistBlacklist = tag.whitelistBlacklist end
+    self:regenerate_icons()
 end
 
 function FD:DataConvert_EntityToItem(tag)
@@ -367,6 +403,7 @@ function FD.interaction(event, RNSPlayer)
                 io.filters[filter.elem_value] = true
             end
         end
+        io:regenerate_icons()
 		return
     end
 
