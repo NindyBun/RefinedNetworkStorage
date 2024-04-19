@@ -147,7 +147,7 @@ function Event.onBlueprintConfigured(event)
 	end
 	if blueprint == nil or blueprint.valid_for_read == false then return end
 
-	for index, ent in pairs(getRNSPlayer(event.player_index):pull_varTable("BlueprintTags")) do
+	for index, ent in pairs(getRNSPlayer(event.player_index):pull_varTable("BlueprintTags") or {}) do
 		if ent == nil or type(ent) ~= "number" then goto continue end
 		local tags = ((global.entityTable[ent] ~= nil and global.entityTable[ent].serialize_settings ~= nil) and {global.entityTable[ent]:serialize_settings()} or {nil})[1]
         if tags ~= nil then
