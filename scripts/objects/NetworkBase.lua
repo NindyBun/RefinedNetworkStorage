@@ -74,6 +74,7 @@ function generate_priority_table(array, group)
 end
 
 function BaseNet:resetTables()
+    self.powerDraw = 0
     self.ItemDriveTable = {}
     generate_priority_table(self.ItemDriveTable)
     self.FluidDriveTable = {}
@@ -192,7 +193,7 @@ function BaseNet.addConnectables(source, connections, master)
 
             con.networkController = master
             connections[con.entID] = con
-            master.network.powerDraw = master.network.powerDraw + (con.powerDraw or 0)
+            master.network.powerDraw = master.network.powerDraw + (con.powerUsage or 0)
 
             if string.match(con.thisEntity.name, "RNS_ItemDrive") ~= nil then
                 master.network.ItemDriveTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.entID] = con

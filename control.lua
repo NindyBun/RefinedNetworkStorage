@@ -1,6 +1,7 @@
 GUI = GUI or {}
 Event = Event or {}
 UpdateSys = UpdateSys or {}
+Migrate = Migrate or {}
 
 Constants = require("utils.constants")
 require("utils.Util")
@@ -25,6 +26,7 @@ require("scripts.objects.ExternalIO")
 require("scripts.objects.ItemDrives")
 require("scripts.objects.FluidDrives")
 require("scripts.objects.NetworkInventoryInterface")
+require("scripts.migration.migrate")
 
 --When the mod is added in a save
 function onInit()
@@ -34,6 +36,7 @@ function onInit()
         if freeplay["set_disable_crashsite"] then remote.call("freeplay", "set_disable_crashsite", true) end
     end]]
 	global.allowMigration = ( next(global) ~= nil )
+    global.migrations = global.migrations or {}
     
 	global.entityTable = global.entityTable or {}
     global.updateTable = global.updateTable or {}
@@ -66,6 +69,8 @@ function onInit()
 	for _, player in pairs(game.players) do
 		Event.initPlayer({player_index = player.index})
 	end
+
+    Migrate.setup()
 end
 
 --When the mod loads up in a save

@@ -2,6 +2,7 @@ if global.allowMigration == false then return end
 
 for id, obj in pairs(global.entityTable) do
     if obj.thisEntity.valid and obj.thisEntity.name == Constants.Detector.name then
+        DT:rebuild(obj)
         obj.icons = {
             [1] = nil,
             [2] = nil,
@@ -17,10 +18,12 @@ for id, obj in pairs(global.entityTable) do
         obj.filters.virtual = ""
     end
     if obj.thisEntity.valid and string.match(obj.thisEntity.name, "RNS_ItemDrive") ~= nil then
+        ID:rebuild(obj)
         obj.icons = {}
         obj:regenerate_icons()
     end
     if obj.thisEntity.valid and string.match(obj.thisEntity.name, "RNS_FluidDrive") ~= nil then
+        FD:rebuild(obj)
         obj.icons = {}
         obj:regenerate_icons()
     end
