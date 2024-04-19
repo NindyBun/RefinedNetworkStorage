@@ -37,7 +37,7 @@ function onInit()
     end]]
 	global.allowMigration = ( next(global) ~= nil )
     global.migrations = global.migrations or {}
-    
+
 	global.entityTable = global.entityTable or {}
     global.updateTable = global.updateTable or {}
     global.IIOMultiplier = global.IIOMultiplier or 1
@@ -58,7 +58,7 @@ function onInit()
                 end
                 if obj.tag == "NC" then
                     for _, entry in pairs(global[obj.tableName]) do
-                        entry.shouldRefresh = true
+                        entry.network.shouldRefresh = true
                     end
                 end
 			end
