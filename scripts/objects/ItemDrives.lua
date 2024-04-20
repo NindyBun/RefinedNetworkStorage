@@ -278,7 +278,7 @@ function ID:DataConvert_ItemToEntity(tag)
         self.guiFilters = tag.guiFilters
     end
     if tag.priority ~= nil then self.priority = tag.priority end
-    if tag.whitelistBlacklist ~= nil then self.whitelist = tag.whitelistBlacklist end
+    if tag.whitelistBlacklist ~= nil then self.whitelistBlacklist = tag.whitelistBlacklist end
     self:regenerate_icons()
 end
 

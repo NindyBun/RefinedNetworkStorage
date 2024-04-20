@@ -242,7 +242,7 @@ function NC:import_items()
                 item:IO()
                 if settings.global[Constants.Settings.RNS_RoundRobin].value == true and item.processed == true then
                     table.remove(priority.input, i)
-                    table.insert(priority.input, i, v)
+                    table.insert(priority.input, v)
                 end
             end
             ::next::
@@ -301,7 +301,7 @@ function NC:export_items()
                 item:IO()
                 if settings.global[Constants.Settings.RNS_RoundRobin].value == true and item.processed == true then
                     table.remove(priority.output, i)
-                    table.insert(priority.output, i, v)
+                    table.insert(priority.output, v)
                 end
             end
             ::next::
@@ -368,7 +368,7 @@ function NC:import_fluids()
                 fluid:IO()
                 if settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == true then
                     table.remove(priority.input, i)
-                    table.insert(priority.input, i, v)
+                    table.insert(priority.input, v)
                 end
             end
             ::next::
@@ -426,7 +426,7 @@ function NC:export_fluids()
                 fluid:IO()
                 if settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == true then
                     table.remove(priority.output, i)
-                    table.insert(priority.output, i, v)
+                    table.insert(priority.output, v)
                 end
             end
             ::next::

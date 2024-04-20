@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.37
+Date: 20 April 2024
+  Info:
+    - Fixed Item Drive not setting the whitelist variable correctly after placing the item down
+    - Fixed round-robin
+    - Added a button for the Detector to read from the network or circuit wire when set to connect/disconnect mode
+---------------------------------------------------------------------------------------------------
 Version: 1.0.36
 Date: 19 April 2024
   Info:

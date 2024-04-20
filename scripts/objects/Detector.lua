@@ -15,7 +15,8 @@ DT = {
     icons = nil,
     oldState = false,
     newState = false,
-    mode = "enable/disable"
+    mode = "enable/disable",
+    readFromNetwork = true
 }
 
 function DT:new(object)
@@ -144,8 +145,11 @@ function DT:update_signal()
             self.enablerCombinator.get_or_create_control_behavior().set_signal(1, nil)
         end
     elseif self.mode == "connect/disconnect" then
-        if self.filters["virtual"] ~= "" and (self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil) then
+        if self.readFromNetwork == false and self.filters["virtual"] ~= "" and (self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil) then
             local amount = self.enablerCombinator.get_merged_signal({type=self.filters["virtual"].type, name=self.filters["virtual"].name}, defines.circuit_connector_id.constant_combinator)
+            self.newState = Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number)
+        elseif self.readFromNetwork == true and self.filters["virtual"] ~= "" then
+            local amount = self.networkController.network.Contents.item[self.filters["virtual"]] or self.networkController.network.Contents.fluid[self.filters["virtual"]] or 0
             self.newState = Util.OperatorFunctions[self.enabler.operator](amount, self.enabler.number)
         end
         if self.oldState ~= self.newState then
@@ -251,6 +255,7 @@ function DT:copy_settings(obj)
     }
     self.mode = obj.mode
     self.disconnects = obj.disconnects
+    self.readFromNetwork = obj.readFromNetwork
     self:set_icons(1, self.filters[self.type] ~= "" and self.filters[self.type] or nil, self.type)
     self:set_icons(2, self.enabler.filter.name ~= "" and self.enabler.filter.name or nil, self.enabler.filter.type)
     self:generateModeIcon()
@@ -264,6 +269,7 @@ function DT:serialize_settings()
     tags["type"] = self.type
     tags["mode"] = self.mode
     tags["disconnects"] = self.disconnects
+    tags["readFromNetwork"] = self.readFromNetwork
     return tags
 end
 
@@ -274,6 +280,7 @@ function DT:deserialize_settings(tags)
     self.filters = tags["filters"]
     self.mode = tags["mode"]
     self.disconnects = tags["disconnects"]
+    self.readFromNetwork = tags["readFromNetwork"]
     self:set_icons(1, self.filters[self.type] ~= "" and self.filters[self.type] or nil, self.type)
     self:set_icons(2, self.enabler.filter.name ~= "" and self.enabler.filter.name or nil, self.enabler.filter.type)
     self:generateModeIcon()
@@ -493,17 +500,26 @@ function DT:getTooltips(guiTable, mainFrame, justCreated)
             GuiApi.add_label(guiTable, "", typeFlow, {"gui-description.RNS_Type"}, Constants.Settings.RNS_Gui.white)
             local typeDD = GuiApi.add_dropdown(guiTable, "RNS_Detector_Type", typeFlow, {{"gui-description.RNS_Item"}, {"gui-description.RNS_Fluid"}}, Constants.Settings.RNS_Types[self.type], false, "", {ID=self.thisEntity.unit_number})
             typeDD.style.minimal_width = 100
-
         end
 
         local modeFlow = GuiApi.add_flow(guiTable, "", typeFrame, "vertical", false)
         GuiApi.add_radiobutton(guiTable, "RNS_Detector_EnableDisable", modeFlow, {"gui-description.RNS_EnableDisable"}, {"gui-description.RNS_EnableDisable_tooltip"}, self.mode == "enable/disable" and true or false, false, {ID=self.thisEntity.unit_number})
         GuiApi.add_radiobutton(guiTable, "RNS_Detector_ConnectDisconnect", modeFlow, {"gui-description.RNS_ConnectDisconnect"}, {"gui-description.RNS_ConnectDisconnect_tooltip"}, self.mode == "connect/disconnect" and true or false, false, {ID=self.thisEntity.unit_number})
         
+        if self.mode == "connect/disconnect" then
+            GuiApi.add_checkbox(guiTable, "RNS_Detector_ReadFromNetwork", modeFlow, {"gui-description.RNS_ReadFromNetwork"}, {"gui-description.RNS_ReadFromNetwork_tooltip"}, self.readFromNetwork, false, {ID=self.entID})
+        end
     end
 end
 
 function DT.interaction(event, RNSPlayer)
+    if string.match(event.element.name, "RNS_Detector_ReadFromNetwork") then
+        local id = event.element.tags.ID
+		local io = global.entityTable[id]
+		if io == nil then return end
+        io.readFromNetwork = event.element.state
+        return
+    end
     if string.match(event.element.name, "RNS_Detector_EnableDisable") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
@@ -548,6 +564,7 @@ function DT.interaction(event, RNSPlayer)
             io.disconnects[3] = event.element.state
         end
         io:generateModeIcon()
+        io:createArms()
         return
     end
     if string.match(event.element.name, "RNS_Detector_Number") then
