@@ -210,11 +210,17 @@ function BaseNet.addConnectables(source, connections, master)
                 end
         
             elseif con.thisEntity.name == Constants.NetworkCables.itemIO.name then
-                table.insert(master.network.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.io], con.entID)
-        
+                if con.processed == true then
+                    table.insert(master.network.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.io], con.entID)
+                else
+                    table.insert(master.network.ItemIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.io], 1, con.entID)
+                end
             elseif con.thisEntity.name == Constants.NetworkCables.fluidIO.name then
-                table.insert(master.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.io], con.entID)
-        
+                if con.processed == true then
+                    table.insert(master.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.io], con.entID)
+                else
+                    table.insert(master.network.FluidIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.io], 1, con.entID)
+                end
             elseif con.thisEntity.name == Constants.NetworkCables.externalIO.name then
                 master.network.ExternalIOTable[1+Constants.Settings.RNS_Max_Priority-con.priority][con.type][con.entID] = con
                 con:init_cache()
