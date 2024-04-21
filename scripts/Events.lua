@@ -260,7 +260,7 @@ function Event.on_marked_for_deconstruction(event)
 		local obj = global.entityTable[entity.unit_number]
 		obj:createArms()
     	BaseNet.postArms(obj)
-    	BaseNet.update_network_controller(obj.networkController or obj)
+    	BaseNet.update_network_controller(obj.network and obj or obj.networkController)
 	end
 end
 
@@ -273,6 +273,6 @@ function Event.on_cancelled_deconstruction(event)
 		local obj = global.entityTable[entity.unit_number]
 		obj:createArms()
     	BaseNet.postArms(obj)
-    	BaseNet.update_network_controller(obj.networkController or obj)
+    	BaseNet.update_network_controller(obj.network and obj or obj.networkController)
 	end
 end

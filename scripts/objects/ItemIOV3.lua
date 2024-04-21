@@ -25,6 +25,7 @@ IIO3 = {
         state = false,
         filter = nil
     },
+    oldDirection = defines.direction.north,
     override_stacksize = false
 }
 
@@ -39,6 +40,7 @@ function IIO3:new(object)
     rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
     t:generateModeIcon()
     t.stackSize = global.IIOMultiplier
+    t.oldDirection = t:getDirection()
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -555,6 +557,7 @@ function IIO3:getCheckArea()
 end
 
 function IIO3:reset_focused_entity()
+    self.oldDirection = self:getDirection()
     self.focusedEntity = {
         thisEntity = nil,
         oldPosition = nil,
@@ -609,6 +612,7 @@ end
 function IIO3:check_focused_entity()
     if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false or self.focusedEntity.thisEntity.to_be_deconstructed() then self:reset_focused_entity() return end
     if Util.positions_match(self.focusedEntity.thisEntity.position, self.focusedEntity.oldPosition) == false then self:reset_focused_entity() return end
+    if self.oldDirection ~= self:getDirection() then self:reset_focused_entity() return end
     if self.focusedEntity.inventory.input.max == nil or self.focusedEntity.inventory.output.max == nil then self:reset_focused_entity() return end
     if self.focusedEntity.inventory.input.max == 0 and self.io == "output" then self:reset_focused_entity() return end
     if self.focusedEntity.inventory.output.max == 0 and self.io == "input" then self:reset_focused_entity() return end

@@ -27,7 +27,8 @@ EIO = {
     powerUsage = 160,
     cache = nil,
     storedAmount = 0,
-    capacity = 0
+    capacity = 0,
+    oldDirection = defines.direction.north,
 }
 
 function EIO:new(object)
@@ -40,6 +41,7 @@ function EIO:new(object)
     t.entID = object.unit_number
     rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
     t:generateModeIcon()
+    t.oldDirection = t:getDirection()
     --Don't really need to initialize the arrays but it makes it easier to see what's supposed to be there
     t.cardinals = {
         [1] = false, --N
@@ -494,6 +496,7 @@ function EIO:resetConnection()
 end
 
 function EIO:reset_focused_entity()
+    self.oldDirection = self:getDirection()
     self:flush_cache()
     self:clear_cache()
     self.focusedEntity = {
@@ -576,6 +579,7 @@ end
 function EIO:check_focused_entity()
     if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false or self.focusedEntity.thisEntity.to_be_deconstructed() then self:reset_focused_entity() return end
     if Util.positions_match(self.focusedEntity.thisEntity.position, self.focusedEntity.oldPosition) == false then self:reset_focused_entity() return end
+    if self.oldDirection ~= self:getDirection() then self:reset_focused_entity() return end
     if self.type == "item" then
         if self.focusedEntity.inventory.input.max == nil or self.focusedEntity.inventory.output.max == nil then self:reset_focused_entity() return end
         if self.focusedEntity.inventory.input.max == 0 and self.io == "output" then self:reset_focused_entity() return end

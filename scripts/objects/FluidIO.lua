@@ -23,7 +23,8 @@ FIO = {
         state = false,
         filter = nil
     },
-    override_fluidsize = false
+    override_fluidsize = false,
+    oldDirection = defines.direction.north,
 }
 
 function FIO:new(object)
@@ -37,6 +38,7 @@ function FIO:new(object)
     rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[t.color].sprites[5].name, target=t.thisEntity, surface=t.thisEntity.surface, render_layer="lower-object-above-shadow"}
     t:generateModeIcon()
     t.fluidSize = global.FIOMultiplier
+    t.oldDirection = t:getDirection()
     t.cardinals = {
         [1] = false, --N
         [2] = false, --E
@@ -410,7 +412,8 @@ function FIO:resetConnection()
     end
 end
 
-function FIO:reset_focused_entity()
+function FIO:reset_focused_entity()    
+    self.oldDirection = self:getDirection()
     self.focusedEntity = {
         thisEntity = nil,
         oldPosition = nil,
@@ -460,6 +463,7 @@ function FIO:check_focused_entity()
     if self.focusedEntity.thisEntity == nil or self.focusedEntity.thisEntity.valid == false or self.focusedEntity.thisEntity.to_be_deconstructed() then self:reset_focused_entity() return end
     if Util.positions_match(self.focusedEntity.thisEntity.position, self.focusedEntity.oldPosition) == false then self:reset_focused_entity() return end
 
+    if self.oldDirection ~= self:getDirection() then self:reset_focused_entity() return end
     if self.focusedEntity.fluid_box.target_position == nil then self:reset_focused_entity() return end
     if Util.positions_match(self.thisEntity.position, self.focusedEntity.fluid_box.target_position) == false then self:reset_focused_entity() return end
     if self.focusedEntity.thisEntity.fluidbox.get_pipe_connections(self.focusedEntity.fluid_box.index) == nil then self:reset_focused_entity() return end

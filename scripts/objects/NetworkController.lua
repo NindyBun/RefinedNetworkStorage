@@ -243,6 +243,7 @@ function NC:import_items()
                 if settings.global[Constants.Settings.RNS_RoundRobin].value == true and item.processed == true then
                     table.remove(priority.input, i)
                     table.insert(priority.input, v)
+                    item.processed = false
                 end
             end
             ::next::
@@ -294,7 +295,7 @@ function NC:export_items()
         for i, v in pairs(priority.output) do
             local item = global.entityTable[v]
             if item ~= nil and item.io == "input" then
-                table.remove(priority.input, i)
+                table.remove(priority.output, i)
                 goto next
             end
             if item ~= nil then
@@ -302,6 +303,7 @@ function NC:export_items()
                 if settings.global[Constants.Settings.RNS_RoundRobin].value == true and item.processed == true then
                     table.remove(priority.output, i)
                     table.insert(priority.output, v)
+                    item.processed = false
                 end
             end
             ::next::
@@ -369,6 +371,7 @@ function NC:import_fluids()
                 if settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == true then
                     table.remove(priority.input, i)
                     table.insert(priority.input, v)
+                    fluid.processed = false
                 end
             end
             ::next::
@@ -419,7 +422,7 @@ function NC:export_fluids()
         for i, v in pairs(priority.output) do
             local fluid = global.entityTable[v]
             if fluid ~= nil and fluid.io == "input" then
-                table.remove(priority.input, i)
+                table.remove(priority.ouput, i)
                 goto next
             end
             if fluid ~= nil then
@@ -427,6 +430,7 @@ function NC:export_fluids()
                 if settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == true then
                     table.remove(priority.output, i)
                     table.insert(priority.output, v)
+                    fluid.processed = false
                 end
             end
             ::next::
