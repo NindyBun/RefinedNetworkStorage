@@ -646,8 +646,9 @@ function WG.transfer_from_fdinv(RNSPlayer, WG, tags, count)
 end
 
 function WG.interaction(event, RNSPlayer)
-	if string.match(event.element.name, "RNS_SearchTextField") then return end
-	if string.match(event.element.name, "RNS_WG_Channels") and event.name ~= defines.events.on_gui_click then
+	if string.match(event.element.name, "RNS_SearchTextField") then
+		return
+	elseif string.match(event.element.name, "RNS_WG_Channels") and event.name ~= defines.events.on_gui_click then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
         local selected_index = event.element.selected_index
@@ -660,8 +661,7 @@ function WG.interaction(event, RNSPlayer)
             RNSPlayer:push_varTable(event.element.tags.ID, true)
         end
 		return
-	end
-	if string.match(event.element.name, "RNS_WG_SortOrder") then
+	elseif string.match(event.element.name, "RNS_WG_SortOrder") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -685,14 +685,10 @@ function WG.interaction(event, RNSPlayer)
 	if string.match(event.element.name, "RNS_WG_PInv") then
 		WG.transfer_from_pinv(RNSPlayer, obj, event.element.tags, count)
 		return
-	end
-
-	if string.match(event.element.name, "RNS_WG_IDInv") then
+	elseif string.match(event.element.name, "RNS_WG_IDInv") then
 		WG.transfer_from_idinv(RNSPlayer, obj, event.element.tags, count)
 		return
-	end
-
-	if string.match(event.element.name, "RNS_WG_FDInv") then
+	elseif string.match(event.element.name, "RNS_WG_FDInv") then
 		WG.transfer_from_fdinv(RNSPlayer, obj, event.element.tags, count)
 		return
 	end

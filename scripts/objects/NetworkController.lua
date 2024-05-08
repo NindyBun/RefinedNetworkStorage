@@ -761,8 +761,7 @@ function NC.interaction(event, RNSPlayer)
 		if obj == nil then return end
             obj:make_name_change(guiTable, guiTable.vars["nameFlow"])
 		return
-	end
-    if string.match(event.element.name, "RNS_NC_Element_Button") and event.name ~= defines.events.on_gui_click then
+	elseif string.match(event.element.name, "RNS_NC_Element_Button") and event.name ~= defines.events.on_gui_click then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
             guiTable.vars["RNS_NC_Name_Text"].text = guiTable.vars["RNS_NC_Name_Text"].text .. Util.signal_to_rich_text(event.element.elem_value)
@@ -772,8 +771,7 @@ function NC.interaction(event, RNSPlayer)
                 name = Constants.Icons.select_icon_white
               }
 		return
-	end
-    if string.match(event.element.name, "RNS_NC_Checkmark") then
+	elseif string.match(event.element.name, "RNS_NC_Checkmark") then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
         if guiTable.vars["RNS_NC_Name_Text"].text == "" then

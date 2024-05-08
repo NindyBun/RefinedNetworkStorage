@@ -866,8 +866,7 @@ function EIO.interaction(event, RNSPlayer)
         io.enabler.number = num
         event.element.text = tostring(num)
         return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_External_Operator") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_External_Operator") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -876,8 +875,7 @@ function EIO.interaction(event, RNSPlayer)
             io.enabler.operator = operator
         end
 		return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_External_Enabler") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_External_Enabler") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -887,9 +885,7 @@ function EIO.interaction(event, RNSPlayer)
             io.enabler.filter = nil
         end
 		return
-    end
-    
-    if string.match(event.element.name, "RNS_NetworkCableIO_External_Filter") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_External_Filter") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -912,9 +908,7 @@ function EIO.interaction(event, RNSPlayer)
             end
         end
 		return
-    end
-
-    if string.match(event.element.name, "RNS_NetworkCableIO_External_Color") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_External_Color") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -927,9 +921,7 @@ function EIO.interaction(event, RNSPlayer)
             BaseNet.update_network_controller(io.networkController)
         end
 		return
-	end
-
-    if string.match(event.element.name, "RNS_NetworkCableIO_External_Mode") then
+	elseif string.match(event.element.name, "RNS_NetworkCableIO_External_Mode") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -944,9 +936,7 @@ function EIO.interaction(event, RNSPlayer)
             end
         end
 		return
-    end
-
-    if string.match(event.element.name, "RNS_NetworkCableIO_External_Type") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_External_Type") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -962,9 +952,7 @@ function EIO.interaction(event, RNSPlayer)
             end
         end
 		return
-    end
-
-    if string.match(event.element.name, "RNS_NetworkCableIO_External_Priority") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_External_Priority") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -978,17 +966,13 @@ function EIO.interaction(event, RNSPlayer)
             end
         end
 		return
-    end
-
-    if string.match(event.element.name, "RNS_NetworkCableIO_External_WhitelistBlacklist") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_External_WhitelistBlacklist") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
         io.whitelistBlacklist = event.element.switch_state == "left" and "whitelist" or "blacklist"
 		return
-    end
-
-    if string.match(event.element.name, "RNS_NetworkCableIO_External_Modified") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_External_Modified") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
