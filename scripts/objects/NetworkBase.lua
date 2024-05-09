@@ -457,78 +457,51 @@ function BaseNet:remove_cache(mode, type, key)
 end
 
 function BaseNet:is_full()
-    local i = 0
-
-    if self:is_ItemDrivePartitions_Full() then i = i + 1 end
-    if self:is_FluidDrivePartitions_Full() then i = i + 1 end
-    if self:is_ItemExternalPartitions_Full() then i = i + 1 end
-    if self:is_FluidExternalPartitions_Full() then i = i + 1 end
-    
-    return i == 4
+    return self:is_ItemDrivePartitions_Full() and self:is_FluidDrivePartitions_Full() and self:is_ItemExternalPartitions_Full() and self:is_FluidExternalPartitions_Full()
 end
 
 function BaseNet:is_empty()
-    local i = 0
-
-    if self:is_ItemDrivePartitions_Empty() then i = i + 1 end
-    if self:is_FluidDrivePartitions_Empty() then i = i + 1 end
-    if self:is_ItemExternalPartitions_Empty() then i = i + 1 end
-    if self:is_FluidExternalPartitions_Empty() then i = i + 1 end
-    
-    return i == 4
+    return self:is_ItemDrivePartitions_Empty() and self:is_FluidDrivePartitions_Empty() and self:is_ItemExternalPartitions_Empty() and self:is_FluidExternalPartitions_Empty()
 end
 
 function BaseNet:is_ItemDrivePartitions_Full()
-    local s = self.StoredPartition
-    local id = s.itemDrive
+    local id = self.StoredPartition.itemDrive
     return id.storedAmount >= id.capacity
 end
 
 function BaseNet:is_FluidDrivePartitions_Full()
-    local s = self.StoredPartition
-    local fd = s.fluidDrive
+    local fd = self.StoredPartition.fluidDrive
     return fd.storedAmount >= fd.capacity
 end
 
 function BaseNet:is_ItemExternalPartitions_Full()
-    local s = self.StoredPartition
-    local ie = s.itemExternal
+    local ie = self.StoredPartition.itemExternal
     return ie.storedAmount >= ie.capacity
 end
 
 function BaseNet:is_FluidExternalPartitions_Full()
-    local s = self.StoredPartition
-    local fe = s.fluidExternal
+    local fe = self.StoredPartition.fluidExternal
     return fe.storedAmount >= fe.capacity
 end
 
 function BaseNet:is_ItemDrivePartitions_Empty()
-    local s = self.StoredPartition
-    local id = s.itemDrive
-    return id.storedAmount <= 0
+    return self.StoredPartition.itemDrive.storedAmount <= 0
 end
 
 function BaseNet:is_FluidDrivePartitions_Empty()
-    local s = self.StoredPartition
-    local fd = s.fluidDrive
-    return fd.storedAmount <= 0
+    return self.StoredPartition.fluidDrive.storedAmount <= 0
 end
 
 function BaseNet:is_ItemExternalPartitions_Empty()
-    local s = self.StoredPartition
-    local ie = s.itemExternal
-    return ie.storedAmount <= 0
+    return self.StoredPartition.itemExternal.storedAmount <= 0
 end
 
 function BaseNet:is_FluidExternalPartitions_Empty()
-    local s = self.StoredPartition
-    local fe = s.fluidExternal
-    return fe.storedAmount <= 0
+    return self.StoredPartition.fluidExternal.storedAmount <= 0
 end
 
 function BaseNet:delta_ItemDrive_Partition(storedAmount, capacity)
-    local s = self.StoredPartition
-    local id = s.itemDrive
+    local id = self.StoredPartition.itemDrive
     id.storedAmount = id.storedAmount + storedAmount
     id.capacity = id.capacity + capacity
     if id.storedAmount <= 0 then id.storedAmount = 0 end
@@ -536,8 +509,7 @@ function BaseNet:delta_ItemDrive_Partition(storedAmount, capacity)
 end
 
 function BaseNet:delta_FluidDrive_Partition(storedAmount, capacity)
-    local s = self.StoredPartition
-    local fd = s.fluidDrive
+    local fd = self.StoredPartition.fluidDrive
     fd.storedAmount = fd.storedAmount + storedAmount
     fd.capacity = fd.capacity + capacity
     if fd.storedAmount <= 0 then fd.storedAmount = 0 end
@@ -545,8 +517,7 @@ function BaseNet:delta_FluidDrive_Partition(storedAmount, capacity)
 end
 
 function BaseNet:delta_ItemExternal_Partition(storedAmount, capacity)
-    local s = self.StoredPartition
-    local ie = s.itemExternal
+    local ie = self.StoredPartition.itemExternal
     ie.storedAmount = ie.storedAmount + storedAmount
     ie.capacity = ie.capacity + capacity
     if ie.storedAmount <= 0 then ie.storedAmount = 0 end
@@ -554,8 +525,7 @@ function BaseNet:delta_ItemExternal_Partition(storedAmount, capacity)
 end
 
 function BaseNet:delta_FluidExternal_Partition(storedAmount, capacity)
-    local s = self.StoredPartition
-    local fe = s.fluidExternal
+    local fe = self.StoredPartition.fluidExternal
     fe.storedAmount = fe.storedAmount + storedAmount
     fe.capacity = fe.capacity + capacity
     if fe.storedAmount <= 0 then fe.storedAmount = 0 end

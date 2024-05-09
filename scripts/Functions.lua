@@ -68,18 +68,16 @@ end
 end]]
 
 function valid(obj)
-    if obj == nil then return false end
-	if type(obj) ~= "table" then return false end
-	if obj.valid == nil then return false end
-	if type(obj.valid) == "boolean" then return obj.valid end
-	if obj:valid() ~= true then return false end
+    if obj == nil or type(obj) ~= "table" or obj.valid == nil then return false
+	elseif type(obj.valid) == "boolean" then return obj.valid
+	elseif obj:valid() ~= true then return false end
 	return true
 end
 
 function getRNSPlayer(player)
 	if player == nil then return nil
-	elseif type(player) == "number" then return global.PlayerTable[game.players[player].name]
 	elseif type(player) == "string" then return global.PlayerTable[player]
+	elseif type(player) == "number" then return global.PlayerTable[game.players[player].name]
 	else error("bad argument to getRNSPlayer()") end
 end
 

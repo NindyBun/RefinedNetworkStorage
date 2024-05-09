@@ -72,6 +72,7 @@ function NC:setState(state)
 end
 
 function NC:setActive(set)
+    if self.stable == set then return end
     self.stable = set
     if set == true then
         self:setState(Constants.NetworkController.states.stable)
@@ -294,11 +295,11 @@ function NC:export_items()
     for p, priority in pairs(self.network.ItemIOTable) do
         for i, v in pairs(priority.output) do
             local item = global.entityTable[v]
-            if item ~= nil and item.io == "input" then
-                table.remove(priority.output, i)
-                goto next
-            end
             if item ~= nil then
+                if item.io == "input" then
+                    table.remove(priority.output, i)
+                    goto next
+                end
                 item:IO()
                 if settings.global[Constants.Settings.RNS_RoundRobin].value == true and item.processed == true then
                     table.remove(priority.output, i)
@@ -362,11 +363,11 @@ function NC:import_fluids()
     for p, priority in pairs(self.network.FluidIOTable) do
         for i, v in pairs(priority.input) do
             local fluid = global.entityTable[v]
-            if fluid ~= nil and fluid.io == "output" then
-                table.remove(priority.input, i)
-                goto next
-            end
             if fluid ~= nil then
+                if fluid.io == "output" then
+                    table.remove(priority.input, i)
+                    goto next
+                end
                 fluid:IO()
                 if settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == true then
                     table.remove(priority.input, i)
@@ -421,11 +422,11 @@ function NC:export_fluids()
     for p, priority in pairs(self.network.FluidIOTable) do
         for i, v in pairs(priority.output) do
             local fluid = global.entityTable[v]
-            if fluid ~= nil and fluid.io == "input" then
-                table.remove(priority.ouput, i)
-                goto next
-            end
             if fluid ~= nil then
+                if fluid.io == "input" then
+                    table.remove(priority.ouput, i)
+                    goto next
+                end
                 fluid:IO()
                 if settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == true then
                     table.remove(priority.output, i)

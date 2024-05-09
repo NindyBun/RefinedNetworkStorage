@@ -250,8 +250,7 @@ function EIO:update(network)
     if self.type == "item" and self.focusedEntity.inventory.output.max == 0 then
         self:flush_cache()
         self:clear_cache()
-    end
-    if self.type == "fluid" and self.focusedEntity.fluid_box.index == nil then
+    elseif self.type == "fluid" and self.focusedEntity.fluid_box.index == nil then
         self:flush_cache()
         self:clear_cache()
     end

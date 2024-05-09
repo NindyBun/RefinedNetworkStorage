@@ -316,8 +316,10 @@ function IIO3:transportIO()
         7 = defines.transport_line.secondary_left_split_line 	
         8 = defines.transport_line.secondary_right_split_line 
     ]]
-    if self:interactable() == false then self.processed = true return end
-    if self:target_interactable() == false then self.processed = true return end
+    if self:interactable() == false or self:target_interactable() == false then
+        self.processed = true
+        return
+    end
 
     if self.circuitCondition == "enable/disable" and self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
         if self.enabler.filter == nil then self.processed = true return end
