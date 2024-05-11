@@ -298,14 +298,12 @@ function TR.interaction(event, RNSPlayer)
             obj:force_controller_update()
         end
 		return
-	end
-    if string.match(event.element.name, "RNS_TransReceiver_Name_Button") then
+	elseif string.match(event.element.name, "RNS_TransReceiver_Name_Button") then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
             obj:make_name_change(guiTable, guiTable.vars["nameFlow"])
 		return
-	end
-    if string.match(event.element.name, "RNS_TransReceiver_Element_Button") and event.name ~= defines.events.on_gui_click then
+	elseif string.match(event.element.name, "RNS_TransReceiver_Element_Button") and event.name ~= defines.events.on_gui_click then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
             guiTable.vars["RNS_TransReceiver_Name_Text"].text = guiTable.vars["RNS_TransReceiver_Name_Text"].text .. Util.signal_to_rich_text(event.element.elem_value)
@@ -315,8 +313,7 @@ function TR.interaction(event, RNSPlayer)
                 name = Constants.Icons.select_icon_white
               }
 		return
-	end
-    if string.match(event.element.name, "RNS_TransReceiver_Checkmark") then
+	elseif string.match(event.element.name, "RNS_TransReceiver_Checkmark") then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
         if guiTable.vars["RNS_TransReceiver_Name_Text"].text == "" then
@@ -326,8 +323,7 @@ function TR.interaction(event, RNSPlayer)
         end
         obj:make_name_label(guiTable, guiTable.vars["nameFlow"])
 		return
-	end
-    --[[if string.match(event.element.name, "xPos") then
+    --[[elseif string.match(event.element.name, "xPos") then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
         if event.element.text ~= "" then
@@ -337,8 +333,7 @@ function TR.interaction(event, RNSPlayer)
         end
         obj:force_controller_update()
 		return
-	end
-    if string.match(event.element.name, "yPos") then
+	elseif string.match(event.element.name, "yPos") then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
         if event.element.text ~= "" then
@@ -348,8 +343,7 @@ function TR.interaction(event, RNSPlayer)
         end
         obj:force_controller_update()
 		return
-	end
-	if string.match(event.element.name, "SurfaceID") then
+	elseif string.match(event.element.name, "SurfaceID") then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
         if event.element.text ~= "" then
@@ -358,6 +352,6 @@ function TR.interaction(event, RNSPlayer)
             obj.receiver.surface = nil
         end
         obj:force_controller_update()
-		return
-	end]]
+		return]]
+	end
 end

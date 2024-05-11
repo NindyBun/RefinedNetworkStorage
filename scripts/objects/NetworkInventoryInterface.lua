@@ -722,9 +722,9 @@ function NII.transfer_from_fdinv(RNSPlayer, NII, tags, count)
 end
 
 function NII.interaction(event, RNSPlayer)
-	if string.match(event.element.name, "RNS_SearchTextField") then return end
-
-	if string.match(event.element.name, "RNS_NII_SortOrder") then
+	if string.match(event.element.name, "RNS_SearchTextField") then
+		return
+	elseif string.match(event.element.name, "RNS_NII_SortOrder") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -746,14 +746,10 @@ function NII.interaction(event, RNSPlayer)
 	if string.match(event.element.name, "RNS_NII_Insert") then
 		NII.transfer_from_pinv(RNSPlayer, obj, event.element.tags, count)
 		return
-	end
-
-	if string.match(event.element.name, "RNS_NII_IDInv") then
+	elseif string.match(event.element.name, "RNS_NII_IDInv") then
 		NII.transfer_from_idinv(RNSPlayer, obj, event.element.tags, count)
 		return
-	end
-
-	if string.match(event.element.name, "RNS_NII_FDInv") then
+	elseif string.match(event.element.name, "RNS_NII_FDInv") then
 		NII.transfer_from_fdinv(RNSPlayer, obj, event.element.tags, count)
 		return
 	end

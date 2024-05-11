@@ -519,8 +519,7 @@ function DT.interaction(event, RNSPlayer)
 		if io == nil then return end
         io.readFromNetwork = event.element.state
         return
-    end
-    if string.match(event.element.name, "RNS_Detector_EnableDisable") then
+    elseif string.match(event.element.name, "RNS_Detector_EnableDisable") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -534,8 +533,7 @@ function DT.interaction(event, RNSPlayer)
         end
         RNSPlayer:push_varTable(id, true)
         return
-    end
-    if string.match(event.element.name, "RNS_Detector_ConnectDisconnect") then
+    elseif string.match(event.element.name, "RNS_Detector_ConnectDisconnect") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -549,8 +547,7 @@ function DT.interaction(event, RNSPlayer)
         end
         RNSPlayer:push_varTable(id, true)
         return
-    end
-    if string.match(event.element.name, "RNS_Detector_Checkbox") then
+    elseif string.match(event.element.name, "RNS_Detector_Checkbox") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -566,8 +563,7 @@ function DT.interaction(event, RNSPlayer)
         io:generateModeIcon()
         io:createArms()
         return
-    end
-    if string.match(event.element.name, "RNS_Detector_Number") then
+    elseif string.match(event.element.name, "RNS_Detector_Number") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -575,8 +571,7 @@ function DT.interaction(event, RNSPlayer)
         io.enabler.number = num
         event.element.text = tostring(num)
         return
-    end
-    if string.match(event.element.name, "RNS_Detector_Filter_1") then
+    elseif string.match(event.element.name, "RNS_Detector_Filter_1") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -588,8 +583,7 @@ function DT.interaction(event, RNSPlayer)
             io.combinator.get_or_create_control_behavior().set_signal(1, nil)
         end
 		return
-    end
-    if string.match(event.element.name, "RNS_Detector_Filter") then
+    elseif string.match(event.element.name, "RNS_Detector_Filter") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -601,8 +595,7 @@ function DT.interaction(event, RNSPlayer)
             io.combinator.get_or_create_control_behavior().set_signal(1, nil)
         end
 		return
-    end
-    if string.match(event.element.name, "RNS_Detector_Output") then
+    elseif string.match(event.element.name, "RNS_Detector_Output") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -614,15 +607,13 @@ function DT.interaction(event, RNSPlayer)
             io.combinator.get_or_create_control_behavior().set_signal(2, nil)
         end
 		return
-    end
-    if string.match(event.element.name, "RNS_Detector_Switch") then
+    elseif string.match(event.element.name, "RNS_Detector_Switch") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
         io.enabler.numberOutput = event.element.switch_state == "left" and 1 or 2
 		return
-    end
-    if string.match(event.element.name, "RNS_Detector_Color") then
+    elseif string.match(event.element.name, "RNS_Detector_Color") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -635,8 +626,7 @@ function DT.interaction(event, RNSPlayer)
             BaseNet.update_network_controller(io.networkController)
         end
 		return
-	end
-    if string.match(event.element.name, "RNS_Detector_Type") then
+	elseif string.match(event.element.name, "RNS_Detector_Type") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -650,8 +640,7 @@ function DT.interaction(event, RNSPlayer)
             io.enablerCombinator.get_or_create_control_behavior().set_signal(1, nil)
         end
 		return
-    end
-    if string.match(event.element.name, "RNS_Detector_Operator") then
+    elseif string.match(event.element.name, "RNS_Detector_Operator") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end

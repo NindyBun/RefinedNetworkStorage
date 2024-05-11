@@ -741,8 +741,7 @@ function FIO.interaction(event, RNSPlayer)
         io.fluidSize = math.ceil(event.element.slider_value)
         guiTable.vars["RNS_NetworkCableIO_Fluid_FluidSizeText"].text = tostring(io.fluidSize)
         return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_FluidSizeText") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Fluid_FluidSizeText") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -751,9 +750,7 @@ function FIO.interaction(event, RNSPlayer)
         guiTable.vars["RNS_NetworkCableIO_Fluid_FluidSizeSlider"].slider_value = io.fluidSize
         guiTable.vars["RNS_NetworkCableIO_Fluid_FluidSizeText"].text = tostring(io.fluidSize)
         return
-    end
-    
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_None") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Fluid_None") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -761,8 +758,7 @@ function FIO.interaction(event, RNSPlayer)
         RNSPlayer:push_varTable(id, true)
         --guiTable.vars["RNS_NetworkCableIO_Item_EnableDisable"].state = false
         return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_EnableDisable") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Fluid_EnableDisable") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -770,8 +766,7 @@ function FIO.interaction(event, RNSPlayer)
         RNSPlayer:push_varTable(id, true)
         --guiTable.vars["RNS_NetworkCableIO_Item_None"].state = false
         return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_SetFilters") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Fluid_SetFilters") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -779,8 +774,7 @@ function FIO.interaction(event, RNSPlayer)
         RNSPlayer:push_varTable(id, true)
         --guiTable.vars["RNS_NetworkCableIO_Item_None"].state = false
         return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_SetFluidSize_Filter") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Fluid_SetFluidSize_Filter") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -790,8 +784,7 @@ function FIO.interaction(event, RNSPlayer)
             io.circuitCondition2.filter = nil
         end
 		return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_SetFluidSize") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Fluid_SetFluidSize") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -800,8 +793,7 @@ function FIO.interaction(event, RNSPlayer)
         RNSPlayer:push_varTable(id, true)
         --guiTable.vars["RNS_NetworkCableIO_Item_None"].state = false
         return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_FluidSizeOverride") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Fluid_FluidSizeOverride") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -809,8 +801,7 @@ function FIO.interaction(event, RNSPlayer)
         RNSPlayer:push_varTable(id, true)
         --guiTable.vars["RNS_NetworkCableIO_Item_None"].state = false
         return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Number") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Number") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -818,8 +809,7 @@ function FIO.interaction(event, RNSPlayer)
         io.enabler.number = num
         event.element.text = tostring(num)
         return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Operator") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Operator") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -828,8 +818,7 @@ function FIO.interaction(event, RNSPlayer)
             io.enabler.operator = operator
         end
 		return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Enabler") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Enabler") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -839,8 +828,7 @@ function FIO.interaction(event, RNSPlayer)
             io.enabler.filter = nil
         end
 		return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Filter") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Filter") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -855,9 +843,7 @@ function FIO.interaction(event, RNSPlayer)
         end
         io.processed = false
 		return
-	end
-
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Color") then
+	elseif string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Color") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -871,9 +857,7 @@ function FIO.interaction(event, RNSPlayer)
             BaseNet.update_network_controller(io.networkController)
         end
 		return
-	end
-
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Priority") then
+	elseif string.match(event.element.name, "RNS_NetworkCableIO_Fluid_Priority") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -888,9 +872,7 @@ function FIO.interaction(event, RNSPlayer)
             io.processed = false
         end
 		return
-    end
-
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid_IO") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Fluid_IO") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end

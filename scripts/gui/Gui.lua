@@ -146,27 +146,19 @@ function GUI.on_gui_clicked(event)
         NII.interaction(event, RNSPlayer)
         GUI.update(true)
         return
-    end
-
-    if string.match(event.element.name, "RNS_WG") then
+    elseif string.match(event.element.name, "RNS_WG") then
         WG.interaction(event, RNSPlayer)
         GUI.update(true)
         return
-    end
-
-    if string.match(event.element.name, "RNS_WT") then
+    elseif string.match(event.element.name, "RNS_WT") then
         WT.interaction(event, RNSPlayer)
         GUI.update(true)
         return
-    end
-
-    if string.match(event.element.name, "RNS_NC") then
+    elseif string.match(event.element.name, "RNS_NC") then
         NC.interaction(event, RNSPlayer)
         GUI.update(true)
         return
-    end
-
-    if string.match(event.element.name, "RNS_TransReceiver") then
+    elseif string.match(event.element.name, "RNS_TransReceiver") then
         TR.interaction(event, RNSPlayer)
         GUI.update(true)
         return
@@ -182,57 +174,39 @@ function GUI.on_gui_element_changed(event)
         NC.interaction(event, RNSPlayer)
         GUI.update(true)
         return
-    end
-
-    if string.match(event.element.name, "RNS_WG") then
+    elseif string.match(event.element.name, "RNS_WG") then
         WG.interaction(event, RNSPlayer)
         GUI.update(true)
         return
-    end
-
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Item") then
         IIO3.interaction(event, RNSPlayer)
         GUI.update(true)
         return
-    end
-
-    if string.match(event.element.name, "RNS_NetworkCableIO_Fluid") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Fluid") then
         FIO.interaction(event, RNSPlayer)
         GUI.update(true)
         return
-    end
-    
-    if string.match(event.element.name, "RNS_NetworkCableIO_External") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_External") then
         EIO.interaction(event, RNSPlayer)
         GUI.update(true)
         return
-    end
-
-    if string.match(event.element.name, "RNS_ItemDrive") then
+    elseif string.match(event.element.name, "RNS_ItemDrive") then
         ID.interaction(event, RNSPlayer)
         GUI.update(true)
         return
-    end
-
-    if string.match(event.element.name, "RNS_FluidDrive") then
+    elseif string.match(event.element.name, "RNS_FluidDrive") then
         FD.interaction(event, RNSPlayer)
         GUI.update(true)
         return
-    end
-
-    if string.match(event.element.name, "RNS_WT") then
+    elseif string.match(event.element.name, "RNS_WT") then
         WT.interaction(event, RNSPlayer)
         GUI.update(true)
         return
-    end
-
-    if string.match(event.element.name, "RNS_Detector") then
+    elseif string.match(event.element.name, "RNS_Detector") then
         DT.interaction(event, RNSPlayer)
         GUI.update(true)
         return
-    end
-
-    if string.match(event.element.name, "RNS_TransReceiver") then
+    elseif string.match(event.element.name, "RNS_TransReceiver") then
         TR.interaction(event, RNSPlayer)
         GUI.update(true)
         return

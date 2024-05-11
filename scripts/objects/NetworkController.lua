@@ -72,6 +72,7 @@ function NC:setState(state)
 end
 
 function NC:setActive(set)
+    if self.stable == set then return end
     self.stable = set
     if set == true then
         self:setState(Constants.NetworkController.states.stable)
@@ -294,11 +295,11 @@ function NC:export_items()
     for p, priority in pairs(self.network.ItemIOTable) do
         for i, v in pairs(priority.output) do
             local item = global.entityTable[v]
-            if item ~= nil and item.io == "input" then
-                table.remove(priority.output, i)
-                goto next
-            end
             if item ~= nil then
+                if item.io == "input" then
+                    table.remove(priority.output, i)
+                    goto next
+                end
                 item:IO()
                 if settings.global[Constants.Settings.RNS_RoundRobin].value == true and item.processed == true then
                     table.remove(priority.output, i)
@@ -362,11 +363,11 @@ function NC:import_fluids()
     for p, priority in pairs(self.network.FluidIOTable) do
         for i, v in pairs(priority.input) do
             local fluid = global.entityTable[v]
-            if fluid ~= nil and fluid.io == "output" then
-                table.remove(priority.input, i)
-                goto next
-            end
             if fluid ~= nil then
+                if fluid.io == "output" then
+                    table.remove(priority.input, i)
+                    goto next
+                end
                 fluid:IO()
                 if settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == true then
                     table.remove(priority.input, i)
@@ -421,11 +422,11 @@ function NC:export_fluids()
     for p, priority in pairs(self.network.FluidIOTable) do
         for i, v in pairs(priority.output) do
             local fluid = global.entityTable[v]
-            if fluid ~= nil and fluid.io == "input" then
-                table.remove(priority.ouput, i)
-                goto next
-            end
             if fluid ~= nil then
+                if fluid.io == "input" then
+                    table.remove(priority.ouput, i)
+                    goto next
+                end
                 fluid:IO()
                 if settings.global[Constants.Settings.RNS_RoundRobin].value == true and fluid.processed == true then
                     table.remove(priority.output, i)
@@ -761,8 +762,7 @@ function NC.interaction(event, RNSPlayer)
 		if obj == nil then return end
             obj:make_name_change(guiTable, guiTable.vars["nameFlow"])
 		return
-	end
-    if string.match(event.element.name, "RNS_NC_Element_Button") and event.name ~= defines.events.on_gui_click then
+	elseif string.match(event.element.name, "RNS_NC_Element_Button") and event.name ~= defines.events.on_gui_click then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
             guiTable.vars["RNS_NC_Name_Text"].text = guiTable.vars["RNS_NC_Name_Text"].text .. Util.signal_to_rich_text(event.element.elem_value)
@@ -772,8 +772,7 @@ function NC.interaction(event, RNSPlayer)
                 name = Constants.Icons.select_icon_white
               }
 		return
-	end
-    if string.match(event.element.name, "RNS_NC_Checkmark") then
+	elseif string.match(event.element.name, "RNS_NC_Checkmark") then
 		local obj = global.entityTable[event.element.tags.ID]
 		if obj == nil then return end
         if guiTable.vars["RNS_NC_Name_Text"].text == "" then

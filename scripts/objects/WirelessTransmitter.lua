@@ -275,8 +275,7 @@ function WT.interaction(event, RNSPlayer)
         local guiTable = RNSPlayer.GUI[Constants.Settings.RNS_Gui.tooltip]
         guiTable.vars["RNS_PlayerField"].text = event.element.tags.name
         return
-    end
-    if string.match(event.element.name, "RNS_WT_RangeAreaSwitch") then
+    elseif string.match(event.element.name, "RNS_WT_RangeAreaSwitch") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -286,8 +285,7 @@ function WT.interaction(event, RNSPlayer)
 			io.showArea = true
 		end
 		return
-	end
-    if string.match(event.element.name, "RNS_WT_Color") then
+	elseif string.match(event.element.name, "RNS_WT_Color") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -297,8 +295,7 @@ function WT.interaction(event, RNSPlayer)
             rendering.draw_sprite{sprite=Constants.NetworkCables.Cables[io.color].sprites[5].name, target=io.thisEntity, surface=io.thisEntity.surface, render_layer="lower-object-above-shadow"}
         end
 		return
-	end
-    if string.match(event.element.name, "RNS_WT_Checkmark") then
+	elseif string.match(event.element.name, "RNS_WT_Checkmark") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -313,8 +310,7 @@ function WT.interaction(event, RNSPlayer)
                 end
             end
         end
-    end
-    if string.match(event.element.name, "RNS_WT_Xmark") then
+    elseif string.match(event.element.name, "RNS_WT_Xmark") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end

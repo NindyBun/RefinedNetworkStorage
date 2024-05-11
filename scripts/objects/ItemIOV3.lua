@@ -316,8 +316,10 @@ function IIO3:transportIO()
         7 = defines.transport_line.secondary_left_split_line 	
         8 = defines.transport_line.secondary_right_split_line 
     ]]
-    if self:interactable() == false then self.processed = true return end
-    if self:target_interactable() == false then self.processed = true return end
+    if self:interactable() == false or self:target_interactable() == false then
+        self.processed = true
+        return
+    end
 
     if self.circuitCondition == "enable/disable" and self.enablerCombinator.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.constant_combinator) ~= nil or self.enablerCombinator.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.constant_combinator) ~= nil then
         if self.enabler.filter == nil then self.processed = true return end
@@ -909,8 +911,7 @@ function IIO3.interaction(event, RNSPlayer)
         io.stackSize = math.ceil(event.element.slider_value)
         guiTable.vars["RNS_NetworkCableIO_Item_StackSizeText"].text = tostring(io.stackSize)
         return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_StackSizeText") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Item_StackSizeText") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -919,8 +920,7 @@ function IIO3.interaction(event, RNSPlayer)
         guiTable.vars["RNS_NetworkCableIO_Item_StackSizeSlider"].slider_value = io.stackSize
         guiTable.vars["RNS_NetworkCableIO_Item_StackSizeText"].text = tostring(io.stackSize)
         return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_None") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Item_None") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -928,8 +928,7 @@ function IIO3.interaction(event, RNSPlayer)
         RNSPlayer:push_varTable(id, true)
         --guiTable.vars["RNS_NetworkCableIO_Item_EnableDisable"].state = false
         return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_EnableDisable") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Item_EnableDisable") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -937,8 +936,7 @@ function IIO3.interaction(event, RNSPlayer)
         RNSPlayer:push_varTable(id, true)
         --guiTable.vars["RNS_NetworkCableIO_Item_None"].state = false
         return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_SetFilters") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Item_SetFilters") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -946,8 +944,7 @@ function IIO3.interaction(event, RNSPlayer)
         RNSPlayer:push_varTable(id, true)
         --guiTable.vars["RNS_NetworkCableIO_Item_None"].state = false
         return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_SetStackSize_Filter") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Item_SetStackSize_Filter") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -957,8 +954,7 @@ function IIO3.interaction(event, RNSPlayer)
             io.circuitCondition2.filter = nil
         end
 		return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_SetStackSize") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Item_SetStackSize") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -967,8 +963,7 @@ function IIO3.interaction(event, RNSPlayer)
         RNSPlayer:push_varTable(id, true)
         --guiTable.vars["RNS_NetworkCableIO_Item_None"].state = false
         return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_StackSizeOverride") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Item_StackSizeOverride") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -976,8 +971,7 @@ function IIO3.interaction(event, RNSPlayer)
         RNSPlayer:push_varTable(id, true)
         --guiTable.vars["RNS_NetworkCableIO_Item_None"].state = false
         return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Number") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Item_Number") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -985,8 +979,7 @@ function IIO3.interaction(event, RNSPlayer)
         io.enabler.number = num
         event.element.text = tostring(num)
         return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Operator") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Item_Operator") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -995,8 +988,7 @@ function IIO3.interaction(event, RNSPlayer)
             io.enabler.operator = operator
         end
 		return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Enabler") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Item_Enabler") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -1006,8 +998,7 @@ function IIO3.interaction(event, RNSPlayer)
             io.enabler.filter = nil
         end
 		return
-    end
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Filter") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Item_Filter") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -1042,9 +1033,7 @@ function IIO3.interaction(event, RNSPlayer)
 		end
         io.filters.index = io.filters.max == 0 and 0 or 1
         return
-	end
-
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Color") then
+	elseif string.match(event.element.name, "RNS_NetworkCableIO_Item_Color") then
 		local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -1058,9 +1047,7 @@ function IIO3.interaction(event, RNSPlayer)
             BaseNet.update_network_controller(io.networkController)
         end
 		return
-	end
-
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Priority") then
+	elseif string.match(event.element.name, "RNS_NetworkCableIO_Item_Priority") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -1076,27 +1063,21 @@ function IIO3.interaction(event, RNSPlayer)
             io.processed = false
         end
 		return
-    end
-
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_WhitelistBlacklist") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Item_WhitelistBlacklist") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
         io.whitelistBlacklist = event.element.switch_state == "left" and "whitelist" or "blacklist"
         io.processed = false
 		return
-    end
-
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_Metadata") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Item_Metadata") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
         io.supportModified = event.element.state
         io.processed = false
 		return
-    end
-
-    if string.match(event.element.name, "RNS_NetworkCableIO_Item_IO") then
+    elseif string.match(event.element.name, "RNS_NetworkCableIO_Item_IO") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end

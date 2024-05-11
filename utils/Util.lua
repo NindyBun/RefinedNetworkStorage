@@ -40,8 +40,7 @@ Util.OperatorFunctions = {
 
 function Util.positions_match(posA, posB)
 	if posA == nil or posB == nil then return false end
-	if posA.x == posB.x and posA.y == posB.y then return true end
-	return false
+	return posA.x == posB.x and posA.y == posB.y
 end
 
 function Util.distance(startP, endP)
@@ -93,10 +92,7 @@ function Util.next(array)
 end
 
 function Util.next_index(arrayTable)
-	local old = arrayTable.index
-	local max = arrayTable.max
-	local new = (old % max) + 1
-	arrayTable.index = new
+	arrayTable.index = (arrayTable.index % arrayTable.max) + 1
 end
 
 function Util.getTableLength(array)

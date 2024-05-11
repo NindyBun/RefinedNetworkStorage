@@ -404,9 +404,7 @@ function ID.interaction(event, RNSPlayer)
             end
         end
 		return
-    end
-
-    if string.match(event.element.name, "RNS_ItemDrive_Filter") then
+    elseif string.match(event.element.name, "RNS_ItemDrive_Filter") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -425,9 +423,7 @@ function ID.interaction(event, RNSPlayer)
         end
         io:regenerate_icons()
 		return
-    end
-
-    if string.match(event.element.name, "RNS_ItemDrive_WhitelistBlacklist") then
+    elseif string.match(event.element.name, "RNS_ItemDrive_WhitelistBlacklist") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end

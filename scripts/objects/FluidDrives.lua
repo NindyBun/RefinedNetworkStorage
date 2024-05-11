@@ -384,9 +384,7 @@ function FD.interaction(event, RNSPlayer)
             end
         end
 		return
-    end
-
-    if string.match(event.element.name, "RNS_FluidDrive_Filter") then
+    elseif string.match(event.element.name, "RNS_FluidDrive_Filter") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
@@ -405,9 +403,7 @@ function FD.interaction(event, RNSPlayer)
         end
         io:regenerate_icons()
 		return
-    end
-
-    if string.match(event.element.name, "RNS_FluidDrive_WhitelistBlacklist") then
+    elseif string.match(event.element.name, "RNS_FluidDrive_WhitelistBlacklist") then
         local id = event.element.tags.ID
 		local io = global.entityTable[id]
 		if io == nil then return end
