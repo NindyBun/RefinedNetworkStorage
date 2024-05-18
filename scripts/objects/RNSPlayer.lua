@@ -110,7 +110,7 @@ function RNSP:process_logistic_slots(network)
                 local itemstack = Itemstack.create_template(name)
 
                 if add > 0 then
-                    local worked = add - BaseNet.transfer_from_network_to_inv(network, {thisEntity = self.thisEntity,inventory = {input = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, itemstack, add, true, false)
+                    local worked = add - BaseNet.transfer_from_network_to_inv(network, {thisEntity = self.thisEntity,inventory = {input = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, itemstack, add, true, false, true)
                     port.energy = port.energy - worked*Constants.Settings.RNS_PlayerPort_Consumption
                     if port.energy < Constants.Settings.RNS_PlayerPort_Consumption then return end
                 end

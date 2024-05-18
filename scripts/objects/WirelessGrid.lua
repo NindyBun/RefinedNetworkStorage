@@ -64,7 +64,7 @@ function WG:deserialize_settings(tags)
 end
 
 function WG:DataConvert_ItemToEntity(tag_contents)
-    self.connected = tag_contents.connection
+    self.connected = tag_contents.connected
 	self.sortOrder = tag_contents.sortOrder
 end
 
@@ -640,7 +640,7 @@ function WG.transfer_from_idinv(RNSPlayer, WG, tags, count)
 	local amount = math.min(itemstack.count, count)
 	if amount <= 0 then return end
 
-	BaseNet.transfer_from_network_to_inv(network, {thisEntity = RNSPlayer.thisEntity,inventory = {input = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, itemstack, amount, true, true)
+	BaseNet.transfer_from_network_to_inv(network, {thisEntity = RNSPlayer.thisEntity,inventory = {input = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, itemstack, amount, true, true, true)
 end
 
 function WG.transfer_from_fdinv(RNSPlayer, WG, tags, count)

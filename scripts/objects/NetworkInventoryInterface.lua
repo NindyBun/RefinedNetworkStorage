@@ -664,7 +664,7 @@ function NII.transfer_from_idinv(RNSPlayer, NII, tags, count)
 	local amount = math.min(itemstack.count, count)
 	if amount <= 0 then return end
 
-	BaseNet.transfer_from_network_to_inv(network, {thisEntity = RNSPlayer.thisEntity,inventory = {input = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, itemstack, amount, true, true)
+	BaseNet.transfer_from_network_to_inv(network, {thisEntity = RNSPlayer.thisEntity,inventory = {input = {index = 1, max = 1, values = {defines.inventory.character_main}}}}, itemstack, amount, true, true, true)
 
 	--[[local itemDrives = BaseNet.getOperableObjects(network.ItemDriveTable)
 	local externalItems = network:filter_externalIO_by_valid_signal()

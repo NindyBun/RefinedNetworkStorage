@@ -942,7 +942,7 @@ function BaseNet:extract_item_from_external(external, inv, transferCapacity, ite
     return transferCapacity
 end
 
-function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master, transferCapacity, supportModified, exact)
+function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master, transferCapacity, supportModified, exact, isPlayer)
     --local storedAmount = network.Contents.item[itemstack_master.name] or 0
     --if storedAmount <= 0 then return 0 end
     --transferCapacity = math.min(transferCapacity, storedAmount)
@@ -958,7 +958,7 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
         
         if inv.can_insert(itemstack_master.name) == false then goto fin end
 
-        transferCapacity = math.min(transferCapacity, emptyStacksFillableAmount)
+        if isPlayer then transferCapacity = math.min(transferCapacity, emptyStacksFillableAmount) end
         if transferCapacity <= 0 then goto fin end
 
         if network:has_cache("export", "drive", itemstack_master.name) and itemstack_master.modified == false then
