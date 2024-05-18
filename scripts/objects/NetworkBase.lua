@@ -15,6 +15,7 @@ BaseNet = {
     ReceiverTable = nil,
     PlayerPorts = nil,
     Contents = nil,
+    interfaceCache = nil,
     shouldRefresh = false,
     connectedEntities = nil,
     importDriveCache = nil,
@@ -104,6 +105,10 @@ function BaseNet:resetTables()
     self.ReceiverTable[1] = {}
     self.connectedEntities = {}
     self.Contents = {
+        item = {},
+        fluid = {}
+    }
+    self.interfaceCache = {
         item = {},
         fluid = {}
     }
@@ -200,6 +205,7 @@ function BaseNet.addConnectables(source, connections, master)
                 master.network:delta_ItemDrive_Partition(con.storedAmount, con.maxStorage)
                 for n, v in pairs(con.storageArray) do
                     master.network:increase_tracked_item_count(n, v.count)
+                    master.network:add_item_to_interface_cache(v)
                 end
         
             elseif string.match(con.thisEntity.name, "RNS_FluidDrive") ~= nil then
@@ -207,6 +213,7 @@ function BaseNet.addConnectables(source, connections, master)
                 master.network:delta_FluidDrive_Partition(con.storedAmount, con.maxStorage)
                 for n, v in pairs(con.fluidArray) do
                     master.network:increase_tracked_fluid_amount(n, v.amount)
+                    master.network:add_fluid_to_interface_cache(v)
                 end
         
             elseif con.thisEntity.name == Constants.NetworkCables.itemIO.name then
@@ -237,8 +244,10 @@ function BaseNet.addConnectables(source, connections, master)
                         if cached ~= nil then
                             if con.type == "item" then
                                 master.network:increase_tracked_item_count(cached.name, cached.count)
+                                master.network:add_item_to_interface_cache(cached)
                             else
                                 master.network:increase_tracked_fluid_amount(cached.name, cached.amount)
+                                master.network:add_fluid_to_interface_cache(cached)
                             end
                         end
                     end
@@ -531,122 +540,43 @@ function BaseNet:delta_FluidExternal_Partition(storedAmount, capacity)
     if fe.storedAmount <= 0 then fe.storedAmount = 0 end
     if fe.capacity <= 0 then fe.capacity = 0 end
 end
-
---[[function BaseNet.transfer_from_tank_to_tank(from_tank, to_tank, from_index, to_index, name, amount_to_transfer)
-    local to_tank_capacity = to_tank.fluidbox.get_capacity(to_index)
-    local amount = amount_to_transfer
-    
-    for i=1, 1 do
-        if from_tank.fluidbox[from_index] == nil then break end
-        if from_tank.fluidbox[from_index].name ~= name then break end
-        if to_tank.fluidbox[to_index] ~= nil and to_tank.fluidbox[to_index].name ~= name then break end
-
-        local a0 = from_tank.fluidbox[from_index].amount
-        local t0 = from_tank.fluidbox[from_index].temperature
-        amount = math.min(math.min(a0, amount_to_transfer), to_tank_capacity)
-
-        if to_tank.fluidbox[to_index] == nil then
-            to_tank.fluidbox[to_index] = {
-                name = name,
-                amount = amount,
-                temperature = t0
-            }
-            if a0 - amount <= 0 then
-                from_tank.fluidbox[from_index] = nil
-            else
-                from_tank.fluidbox[from_index] = {
-                    name = name,
-                    amount = a0 - amount,
-                    temperature = t0
-                }
-            end
-            amount = 0
-        elseif to_tank.fluidbox[to_index] ~= nil then
-            local a1 = to_tank.fluidbox[to_index].amount
-            local t1 = to_tank.fluidbox[to_index].temperature
-            local transfer = amount
-            if transfer + a1 >= to_tank_capacity then
-                transfer = to_tank_capacity - a1
-                if transfer <= 0 then break end
-            end
-            to_tank.fluidbox[to_index] = {
-                name = name,
-                amount = transfer + a1,
-                temperature = (a1 * t1 + transfer * t0) / (transfer + a1)
-            }
-            amount = amount - transfer <= 0 and 0 or amount - transfer
-            if amount <= 0 then
-                from_tank.fluidbox[from_index] = nil
-            else
-                from_tank.fluidbox[from_index] = {
-                    name = name,
-                    amount = a0 - transfer,
-                    temperature = t0
-                }
-            end
-        end
-    end
-
-    return amount_to_transfer - amount
+-----------------------------------------------------------------------------------------------Inserting and Extracting things for the Interfaces to load faster---------------------------------------------------------------------------------------------------------------------------
+function BaseNet:add_item_to_interface_cache(itemstack)
+    if itemstack == nil then return end
+    Util.item_add_list_into_table(self.interfaceCache.item[itemstack.name], itemstack)
 end
 
-function BaseNet.transfer_from_drive_to_tank(drive, tank_entity, index, name, amount_to_transfer)
-    local capacity = tank_entity.fluidbox.get_capacity(index)
-    local amount = math.min(amount_to_transfer, capacity)
-    for i=1, 1 do
-        if tank_entity.fluidbox[index] == nil then
-            tank_entity.fluidbox[index] = {
-                name = name,
-                amount = amount,
-                temperature = drive.fluidArray[name].temperature
-            }
-            amount = 0
-            drive:remove_fluid(name, amount)
-        elseif tank_entity.fluidbox[index] ~= nil and tank_entity.fluidbox[index].name == name then
-            local a0 = tank_entity.fluidbox[index].amount
-            local t0 = tank_entity.fluidbox[index].temperature
-            local transfer = amount
-            if transfer + a0 >= capacity then
-                transfer = capacity - a0
-                if transfer <= 0 then break end
+function BaseNet:remove_item_from_interface_cache(itemstack)
+    if itemstack == nil then return end
+    for i, item in pairs(self.interfaceCache.item[itemstack.name]) do
+        local data = Itemstack:reload(item)
+        if data:compare_itemstacks(itemstack, true) == true then
+            local split = data:split(itemstack, itemstack.count, true)
+            if data.count <= 0 then
+                self.interfaceCache.item[itemstack.name][i] = nil
             end
-            tank_entity.fluidbox[index] = {
-                name = name,
-                amount = transfer + a0,
-                temperature = (a0 * t0 + transfer * drive.fluidArray[name].temperature) / (transfer + a0)
-            }
-            amount = amount - transfer <= 0 and 0 or amount - transfer
-            drive:remove_fluid(name, transfer)
+            if split.count == itemstack.count then
+                return
+            end
         end
     end
-
-    return amount_to_transfer - amount
 end
 
-function BaseNet.transfer_from_tank_to_drive(tank_entity, drive, index, name, amount_to_transfer)
-    local amount = amount_to_transfer
+function BaseNet:add_fluid_to_interface_cache(fluid)
+    if fluid == nil then return end
+    Util.fluid_add_list_into_table(self.interfaceCache.fluid[fluid.name], fluid)
+end
 
-    for i=1, 1 do
-        if tank_entity.fluidbox[index] == nil then break end
-        if tank_entity.fluidbox[index].name ~= name then break end
-        local amount0 = tank_entity.fluidbox[index].amount
-        local temp0 = tank_entity.fluidbox[index].temperature
-        local transfered = drive:insert_fluid(name, math.min(amount0, amount), temp0)
-        amount = amount - transfered <= 0 and 0 or amount - transfered
-        if transfered <= 0 then break end
-        if amount0 - transfered <= 0 then
-            tank_entity.fluidbox[index] = nil
-        else
-            tank_entity.fluidbox[index] = {
-                name = name,
-                amount = amount0 - transfered,
-                temperature = temp0
-            }
+function BaseNet:remove_fluid_from_interface_cache(fluidstack)
+    if fluidstack == nil then return end
+    for i, fluid in pairs(self.interfaceCache.fluid[fluidstack.name]) do
+        fluid.amount = fluid.amount - fluidstack.amount
+        if fluid.amount <= 0 then
+            self.interfaceCache.fluid[fluidstack.name][i] = nil
+            return
         end
     end
-
-    return amount_to_transfer - amount
-end]]
+end
 -----------------------------------------------------------------------------------------------Extracting Fluids from the Network---------------------------------------------------------------------------------------------------------------------------
 function BaseNet:extract_fluid_from_drive(to_tank, drive, filter, transportCapacity, fluid_box)
     local fluid = to_tank.thisEntity.fluidbox[fluid_box.index]
@@ -662,6 +592,7 @@ function BaseNet:extract_fluid_from_drive(to_tank, drive, filter, transportCapac
     drive:remove_fluid(filter, takeAmount)
     self:decrease_tracked_fluid_amount(filter, takeAmount)
     self:delta_FluidDrive_Partition(-takeAmount, 0)
+    self:remove_fluid_from_interface_cache({name=filter, amount=takeAmount, temperature=takeTemperature})
 
     local a0 = storedFluidAmount
     local t0 = storedFluidTemperature
@@ -677,7 +608,7 @@ function BaseNet:extract_fluid_from_drive(to_tank, drive, filter, transportCapac
     return transportCapacity
 end
 
-function BaseNet:extract_fluid_from_external(to_tank, external, filter, transportCapacity, storedFluidAmount, storedFluidTemperature, fluid_box)
+function BaseNet:extract_fluid_from_external(to_tank, external, filter, transportCapacity, fluid_box)
     local fluid = to_tank.thisEntity.fluidbox[fluid_box.index]
     local storedFluidAmount = (fluid ~= nil and fluid.amount or 0)
     local storedFluidTemperature = (fluid ~= nil and fluid.temperature or 0)
@@ -804,6 +735,7 @@ function BaseNet:insert_fluid_into_drive(drive, fluid, transportCapacity, from_t
     
     self:increase_tracked_fluid_amount(fluid.name, insertedAmount)
     self:delta_FluidDrive_Partition(insertedAmount, 0)
+    self:add_fluid_from_interface_cache({name=fluid.name, amount=insertedAmount, temperature=fluid.temperature})
     return transportCapacity
 end
 
@@ -859,6 +791,7 @@ function BaseNet:insert_fluid_into_external(external, transportCapacity, fluid_b
     --self:increase_fluid_amount(fluid.name, insertedAmount)
     return transportCapacity
 end
+
 function BaseNet.transfer_from_tank_to_network(network, from_tank, transportCapacity)
     local fluid_box = from_tank.fluid_box
     local fluid = from_tank.thisEntity.fluidbox[fluid_box.index]
@@ -945,209 +878,6 @@ function BaseNet.entity_is_sortable(ent)
     if ent ~= nil and ent.prototype.type == "lab" then return false end
     return true
 end
-
---Meant for exporting from the network. Exporting is always whitelisted
---[[function BaseNet.transfer_from_drive_to_inv(drive_inv, to_inv, itemstack_data, count, allowMetadata)
-    allowMetadata = allowMetadata or false
-    --drive_inv:get_sorted_and_merged_inventory()
-    local amount = count
-    local list = drive_inv.storageArray
-    --local inventory = drive_inv.storageArray.inventory
-    for i=1, 1 do
-        if BaseNet.inventory_is_sortable(to_inv) then to_inv.sort_and_merge() end
-        if list[itemstack_data.cont.name] ~= nil and itemstack_data.modified == false then
-            local item = list[itemstack_data.cont.name]
-            local min = math.min(item.count, amount)
-            if item.count <= 1 and allowMetadata == false then
-                if item.ammo ~= nil and item.ammo ~= itemstack_data.cont.ammo then break end
-                if item.durability ~= nil and item.durability ~= itemstack_data.cont.durability then break end
-            --elseif item.count > 1 and allowMetadata == false then
-                --if item.ammo ~= nil and item.ammo ~= itemstack_data.cont.ammo then min = min - 1 end
-                --if item.durability ~= nil and item.durability ~= itemstack_data.cont.durability then min = min - 1 end
-            end
-            local temp = {
-                name=itemstack_data.cont.name,
-                count=min,
-                durability=not allowMetadata and itemstack_data.cont.durability or item.durability,
-                ammo=not allowMetadata and itemstack_data.cont.ammo or item.ammo
-            }
-            local t = to_inv.insert(temp)
-            amount = amount - t
-            item.count = item.count - t
-            if allowMetadata == false and t > 0 then
-                if item.ammo ~= nil and itemstack_data.cont.ammo == item.ammo then item.ammo = game.item_prototypes[item.name].magazine_size end
-                if item.durability ~= nil and itemstack_data.cont.durability == item.durability then item.durability = game.item_prototypes[item.name].durability end
-            end
-            if item.count <= 0 then
-                list[itemstack_data.cont.name] = nil
-            end
-        end
-        if amount <= 0 then amount = 0 break end
-    end
-    return count - amount
-end
-
-function BaseNet.transfer_from_inv_to_inv(from_inv, to_inv, itemstack_data, external_data, count, allowModified, whitelist)
-    local amount = count
-    allowModified = allowModified or false
-    whitelist = whitelist or false
-    if BaseNet.inventory_is_sortable(from_inv) then from_inv.sort_and_merge() end
-    if BaseNet.inventory_is_sortable(to_inv) then to_inv.sort_and_merge() end
-    
-    for i = 1, #from_inv do
-        local mod = false
-        local itemstack = from_inv[i]
-        if itemstack_data ~= nil and whitelist == true then
-            itemstack, i = from_inv.find_item_stack(itemstack_data.cont.name)
-            if itemstack == nil then break end
-        end
-        if itemstack.count <= 0 then goto continue end
-        local itemstackC = Util.itemstack_convert(itemstack)
-        if itemstack_data ~= nil then
-            if whitelist == false then
-                if game.item_prototypes[itemstackC.cont.name] == game.item_prototypes[itemstack_data.cont.name] then
-                    goto continue
-                else
-                    itemstack_data = Util.itemstack_template(itemstackC.cont.name)
-                end
-            end
-        else
-            itemstack_data = Util.itemstack_template(itemstackC.cont.name)
-        end
-        if external_data ~= nil then
-            if external_data.onlyModified == true and itemstack_data.modified == false and string.match(external_data.io, "input") ~= nil then goto continue end
-            if not Util.filter_accepts_item(external_data.filters.item, external_data.whitelistBlacklist, itemstack_data.cont.name) then goto continue end
-        end
-        local min = math.min(itemstackC.cont.count, amount)
-        if Util.itemstack_matches(itemstack_data, itemstackC, allowModified) == false then
-            if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemstackC.cont.name] then
-                if itemstack_data.cont.ammo and itemstackC.cont.ammo and itemstack_data.cont.ammo > itemstackC.cont.ammo and itemstackC.cont.count > 1 then
-                    mod = true
-                    goto go
-                end
-                if itemstack_data.cont.durability and itemstackC.cont.durability and itemstack_data.cont.durability > itemstackC.cont.durability and itemstackC.cont.count > 1 then
-                    mod = true
-                    goto go
-                end
-            end
-            goto continue
-        end
-        ::go::
-        if itemstackC.modified == false then
-            local temp = {
-                name = itemstackC.cont.name,
-                count = min,
-                durability = not allowModified and itemstack_data.cont.durability or itemstackC.cont.durability,
-                ammo = not allowModified and itemstack_data.cont.ammo or itemstackC.cont.ammo
-            }
-            local inserted = to_inv.insert(temp)
-            amount = amount - inserted
-            itemstack.count = itemstack.count - inserted <= 0 and 0 or itemstack.count - inserted
-            if itemstack.count > 0 and itemstackC.cont.ammo and not allowModified then
-                if mod then itemstack.ammo = itemstackC.cont.ammo end
-            end
-            if itemstack.count > 0 and itemstackC.cont.durability and not allowModified then
-                if mod then itemstack.durability = itemstackC.cont.durability end
-            end
-        else
-            if itemstackC.cont.health ~= 1 then
-                local min1 = math.min(itemstackC.cont.count, amount)
-                local temp = {
-                    name=itemstack_data.cont.name,
-                    count=min1,
-                    health=not allowModified and itemstack_data.cont.health or itemstackC.cont.health,
-                    durability=not allowModified and itemstack_data.cont.durability or itemstackC.cont.durability,
-                    ammo=not allowModified and itemstack_data.cont.ammo or itemstackC.cont.ammo,
-                    tags=not allowModified and itemstack_data.cont.tags or itemstackC.cont.tags
-                }
-                local t = to_inv.insert(temp)
-                amount = amount - t
-                itemstack.count = itemstack.count - t <= 0 and 0 or itemstack.count - t
-            else
-                for j=1, #to_inv do
-                    local item1 = to_inv[j]
-                    item1, j = to_inv.find_empty_stack(itemstackC.name)
-                    if item1 == nil then break end
-                    if item1.count > 0 then goto continue end
-                    if item1.transfer_stack(itemstack) then
-                        amount = amount - itemstack.count
-                        break
-                    end
-                    ::continue::
-                end
-            end
-        end
-        if amount <= 0 then amount = 0 break end
-        ::continue::
-    end
-    return count - amount
-end
-
---Meant for importing from the network. Importing always needs whitelist or blacklist or no filters
-function BaseNet.transfer_from_inv_to_drive(from_inv, drive_inv, itemstack_data, filters, count, allowMetadata, whitelist)
-    whitelist = whitelist or false
-    allowMetadata = allowMetadata or false
-    --drive_inv:get_sorted_and_merged_inventory()
-    local amount = count
-    if BaseNet.inventory_is_sortable(from_inv) then from_inv.sort_and_merge() end
-
-    for i=1, #from_inv do
-        local mod = false
-        local item = from_inv[i]
-        if itemstack_data ~= nil and whitelist == true then
-            item, i = from_inv.find_item_stack(itemstack_data.cont.name)
-            if item == nil then break end
-        end
-        if item.count <= 0 then goto continue end
-        local itemC = Util.itemstack_convert(item)
-        if itemstack_data ~= nil then
-            if whitelist == false then
-                if filters ~= nil and IIO3.matches_filters(itemC.cont.name, filters) == true then
-                    goto continue
-                else
-                    itemstack_data = Util.itemstack_template(itemC.cont.name)
-                end
-            end
-        else
-            itemstack_data = Util.itemstack_template(itemC.cont.name)
-        end
-        if Util.itemstack_matches(itemstack_data, itemC, allowMetadata) == false then
-            if game.item_prototypes[itemstack_data.cont.name] == game.item_prototypes[itemC.cont.name] then
-                if itemstack_data.cont.ammo and itemC.cont.ammo and itemstack_data.cont.ammo < itemC.cont.ammo and itemC.cont.count > 1 then
-                    mod = true
-                    goto go
-                end
-                if itemstack_data.cont.durability and itemC.cont.durability and itemstack_data.cont.durability < itemC.cont.durability and itemC.cont.count > 1 then
-                    mod = true
-                    goto go
-                end
-            end
-            goto continue
-        end
-        ::go::
-        local min = math.min(itemC.cont.count, amount)
-        if itemC.modified == false then
-            local temp = {
-                name=itemstack_data.cont.name,
-                count=min,
-                durability=not allowMetadata and itemstack_data.cont.durability or itemC.cont.durability,
-                ammo=not allowMetadata and itemstack_data.cont.ammo or itemC.cont.ammo,
-            }
-            local t, _ = drive_inv:add_or_merge_basic_item(temp, min)
-            amount = amount - t
-            item.count = item.count - t <= 0 and 0 or item.count - t
-            if item.count > 0 and itemC.cont.ammo and not allowMetadata then
-                item.ammo = itemstack_data.cont.ammo
-            end
-            if item.count > 0 and itemC.cont.durability and not allowMetadata then
-                if mod then item.durability = itemC.cont.durability end
-            end
-        end
-        if amount <= 0 then break end
-        ::continue::
-    end
-    return count - amount
-end]]
 -------------------------------------------------------------------------------------------------Extracting Items from the Network-------------------------------------------------------------------------------------------------------------------------
 function BaseNet:extract_item_from_drive(drive, inv, itemstack_master, storedItem, transferCapacity, exact)
     local removedAmount, stack = drive:remove_item(itemstack_master, math.min(storedItem.count, transferCapacity), exact)
@@ -1155,6 +885,7 @@ function BaseNet:extract_item_from_drive(drive, inv, itemstack_master, storedIte
     if stack ~= nil then inv.insert(stack) end
     self:decrease_tracked_item_count(itemstack_master.name, removedAmount)
     self:delta_ItemDrive_Partition(-removedAmount, 0)
+    self:remove_item_from_interface_cache(stack)
     return transferCapacity
 end
 
@@ -1273,9 +1004,6 @@ function BaseNet.transfer_from_network_to_inv(network, to_inv, itemstack_master,
                     --ID:rebuild(drive)
                     --drive.storageArray[itemstack_master.name] = Itemstack.check_instance(drive.storageArray[itemstack_master.name])
                     local storedItem = drive.storageArray[itemstack_master.name]
-                    game.write_file("check", serpent.block(itemstack_master), true)
-                    game.write_file("check", "\n-------------------------------------------------------------------------------------------------------------\n", true)
-                    game.write_file("check", serpent.block(storedItem), true)
                     if drive:interactable() and storedItem ~= nil and itemstack_master:compare_itemstacks(storedItem, exact) then
                         transferCapacity = network:extract_item_from_drive(drive, inv, itemstack_master, storedItem, transferCapacity, exact)
                         if transferCapacity <= 0 then
@@ -1324,6 +1052,7 @@ function BaseNet:insert_item_into_drive(item, inv_item, drive, transferCapacity,
     end
     self:increase_tracked_item_count(splitStack.name, splitStack.count)
     self:delta_ItemDrive_Partition(splitStack.count, 0)
+    self:add_item_to_interface_cache(splitStack)
     return transferCapacity
 end
 

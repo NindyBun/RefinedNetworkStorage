@@ -256,7 +256,7 @@ function Event.on_marked_for_deconstruction(event)
     local type = entity.type
     if type == "entity-ghost" then return end
 
-	if global.entityTable[entity.unit_number] ~= nil then
+	if global.entityTable[entity.unit_number] ~= nil and global.entityTable[entity.unit_number].createArms then
 		local obj = global.entityTable[entity.unit_number]
 		obj:createArms()
     	BaseNet.postArms(obj)

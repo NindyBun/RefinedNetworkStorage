@@ -424,7 +424,7 @@ function NC:export_fluids()
             local fluid = global.entityTable[v]
             if fluid ~= nil then
                 if fluid.io == "input" then
-                    table.remove(priority.ouput, i)
+                    table.remove(priority.output, i)
                     goto next
                 end
                 fluid:IO()
