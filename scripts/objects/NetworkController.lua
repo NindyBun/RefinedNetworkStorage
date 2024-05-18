@@ -187,7 +187,7 @@ function NC:find_players_with_wirelessTransmitter()
                     end
                 end
             else
-                for _, RNSPlayer in pairs(global.playerTable) do
+                for _, RNSPlayer in pairs(global.PlayerTable) do
                     if RNSPlayer ~= nil and RNSPlayer.thisEntity ~= nil and RNSPlayer.thisEntity.valid == true and self.network.PlayerPorts[RNSPlayer.thisEntity.name] ~= nil and processed_players[RNSPlayer.thisEntity.name] == nil then
                         if RNSPlayer.thisEntity.surface.index ~= transmitter.thisEntity.surface.index then goto next end
                         --local RNSPlayer = getRNSPlayer(player.index)

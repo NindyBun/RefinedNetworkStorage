@@ -165,6 +165,7 @@ function Util.add_list_into_table(tab, list)
 end
 
 function Util.item_add_list_into_table(tab, list)
+	list = Itemstack:reload(list)
 	list = list:copy()
 	for _, v in pairs(tab) do
 		if v:compare_itemstacks(list, true, true) then

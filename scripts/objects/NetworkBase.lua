@@ -543,6 +543,7 @@ end
 -----------------------------------------------------------------------------------------------Inserting and Extracting things for the Interfaces to load faster---------------------------------------------------------------------------------------------------------------------------
 function BaseNet:add_item_to_interface_cache(itemstack)
     if itemstack == nil then return end
+    self.interfaceCache.item[itemstack.name] = self.interfaceCache.item[itemstack.name] or {}
     Util.item_add_list_into_table(self.interfaceCache.item[itemstack.name], itemstack)
 end
 
@@ -564,6 +565,7 @@ end
 
 function BaseNet:add_fluid_to_interface_cache(fluid)
     if fluid == nil then return end
+    self.interfaceCache.fluid[fluid.name] = self.interfaceCache.fluid[fluid.name] or {}
     Util.fluid_add_list_into_table(self.interfaceCache.fluid[fluid.name], fluid)
 end
 
@@ -1121,6 +1123,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                 local inv_item = Itemstack:new(item)
                 if inv_item == nil then goto next end
                 if supportModified == false and inv_item.modified == true then goto next end
+                if inv_item.modified == true and network:is_ItemExternalPartitions_Full() then goto next end
 
                 if network:has_cache("import", "drive", inv_item.name) and inv_item.modified == false then
                     local drive = global.entityTable[network:get_cache("import", "drive", inv_item.name)]
@@ -1159,6 +1162,7 @@ function BaseNet.transfer_from_inv_to_network(network, from_inv, itemstack_maste
                     local priorityD = network.ItemDriveTable[p]
                     local priorityE = network.ExternalIOTable[p].item
                     local b = 0
+                    if inv_item.modified == true and network:is_ItemExternalPartitions_Full() then goto fin end
                     if inv_item.modified == false then
                         for _, drive in pairs(priorityD) do
                             if network:is_ItemDrivePartitions_Full() then b = b + 1 break end
@@ -1245,6 +1249,7 @@ function BaseNet.transfer_from_cursor_to_network(network, item, transferCapacity
             local priorityD = network.ItemDriveTable[p]
             local priorityE = network.ExternalIOTable[p].item
             local b = 0
+            if inv_item.modified == true and network:is_ItemExternalPartitions_Full() then goto fin end
             if inv_item.modified == false then
                 for _, drive in pairs(priorityD) do
                     if network:is_ItemDrivePartitions_Full() then b = b + 1 break end
