@@ -737,7 +737,7 @@ function BaseNet:insert_fluid_into_drive(drive, fluid, transportCapacity, from_t
     
     self:increase_tracked_fluid_amount(fluid.name, insertedAmount)
     self:delta_FluidDrive_Partition(insertedAmount, 0)
-    self:add_fluid_from_interface_cache({name=fluid.name, amount=insertedAmount, temperature=fluid.temperature})
+    self:add_fluid_to_interface_cache({name=fluid.name, amount=insertedAmount, temperature=fluid.temperature})
     return transportCapacity
 end
 
