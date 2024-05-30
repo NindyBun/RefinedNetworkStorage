@@ -280,7 +280,7 @@ function EIO:update(network)
                 if j > #self.cache then
                     if itemstack.name ~= "RNS_Empty" then
                         network:increase_tracked_item_count(itemstack.name, itemstack.count)
-                        network:add_item_from_interface_cache(itemstack)
+                        network:add_item_to_interface_cache(itemstack)
                         self.cache[j] = itemstack
                     end
                     goto continue
@@ -296,19 +296,19 @@ function EIO:update(network)
                     self.cache[j] = {name = "RNS_Empty", count = 0}
                 elseif cached.name == "RNS_Empty" and itemstack.name ~= "RNS_Empty" then
                     network:increase_tracked_item_count(itemstack.name, itemstack.count)
-                    network:add_item_from_interface_cache(itemstack)
+                    network:add_item_to_interface_cache(itemstack)
                     self.cache[j] = itemstack
                 elseif cached:compare_itemstacks(itemstack, true, true) == false then
                     network:decrease_tracked_item_count(cached.name, cached.count)
                     network:remove_item_from_interface_cache(cached)
                     network:increase_tracked_item_count(itemstack.name, itemstack.count)
-                    network:add_item_from_interface_cache(itemstack)
+                    network:add_item_to_interface_cache(itemstack)
                     self.cache[j] = itemstack
                 elseif cached.count ~= itemstack.count then
                     local delta = itemstack.count - cached.count
                     if delta > 0 then
                         network:increase_tracked_item_count(itemstack.name, delta)
-                        network:add_item_from_interface_cache(itemstack)
+                        network:add_item_to_interface_cache(itemstack)
                         cached.count = cached.count + delta
                     else
                         network:decrease_tracked_item_count(itemstack.name, math.abs(delta))
@@ -344,19 +344,19 @@ function EIO:update(network)
             self.cache[1] = nil
         elseif fluid ~= nil and cached == nil then
             network:increase_tracked_fluid_amount(fluid.name, fluid.amount)
-            network:add_fluid_from_interface_cache(fluid)
+            network:add_fluid_to_interface_cache(fluid)
             self.cache[1] = fluid
         elseif fluid.name ~= cached.name or fluid.tempurature ~= cached.tempurature then
             network:decrease_tracked_fluid_amount(cached.name, cached.amount)
             network:remove_fluid_from_interface_cache(cached)
             network:increase_tracked_fluid_amount(fluid.name, fluid.amount)
-            network:add_fluid_from_interface_cache(fluid)
+            network:add_fluid_to_interface_cache(fluid)
             self.cache[1] = fluid
         elseif fluid.amount ~= cached.amount then
             local delta = fluid.amount - cached.amount
             if delta > 0 then
                 network:increase_tracked_fluid_amount(fluid.name, delta)
-                network:add_fluid_from_interface_cache(fluid)
+                network:add_fluid_to_interface_cache(fluid)
                 cached.amount = cached.amount + delta
             else
                 network:decrease_tracked_fluid_amount(fluid.name, math.abs(delta))
